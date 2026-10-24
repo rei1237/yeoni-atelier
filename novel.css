@@ -1,0 +1,118 @@
+/* 라이트노벨식 대화 화면. 토큰은 code-destiny 소설 읽기 화면의 값을 참고했다(남색·금·유리). */
+.novel {
+  --nv-navy: #0B1026; --nv-gold: #C9A227; --nv-gold-soft: #e9c46a; --nv-ink: rgba(232, 228, 217, 0.92);
+  --nv-glass: rgba(6, 8, 22, 0.86); --nv-ease: cubic-bezier(.22, 1, .36, 1);
+  position: fixed; inset: 0; z-index: 50; overflow: hidden; background: var(--nv-navy); color: var(--nv-ink);
+  max-width: 520px; margin: 0 auto; cursor: pointer;
+}
+.novel[hidden] { display: none; }
+.novel.shake { animation: nv-shake 0.42s var(--nv-ease); }
+
+/* 배경: 두 장을 겹쳐 교차 페이드, 켄 번스 */
+.nv-bg, .nv-bg-layer, .nv-stars, .nv-fx { position: absolute; inset: 0; }
+.nv-bg-layer { opacity: 0; transition: opacity 1.1s var(--nv-ease); transform-origin: 50% 60%; }
+.nv-bg-layer.on { opacity: 1; animation: nv-kenburns 18s ease-in-out infinite alternate; }
+.bg-river_night {
+  background:
+    radial-gradient(ellipse 60% 22% at 70% 18%, rgba(229, 197, 142, 0.35), transparent 70%),
+    linear-gradient(180deg, #0b1220 0%, #1a2142 46%, #2b2a55 58%, #3f4f86 60%, #1b2a4a 66%, #0e1630 100%);
+}
+.bg-atelier_dark {
+  background:
+    radial-gradient(ellipse 40% 30% at 50% 40%, rgba(229, 197, 142, 0.12), transparent 70%),
+    linear-gradient(180deg, #1c1626 0%, #2a2030 50%, #3a2a2a 70%, #1a1218 100%);
+}
+.bg-atelier_lit {
+  background:
+    radial-gradient(ellipse 55% 35% at 50% 35%, rgba(255, 214, 150, 0.55), transparent 70%),
+    linear-gradient(180deg, #5b3d4a 0%, #8a5a52 45%, #c58b5f 70%, #6a4436 100%);
+}
+.nv-stars {
+  background-image:
+    radial-gradient(1px 1px at 12% 14%, #fff, transparent), radial-gradient(1px 1px at 28% 32%, #e5c58e, transparent),
+    radial-gradient(1.5px 1.5px at 44% 9%, #fff, transparent), radial-gradient(1px 1px at 63% 26%, #fff, transparent),
+    radial-gradient(1px 1px at 81% 12%, #e9c46a, transparent), radial-gradient(1.5px 1.5px at 90% 38%, #fff, transparent),
+    radial-gradient(1px 1px at 7% 44%, #b9a3e3, transparent), radial-gradient(1px 1px at 55% 46%, #fff, transparent);
+  opacity: 0.8; animation: nv-twinkle 4s ease-in-out infinite alternate; pointer-events: none;
+}
+.nv-fx { pointer-events: none; opacity: 0; }
+.nv-fx.flash { background: #fff6d8; }
+.nv-fx.glow { background: radial-gradient(circle at 70% 55%, rgba(232, 213, 163, 0.95), rgba(232, 213, 163, 0) 60%); }
+.nv-fx.go { animation: nv-flash 0.9s var(--nv-ease); }
+
+/* 초상화 3칸. 말하지 않는 사람은 어둡게 */
+.nv-portraits { position: absolute; left: 0; right: 0; bottom: 168px; height: min(52vw, 260px); pointer-events: none; }
+.nv-pt {
+  position: absolute; bottom: 0; width: min(52vw, 260px); height: min(52vw, 260px);
+  image-rendering: pixelated; opacity: 0; transform: translateY(12px); transition: opacity .35s var(--nv-ease), transform .35s var(--nv-ease), filter .35s;
+}
+.nv-pt.l { left: -4%; } .nv-pt.c { left: 50%; margin-left: max(-26vw, -130px); } .nv-pt.r { right: -4%; transform: translateY(12px) scaleX(-1); }
+.nv-pt.show { opacity: 1; transform: none; } .nv-pt.r.show { transform: scaleX(-1); }
+.nv-pt.dim { filter: brightness(0.45) saturate(0.6); }
+
+/* 대화창: 유리 + 금테 + 안쪽 테 */
+.nv-box {
+  position: absolute; left: 12px; right: 12px; bottom: calc(60px + env(safe-area-inset-bottom, 0px)); min-height: 104px;
+  padding: 22px 18px 26px; border-radius: 24px 24px 24px 10px; background: var(--nv-glass);
+  border: 1px solid rgba(233, 196, 106, 0.4); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: opacity .3s var(--nv-ease); outline: none;
+}
+.nv-box::before { content: ''; position: absolute; inset: 9px; border-radius: 18px 18px 18px 6px; border: 1px solid rgba(233, 196, 106, 0.16); pointer-events: none; }
+.nv-box.hide { opacity: 0; }
+.nv-box:focus-visible { box-shadow: 0 0 0 3px var(--nv-gold-soft); }
+.nv-name {
+  position: absolute; top: -14px; left: 18px; padding: 3px 14px; border-radius: 999px;
+  background: linear-gradient(90deg, #fff6d8, #e7c66a 55%, #f7a8c8); color: #2a1a2a;
+  font: 700 14px/1.5 'Noto Serif KR', 'Nanum Myeongjo', serif; letter-spacing: 0.04em; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.nv-name[hidden] { display: none; }
+.nv-text { margin: 0; font: 500 16px/1.7 'Noto Serif KR', 'Nanum Myeongjo', serif; white-space: pre-wrap; word-break: keep-all; user-select: text; }
+.nv-next { position: absolute; right: 16px; bottom: 8px; font-size: 11px; color: var(--nv-gold-soft); opacity: 0; }
+.nv-next.on { opacity: 1; animation: nv-bob 1s ease-in-out infinite; }
+
+/* 말하는 이별 테마 */
+.who-yeoni { border-color: rgba(247, 168, 200, 0.55); }
+.who-neo { border-color: rgba(185, 34, 43, 0.5); } .who-neo .nv-name { color: #2a1a10; }
+.who-neo_cat { border-color: rgba(125, 107, 214, 0.6); }
+.sp-nar .nv-text { font-style: italic; color: rgba(232, 228, 217, 0.82); }
+.sp-sys .nv-text { text-align: center; font: 600 14px/1.7 system-ui, sans-serif; color: #dcd3ff; }
+.sp-impact .nv-text { text-align: center; font: 800 24px/1.5 'Noto Serif KR', serif; color: #ffe6c9; text-shadow: 0 0 12px rgba(255, 180, 120, 0.6); }
+
+/* 도구 줄 */
+.nv-tools {
+  position: absolute; left: 0; right: 0; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 6px; justify-content: center; padding: 0 12px;
+}
+.nv-tools button {
+  min-height: 40px; min-width: 44px; padding: 4px 10px; border-radius: 999px; font: 700 12px/1 system-ui, sans-serif; letter-spacing: 0.06em;
+  background: rgba(6, 8, 22, 0.6); color: var(--nv-gold-soft); box-shadow: inset 0 0 0 1px rgba(233, 196, 106, 0.35);
+}
+.nv-tools button.on { background: var(--nv-gold-soft); color: #1a1220; }
+.nv-tools .nv-end { margin-left: auto; }
+
+/* 장 제목 카드 */
+.nv-chapter { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; opacity: 0; }
+.nv-chapter[hidden] { display: none; }
+.nv-chapter.go { animation: nv-chapter 2.3s var(--nv-ease) forwards; }
+.nv-chapter small { font: 700 12px/1 system-ui, sans-serif; letter-spacing: 0.4em; color: var(--nv-gold-soft); }
+.nv-chapter b { font: 800 24px/1.4 'Noto Serif KR', serif; color: #fff6d8; }
+.nv-chapter i { display: block; width: min(340px, 60vw); height: 1px; background: linear-gradient(90deg, transparent, var(--nv-gold), transparent); }
+
+/* 대사 기록 */
+.nv-log { position: absolute; inset: 0; z-index: 2; background: rgba(6, 8, 22, 0.94); display: flex; flex-direction: column; padding: 16px; gap: 10px; cursor: default; }
+.nv-log[hidden] { display: none; }
+.nv-log-list { flex: 1; overflow-y: auto; font: 14px/1.7 'Noto Serif KR', serif; }
+.nv-log-list p { margin: 0 0 10px; } .nv-log-list b { color: var(--nv-gold-soft); margin-right: 8px; }
+.nv-log-list .who-sys { color: #dcd3ff; } .nv-log-list .who-nar { font-style: italic; opacity: 0.85; }
+.nv-log button { align-self: center; min-width: 120px; background: var(--nv-gold-soft); color: #1a1220; }
+
+@keyframes nv-kenburns { from { transform: scale(1.04) translate(0, 0); } to { transform: scale(1.12) translate(-2%, -1.5%); } }
+@keyframes nv-twinkle { from { opacity: 0.5; } to { opacity: 0.95; } }
+@keyframes nv-flash { 0% { opacity: 0; } 20% { opacity: 0.9; } 100% { opacity: 0; } }
+@keyframes nv-shake { 0%, 100% { transform: none; } 20% { transform: translate(-6px, 2px); } 40% { transform: translate(5px, -3px); } 60% { transform: translate(-4px, 1px); } 80% { transform: translate(3px, 0); } }
+@keyframes nv-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+@keyframes nv-chapter { 0% { opacity: 0; } 30% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-bg-layer.on, .nv-stars, .nv-next.on { animation: none; }
+  .nv-chapter.go { animation: none; opacity: 1; }
+}

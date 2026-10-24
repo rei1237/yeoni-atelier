@@ -1,0 +1,14 @@
+{
+  "name": "yeoni-atelier",
+  "version": "0.1.0",
+  "private": true,
+  "description": "연이의 아틀리에 — 1단계 기반 프로토타입 (Canvas 2D + ES module, 빌드 없음)",
+  "type": "module",
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "test": "node --test \"tests/*.test.mjs\""
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

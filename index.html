@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#f3e6d6">
+  <title>연이의 아틀리에 (1단계 프로토타입)</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="novel.css">
+</head>
+<body>
+  <div id="app">
+    <header id="topbar" class="topbar" aria-live="off"></header>
+    <main id="stage" class="stage">
+      <canvas id="view" aria-label="카페 화면"></canvas>
+      <div id="hits" class="hits"></div>
+      <div id="bubbles" class="bubbles" aria-live="polite"></div>
+      <div id="floaters" class="floaters" aria-hidden="true"></div>
+    </main>
+    <footer id="panel" class="panel"></footer>
+  </div>
+  <div id="sheet-wrap" class="sheet-wrap" hidden>
+    <div class="sheet-dim" data-action="sheet.close"></div>
+    <section id="sheet" class="sheet" role="dialog" aria-modal="true"></section>
+  </div>
+  <div id="overlay" class="overlay" hidden></div>
+  <div id="novel" class="novel" hidden></div>
+  <div id="toasts" class="toasts" aria-live="assertive"></div>
+  <noscript>이 게임은 자바스크립트가 필요합니다.</noscript>
+  <script type="module" src="src/ui/app.js"></script>
+</body>
+</html>
