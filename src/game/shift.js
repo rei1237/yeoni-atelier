@@ -3,7 +3,7 @@
 
 import { RULES } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
-import { emit, usableHosts, emptyStations } from './state.js';
+import { emit, usableHosts, emptyStations, shiftDuration, lastAcceptAt } from './state.js';
 import { setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave } from './cafe.js';
 import { settleDue, settleHosting, hostingVisits, stepHosting, onRequesting } from './nomination.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
@@ -32,7 +32,7 @@ export function startShift(state) {
   state.paused = false;
   state.fever = { gauge: 0, activeUntil: null };
   state.shift = {
-    id: `shift-${state.day}`, day: state.day, elapsedMs: 0,
+    id: `shift-${state.day}`, day: state.day, elapsedMs: 0, durationMs: RULES.SHIFT_MS, nominationMs: RULES.NOMINATION_MS,
     nextSpawnAt: TEMP.SPAWN_FIRST_MS, scriptIndex: state.stats.shiftsCompleted === 0 ? 0 : FIRST_SHIFT_SCRIPT.length,
     sales: 0, ingredientCost: 0, baseTips: 0, feverTips: 0, servedCount: 0, lostOrders: 0, wasted: 0,
     spawnCount: 0, regularVisits: 0, nominationVisits: 0, hostings: [], autoAt: 0,
@@ -44,6 +44,7 @@ export function startShift(state) {
 
 function nextSpec(state) {
   const sh = state.shift;
+  if (!state.hostbar.open) return { kind: 'regular' };
   if (sh.scriptIndex < FIRST_SHIFT_SCRIPT.length) {
     const spec = { ...FIRST_SHIFT_SCRIPT[sh.scriptIndex++] };
     if (spec.kind === 'nomination') spec.nominee = 'neo';
@@ -51,14 +52,14 @@ function nextSpec(state) {
   }
   const hosts = usableHosts(state).filter(id => state.staff[id]);
   // 지명 요청은 아직 수락할 시간이 남아 있을 때만 생긴다. 지명 대상은 접대 가능한 동료뿐이다.
-  const canNominate = hosts.length && sh.elapsedMs < RULES.LAST_ACCEPT_ELAPSED_MS - 20000;
+  const canNominate = hosts.length && sh.elapsedMs < lastAcceptAt(state) - 20000;
   if (canNominate && nextRandom(state.rng) < TEMP.NOMINATE_CHANCE) return { kind: 'nomination', nominee: pick(state.rng, hosts) };
   return { kind: 'regular' };
 }
 
 function stepSpawn(state) {
   const sh = state.shift;
-  if (sh.elapsedMs < sh.nextSpawnAt || sh.elapsedMs >= TEMP.LAST_SEATING_ELAPSED_MS) return;
+  if (sh.elapsedMs < sh.nextSpawnAt || sh.elapsedMs >= shiftDuration(state) - 80000) return;
   if (!state.tables.some(t => t.state === 'empty')) { sh.nextSpawnAt = sh.elapsedMs + 2000; return; }
   spawnCustomer(state, nextSpec(state));
   // 테이블이 늘면 손님 간격이 그만큼 짧아진다(임시)
@@ -71,7 +72,7 @@ function stepSpawn(state) {
 // → 5 조리 → 6 직원 이동·운반·정리 → 7 손님 → 8 입장 → 9 자동 운영 → 10 30:00 이면 마감
 export function stepShift(state, dt, autoStep) {
   const sh = state.shift;
-  const step = Math.max(0, Math.min(dt, RULES.SHIFT_MS - sh.elapsedMs));
+  const step = Math.max(0, Math.min(dt, shiftDuration(state) - sh.elapsedMs));
   sh.elapsedMs += step;
   settleDue(state);
   if (state.fever.activeUntil != null && sh.elapsedMs >= state.fever.activeUntil) { state.fever.activeUntil = null; emit('feverOff'); }
@@ -81,7 +82,7 @@ export function stepShift(state, dt, autoStep) {
   stepCustomers(state, step, { onRequesting });
   stepSpawn(state);
   if (autoStep && (state.auto || state.autoKitchen)) autoStep(state);
-  if (sh.elapsedMs >= RULES.SHIFT_MS) closeShift(state);
+  if (sh.elapsedMs >= shiftDuration(state)) closeShift(state);
 }
 
 export function closeShift(state) {

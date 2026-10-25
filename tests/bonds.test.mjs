@@ -11,6 +11,7 @@ const B = TEMP.BONDS;
 
 test('대화: 행동력 1, 같은 순 같은 동료는 한 번 · 선물은 골드가 들고 순마다 한 번', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   const ap0 = s.ap.left;
   const r = dispatch(s, { type: 'bond.talk', id: 'luna' });
   assert.ok(r.ok, r.reason);
@@ -31,6 +32,7 @@ test('대화: 행동력 1, 같은 순 같은 동료는 한 번 · 선물은 골�
 
 test('능력: 단계를 넘으면 재료값·환전·사냥 HP 에 붙고, 인연 이야기는 달 이야기 뒤에 나온다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 10000; // 테스트 준비
   s.affinity = { neo: B.TIERS[0], luna: 0, luna_sis: B.TIERS[2], moka: B.TIERS[0] };
   const fx = bondFx(s.affinity);

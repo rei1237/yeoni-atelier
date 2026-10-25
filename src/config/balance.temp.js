@@ -10,7 +10,7 @@ export const TEMP = Object.freeze({
   // ── 손님
   SPAWN_FIRST_MS: 4000,
   SPAWN_INTERVAL_MS: Object.freeze([16000, 30000]),
-  LAST_SEATING_ELAPSED_MS: 1680 * 1000, // 28:00 이후 새 손님 입장 없음
+  LAST_SEATING_ELAPSED_MS: 520 * 1000, // 08:40 이후 새 손님 입장 없음
   NOMINATE_CHANCE: 0.38,
   ORDER_THINK_MS: 3000,       // 착석 후 주문까지
   EAT_MS: 26000,              // 일반 손님 식사 시간
@@ -23,13 +23,13 @@ export const TEMP = Object.freeze({
   WAIT_PENALTY_PER_MS: 3000,  // 유예 후 3초마다 1점
 
   // ── 접대 도움 요청(대화 보정 -5~+5 범위 안)
-  HELP_AT_MS: Object.freeze([95000, 135000, 170000]), // 수락 기준
-  HELP_WINDOW_MS: 15000,
+  HELP_AT_MS: Object.freeze([12000, 28000, 44000]), // 수락 기준
+  HELP_WINDOW_MS: 10000,
   HELP_GAIN_GOOD: 2,
   HELP_GAIN_OK: 1,
   HELP_MISS: -1,
-  EXTRA_ORDER_AT_MS: 190000,  // 추가 주문 시점(수락 기준)
-  FEVER_EVAL_AT_MS: 60000,    // 방문당 첫 유효 평가 시점(수락 기준)
+  EXTRA_ORDER_AT_MS: 20000,  // 추가 주문 시점(수락 기준)
+  FEVER_EVAL_AT_MS: 10000,    // 방문당 첫 유효 평가 시점(수락 기준)
 
   // ── 이동
   WALK_TILES_PER_S: 3.2,

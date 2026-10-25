@@ -436,6 +436,7 @@ export function customerLeave(state, c, reason) {
 }
 
 export function spawnCustomer(state, spec) {
+  if (!state.hostbar.open && spec.kind === 'nomination') spec = { ...spec, kind: 'regular', nominee: null };
   const empty = state.tables.filter(t => t.state === 'empty');
   if (!empty.length) return null;
   const t = pick(state.rng, empty);

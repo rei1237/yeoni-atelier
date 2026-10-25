@@ -10,7 +10,7 @@ import { NEO_STATS } from '../config/rules.js';
 export const PEOPLE = Object.freeze({
   yeoni: { id: 'yeoni', name: '연이', role: 'owner', work: 'cashier', color: '#f2a1b3', canServe: false, canHost: false },
   neo: {
-    id: 'neo', name: '네오', role: 'host', color: '#5b6fb0', canServe: true, canHost: true,
+    id: 'neo', name: '네오', role: 'host', color: '#5b6fb0', canServe: false, canHost: true,
     stats: NEO_STATS,
     forms: { human: { name: '네오', color: '#5b6fb0' }, cat: { name: '영냥이', color: '#3b3f57' } },
   },

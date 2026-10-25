@@ -109,6 +109,7 @@ function huntRun(s, ms, input, step = 500) {
 
 test('월정석 사냥: 네오가 영냥이로 변하고, 모은 월정석은 저장·복원과 무관하게 1회 지급', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
   assert.deepEqual([s.people.neo.activity, s.people.neo.form], ['hunting', 'cat']);
   assert.equal(dispatch(s, { type: 'shift.start' }).ok, false, '사냥 중 영업 시작 불가');
@@ -133,6 +134,7 @@ test('월정석 사냥: 네오가 영냥이로 변하고, 모은 월정석은 �
 
 test('[자동 시계] 탐색 타이머: 쓰러지지 않으면 정확히 3분(180초)에 끝난다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   dispatch(s, { type: 'hunt.start' });
   s.hunt.hp = s.hunt.maxHp = 1e9; // 타이머만 떼어 보기 위해 HP 를 크게(테스트 준비)
   huntRun(s, 179900, { x: 0.3, y: -0.2 });
@@ -149,6 +151,7 @@ test('[자동 시계] 탐색 타이머: 쓰러지지 않으면 정확히 3분(18
 
 test('[자동 시계] 탐색 중 HP 0 이면 3분 전에 쓰러짐으로 끝나고 결과 화면으로 간다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   dispatch(s, { type: 'hunt.start' });
   huntRun(s, 180000, { x: 0, y: 0 }, 1000); // 가만히 서 있으면 포위당한다
   assert.equal(s.hunt.status, 'down');
@@ -160,6 +163,7 @@ test('[자동 시계] 탐색 중 HP 0 이면 3분 전에 쓰러짐으로 끝나�
 
 test('탐색 레벨업: 카드를 고르기 전에는 시간이 멈추고, 고른 카드가 적용되며 저장에도 남는다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   dispatch(s, { type: 'hunt.start' });
   s.hunt.xp = s.hunt.xpNext - 1; // 별조각 하나면 레벨업하도록(테스트 준비)
   s.hunt.picks.push([{ kind: 'weapon', id: 'orbit' }, { kind: 'passive', id: 'paw' }]); // 대기 카드를 직접 넣어 확인
@@ -179,6 +183,7 @@ test('탐색 레벨업: 카드를 고르기 전에는 시간이 멈추고, 고�
 
 test('탐색 진화: 무기 5레벨 + 짝 보조 능력이면 진화한다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   dispatch(s, { type: 'hunt.start' });
   s.hunt.weapons = [{ id: 'bolt', level: 4, evo: false }]; // 테스트 준비
   s.hunt.picks.push([{ kind: 'weapon', id: 'bolt' }]);
@@ -192,6 +197,7 @@ test('탐색 진화: 무기 5레벨 + 짝 보조 능력이면 진화한다', () 
 
 test('인테리어: 취소하면 원래 배치로, 적용한 배치는 통로가 유효, 영업 중 편집 불가', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   const original = structuredClone(s.interior.furniture);
   assert.ok(dispatch(s, { type: 'interior.begin' }).ok);
   dispatch(s, { type: 'interior.move', uid: 'plant1', x: 1, y: 9 });
@@ -229,7 +235,9 @@ test('영입: 조건 전에는 사용 불가 → 이벤트 완료 → 보상 1�
   // 일반 게임에는 영입 후보 자체가 없다(공식 자료 없음)
   assert.deepEqual(recruitView(createGame()), []);
 
-  const s = createGame({ dev: true }); // 개발용 임시 동료(정식 멤버 아님)
+  const s = createGame({ dev: true });
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
+  // 개발용 임시 동료(정식 멤버 아님)
   const id = 'dev_temp_01';
   assert.equal(recruitView(s)[0].status, 'locked');
   assert.equal(dispatch(s, { type: 'recruit.complete', id }).ok, false);

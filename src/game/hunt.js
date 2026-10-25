@@ -32,6 +32,7 @@ export const gemTier = v => (v < 4 ? 0 : v < 20 ? 1 : 2);
 
 export function huntCheck(state) {
   const reasons = [];
+  if (!state.huntUnlocked) reasons.push('아직 사냥터 이야기를 보지 않았습니다');
   const busy = state.shift ? personBusyReason(state, 'neo') : null;
   if (busy) reasons.push(busy);
   else if (state.people.neo.activity !== 'idle') reasons.push('네오가 다른 활동 중입니다');

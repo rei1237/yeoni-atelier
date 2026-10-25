@@ -4,6 +4,7 @@
 export const OUTFIT_SLOTS = Object.freeze(['outfit', 'acc1', 'acc2']);
 
 export const OUTFITS = Object.freeze({
+  host_first: { id: 'host_first', slot: 'outfit', who: 'neo', name: '달빛 첫인사', color: '#293450', temp: true, unlock: { type: 'event', key: 'm2' } },
   apron_spring: { id: 'apron_spring', slot: 'outfit', name: '봄빛 앞치마', color: '#f7c6d0' },
   vest_night: { id: 'vest_night', slot: 'outfit', name: '밤하늘 조끼', color: '#3f4a7a' },
   pin_star: { id: 'pin_star', slot: 'acc', name: '별 머리핀', color: '#f3d36b' },

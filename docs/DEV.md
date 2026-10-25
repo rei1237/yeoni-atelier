@@ -16,7 +16,7 @@ src/game/                     게임 규칙(순수 JS, DOM 없음)
   state.js                    createGame, 명단·인물 잠금 도우미, 이벤트
   shift.js                    영업 시작·마감·정산
   cafe.js                     손님·주문·조리·서빙·정리·직원 이동
-  nomination.js               지명 요청·수락·300초 잠금·도움 요청·피버
+  nomination.js               지명 요청·수락·60초 잠금·도움 요청·피버
   satisfaction.js             M/H/상한/판정/팁/피버 적립 공식(순수 함수)
   auto.js                     자동 운영(플레이어와 같은 명령 사용)
   economy.js                  구매(모카 식재료점/긴급 배달)·상환·퀘스트·영입·의상
@@ -69,7 +69,7 @@ tools/serve.mjs               정적 서버
 | 상태 | 위치 | 코드 |
 | --- | --- | --- |
 | 영업 경과 시간 | `state.shift.elapsedMs` | [shift.js](../src/game/shift.js) |
-| 지명 300초 | `state.visits[vid].hosting.endAt`, `state.people.neo.endAt` | [nomination.js](../src/game/nomination.js) |
+| 지명 60초 | `state.visits[vid].hosting.endAt`, `state.people.neo.endAt` | [nomination.js](../src/game/nomination.js) |
 | 만족도 | `hostingScore()` | [satisfaction.js](../src/game/satisfaction.js) |
 | 피버 | `state.fever = { gauge, activeUntil }` | [nomination.js](../src/game/nomination.js) |
 | 금화·빚 | `state.gold`, `state.debt`, `state.ledger` | [economy.js](../src/game/economy.js) |
@@ -112,7 +112,7 @@ tools/serve.mjs               정적 서버
 ## 개발 모드 (`?dev=1`)
 
 - 별도 저장 키를 쓴다.
-- 배속은 저장하지 않는다. 정규 시간 규칙(1,800초·300초)은 그대로이고, 시뮬레이션 진행 속도만 빨라진다.
+- 배속은 저장하지 않는다. 정규 시간 규칙(600초·60초)은 그대로이고, 시뮬레이션 진행 속도만 빨라진다.
 - `+60초 진행` 버튼이 있다.
 - 개발용 임시 동료 `dev_temp_01` 로 영입 흐름을 검증한다.
   - 정식 멤버가 아니다.
@@ -139,7 +139,11 @@ npm test
 
 결과: 39개 통과(rules 7, shift 11, persistence 11, recipe 4, town 6). 2026-10-25 에 `npm test` 로 실행했다.
 
-- `[자동 시계]` 가 붙은 테스트는 엔진 `tick` 으로 30분 영업이나 3분 사냥을 수 초 안에 진행한 것이다.
-- **실제 사용자의 30분 플레이테스트가 아니다.** 사람이 30분 동안 직접 플레이하는 테스트는 아직 하지 않았다.
+- `[자동 시계]` 가 붙은 테스트는 엔진 `tick` 으로 10분 영업이나 3분 사냥을 수 초 안에 진행한 것이다.
+- **실제 사용자의 10분 플레이테스트가 아니다.** 사람이 10분 동안 직접 플레이하는 테스트는 아직 하지 않았다.
 
 시작 가게는 2인 테이블 세트 5개다. 6번째부터 2,500G로 시작해 구매가가 증가한다(임시). 기존 저장의 가구·구매 내역은 유지한다.
+
+## 모바일 개편 상태 (2026-10-25)
+
+저장 버전 2. `hostbar.open/openedDay`, `huntUnlocked`, `neoStress`를 저장한다. `story.seen`은 현재 pendingStory만 기록하며 중복은 무지급 성공으로 처리한다. 순서는 달 → ev:hunt → 인연이다. 5월 개시 정장은 `outfit:host_first` 원장으로 1회 지급한다. 기존 v1의 5월 이후 저장은 개시, 첫 순 이후나 사냥 이력이 있으면 사냥을 해금한다. 진행 중 v1 영업은 durationMs=1800000/nominationMs=300000을 보존하고 다음 영업부터 600000/60000을 쓴다.

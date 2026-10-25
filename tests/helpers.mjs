@@ -8,6 +8,7 @@ import { spawnCustomer } from '../src/game/cafe.js';
 // 주방 자동(기본 켜짐)도 끈다: 조리·서빙을 테스트가 명령으로 직접 낸다. 자동을 보는 테스트는 kitchen=true.
 export function quietShift({ dev = false, kitchen = false } = {}) {
   const s = createGame({ dev });
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.autoKitchen = kitchen;
   const r = dispatch(s, { type: 'shift.start' });
   assert.ok(r.ok, r.reason);

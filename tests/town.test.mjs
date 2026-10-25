@@ -14,6 +14,7 @@ import { quietShift, seat } from './helpers.mjs';
 
 test('루나의 저울: 월정석을 고정 환율로 골드로 바꾸고, 부족하면 거절', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.moonstone = 12; // 테스트 준비
   const g0 = s.gold;
   const r = dispatch(s, { type: 'moonstone.exchange', qty: 10 });
@@ -36,6 +37,7 @@ test('마을은 영업 준비 중에만: 영업 중에는 환전·장비·확장
 
 test('무인 장비 좌판: 사면 빈 칸에 장착되고, 사냥 시작 때 효과가 적용된다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 5000; // 테스트 준비
   assert.ok(dispatch(s, { type: 'gear.buy', id: 'scale_vest' }).ok);
   assert.equal(s.gold, 5000 - GEAR.scale_vest.cost.gold);
@@ -51,6 +53,7 @@ test('무인 장비 좌판: 사면 빈 칸에 장착되고, 사냥 시작 때 �
 
 test('모카 식재료점: 준비 중엔 재료값만, 영업 중엔 긴급 배달비가 붙는다 · 밤이슬 퀘스트 진행', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 1000;
   const r = dispatch(s, { type: 'shop.buy', ingredientId: 'night_dew', qty: 1 });
   assert.ok(r.ok, r.reason);
@@ -69,6 +72,7 @@ test('모카 식재료점: 준비 중엔 재료값만, 영업 중엔 긴급 배�
 
 test('가게 확장: 테이블 값은 들일수록 오르고, 6·7번 테이블에도 다음 영업에서 손님이 앉는다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 20000;
   const p4 = tablePrice(5), p5 = tablePrice(6);
   assert.equal(p4, TEMP.TABLE_PRICE_BASE);
@@ -90,6 +94,7 @@ test('가게 확장: 테이블 값은 들일수록 오르고, 6·7번 테이블�
 
 test('공방 증축: 잠긴 구역에는 가구를 못 놓고, 열 때마다 다음 구역이 비싸진다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   const [a] = AREAS;
   const [x, y] = a.rect;
   const plant = s.interior.furniture.find(f => f.uid === 'plant1');
@@ -111,6 +116,7 @@ test('공방 증축: 잠긴 구역에는 가구를 못 놓고, 열 때마다 다
 
 test('장식 들이기는 보관함으로 오고, 월정석·장비는 저장 후에도 그대로', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 2000;
   s.moonstone = 40;
   const n0 = s.interior.furniture.length;

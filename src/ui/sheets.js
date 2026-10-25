@@ -127,12 +127,12 @@ function nominationCard(state, visit, c, now, foodText, ui) {
     out.push(`<h3>예상 접대 만족도</h3>${predictionHtml(pv, '수락하면 이 값에서 시작')}`);
     const chk = acceptCheck(state, visit.tableNo);
     const left = TEMP.NOMINATION_PATIENCE_MS - (now - visit.requestAt);
-    out.push(`<p class="small">⏳ 지명 요청 대기 ${fmtTime(left)} 남음 · 아직 300초 타이머는 시작하지 않았습니다</p>`);
+    out.push(`<p class="small">⏳ 지명 요청 대기 ${fmtTime(left)} 남음 · 아직 60초 타이머는 시작하지 않았습니다</p>`);
     out.push(chk.ok
-      ? `<ul class="reasons okay"><li>수락하면 지금부터 300초 동안 ${esc(personName(state, pid))}이(가) 이 테이블 전담</li></ul>`
+      ? `<ul class="reasons okay"><li>수락하면 지금부터 60초 동안 ${esc(personName(state, pid))}이(가) 이 테이블 전담</li></ul>`
       : `<ul class="reasons">${chk.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>`);
     const others = usableHosts(state).filter(id => id !== pid && state.staff[id]);
-    out.push(`<div class="btns">${btn({ action: 'nomination.accept', args: { no: visit.tableNo }, cls: 'primary', disabled: !chk.ok, title: chk.ok ? '지명 수락 (300초 전담 시작)' : chk.reasons.join(' / '), label: '💌 지명 수락' })}
+    out.push(`<div class="btns">${btn({ action: 'nomination.accept', args: { no: visit.tableNo }, cls: 'primary', disabled: !chk.ok, title: chk.ok ? '지명 수락 (60초 전담 시작)' : chk.reasons.join(' / '), label: '💌 지명 수락' })}
       ${btn({ action: 'nomination.decline', args: { no: visit.tableNo }, label: '일반 식사로 안내' })}
       ${others.map(id => {
         const p2 = hostingPreview(state, visit, id);
@@ -142,9 +142,9 @@ function nominationCard(state, visit, c, now, foodText, ui) {
   }
   // 접대 중
   const left = visit.endAt - now;
-  const pct = (now - visit.acceptAt) / RULES.NOMINATION_MS * 100;
+  const pct = (now - visit.acceptAt) / (visit.endAt - visit.acceptAt) * 100;
   out.push(`<h3>🫖 접대 중 · ${fmtTime(left)} 남음</h3>${bar(pct)}
-    <p class="small muted">수락 ${fmtTime(visit.acceptAt)} → 종료 ${fmtTime(visit.endAt)} (영업 경과 기준) · 300초를 채우면 정산</p>
+    <p class="small muted">수락 ${fmtTime(visit.acceptAt)} → 종료 ${fmtTime(visit.endAt)} (영업 경과 기준) · 60초를 채우면 정산</p>
     <h3>현재 접대 만족도</h3>${predictionHtml(pv, '대화 도움으로 −5~+5 보정')}`);
   out.push(`<h3>도움 요청</h3><div class="list">${visit.help.map(h => helpHtml(state, visit, h, now)).join('')}</div>`);
   if (visit.fevered) out.push('<p class="small">🔥 피버 대상 테이블 — 정산 시 팁 2배</p>');

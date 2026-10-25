@@ -96,7 +96,9 @@ export function pendingStory(state) {
   if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : pendingBondStory(state);
   const c = calendarOf(state.day);
   const id = `m${c.monthIdx}`;
-  return state.ledger.story[id] ? pendingBondStory(state) : id;
+  if (!state.ledger.story[id]) return id;
+  if (!state.huntUnlocked && !state.ledger.story['ev:hunt']) return 'ev:hunt';
+  return pendingBondStory(state);
 }
 
 // 아직 안 본 인연 이야기 id(낮은 단계부터). 달 이야기를 본 뒤에 나온다.
@@ -109,7 +111,18 @@ export function pendingBondStory(state) {
 }
 
 export function markStory(state, id) {
-  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|bond:\w+:\d+)$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
+  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+)$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
+  if (state.ledger.story[id]) return { ok: true, duplicate: true };
+  if (state.mode !== 'prep' || pendingStory(state) !== id) return { ok: false, reason: '지금 볼 수 있는 이야기가 아닙니다' };
   state.ledger.story[id] = true;
+  if (id === 'm2') {
+    state.hostbar = { open: true, openedDay: state.day };
+    if (!state.ledger.rewards['outfit:host_first']) {
+      state.ledger.rewards['outfit:host_first'] = true;
+      if (!state.outfits.owned.includes('host_first')) state.outfits.owned.push('host_first');
+      emit('outfitUnlocked', { id: 'host_first', name: '달빛 첫인사' });
+    }
+  }
+  if (id === 'ev:hunt') state.huntUnlocked = true;
   return { ok: true };
 }

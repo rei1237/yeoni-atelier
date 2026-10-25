@@ -7,7 +7,7 @@ import { MENUS, INGREDIENTS } from '../data/menus.js';
 import { GEAR } from '../data/gear.js';
 import { FURNITURE } from '../data/layout.js';
 import { HELP_KINDS } from '../data/lines.js';
-import { fmtTime, personName, remainingShift, usableHosts } from '../game/state.js';
+import { fmtTime, personName, remainingShift, usableHosts, shiftDuration, lastAcceptAt } from '../game/state.js';
 import { STATION_NAMES, findServeTarget, openOrdersOfVisit, staffStatusText } from '../game/cafe.js';
 import { feverCheck, personBusyReason } from '../game/nomination.js';
 import { startCheck } from '../game/shift.js';
@@ -29,14 +29,15 @@ export function topbarHtml(state, ui) {
   if (state.mode === 'shift') {
     const sh = state.shift;
     const st = [];
+    if (!state.hostbar.open) st.push('지명은 5월 이야기 후 열려요');
     if (state.paused) st.push('⏸ 일시정지');
     if (state.fever.activeUntil != null) st.push(`🔥 피버 ${fmtTime(state.fever.activeUntil - sh.elapsedMs)}`);
     if (state.auto) st.push('🤖 자동 운영');
     else if (state.autoKitchen) st.push('🍳 주방 자동');
-    if (sh.elapsedMs > RULES.LAST_ACCEPT_ELAPSED_MS) st.push('지명 수락 마감');
+    if (sh.elapsedMs > lastAcceptAt(state)) st.push('지명 수락 마감');
     if (!st.length) st.push(`${dateLabel(state)} 영업 중`);
     if (ui.dev && ui.speed !== 1) st.push(`×${ui.speed}`);
-    return `<div class="tb-col"><span class="clock" aria-label="남은 영업 시간">⏱ ${fmtTime(remainingShift(state))}</span><span class="small muted">경과 ${fmtTime(sh.elapsedMs)} / 30:00</span></div>
+    return `<div class="tb-col"><span class="clock" aria-label="남은 영업 시간">⏱ ${fmtTime(remainingShift(state))}</span><span class="small muted">경과 ${fmtTime(sh.elapsedMs)} / ${fmtTime(shiftDuration(state))}</span></div>
       ${gold}<span class="status">${esc(st.join(' · '))}</span>${dev}
       ${btn({ action: 'pause', label: state.paused ? '▶' : '⏸', title: state.paused ? '계속하기' : '일시정지', cls: 'ghost' })}`;
   }
@@ -135,7 +136,7 @@ function prepPanel(state) {
   const hc = huntCheck(state);
   const ds = debtStage(state);
   return `<div class="prep">
-    ${btn({ action: 'shift.start', cls: 'primary big', disabled: !sc.ok, title: sc.ok ? '정규 영업 30분 시작' : sc.reasons.join(' / '), label: `☕ ${shortDate(state)} 영업 시작 (30:00)` })}
+    ${btn({ action: 'shift.start', cls: 'primary big', disabled: !sc.ok, title: sc.ok ? '정규 영업 10분 시작' : sc.reasons.join(' / '), label: `☕ ${shortDate(state)} 영업 시작 (10:00)` })}
     ${calendarStrip(state)}
     <div class="grid2">
       ${btn({ action: 'hunt.start', disabled: !hc.ok, title: hc.ok ? '영냥이 월정석 사냥 (약 3분) · 월정석은 루나의 저울에서 골드로' : hc.reasons.join(' / '), label: '🌙 월정석 사냥 (3분 · 행동력 1)' })}

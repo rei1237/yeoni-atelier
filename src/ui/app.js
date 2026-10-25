@@ -19,6 +19,7 @@ import { $, morph, toast, floater, shake } from './dom.js';
 import { topbarHtml, panelHtml, bubblesHtml, hitsHtml } from './hud.js';
 import { sheetHtml, overlayHtml } from './sheets.js';
 import { playNovel, novelActive } from './novel.js';
+import { EVENT_STORIES } from '../story/events.js';
 import { PROLOGUE } from '../story/prologue.js';
 import { MONTH_STORIES, ENDINGS } from '../story/months.js';
 import { BOND_STORIES } from '../story/bonds.js';
@@ -90,7 +91,7 @@ function startNew() {
   ui.sheet = null; ui.selectedSlot = null; ui.recruitEvent = null; ui.ending = null;
   save();
   // 새 게임은 프롤로그부터. 영업 준비 화면이라 그동안 시간은 흐르지 않는다.
-  playNovel(PROLOGUE, { onEnd: () => { toast('새 게임 · 토끼 자매가 처음부터 일을 돕고, 접대는 네오가 맡아요', 'good', 3200); render(true); } });
+  playNovel(PROLOGUE, { onEnd: () => { toast('새 게임 · 토끼 자매와 첫 영업을 준비해요', 'good', 3200); render(true); } });
 }
 
 function goTitle() {
@@ -103,6 +104,7 @@ function goTitle() {
 function storyBeats(id) {
   if (id.startsWith('ending:')) return ENDINGS[id.slice(7)]?.beats || null;
   if (id.startsWith('bond:')) { const [, who, k] = id.split(':'); return BOND_STORIES[who]?.[Number(k) - 1] || null; }
+  if (id.startsWith('ev:')) return EVENT_STORIES[id] || null;
   return MONTH_STORIES[Number(id.slice(1))] || null;
 }
 
@@ -278,7 +280,7 @@ function handleEvents(events) {
       case 'shiftStart': toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 30:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
       case 'served': floater(p.x, p.y - 10, `+${ev.price}G`, '#b07a12'); if (Math.random() < 0.25) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
       case 'nominationRequest': toast(`💌 ${ev.tableNo}번 손님이 ${personName(state, ev.nominee)} 지명 요청 — 테이블을 눌러 확인`, 'good', 3600); break;
-      case 'nominationAccepted': toast(`🫖 ${ev.tableNo}번 접대 시작 · 300초 전담`, 'good'); gagLines(ev.gag); break;
+      case 'nominationAccepted': toast(`🫖 ${ev.tableNo}번 접대 시작 · 60초 전담`, 'good'); gagLines(ev.gag); break;
       case 'nominationConverted': toast(`${ev.tableNo}번: ${ev.why}`); break;
       case 'nominationProposed': toast(`${ev.tableNo}번에 ${personName(state, ev.personId)} 추천`); break;
       case 'helpOpen': toast(`❗ ${ev.tableNo}번: ${ev.label} — 테이블을 눌러 응답`, '', 3200); break;

@@ -5,7 +5,7 @@ import { RULES, STAT_KEYS } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
 import { MENUS } from '../data/menus.js';
 import { GAG_HOSTBAR, GAG_NEO_FUN, HELP_KINDS } from '../data/lines.js';
-import { emit, fmtTime, hostStats, isUsableHost, personName, remainingShift } from './state.js';
+import { emit, fmtTime, hostStats, isUsableHost, personName, remainingShift, nominationDuration, lastAcceptAt } from './state.js';
 import { hostingScore, gradeOf, tipFor, feverGainFor } from './satisfaction.js';
 import { visitAt, customerAt, chooseMenu, placeOrder, customerLeave, sendHostToTable, sendHome, openOrdersOfVisit } from './cafe.js';
 import { nextRandom } from '../core/rng.js';
@@ -44,6 +44,7 @@ export function personBusyReason(state, personId) {
 export function acceptCheck(state, tableNo) {
   const reasons = [];
   if (state.mode !== 'shift' || !state.shift) return { ok: false, reasons: ['정규 영업 중이 아닙니다'] };
+  if (!state.hostbar.open) reasons.push('호스트 바 개시 전입니다 · 5월 이야기를 먼저 확인해 주세요');
   if (state.paused) reasons.push('일시정지 중입니다');
   const visit = visitAt(state, tableNo);
   const c = customerAt(state, tableNo);
@@ -56,8 +57,8 @@ export function acceptCheck(state, tableNo) {
   const busy = personBusyReason(state, pid);
   if (busy) reasons.push(busy);
   const el = state.shift.elapsedMs;
-  if (el > RULES.LAST_ACCEPT_ELAPSED_MS) reasons.push('25:00 이후에는 새 지명을 수락할 수 없습니다 (300초를 채울 시간이 없음)');
-  else if (remainingShift(state) < RULES.NOMINATION_MS) reasons.push('남은 영업 시간이 300초보다 짧습니다');
+  if (el > lastAcceptAt(state)) reasons.push(`${fmtTime(lastAcceptAt(state))} 이후에는 새 지명을 수락할 수 없습니다 (${nominationDuration(state) / 1000}초 전담)`);
+  else if (remainingShift(state) < nominationDuration(state)) reasons.push('접대를 마칠 영업 시간이 부족합니다');
   return { ok: reasons.length === 0, reasons, visit };
 }
 
@@ -79,7 +80,7 @@ export function accept(state, tableNo) {
   const now = state.shift.elapsedMs;
   visit.waitPenalty = waitPenaltyAt(visit, now);
   visit.acceptAt = now;
-  visit.endAt = now + RULES.NOMINATION_MS; // 300초는 이동 연출을 포함한 수락 시점부터
+  visit.endAt = now + nominationDuration(state); // 300초는 이동 연출을 포함한 수락 시점부터
   visit.help = helpSchedule(state, visit);
   const pid = visit.nominee;
   Object.assign(state.people[pid], { activity: 'hosting', visitId: visit.id, tableNo, endAt: visit.endAt });
@@ -193,7 +194,7 @@ export function settleHosting(state, visit) {
   const now = state.shift.elapsedMs;
   const pid = visit.nominee;
   const score = hostingScore({ stats: hostStats(state, pid), prefs: visit.prefs, talkBonus: visit.talkBonus, waitPenalty: visit.waitPenalty });
-  const completedFull = now - visit.acceptAt >= RULES.NOMINATION_MS;
+  const completedFull = now >= visit.endAt;
   const tip = tipFor({ servedTotal: visit.servedTotal, H: score.H, completedFull, fevered: visit.fevered });
   visit.settled = true;
   visit.finalH = score.H;

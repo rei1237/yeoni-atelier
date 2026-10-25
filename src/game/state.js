@@ -9,7 +9,7 @@ import { PEOPLE, RECRUITABLE } from '../data/companions.js';
 import { DEV_RECRUITABLE } from '../data/dev-companions.js';
 import { START_OUTFITS, OUTFIT_WEARERS } from '../data/outfits.js';
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 export function createGame({ dev = false, seed = 20261025 } = {}) {
   const learned = {};
@@ -26,6 +26,9 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     paused: false,
     auto: false,           // 전체 자동(접대 판단 포함)
     autoKitchen: true,     // 주방 자동: 주문 조리·서빙·정리는 기본 자동
+    hostbar: { open: false, openedDay: null },
+    huntUnlocked: false,
+    neoStress: 0,
     shift: null,
     lastSettlement: null,
     gold: TEMP.START_GOLD,
@@ -107,7 +110,7 @@ export function elapsed(state) {
 }
 
 export function remainingShift(state) {
-  return state.shift ? Math.max(0, RULES.SHIFT_MS - state.shift.elapsedMs) : 0;
+  return state.shift ? Math.max(0, shiftDuration(state) - state.shift.elapsedMs) : 0;
 }
 
 // ── 이벤트(화면 연출용). 저장하지 않는다.
@@ -126,3 +129,8 @@ export function fmtTime(ms) {
   const s = Math.max(0, Math.ceil(ms / 1000));
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 }
+
+// 이미 진행 중이던 v1 저장은 그 영업만 기존 시간을 보존한다.
+export const shiftDuration = state => state.shift?.durationMs ?? RULES.SHIFT_MS;
+export const nominationDuration = state => state.shift?.nominationMs ?? RULES.NOMINATION_MS;
+export const lastAcceptAt = state => shiftDuration(state) - nominationDuration(state);

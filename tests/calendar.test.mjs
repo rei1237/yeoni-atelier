@@ -29,6 +29,7 @@ test('달력: 3순이 한 달, 3월 상순에서 시작해 다음 해 2월 하�
 
 test('이자: 하순 영업을 마칠 때 한 번만, 남은 빚 × 이자율(올림)이 골드에서 나간다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   quietTurn(s);
   quietTurn(s);
   assert.deepEqual(s.ledger.interest, {}, '상순·중순에는 이자가 없다');
@@ -47,6 +48,7 @@ test('이자: 하순 영업을 마칠 때 한 번만, 남은 빚 × 이자율(�
 
 test('이자: 골드가 모자라면 모자란 만큼 빚에 붙는다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.day = 3; // 테스트 준비: 3월 하순
   s.gold = 0;
   const debt0 = s.debt;
@@ -58,6 +60,7 @@ test('이자: 골드가 모자라면 모자란 만큼 빚에 붙는다', () => {
 
 test('결말: 마지막 순 결산을 닫으면 한 번 정해지고, 이후는 후일담 영업', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.day = C.TOTAL_TURNS; // 테스트 준비: 2년차 2월 하순
   quietTurn(s);
   assert.equal(s.calendar.ended, true);
@@ -75,6 +78,7 @@ test('결말: 마지막 순 결산을 닫으면 한 번 정해지고, 이후는 
   assert.equal(pendingStory(s), 'bond:neo:1');
 
   const t = createGame();
+  t.hostbar.open = true; t.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   t.debt = 0;
   assert.equal(decideEnding(t), 'clear');
   t.affinity = { neo: 200, luna: 160, luna_sis: 100, moka: 60 };
@@ -83,6 +87,7 @@ test('결말: 마지막 순 결산을 닫으면 한 번 정해지고, 이후는 
 
 test('행동력: 사냥은 순마다 2번까지, 결산을 닫으면 다시 채워진다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   for (let i = 0; i < C.AP_PER_TURN; i++) {
     assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
     assert.ok(dispatch(s, { type: 'hunt.retreat' }).ok);
@@ -98,6 +103,7 @@ test('행동력: 사냥은 순마다 2번까지, 결산을 닫으면 다시 채�
 
 test('달 이야기: 매달 상순 준비 때 한 번, 잘못된 id 는 거절', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   assert.equal(pendingStory(s), 'm0');
   assert.equal(dispatch(s, { type: 'story.seen', id: '<script>' }).ok, false);
   assert.ok(dispatch(s, { type: 'story.seen', id: 'm0' }).ok);

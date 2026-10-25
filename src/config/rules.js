@@ -6,12 +6,12 @@ export const STAT_KEYS = Object.freeze(['empathy', 'talk', 'fun', 'looks']);
 export const STAT_LABELS = Object.freeze({ empathy: '공감력', talk: '화술', fun: '재미', looks: '외모' });
 
 export const RULES = Object.freeze({
-  // 정규 영업: 활성 게임 시간 1,800초. 라운드로 나누지 않는다.
-  SHIFT_MS: 1800 * 1000,
-  // 지명: 수락 순간부터 정확히 300초. 이동 연출 포함.
-  NOMINATION_MS: 300 * 1000,
-  // 새 지명은 경과 25:00까지 수락 가능(= 잔여 300초 이상).
-  LAST_ACCEPT_ELAPSED_MS: 1500 * 1000,
+  // 정규 영업: 활성 게임 시간 600초. 사용자 결정 2026-10-25. 라운드로 나누지 않는다.
+  SHIFT_MS: 600 * 1000,
+  // 지명: 수락 순간부터 정확히 60초. 사용자 결정 2026-10-25. 이동 연출 포함.
+  NOMINATION_MS: 60 * 1000,
+  // 새 지명은 경과 09:00까지 수락 가능(= 잔여 60초 이상).
+  LAST_ACCEPT_ELAPSED_MS: 540 * 1000,
 
   STAT_MIN: 0,
   STAT_MAX: 10,

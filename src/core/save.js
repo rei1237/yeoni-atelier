@@ -29,9 +29,21 @@ const REQUIRED = ['version', 'meta', 'rng', 'mode', 'day', 'gold', 'debt', 'stoc
 
 function migrate(data) {
   // v1 이 첫 버전이다. 이후 버전이 생기면 여기서 단계별로 올린다.
+  const legacy = data.version < 2;
+  if (legacy) {
+    data.hostbar ??= { open: data.day >= 7, openedDay: data.day >= 7 ? 7 : null };
+    data.huntUnlocked ??= data.day > 1 || (data.stats?.huntsCompleted || 0) > 0 || !!data.hunt || !!data.lastHunt;
+    if (data.huntUnlocked) (data.ledger.story ||= {})['ev:hunt'] = true;
+    if (data.shift) { data.shift.durationMs ??= 1800000; data.shift.nominationMs ??= 300000; }
+  }
   const base = createGame({ dev: !!data.meta?.devData });
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
   for (const k of ['ledger', 'stats', 'seq', 'quests', 'outfits', 'fever', 'offline', 'gear', 'calendar', 'ap', 'affinity']) data[k] = { ...base[k], ...data[k] };
+  data.neoStress = Math.max(0, Math.min(100, Math.floor(Number(data.neoStress) || 0)));
+  if (legacy && data.hostbar.open && !data.ledger.rewards['outfit:host_first']) {
+    data.ledger.rewards['outfit:host_first'] = true;
+    if (!data.outfits.owned.includes('host_first')) data.outfits.owned.push('host_first');
+  }
   data.interior.areas ||= []; // 증축 구역 이전 저장
   return data;
 }
