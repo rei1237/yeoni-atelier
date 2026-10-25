@@ -1,4 +1,4 @@
-// 영냥이 탐색(뱀서식)의 무기·보조 능력·적 정의. 이름과 수치는 모두 이 게임의 임시(TEMP) 설정이다.
+// 영냥이 사냥(뱀서식)의 무기·보조 능력·적 정의. 이름과 수치는 모두 이 게임의 임시(TEMP) 설정이다.
 // 원작(code-destiny)의 공식 능력이 아니며, 적의 "검은 손" 외 이름은 임시 이름이다.
 // 레벨당 누적·진화 배율(×1.35)은 killerflowerpig 의 무기 성장 방식을 개념만 참고했다(코드 이식 아님).
 
@@ -52,8 +52,8 @@ export const ENEMIES = Object.freeze({
   shade_bat: { hp: 8, speed: 90, dmg: 4, xp: 1, r: 11, size: 34 },
   shade_blob: { hp: 50, speed: 34, dmg: 9, xp: 4, r: 18, size: 46 },
   shade_wisp: { hp: 14, speed: 68, dmg: 5, xp: 2, r: 12, size: 36, zigzag: true },
-  elite_hand: { hp: 240, speed: 50, dmg: 12, xp: 20, r: 26, size: 72, chest: true, elite: true },
-  boss_hand: { hp: 1000, speed: 42, dmg: 18, xp: 60, r: 40, size: 108, chest: true, elite: true, boss: true },
+  elite_hand: { hp: 400, speed: 50, dmg: 12, xp: 20, r: 26, size: 72, chest: true, elite: true },
+  boss_hand: { hp: 1200, speed: 42, dmg: 18, xp: 60, r: 40, size: 108, chest: true, elite: true, boss: true },
 });
 
 // 시간대별 등장 적(초 이상이면 섞인다)

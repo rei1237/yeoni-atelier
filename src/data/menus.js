@@ -1,5 +1,6 @@
 // 메뉴·재료 데이터. 메뉴 이름은 기획서 p.8의 "가칭 메뉴"를 그대로 쓴다(정식 명칭 아님).
 // 조리 시간은 기획서 제안 범위 안의 값, 가격·재료 원가는 임시값(balance.temp.js 성격).
+// 재료는 모두 마을 모카 식재료점에서 산다. basic = 기본 재료, shop = 모카가 파는 특별 재료(밤이슬, 가격 임시).
 
 export const INGREDIENTS = Object.freeze({
   bean:      { id: 'bean',      name: '원두',   price: 30, basic: true,  color: '#7a4b2a' },
@@ -8,7 +9,7 @@ export const INGREDIENTS = Object.freeze({
   flour:     { id: 'flour',     name: '밀가루', price: 30, basic: true,  color: '#efe3c4' },
   egg:       { id: 'egg',       name: '달걀',   price: 30, basic: true,  color: '#f6d77a' },
   sugar:     { id: 'sugar',     name: '설탕',   price: 18, basic: true,  color: '#ffffff' },
-  night_dew: { id: 'night_dew', name: '밤이슬', price: 0,  basic: false, color: '#6f7fe8', rare: true },
+  night_dew: { id: 'night_dew', name: '밤이슬', price: 90, basic: false, shop: true, color: '#6f7fe8', rare: true },
 });
 
 // station: 'drink' = 음료 머신, 'oven' = 오븐

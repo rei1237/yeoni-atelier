@@ -1,4 +1,5 @@
 // 자동 운영: 사람이 누르는 것과 같은 명령만 낸다(run(cmd)). 상태를 직접 바꾸지 않는다.
+// 주방 자동(state.autoKitchen, 기본 켜짐) = 4) 서빙 5) 정리 6) 조리만 한다. 전체 자동(state.auto)은 1)~3) 접대 판단까지 한다.
 // 지명 수락 조건: 실제 요청 + 예상 H ≥ 60 + 남은 시간 ≥ 300초 + 동료 대기 중. 재미 중심 요청은 수락하지 않는다.
 
 import { RULES } from '../config/rules.js';
@@ -22,8 +23,9 @@ export function autoStep(state, run) {
   if (sh.elapsedMs < sh.autoAt) return;
   sh.autoAt = sh.elapsedMs + TEMP.AUTO_DECIDE_MS;
 
+  const full = !!state.auto;
   // 1) 지명 요청
-  for (const v of Object.values(state.visits)) {
+  if (full) for (const v of Object.values(state.visits)) {
     const c = state.customers[v.customerId];
     if (!c || v.kind !== 'nomination' || c.state !== 'requesting') continue;
     const d = autoAcceptDecision(state, v.tableNo);
@@ -31,14 +33,14 @@ export function autoStep(state, run) {
     else if (d.decline) run({ type: 'nomination.decline', tableNo: v.tableNo });
   }
   // 2) 접대 도움 요청
-  for (const v of hostingVisits(state)) {
+  if (full) for (const v of hostingVisits(state)) {
     v.help.forEach((h, i) => {
       if (h.status !== 'open') return;
       run({ type: 'help.respond', visitId: v.id, index: i, choice: h.kind === 'topic' ? topPref(v.prefs) : h.kind });
     });
   }
   // 3) 피버
-  if (feverCheck(state).ok) run({ type: 'fever.activate' });
+  if (full && feverCheck(state).ok) run({ type: 'fever.activate' });
   // 4) 서빙
   for (const it of state.tray) {
     if (!it || it.reservedFor) continue;

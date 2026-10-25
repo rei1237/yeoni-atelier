@@ -6,9 +6,11 @@ import { PDF } from '../config/balance.pdf.js';
 import { TEMP } from '../config/balance.temp.js';
 import { MENUS, MENU_ORDER, INGREDIENTS, ingredientCostOf } from '../data/menus.js';
 import { SPOTS, FURNITURE } from '../data/layout.js';
+import { PEOPLE, STAFF_CREW } from '../data/companions.js';
 import { emit, nextId, remainingShift, usableHosts } from './state.js';
 import { buildGrid, findPath, tableGeometry } from './space.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
+import { bondFx } from '../data/bonds.js';
 
 export const STATION_IDS = ['drink', 'oven'];
 export const STATION_NAMES = { drink: '음료 머신', oven: '오븐' };
@@ -17,8 +19,10 @@ export const STATION_NAMES = { drink: '음료 머신', oven: '오븐' };
 const gridCache = new WeakMap();
 export function getGrid(state) {
   const list = state.interior.furniture;
+  const open = state.interior.areas || [];
+  const sig = open.join(',');
   let g = gridCache.get(list);
-  if (!g) { g = buildGrid(list.filter(f => f.x != null)); gridCache.set(list, g); }
+  if (!g || g.sig !== sig) { g = buildGrid(list.filter(f => f.x != null), open); g.sig = sig; gridCache.set(list, g); }
   return g;
 }
 
@@ -48,6 +52,9 @@ export function setupWorld(state) {
   state.staff = {};
   const mk = (id, home) => ({ id, home, x: home.x + 0.5, y: home.y + 0.5, path: [], job: null, action: 'idle', facing: 'down', carry: null, actionUntil: 0 });
   state.staff.yeoni = mk('yeoni', { ...SPOTS.yeoniHome });
+  state.staff.yeoni.facing = 'right'; // 계산대 너머 입구를 본다
+  const crewHome = { luna_sis: SPOTS.sisHome, luna: SPOTS.lunaHome };
+  for (const id of STAFF_CREW) state.staff[id] = mk(id, { ...crewHome[id] });
   usableHosts(state).forEach((id, i) => {
     const home = i === 0 ? { ...SPOTS.neoHome } : nearestWalkable(grid, { x: SPOTS.neoHome.x + i * 2, y: SPOTS.neoHome.y });
     state.staff[id] = mk(id, home);
@@ -123,7 +130,8 @@ export function cook(state, menuId) {
   const st = state.stations[m.station];
   const chk = stockCheck(state, menuId);
   if (!chk.ok) return { ok: false, reason: chk.reason };
-  const job = { id: nextId(state, 'job'), menuId, durationMs: m.cookMs };
+  // 루나 언니 친밀도 능력: 조리 시간 단축
+  const job = { id: nextId(state, 'job'), menuId, durationMs: Math.round(m.cookMs * (1 - bondFx(state.affinity).cookSpeed)) };
   if (!st.current && !st.held && !st.next) { startJob(state, m.station, job); return { ok: true, started: true }; }
   if (!st.next) { st.next = job; emit('cookQueued', { station: m.station, menuId }); return { ok: true, queued: true }; }
   return { ok: false, reason: `${STATION_NAMES[m.station]} 대기열이 가득 찼습니다 (현재 1 + 다음 1)` };
@@ -236,6 +244,8 @@ function recordServe(state, order) {
     c.action = 'eat'; c.actionUntil = now + TEMP.EAT_MS;
     if (visit.kind === 'regular') { c.state = 'eating'; c.eatEndAt = now + TEMP.EAT_MS; }
   }
+  const y = state.staff.yeoni;
+  if (y) { y.action = 'react'; y.actionUntil = now + 900; } // 연이는 계산만 한다: 매출이 잡히면 계산대 동작
   emit('served', { tableNo: order.tableNo, menuId: order.menuId, price: order.price });
 }
 
@@ -254,7 +264,8 @@ export function requestClean(state, tableNo) {
 export function staffAvailable(state, id) {
   const s = state.staff[id];
   if (!s || (s.job && s.job.kind !== 'home')) return false;
-  if (id === 'yeoni') return true;
+  const work = PEOPLE[id]?.work;
+  if (work) return work === 'runner'; // 연이(계산)·루나 언니(굽기)는 운반하지 않는다
   return state.people[id]?.activity === 'idle'; // 접대 중인 동료는 서빙·정리에 투입하지 않는다
 }
 
@@ -262,6 +273,8 @@ export function staffStatusText(state, id) {
   const s = state.staff[id];
   if (!s) return '';
   const j = s.job;
+  if (id === 'yeoni') return s.action === 'react' ? '계산 중' : '계산대';
+  if (id === 'luna_sis') return j?.kind === 'station' && j.sid ? `${STATION_NAMES[j.sid]} 앞` : '대기';
   if (state.people[id]?.activity === 'hosting') return `${state.people[id].tableNo}번 접대 중`;
   if (!j || j.kind === 'home') return '대기';
   if (j.kind === 'deliver') return j.stage === 'return' ? '음식 되돌리는 중' : `${j.tableNo}번 서빙`;
@@ -279,7 +292,7 @@ function assignTasks(state) {
     for (const id of Object.keys(state.staff)) {
       if (!staffAvailable(state, id)) continue;
       const s = state.staff[id];
-      const d = Math.abs(s.x - target.x) + Math.abs(s.y - target.y) + (id === 'yeoni' ? 0 : 0.5);
+      const d = Math.abs(s.x - target.x) + Math.abs(s.y - target.y) + (PEOPLE[id]?.work === 'runner' ? 0 : 0.5);
       if (!best || d < best.d) best = { id, d };
     }
     if (!best) continue;
@@ -313,13 +326,31 @@ export function sendHostToTable(state, personId, tableNo) {
   setPath(state, s, t.service);
 }
 
+// 루나 언니: 굽는 중인 기계 앞으로 가서 굽는다(가장 최근에 시작한 쪽). 없으면 대기 자리.
+const STATION_FRONT = { drink: SPOTS.drinkFront, oven: SPOTS.ovenFront };
+function stepBaker(state, s, dt) {
+  moveAlong(s, dt, TEMP.WALK_TILES_PER_S);
+  const busy = STATION_IDS.filter(id => state.stations[id].current)
+    .sort((a, b) => state.stations[b].current.startedAt - state.stations[a].current.startedAt);
+  const sid = busy[0] || null;
+  const goal = sid ? STATION_FRONT[sid] : s.home;
+  const j = s.job;
+  if (!j || j.kind !== 'station' || j.goal.x !== goal.x || j.goal.y !== goal.y) {
+    s.job = { kind: 'station', sid, goal: { ...goal } };
+    setPath(state, s, goal);
+  }
+  if (s.path.length) s.action = 'walk';
+  else { s.action = sid ? 'cook' : 'idle'; s.facing = sid ? 'up' : 'down'; }
+}
+
 export function stepStaff(state, dt) {
   const now = state.shift.elapsedMs;
   assignTasks(state);
   for (const s of Object.values(state.staff)) {
+    if (PEOPLE[s.id]?.work === 'baker') { stepBaker(state, s, dt); continue; }
     const arrived = moveAlong(s, dt, TEMP.WALK_TILES_PER_S);
     const j = s.job;
-    if (s.actionUntil && now >= s.actionUntil) { s.actionUntil = 0; }
+    if (s.actionUntil && now >= s.actionUntil) { s.actionUntil = 0; if (s.action === 'serve' || s.action === 'react') s.action = 'idle'; }
     if (!j) {
       if (Math.floor(s.x) !== s.home.x || Math.floor(s.y) !== s.home.y) sendHome(state, s);
     } else if (j.kind === 'home') {
@@ -354,7 +385,8 @@ export function stepStaff(state, dt) {
       if (j.stage === 'toTable' && arrived) {
         j.stage = 'cleaning';
         t.state = 'cleaning';
-        t.cleanEndAt = now + PDF.CLEAN_MS;
+        t.cleanMs = PDF.CLEAN_MS;
+        t.cleanEndAt = now + t.cleanMs;
         s.action = 'clean';
       } else if (j.stage === 'cleaning' && now >= t.cleanEndAt) {
         t.state = 'empty'; t.cleanQueued = false; t.cleanEndAt = null;
@@ -365,7 +397,7 @@ export function stepStaff(state, dt) {
     } else if (j.kind === 'host') {
       if (j.stage === 'toTable' && arrived) { j.stage = 'hosting'; s.action = 'host'; const tb = tableByNo(state, j.tableNo); s.facing = tb.table.x < s.x - 0.5 ? 'left' : tb.table.x > s.x - 0.5 ? 'right' : (tb.table.y < s.y - 0.5 ? 'up' : 'down'); }
     }
-    if (!s.job && s.action !== 'serve') s.action = 'idle';
+    if (!s.job && !s.actionUntil) s.action = 'idle';
     if (s.path.length) s.action = 'walk';
     else if (s.action === 'walk') s.action = s.job?.kind === 'host' && s.job.stage === 'hosting' ? 'host' : 'idle';
   }
@@ -465,7 +497,7 @@ export function stepCustomers(state, dt, hooks) {
         break;
       case 'waiting_food': {
         const open = openOrdersOfVisit(state, visit);
-        if (open.length && now - open[0].placedAt >= TEMP.FOOD_PATIENCE_MS) customerLeave(state, c, '음식을 오래 기다려 떠남');
+        if (open.length && now - open[0].placedAt >= TEMP.FOOD_PATIENCE_MS * (1 + bondFx(state.affinity).patience)) customerLeave(state, c, '음식을 오래 기다려 떠남');
         break;
       }
       case 'eating':

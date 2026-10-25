@@ -1,4 +1,4 @@
-// 영냥이 재료 탐색 화면(뱀서식). 플레이어를 따라가는 카메라, 필드, 적, 무기 효과, 드롭, 피해 숫자, 사건 알림, 조이스틱.
+// 영냥이 월정석 사냥 화면(뱀서식). 플레이어를 따라가는 카메라, 필드, 적, 무기 효과, 드롭, 피해 숫자, 사건 알림, 조이스틱.
 // 상태는 읽기만 한다. 화면 흔들림 같은 연출에만 Math.random 을 쓴다.
 
 import { TEMP } from '../config/balance.temp.js';
@@ -65,7 +65,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
     if (d.kind === 'gem') drawIcon(ctx, GEM_KEYS[gemTier(d.v)], d.x, d.y + bob, [12, 16, 22][gemTier(d.v)]);
     else {
       ctx.fillStyle = 'rgba(255,255,255,0.16)'; ctx.beginPath(); ctx.arc(d.x, d.y, 13, 0, Math.PI * 2); ctx.fill();
-      drawIcon(ctx, d.kind === 'ing' ? d.id : d.kind, d.x, d.y + bob, d.kind === 'chest' ? 24 : 18);
+      drawIcon(ctx, d.kind === 'ing' || d.kind === 'moon' ? d.id : d.kind, d.x, d.y + bob, d.kind === 'chest' ? 24 : 18);
     }
   }
 

@@ -19,7 +19,7 @@ export function browserStorage() {
   } catch { return null; }
 }
 
-// 저장하지 않는 칸: 인테리어 초안(편집 중 취소와 같은 효과), 탐색 전장(이어하기 때 새로 생성)
+// 저장하지 않는 칸: 인테리어 초안(편집 중 취소와 같은 효과), 사냥 전장(이어하기 때 새로 생성)
 export function serialize(state) {
   const copy = { ...state, interior: { ...state.interior, draft: null } };
   return JSON.stringify(copy);
@@ -31,7 +31,8 @@ function migrate(data) {
   // v1 이 첫 버전이다. 이후 버전이 생기면 여기서 단계별로 올린다.
   const base = createGame({ dev: !!data.meta?.devData });
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
-  for (const k of ['ledger', 'stats', 'seq', 'quests', 'outfits', 'fever', 'offline']) data[k] = { ...base[k], ...data[k] };
+  for (const k of ['ledger', 'stats', 'seq', 'quests', 'outfits', 'fever', 'offline', 'gear', 'calendar', 'ap', 'affinity']) data[k] = { ...base[k], ...data[k] };
+  data.interior.areas ||= []; // 증축 구역 이전 저장
   return data;
 }
 
@@ -45,7 +46,7 @@ export function deserialize(text) {
   const state = migrate(data);
   state.version = SAVE_VERSION;
   state.interior.draft = null;
-  // 영업·탐색 중 저장을 이어하면 일시정지 상태로 시작한다(같은 손님·같은 남은 시간)
+  // 영업·사냥 중 저장을 이어하면 일시정지 상태로 시작한다(같은 손님·같은 남은 시간)
   if (state.mode === 'shift' || state.mode === 'hunt') state.paused = true;
   return { ok: true, state };
 }

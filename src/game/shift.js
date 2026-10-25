@@ -7,6 +7,8 @@ import { emit, usableHosts, emptyStations } from './state.js';
 import { setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave } from './cafe.js';
 import { settleDue, settleHosting, hostingVisits, stepHosting, onRequesting } from './nomination.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
+import { chargeInterest, advanceTurn } from './calendar.js';
+import { workShift } from './bonds.js';
 
 // 첫 영업의 손님 순서(온보딩): 일반 손님 → 외모 중심 지명 → 재미 중심 지명
 const FIRST_SHIFT_SCRIPT = [
@@ -17,7 +19,7 @@ const FIRST_SHIFT_SCRIPT = [
 
 export function startCheck(state) {
   const reasons = [];
-  if (state.mode !== 'prep') reasons.push(state.mode === 'hunt' ? '영냥이가 재료 탐색 중입니다. 탐색을 마친 뒤 영업할 수 있습니다' : '영업 준비 상태가 아닙니다');
+  if (state.mode !== 'prep') reasons.push(state.mode === 'hunt' ? '영냥이가 월정석 사냥 중입니다. 사냥을 마친 뒤 영업할 수 있습니다' : '영업 준비 상태가 아닙니다');
   if (state.interior.draft) reasons.push('인테리어 편집을 적용하거나 취소해 주세요');
   if (state.people.neo?.activity !== 'idle') reasons.push('네오가 다른 활동 중입니다');
   return { ok: reasons.length === 0, reasons };
@@ -59,7 +61,9 @@ function stepSpawn(state) {
   if (sh.elapsedMs < sh.nextSpawnAt || sh.elapsedMs >= TEMP.LAST_SEATING_ELAPSED_MS) return;
   if (!state.tables.some(t => t.state === 'empty')) { sh.nextSpawnAt = sh.elapsedMs + 2000; return; }
   spawnCustomer(state, nextSpec(state));
-  sh.nextSpawnAt = sh.elapsedMs + Math.round(randRange(state.rng, ...TEMP.SPAWN_INTERVAL_MS));
+  // 테이블이 늘면 손님 간격이 그만큼 짧아진다(임시)
+  const scale = TEMP.SPAWN_TABLE_BASE / Math.max(TEMP.SPAWN_TABLE_BASE, state.tables.length);
+  sh.nextSpawnAt = sh.elapsedMs + Math.round(randRange(state.rng, ...TEMP.SPAWN_INTERVAL_MS) * scale);
 }
 
 // 한 시뮬레이션 단계(dt ≤ SIM_STEP_MS). 순서:
@@ -76,7 +80,7 @@ export function stepShift(state, dt, autoStep) {
   stepStaff(state, step);
   stepCustomers(state, step, { onRequesting });
   stepSpawn(state);
-  if (autoStep && state.auto) autoStep(state);
+  if (autoStep && (state.auto || state.autoKitchen)) autoStep(state);
   if (sh.elapsedMs >= RULES.SHIFT_MS) closeShift(state);
 }
 
@@ -99,8 +103,12 @@ export function closeShift(state) {
     regularVisits: sh.regularVisits, nominationVisits: sh.nominationVisits, hostings: sh.hostings,
   };
   if (!state.ledger.settlements[sh.id]) {
+    // 하순이면 이달 이자가 나간다(한 번만)
+    settlement.interest = chargeInterest(state, sh);
+    settlement.gold = state.gold; settlement.debt = state.debt;
     state.ledger.settlements[sh.id] = settlement;
     state.stats.shiftsCompleted += 1;
+    workShift(state);
   }
   state.lastSettlement = state.ledger.settlements[sh.id];
   state.mode = 'settlement';
@@ -116,6 +124,7 @@ export function closeSettlement(state) {
   state.mode = 'prep';
   state.shift = null;
   state.day += 1;
+  advanceTurn(state);
   return { ok: true };
 }
 

@@ -1,11 +1,11 @@
 // 인테리어 편집: 영업 전·마감 후에만. 초안(draft)에서 이동·회전·보관·배치 → 미리보기 검증 → 적용 / 취소(원상 복구).
 // 초안은 저장하지 않는다. 적용할 때만 실제 배치(state.interior.furniture)가 바뀐다.
 
-import { FURNITURE } from '../data/layout.js';
+import { FURNITURE, GRID } from '../data/layout.js';
 import { inBounds, validateLayout } from './space.js';
 
 export function editCheck(state) {
-  if (state.mode !== 'prep') return { ok: false, reason: state.mode === 'shift' ? '영업 중에는 인테리어를 바꿀 수 없습니다' : state.mode === 'hunt' ? '탐색 중에는 인테리어를 바꿀 수 없습니다' : '결산을 닫은 뒤 편집할 수 있습니다' };
+  if (state.mode !== 'prep') return { ok: false, reason: state.mode === 'shift' ? '영업 중에는 인테리어를 바꿀 수 없습니다' : state.mode === 'hunt' ? '사냥 중에는 인테리어를 바꿀 수 없습니다' : '결산을 닫은 뒤 편집할 수 있습니다' };
   return { ok: true };
 }
 
@@ -58,7 +58,7 @@ export function rotate(state, uid) {
 export function store(state, uid) {
   const { f, error } = needDraft(state, uid);
   if (error) return error;
-  if (FURNITURE[f.defId].storable === false) return { ok: false, reason: `${FURNITURE[f.defId].name}은(는) 보관할 수 없습니다 (좌석 3개 고정)` };
+  if (FURNITURE[f.defId].storable === false) return { ok: false, reason: `${FURNITURE[f.defId].name}은(는) 보관할 수 없습니다 (테이블은 늘릴 수만 있어요)` };
   f.x = null; f.y = null; f.rot = 0;
   return { ok: true };
 }
@@ -70,18 +70,18 @@ export function place(state, uid, x, y) {
   if (f.x != null) return { ok: false, reason: '이미 배치된 가구입니다' };
   const tryAt = (px, py) => {
     f.x = px; f.y = py;
-    if (validateLayout(state.interior.draft.furniture).ok) return true;
+    if (validateLayout(state.interior.draft.furniture, state.interior.areas).ok) return true;
     f.x = null; f.y = null;
     return false;
   };
   if (x != null && y != null) { f.x = x; f.y = y; return { ok: true }; }
-  for (let py = 2; py < 11; py++) for (let px = 0; px < 9; px++) if (tryAt(px, py)) return { ok: true };
+  for (let py = 2; py < GRID.rows; py++) for (let px = 0; px < GRID.cols; px++) if (tryAt(px, py)) return { ok: true };
   return { ok: false, reason: '놓을 수 있는 빈 자리가 없습니다' };
 }
 
 export function preview(state) {
   const list = state.interior.draft ? state.interior.draft.furniture : state.interior.furniture;
-  return validateLayout(list);
+  return validateLayout(list, state.interior.areas);
 }
 
 export function cancel(state) {
@@ -94,7 +94,7 @@ export function apply(state) {
   if (!state.interior.draft) return { ok: false, reason: '편집 모드가 아닙니다' };
   const chk = editCheck(state);
   if (!chk.ok) return chk;
-  const v = validateLayout(state.interior.draft.furniture);
+  const v = validateLayout(state.interior.draft.furniture, state.interior.areas);
   if (!v.ok) return { ok: false, reason: v.problems[0].msg, reasons: v.problems.map(p => p.msg) };
   state.interior.furniture = state.interior.draft.furniture.map(f => ({ ...f }));
   state.interior.draft = null;

@@ -1,24 +1,34 @@
 // 재료 구매·부채 상환·퀘스트·영입·의상. 보상은 모두 원장(ledger) id 로 한 번만 지급한다.
 
 import { PDF } from '../config/balance.pdf.js';
+import { TEMP } from '../config/balance.temp.js';
 import { INGREDIENTS, MENUS } from '../data/menus.js';
 import { QUESTS } from '../data/quests.js';
 import { OUTFITS, OUTFIT_SLOTS, OUTFIT_WEARERS } from '../data/outfits.js';
 import { emit, recruitables } from './state.js';
+import { bondFx } from '../data/bonds.js';
+import { workShop } from './bonds.js';
 
-// ── 재료 구매(기본 재료만). 영업 중에도 살 수 있다. 탐색 화면에서는 살 수 없다.
+// ── 재료 구매: 마을 모카 식재료점(기본 재료 + 밤이슬). 사냥 화면에서는 살 수 없다.
+// 영업 중에는 가게를 비울 수 없으니 「모카 긴급 배달」로만 산다: 재료값 + 배달비(TEMP.DELIVERY_FEE_RATE).
 export function buy(state, ingredientId, qty) {
-  if (state.mode === 'hunt') return { ok: false, reason: '탐색을 마친 뒤 구매할 수 있습니다' };
+  if (state.mode === 'hunt') return { ok: false, reason: '사냥을 마친 뒤 구매할 수 있습니다' };
   const ing = INGREDIENTS[ingredientId];
-  if (!ing || !ing.basic) return { ok: false, reason: '살 수 없는 재료입니다 (특별 재료는 탐색으로만 얻습니다)' };
+  if (!ing || !(ing.basic || ing.shop)) return { ok: false, reason: '모카 식재료점에서 팔지 않는 재료입니다' };
   const n = Math.floor(qty);
   if (!(n > 0 && n <= 99)) return { ok: false, reason: '수량은 1~99 사이여야 합니다' };
-  const cost = ing.price * n;
+  // 모카 친밀도 능력: 단골 할인·배달비 할인
+  const fx = bondFx(state.affinity);
+  const base = Math.ceil(ing.price * n * (1 - fx.discount));
+  const fee = state.mode === 'shift' ? Math.ceil(base * TEMP.DELIVERY_FEE_RATE * (1 - fx.feeCut)) : 0;
+  const cost = base + fee;
   if (state.gold < cost) return { ok: false, reason: `골드가 부족합니다 (${cost} 필요, 보유 ${state.gold})` };
   state.gold -= cost;
   state.stock[ingredientId] = (state.stock[ingredientId] || 0) + n;
-  emit('bought', { ingredientId, qty: n, cost });
-  return { ok: true, cost };
+  if (ingredientId === 'night_dew') state.stats.nightDewObtained += n;
+  workShop(state);
+  emit('bought', { ingredientId, qty: n, cost, fee, delivery: fee > 0 });
+  return { ok: true, cost, fee };
 }
 
 // ── 부채 상환. requestId 로 같은 요청을 두 번 처리하지 않는다(더블 탭·저장 복원 대비).

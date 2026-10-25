@@ -4,6 +4,7 @@
 import { RULES } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
 import { MENUS, INGREDIENTS } from '../data/menus.js';
+import { GEAR } from '../data/gear.js';
 import { FURNITURE } from '../data/layout.js';
 import { HELP_KINDS } from '../data/lines.js';
 import { fmtTime, personName, remainingShift, usableHosts } from '../game/state.js';
@@ -11,6 +12,7 @@ import { STATION_NAMES, findServeTarget, openOrdersOfVisit, staffStatusText } fr
 import { feverCheck, personBusyReason } from '../game/nomination.js';
 import { startCheck } from '../game/shift.js';
 import { huntCheck } from '../game/hunt.js';
+import { calendarOf, dateLabel, turnsLeft, isEnded, PARTS } from '../game/calendar.js';
 import { WEAPONS, PASSIVES } from '../data/hunt-kit.js';
 import { debtStage } from '../game/economy.js';
 import { preview as interiorPreview } from '../game/interior.js';
@@ -30,8 +32,9 @@ export function topbarHtml(state, ui) {
     if (state.paused) st.push('⏸ 일시정지');
     if (state.fever.activeUntil != null) st.push(`🔥 피버 ${fmtTime(state.fever.activeUntil - sh.elapsedMs)}`);
     if (state.auto) st.push('🤖 자동 운영');
+    else if (state.autoKitchen) st.push('🍳 주방 자동');
     if (sh.elapsedMs > RULES.LAST_ACCEPT_ELAPSED_MS) st.push('지명 수락 마감');
-    if (!st.length) st.push(`Day ${state.day} 영업 중`);
+    if (!st.length) st.push(`${dateLabel(state)} 영업 중`);
     if (ui.dev && ui.speed !== 1) st.push(`×${ui.speed}`);
     return `<div class="tb-col"><span class="clock" aria-label="남은 영업 시간">⏱ ${fmtTime(remainingShift(state))}</span><span class="small muted">경과 ${fmtTime(sh.elapsedMs)} / 30:00</span></div>
       ${gold}<span class="status">${esc(st.join(' · '))}</span>${dev}
@@ -41,16 +44,35 @@ export function topbarHtml(state, ui) {
     const h = state.hunt;
     const pct = Math.max(0, Math.round(h.hp / h.maxHp * 100));
     const xpPct = h.xpNext ? Math.min(100, Math.round((h.xp || 0) / h.xpNext * 100)) : 0;
-    return `<div class="tb-col"><span class="clock" aria-label="남은 탐색 시간">🐾 ${fmtTime(h.durationMs - h.elapsedMs)}</span><span class="small muted">영냥이 탐색</span></div>
+    return `<div class="tb-col"><span class="clock" aria-label="남은 사냥 시간">🐾 ${fmtTime(h.durationMs - h.elapsedMs)}</span><span class="small muted">🌙 ${h.bag.moonstone || 0} · 월정석 사냥</span></div>
       <div class="tb-col"><span class="small">HP ${h.hp}/${h.maxHp}</span><span class="hpbar" role="img" aria-label="체력 ${pct}%"><i style="width:${pct}%"></i></span></div>
       <div class="tb-col"><span class="small">Lv ${h.level ?? 1}</span><span class="xpbar" role="img" aria-label="경험치 ${xpPct}%"><i style="width:${xpPct}%"></i></span></div>
       <span class="status">${state.paused ? '⏸ 일시정지' : ui.dev && ui.speed !== 1 ? `×${ui.speed}` : ''}</span>${dev}
       ${btn({ action: 'pause', label: state.paused ? '▶' : '⏸', title: state.paused ? '계속하기' : '일시정지', cls: 'ghost' })}`;
   }
   const label = state.mode === 'settlement' ? '결산' : state.interior.draft ? '인테리어 편집' : '영업 준비';
-  return `<div class="tb-col"><span class="clock">Day ${state.day}</span><span class="small muted">${label}</span></div>
-    ${gold}<span class="status">빚 ${won(state.debt)}</span>${dev}
+  return `<div class="tb-col"><span class="clock">${esc(shortDate(state))}</span><span class="small muted">${label}</span></div>
+    ${gold}<span class="status">🌙 ${state.moonstone || 0} · 빚 ${won(state.debt)}</span>${dev}
     ${btn({ action: 'sheet.open', args: { sheet: 'more' }, label: '☰', title: '기타 메뉴', cls: 'ghost' })}`;
+}
+
+// 상단 바용 짧은 날짜: '3월 상순' / '후일담 2일째'
+function shortDate(state) {
+  if (isEnded(state)) return dateLabel(state);
+  const c = calendarOf(state.day);
+  return `${c.month}월 ${PARTS[c.part]}`;
+}
+
+// 달력 띠: 연차·남은 순·이번 달 이자 예고·행동력(글자와 점으로 함께 보인다)
+function calendarStrip(state) {
+  const apMax = TEMP.CALENDAR.AP_PER_TURN;
+  const left = state.ap?.left ?? 0;
+  const pips = `<span class="pips" role="img" aria-label="행동력 ${left}/${apMax}">${'●'.repeat(left)}${'○'.repeat(Math.max(0, apMax - left))}</span>`;
+  if (isEnded(state)) return `<div class="calstrip"><span>📅 ${esc(dateLabel(state))} · 자유 영업</span><span>행동력 ${pips}</span></div>`;
+  const c = calendarOf(state.day);
+  const due = Math.ceil(Math.max(0, state.debt) * TEMP.CALENDAR.INTEREST_RATE);
+  const when = c.part === 2 ? '이번 영업 뒤' : `${PARTS[2]} 영업 뒤`;
+  return `<div class="calstrip"><span>📅 ${esc(dateLabel(state))} · 남은 ${turnsLeft(state)}순</span><span title="하순 영업을 마치면 이자가 나갑니다">💸 ${when} 이자 약 ${won(due)}</span><span>행동력 ${pips}</span></div>`;
 }
 
 // ── 하단 패널
@@ -99,12 +121,13 @@ function shiftPanel(state, ui) {
   const flabel = active ? `🔥 피버 ${fmtTime(fv.activeUntil - state.shift.elapsedMs)}` : fv.gauge >= RULES.FEVER_GAUGE_MAX ? '🔥 피버!' : `피버 ${fv.gauge}/100`;
   const fever = btn({ action: 'fever.activate', cls: fcls, disabled: !chk.ok, title: chk.ok ? '피버 발동 (20초, 대상 팁 2배)' : chk.reason,
     label: `<span>${flabel}</span><span class="gauge" aria-hidden="true"><i style="width:${active ? 100 : fv.gauge}%"></i></span>` });
-  const auto = btn({ action: 'auto.toggle', cls: `autobtn${state.auto ? ' on' : ''}`, title: '자동 운영 켜기/끄기', label: `<span>🤖 자동</span><span>${state.auto ? '켜짐' : '꺼짐'}</span>` });
+  const kitchen = btn({ action: 'kitchen.toggle', cls: `autobtn${state.autoKitchen ? ' on' : ''}`, title: '주방 자동(루나 언니 굽기·루나 서빙) 켜기/끄기', label: `<span>🍳 주방</span><span>${state.autoKitchen ? '자동' : '수동'}</span>` });
+  const auto = btn({ action: 'auto.toggle', cls: `autobtn${state.auto ? ' on' : ''}`, title: '전체 자동(지명 수락·도움 응답·피버까지) 켜기/끄기', label: `<span>🤖 전체</span><span>${state.auto ? '켜짐' : '꺼짐'}</span>` });
 
   return `<div class="tray" role="group" aria-label="완성 트레이 3칸">${slots}</div>
     ${held.length ? `<div class="small warn">${esc(held.join(' / '))}</div>` : ''}${hint}
-    <div class="hostrow">${hostCell}${fever}${auto}</div>
-    ${navRow([['kitchen', '🧪 주방'], ['shop', '🧺 재료'], ['quests', '📜 퀘스트'], ['more', '☰ 기타']])}`;
+    <div class="hostrow">${hostCell}${fever}${kitchen}${auto}</div>
+    ${navRow([['kitchen', '🧪 주방'], ['shop', '🛵 긴급 배달'], ['quests', '📜 퀘스트'], ['more', '☰ 기타']])}`;
 }
 
 function prepPanel(state) {
@@ -112,13 +135,16 @@ function prepPanel(state) {
   const hc = huntCheck(state);
   const ds = debtStage(state);
   return `<div class="prep">
-    ${btn({ action: 'shift.start', cls: 'primary big', disabled: !sc.ok, title: sc.ok ? '정규 영업 30분 시작' : sc.reasons.join(' / '), label: `☕ Day ${state.day} 영업 시작 (30:00)` })}
+    ${btn({ action: 'shift.start', cls: 'primary big', disabled: !sc.ok, title: sc.ok ? '정규 영업 30분 시작' : sc.reasons.join(' / '), label: `☕ ${shortDate(state)} 영업 시작 (30:00)` })}
+    ${calendarStrip(state)}
     <div class="grid2">
-      ${btn({ action: 'hunt.start', disabled: !hc.ok, title: hc.ok ? '영냥이 재료 탐색 (약 3분)' : hc.reasons.join(' / '), label: '🐾 영냥이 탐색 (3분)' })}
+      ${btn({ action: 'hunt.start', disabled: !hc.ok, title: hc.ok ? '영냥이 월정석 사냥 (약 3분) · 월정석은 루나의 저울에서 골드로' : hc.reasons.join(' / '), label: '🌙 월정석 사냥 (3분 · 행동력 1)' })}
+      ${btn({ action: 'sheet.open', args: { sheet: 'town' }, cls: 'primary', title: '마을 지도 · 동료와 대화·선물 · 식재료점 · 장비 좌판 · 루나의 저울 · 증축 게시판 · 사냥터', label: '🏘 마을 나가기' })}
       ${btn({ action: 'interior.begin', label: '🪑 인테리어' })}
+      ${btn({ action: 'kitchen.toggle', cls: state.autoKitchen ? 'on' : '', title: '영업 중 주문 조리·서빙을 자동으로', label: `🍳 주방 자동 ${state.autoKitchen ? '켜짐' : '꺼짐'}` })}
     </div>
     <div class="debtline"><span>💳 빚 ${won(state.debt)}</span><span>상환 단계: ${esc(ds.label)} ${ds.need ? `${won(ds.paid)} / ${won(ds.need)}` : ''}</span></div>
-    ${navRow([['kitchen', '🧪 조합대'], ['shop', '🧺 재료'], ['quests', '📜 퀘스트'], ['companions', '👥 동료']])}
+    ${navRow([['kitchen', '🧪 조합대'], ['quests', '📜 퀘스트'], ['companions', '👥 동료'], ['debt', '💳 상환']])}
   </div>`;
 }
 
@@ -154,13 +180,15 @@ function interiorPanel(state) {
 
 function huntPanel(state) {
   const h = state.hunt;
-  const bag = Object.entries(h.bag).map(([id, n]) => `${INGREDIENTS[id].name} ${n}`).join(' · ');
+  const bag = Object.entries(h.bag).filter(([, n]) => n > 0).map(([id, n]) => `${id === 'moonstone' ? '🌙 월정석' : INGREDIENTS[id]?.name || id} ${n}`).join(' · ');
+  const gear = Object.values(state.gear?.equipped || {}).filter(Boolean).map(id => GEAR[id].name).join(' · ');
   const running = h.status === 'running';
   const kit = (h.weapons || []).map(w => `<span class="chip${w.evo ? ' evo' : ''}" title="${esc(w.evo ? WEAPONS[w.id].evo.name : WEAPONS[w.id].name)}">${esc(WEAPONS[w.id].icon)} ${w.evo ? '★' : `Lv${w.level}`}</span>`).join('')
     + Object.entries(h.passives || {}).map(([id, lv]) => `<span class="chip" title="${esc(PASSIVES[id].name)}">${PASSIVES[id].icon} ${lv}</span>`).join('');
   return `<div class="prep">
     <div class="row"><span class="grow">🎒 ${esc(bag || '아직 없음')} · 처치 ${h.kills}</span></div>
     <div class="row chips">${kit}</div>
+    ${gear ? `<div class="small muted">🗡 장비: ${esc(gear)}</div>` : ''}
     <div class="row"><span class="small muted grow">화면을 끌어서 이동 · 공격은 자동 · 별조각을 모으면 레벨업</span>
     ${running ? btn({ action: 'hunt.retreat', label: '🏠 돌아가기' }) : btn({ action: 'overlay.hunt', cls: 'primary', label: '결과 보기' })}</div>
   </div>`;

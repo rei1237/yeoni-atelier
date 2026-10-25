@@ -1,5 +1,6 @@
-// 영냥이 재료 탐색(3분, 뱀서식). 정규 영업과 분리된 모드이며 네오와 같은 인물 잠금(people.neo)을 쓴다.
-// 저장되는 것: 진행 시간·HP·가방·레벨·경험치·무기·보조 능력·대기 중인 레벨업 카드·지난 사건.
+// 영냥이 월정석 사냥(3분, 뱀서식). 적은 재료가 아니라 월정석(환전용)을 떨어뜨린다. 정규 영업과 분리된 모드이며 네오와 같은 인물 잠금(people.neo)을 쓴다.
+// 장비(data/gear.js) 효과는 출발할 때 hs.gear 로 고정해 사냥 중 바뀌지 않는다.
+// 저장되는 것: 진행 시간·HP·가방·장비 효과·레벨·경험치·무기·보조 능력·대기 중인 레벨업 카드·지난 사건.
 // 전장(적·탄·드롭 위치)은 저장하지 않고 이어하기 때 새로 만든다.
 // killerflowerpig 에서 가져온 것: Pool(그대로), 조이스틱 입력(변형). 무기 레벨 누적·진화 배율·
 // 밀도 목표 생성기·별조각 등급/합치기는 개념만 참고해 이 파일에서 새로 썼다(전투 로직 이식 아님).
@@ -7,6 +8,7 @@
 import { PDF } from '../config/balance.pdf.js';
 import { TEMP } from '../config/balance.temp.js';
 import { INGREDIENTS } from '../data/menus.js';
+import { gearBonus } from '../data/gear.js';
 import {
   WEAPONS, PASSIVES, ENEMIES, SPAWN_MIX, HUNT_EVENTS,
   MAX_WEAPONS, MAX_PASSIVES, WEAPON_MAX_LV, PASSIVE_MAX_LV, EVO_MULT,
@@ -15,12 +17,17 @@ import { Pool } from '../core/pool.js';
 import { nextRandom, randRange } from '../core/rng.js';
 import { emit, nextId } from './state.js';
 import { personBusyReason } from './nomination.js';
+import { apCheck, spendAp, calendarOf, totalMonths } from './calendar.js';
+import { bondFx } from '../data/bonds.js';
+import { workHunt } from './bonds.js';
 
 const H = TEMP.HUNT;
 const worlds = new WeakMap(); // state.hunt 객체 → 실행 중 전장(저장 안 함)
 const POWER_NAMES = { fish: '구운 생선', magnet: '수염 자석', bomb: '달빛 폭탄', chest: '별 상자' };
 
-export const xpNeeded = level => H.XP_BASE + (level - 1) * H.XP_STEP;
+export const xpNeeded = level => Math.round(H.XP_BASE + (level - 1) * H.XP_STEP + (level - 1) ** 2 * H.XP_CURVE);
+// 달력이 흐를수록 그늘이 짙어진다: 사냥 시작 때 정해 사냥 내내 쓴다
+export const monthScale = day => { const m = Math.min(calendarOf(day).monthIdx, totalMonths() - 1); return { hp: 1 + H.MONTH_HP * m, dmg: 1 + H.MONTH_DMG * m }; };
 export const gemTier = v => (v < 4 ? 0 : v < 20 ? 1 : 2);
 
 export function huntCheck(state) {
@@ -28,28 +35,37 @@ export function huntCheck(state) {
   const busy = state.shift ? personBusyReason(state, 'neo') : null;
   if (busy) reasons.push(busy);
   else if (state.people.neo.activity !== 'idle') reasons.push('네오가 다른 활동 중입니다');
-  if (state.mode === 'shift') reasons.push('정규 영업 중에는 탐색을 떠날 수 없습니다');
+  if (state.mode === 'shift') reasons.push('정규 영업 중에는 사냥을 떠날 수 없습니다');
   else if (state.mode === 'settlement') reasons.push('결산을 닫은 뒤 떠날 수 있습니다');
-  else if (state.mode === 'hunt') reasons.push('이미 탐색 중입니다');
+  else if (state.mode === 'hunt') reasons.push('이미 사냥 중입니다');
   if (state.interior.draft) reasons.push('인테리어 편집을 먼저 마쳐 주세요');
+  if (state.mode === 'prep') { const ap = apCheck(state, 1); if (!ap.ok) reasons.push(ap.reason); } // 사냥 = 행동력 1
   return { ok: reasons.length === 0, reasons };
 }
 
 export function startHunt(state) {
   const chk = huntCheck(state);
   if (!chk.ok) return { ok: false, reason: chk.reasons[0], reasons: chk.reasons };
+  spendAp(state, 1);
   state.mode = 'hunt';
   state.paused = false;
   Object.assign(state.people.neo, { activity: 'hunting', form: 'cat', visitId: null, tableNo: null, endAt: null });
+  // 장비 + 네오 친밀도 능력(시작 HP·무기 피해·보스 월정석)
+  const fx = bondFx(state.affinity);
+  const gear = gearBonus(state.gear?.equipped);
+  gear.hp += fx.huntHp;
+  gear.dmg += fx.huntDmg;
+  gear.bossMoon = fx.bossMoon;
+  const hp = H.PLAYER_HP + gear.hp;
   state.hunt = normalizeHunt({
-    id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: PDF.HUNT_MS, hp: H.PLAYER_HP, maxHp: H.PLAYER_HP,
-    bag: { night_dew: 0, sugar: 0 }, kills: 0, status: 'running',
+    id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: PDF.HUNT_MS, hp, maxHp: hp, gear,
+    bag: { moonstone: 0 }, kills: 0, status: 'running', scale: monthScale(state.day),
   });
   emit('huntStart', {});
   return { ok: true };
 }
 
-// 예전 저장(레벨 개념 전)의 탐색도 이어서 할 수 있게 빠진 칸을 채운다
+// 예전 저장(레벨 개념 전)의 사냥도 이어서 할 수 있게 빠진 칸을 채운다
 export function normalizeHunt(hs) {
   if (!hs) return hs;
   hs.level ??= 1;
@@ -58,8 +74,10 @@ export function normalizeHunt(hs) {
   hs.weapons ??= [{ id: 'bolt', level: 1, evo: false }];
   hs.passives ??= {};
   hs.picks ??= [];
+  hs.gear ??= gearBonus();
   hs.fired ??= [];
   hs.bossDown ??= false;
+  hs.scale ??= { hp: 1, dmg: 1 };
   return hs;
 }
 
@@ -92,11 +110,13 @@ export function getHuntWorld(state) {
 // ── 능력치(보조 능력 반영)
 export function mods(hs) {
   const p = hs.passives;
+  const g = hs.gear || gearBonus();
   return {
-    speed: 1 + 0.1 * (p.paw || 0),
+    dmg: g.dmg,
+    speed: (1 + 0.1 * (p.paw || 0)) * g.speed,
     area: 1 + 0.15 * (p.hat || 0),
     cool: 1 - 0.08 * (p.bell || 0),
-    magnet: 1 + 0.3 * (p.whisker || 0),
+    magnet: (1 + 0.3 * (p.whisker || 0)) * g.magnet,
     crit: H.CRIT_BASE + 0.05 * (p.luck || 0),
   };
 }
@@ -120,6 +140,7 @@ export function weaponStats(wp, m) {
   if (s.range) s.range *= m.area;
   if (s.cooldown) s.cooldown *= m.cool;
   if (s.tickMs) s.tickMs *= m.cool;
+  if (s.damage) s.damage *= m.dmg || 1;
   return s;
 }
 
@@ -173,10 +194,10 @@ function applyOption(state, o) {
   }
 }
 
-// 레벨업 카드 고르기(엔진 명령 hunt.pick). 카드가 남아 있는 동안 탐색 시간은 멈춘다.
+// 레벨업 카드 고르기(엔진 명령 hunt.pick). 카드가 남아 있는 동안 사냥 시간은 멈춘다.
 export function pick(state, index) {
   const hs = state.hunt;
-  if (state.mode !== 'hunt' || !hs || hs.status !== 'running') return { ok: false, reason: '진행 중인 탐색이 없습니다' };
+  if (state.mode !== 'hunt' || !hs || hs.status !== 'running') return { ok: false, reason: '진행 중인 사냥이 없습니다' };
   normalizeHunt(hs);
   const offer = hs.picks[0];
   if (!offer) return { ok: false, reason: '고를 카드가 없습니다' };
@@ -204,7 +225,8 @@ function spawnEnemy(state, w, type, x, y) {
   if (w.enemies.count >= H.MAX_ENEMIES && !ENEMIES[type].elite) return null;
   const def = ENEMIES[type];
   const hs = state.hunt;
-  const grow = 1 + H.HP_GROWTH * (hs.elapsedMs / hs.durationMs);
+  // 정예·보스는 시간 성장 없이 달 배율만(늦게 나와도 잡을 수 있게)
+  const grow = (def.elite ? 1 : 1 + H.HP_GROWTH * (hs.elapsedMs / hs.durationMs)) * hs.scale.hp;
   const e = w.enemies.spawn();
   Object.assign(e, {
     uid: ++w.uidSeq, type, hp: Math.round(def.hp * grow), speed: def.speed * randRange(state.rng, 0.85, 1.15),
@@ -284,11 +306,14 @@ function addDrop(w, kind, id, v, x, y) {
 function dropFrom(state, w, e) {
   const def = ENEMIES[e.type];
   addDrop(w, 'gem', '', def.xp, e.x, e.y);
-  if (def.chest) { addDrop(w, 'chest', 'chest', 0, e.x + 14, e.y); return; }
+  if (def.chest) {
+    addDrop(w, 'moon', 'moonstone', def.boss ? Math.round(H.MOON_DROP.boss * (1 + (state.hunt?.gear?.bossMoon || 0))) : H.MOON_DROP.elite, e.x - 14, e.y);
+    addDrop(w, 'chest', 'chest', 0, e.x + 14, e.y);
+    return;
+  }
   let r = nextRandom(state.rng);
   for (const d of H.POWER_DROP) { if (r < d.chance) { addDrop(w, d.id, d.id, 0, e.x - 10, e.y + 8); break; } r -= d.chance; }
-  r = nextRandom(state.rng);
-  for (const d of H.DROP_TABLE) { if (r < d.chance) { addDrop(w, 'ing', d.id, 0, e.x + 10, e.y - 6); break; } r -= d.chance; }
+  if (nextRandom(state.rng) < H.MOON_DROP.chance) addDrop(w, 'moon', 'moonstone', 1, e.x + 10, e.y - 6);
 }
 
 function killEnemy(state, w, i) {
@@ -453,7 +478,7 @@ function stepEnemies(state, w, t, dt, auraSlow) {
     }
     e.x += e.kx * sec; e.y += e.ky * sec; e.kx *= decay; e.ky *= decay;
     if (d < def.r + 14 && t >= p.hurtUntil) {
-      hs.hp = Math.max(0, hs.hp - def.dmg);
+      hs.hp = Math.max(0, hs.hp - Math.round(def.dmg * hs.scale.dmg));
       p.hurtUntil = t + H.HURT_IFRAME_MS;
       p.action = 'hurt'; p.actionUntil = t + 300;
       w.shakeUntil = t + 220;
@@ -479,7 +504,10 @@ function collect(state, w, t, m, dt) {
     if (d >= H.PICKUP_RADIUS) continue;
     w.drops.release(i);
     if (it.kind === 'gem') gainXp(state, it.v);
-    else if (it.kind === 'ing') {
+    else if (it.kind === 'moon') {
+      hs.bag.moonstone = (hs.bag.moonstone || 0) + it.v;
+      emit('huntPickup', { id: 'moonstone', name: `월정석 ×${it.v}`, v: it.v });
+    } else if (it.kind === 'ing') { // 예전 저장의 재료 드롭(이어하기 호환)
       hs.bag[it.id] = (hs.bag[it.id] || 0) + 1;
       emit('huntPickup', { id: it.id, name: INGREDIENTS[it.id].name });
     } else if (it.kind === 'fish') {
@@ -561,24 +589,28 @@ export function stepHunt(state, dt, input = { x: 0, y: 0 }) {
 }
 
 export function retreat(state) {
-  if (!state.hunt || state.hunt.status !== 'running') return { ok: false, reason: '진행 중인 탐색이 없습니다' };
+  if (!state.hunt || state.hunt.status !== 'running') return { ok: false, reason: '진행 중인 사냥이 없습니다' };
   state.hunt.status = 'retreat';
   state.hunt.picks = [];
   emit('huntEnd', { status: 'retreat' });
   return { ok: true };
 }
 
-// 결과 수령: 가방의 재료를 hunt id 원장으로 한 번만 지급하고 네오를 사람 모습·대기로 되돌린다.
+// 결과 수령: 가방의 월정석(예전 저장이면 재료도)을 hunt id 원장으로 한 번만 지급하고 네오를 사람 모습·대기로 되돌린다.
 export function finishHunt(state) {
   const hs = state.hunt;
-  if (state.mode !== 'hunt' || !hs) return { ok: false, reason: '진행 중인 탐색이 없습니다' };
-  if (hs.status === 'running') return { ok: false, reason: '탐색이 아직 끝나지 않았습니다 (돌아가기를 누르면 바로 끝낼 수 있어요)' };
+  if (state.mode !== 'hunt' || !hs) return { ok: false, reason: '진행 중인 사냥이 없습니다' };
+  if (hs.status === 'running') return { ok: false, reason: '사냥이 아직 끝나지 않았습니다 (돌아가기를 누르면 바로 끝낼 수 있어요)' };
   const key = `hunt:${hs.id}`;
   if (!state.ledger.rewards[key]) {
     state.ledger.rewards[key] = true;
-    for (const [id, n] of Object.entries(hs.bag)) state.stock[id] = (state.stock[id] || 0) + n;
+    for (const [id, n] of Object.entries(hs.bag)) {
+      if (id === 'moonstone') { state.moonstone = (state.moonstone || 0) + n; state.stats.moonstonesObtained += n; }
+      else if (INGREDIENTS[id]) state.stock[id] = (state.stock[id] || 0) + n;
+    }
     state.stats.nightDewObtained += hs.bag.night_dew || 0;
     state.stats.huntsCompleted += 1;
+    workHunt(state, hs.status === 'done');
   }
   state.lastHunt = { id: hs.id, status: hs.status, bag: { ...hs.bag }, kills: hs.kills, elapsedMs: hs.elapsedMs, level: hs.level ?? 1, bossDown: !!hs.bossDown };
   worlds.delete(hs);

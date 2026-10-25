@@ -24,13 +24,16 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     mode: 'prep',           // prep(영업 전·마감 후) | shift | settlement | hunt
     day: 1,                 // 다음(또는 진행 중) 정규 영업 번호
     paused: false,
-    auto: false,
+    auto: false,           // 전체 자동(접대 판단 포함)
+    autoKitchen: true,     // 주방 자동: 주문 조리·서빙·정리는 기본 자동
     shift: null,
     lastSettlement: null,
     gold: TEMP.START_GOLD,
     debt: PDF.INITIAL_DEBT,
     repaidTotal: 0,
     stock: { ...TEMP.START_STOCK, night_dew: 0 },
+    moonstone: 0,          // 월정석: 사냥에서 얻고 루나의 저울에서 골드로 바꾼다
+    gear: { owned: [], equipped: { weapon: null, armor: null, charm: null } }, // 영냥이 장비(data/gear.js)
     learned,
     // 접대 가능한 명단: 새 게임은 네오 한 명
     roster: Object.fromEntries(RULES.STARTING_ROSTER.map(id => [id, { usableFrom: 1 }])),
@@ -38,11 +41,14 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     people: Object.fromEntries(RULES.STARTING_ROSTER.map(id => [id, { activity: 'idle', form: 'human', visitId: null, tableNo: null, endAt: null }])),
     recruitment: {},
     fever: { gauge: 0, activeUntil: null },
-    interior: { furniture: START_FURNITURE.map(f => ({ ...f })), draft: null },
+    interior: { furniture: START_FURNITURE.map(f => ({ ...f })), areas: [], draft: null },
     outfits: { owned: [...START_OUTFITS], equipped },
     quests: { claimed: {} },
-    stats: { served: 0, servedSpecial: 0, shiftsCompleted: 0, repayCount: 0, nightDewObtained: 0, recruited: 0, huntsCompleted: 0 },
-    ledger: { sales: {}, tips: {}, settlements: {}, rewards: {}, consumes: {}, repay: {} },
+    stats: { served: 0, servedSpecial: 0, shiftsCompleted: 0, repayCount: 0, nightDewObtained: 0, recruited: 0, huntsCompleted: 0, moonstonesObtained: 0, moonstonesExchanged: 0, expansions: 0, areasOpened: 0 },
+    ledger: { sales: {}, tips: {}, settlements: {}, rewards: {}, consumes: {}, repay: {}, interest: {}, story: {} },
+    calendar: { ended: false, endingId: null, endedDebt: null }, // 달력(game/calendar.js): day 로 달·순을 계산한다
+    ap: { left: TEMP.CALENDAR.AP_PER_TURN, talked: {}, gifted: {}, shopped: false }, // 이번 순 행동력
+    affinity: { neo: 0, luna: 0, luna_sis: 0, moka: 0 }, // 친밀도(game/bonds.js)
     hunt: null,
     lastHunt: null,
     seq: { order: 0, visit: 0, customer: 0, job: 0, item: 0, hunt: 0, task: 0 },

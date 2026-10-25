@@ -90,7 +90,7 @@ button.on { background: #2f6e4a; color: #fff; box-shadow: none; }
 .slot.empty { color: var(--muted); background: #f5ede2; }
 .slot.sel { box-shadow: inset 0 0 0 3px var(--info); }
 .slot .to { font-size: 11px; color: var(--info); font-weight: 700; }
-.hostrow { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: stretch; }
+.hostrow { display: grid; grid-template-columns: 1fr auto auto auto; gap: 6px; align-items: stretch; }
 .hostcard { justify-content: flex-start; text-align: left; gap: 6px; min-width: 0; padding: 4px 8px; }
 .hostcard .av { width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 800; }
 .hostcard .txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
@@ -107,7 +107,13 @@ button.on { background: #2f6e4a; color: #fff; box-shadow: none; }
 .prep { display: flex; flex-direction: column; gap: 6px; }
 .prep .big { min-height: 52px; font-size: 16px; }
 .prep .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 6px 0 8px; }
+.tabs button { font-size: 12px; padding: 5px 2px; }
 .debtline { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
+/* 달력 띠: 날짜·남은 순·이자 예고·행동력 */
+.calstrip { font-size: 12px; display: flex; justify-content: space-between; gap: 4px 10px; flex-wrap: wrap; padding: 6px 10px; border-radius: 10px;
+  background: linear-gradient(90deg, #fff3f6, #fbf1dc); box-shadow: inset 0 0 0 1px #f0d6dc; color: #6b2a45; }
+.calstrip .pips { letter-spacing: 2px; color: #b31955; }
 
 /* ── 바텀 시트 */
 .sheet-wrap { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; justify-content: flex-end; max-width: 520px; margin: 0 auto; }
@@ -224,3 +230,29 @@ button.on { background: #2f6e4a; color: #fff; box-shadow: none; }
 @keyframes disc-spin { to { transform: rotate(360deg); } }
 @keyframes disc-pop { from { transform: scale(0.2); } to { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .disc-burst, .disc-burst i, .combo.shake { animation: none; } }
+
+/* ── 마을 월드 맵: 계절별 바탕은 임시 그라데이션(나중에 assets/ui/town-map-<계절>.png 로 교체, ASSETS.md §10) */
+.town-map { position: relative; height: 230px; margin: 6px 0 4px; border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); background: linear-gradient(180deg, #e9dcf6 0%, #fbe6ee 55%, #f3e6d6 100%); }
+.town-map.spring { background: radial-gradient(circle at 15% 20%, #ffe0ea 0 18%, transparent 19%), radial-gradient(circle at 70% 75%, #ffd9e6 0 14%, transparent 15%), linear-gradient(180deg, #f4e7fb, #fde9f0 60%, #f6eadc); }
+.town-map.summer { background: radial-gradient(circle at 80% 15%, #fff3c4 0 12%, transparent 13%), linear-gradient(180deg, #dff1f6, #f0f7e6 60%, #f6eadc); }
+.town-map.autumn { background: radial-gradient(circle at 25% 75%, #f8d9b8 0 16%, transparent 17%), linear-gradient(180deg, #f7e3d0, #f9e9dc 60%, #f3e2cf); }
+.town-map.winter { background: radial-gradient(circle at 60% 30%, #ffffff 0 10%, transparent 11%), linear-gradient(180deg, #e3e6f6, #f1f0f8 60%, #ece7ef); }
+.town-map::after { content: ''; position: absolute; left: 58%; right: -10%; top: 30%; height: 18px; background: rgba(150, 170, 230, 0.35); transform: rotate(-24deg); border-radius: 9px; pointer-events: none; } /* 사주의 강 */
+.tm-path { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tm-path line { stroke: #c9a98a; stroke-width: 2.5; stroke-dasharray: 2 6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.tn { position: absolute; transform: translate(-50%, -50%); z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: var(--tap); min-height: var(--tap); padding: 4px 6px; background: rgba(255, 250, 243, 0.92); border: 0; border-radius: 14px; box-shadow: 0 2px 6px rgba(80, 50, 40, 0.18), inset 0 0 0 1px var(--line); color: var(--ink); font: inherit; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.tn i { font-style: normal; font-size: 20px; line-height: 1; }
+.tn b { font-size: 10.5px; white-space: nowrap; }
+.tn .tn-bond { font-style: normal; font-size: 10px; color: var(--accent); white-space: nowrap; }
+.tn:hover, .tn:focus-visible { transform: translate(-50%, -50%) scale(1.06); }
+.tn.on { box-shadow: 0 0 0 3px var(--accent), 0 3px 10px rgba(232, 119, 143, 0.35); }
+.tm-me { position: absolute; z-index: 2; font-size: 22px; transform: translate(-50%, -150%); transition: left 0.45s cubic-bezier(0.3, 1.4, 0.5, 1), top 0.45s cubic-bezier(0.3, 1.4, 0.5, 1); animation: tm-bob 1.4s ease-in-out infinite; pointer-events: none; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2)); }
+@keyframes tm-bob { 50% { margin-top: -4px; } }
+.bond-card { background: linear-gradient(180deg, #fff, #fff5f8); border-radius: var(--r); box-shadow: inset 0 0 0 1px #f3cbd6; padding: 8px 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 5px; }
+.bc-top { display: flex; align-items: center; gap: 8px; }
+.hearts { color: var(--accent); letter-spacing: 1px; font-size: 13px; }
+.bc-top .hearts { margin-left: auto; font-size: 15px; }
+.bond-card .row { flex-wrap: wrap; }
+.bond-card .row button { flex: 1 1 auto; font-size: 12px; }
+.bar > i.bond { background: linear-gradient(90deg, #f5a3b7, var(--accent)); }
+@media (prefers-reduced-motion: reduce) { .tm-me { transition: none; animation: none; } }

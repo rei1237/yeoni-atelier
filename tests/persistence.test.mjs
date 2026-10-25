@@ -1,4 +1,4 @@
-// 저장·복원 중복 방지, 인테리어 취소·적용, 영입 흐름, 탐색 보상
+// 저장·복원 중복 방지, 인테리어 취소·적용, 영입 흐름, 월정석 사냥 보상
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { RULES } from '../src/config/rules.js';
@@ -107,24 +107,27 @@ function huntRun(s, ms, input, step = 500) {
   }
 }
 
-test('탐색: 네오가 영냥이로 변하고, 결과 재료는 저장·복원과 무관하게 1회 지급', () => {
+test('월정석 사냥: 네오가 영냥이로 변하고, 모은 월정석은 저장·복원과 무관하게 1회 지급', () => {
   const s = createGame();
   assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
   assert.deepEqual([s.people.neo.activity, s.people.neo.form], ['hunting', 'cat']);
-  assert.equal(dispatch(s, { type: 'shift.start' }).ok, false, '탐색 중 영업 시작 불가');
+  assert.equal(dispatch(s, { type: 'shift.start' }).ok, false, '사냥 중 영업 시작 불가');
   huntRun(s, 5000, { x: 1, y: 0 });
   assert.ok(dispatch(s, { type: 'hunt.retreat' }).ok);
-  s.hunt.bag = { night_dew: 2, sugar: 1 }; // 수량을 고정해 지급만 확인(테스트 준비)
+  s.hunt.bag = { moonstone: 7, sugar: 1 }; // 수량을 고정해 지급만 확인(테스트 준비). sugar = 예전 저장의 재료 가방
   const before = { ...s.stock };
+  const moon0 = s.moonstone;
   const r = roundTrip(s); // 결과 화면에서 저장
   dispatch(r, { type: 'resume' });
   assert.ok(dispatch(r, { type: 'hunt.finish' }).ok);
-  assert.equal(r.stock.night_dew, before.night_dew + 2);
+  assert.equal(r.moonstone, moon0 + 7);
+  assert.equal(r.stats.moonstonesObtained, 7);
+  assert.equal(r.stock.moonstone, undefined, '월정석은 재료 창고에 들어가지 않는다');
   assert.equal(r.stock.sugar, before.sugar + 1);
   assert.deepEqual([r.people.neo.activity, r.people.neo.form], ['idle', 'human']);
   assert.equal(dispatch(r, { type: 'hunt.finish' }).ok, false);
   const r2 = roundTrip(r);
-  assert.equal(r2.stock.night_dew, before.night_dew + 2);
+  assert.equal(r2.moonstone, moon0 + 7);
   assert.equal(r2.stats.huntsCompleted, 1);
 });
 
@@ -200,9 +203,9 @@ test('인테리어: 취소하면 원래 배치로, 적용한 배치는 통로가
   assert.deepEqual(s.interior.furniture, original);
   assert.equal(s.interior.draft, null);
 
-  // 입구 앞에 놓으면 적용 거절, 실제 배치는 그대로
+  // 입구 앞(통로)에 놓으면 적용 거절, 실제 배치는 그대로
   dispatch(s, { type: 'interior.begin' });
-  dispatch(s, { type: 'interior.move', uid: 'plant1', x: 4, y: 10 });
+  dispatch(s, { type: 'interior.move', uid: 'plant1', x: 5, y: 14 });
   const bad = dispatch(s, { type: 'interior.apply' });
   assert.equal(bad.ok, false);
   assert.deepEqual(s.interior.furniture, original);

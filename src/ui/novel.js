@@ -13,6 +13,8 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 let active = null;
 export const novelPlaying = () => !!active;
 
+export const novelActive = () => !!active;
+
 export function playNovel(beats, { onEnd } = {}) {
   if (active) active.close(false);
   const root = document.getElementById('novel');

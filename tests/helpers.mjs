@@ -5,8 +5,10 @@ import { dispatch, tick } from '../src/game/engine.js';
 import { spawnCustomer } from '../src/game/cafe.js';
 
 // 영업을 시작하고 대본·무작위 입장을 끈다. 손님은 테스트가 직접 들여보낸다.
-export function quietShift({ dev = false } = {}) {
+// 주방 자동(기본 켜짐)도 끈다: 조리·서빙을 테스트가 명령으로 직접 낸다. 자동을 보는 테스트는 kitchen=true.
+export function quietShift({ dev = false, kitchen = false } = {}) {
   const s = createGame({ dev });
+  s.autoKitchen = kitchen;
   const r = dispatch(s, { type: 'shift.start' });
   assert.ok(r.ok, r.reason);
   s.shift.scriptIndex = 99;
