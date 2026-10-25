@@ -1,6 +1,7 @@
 // 임시 구현 결정값. 기획서에 수치가 없어서 이번 프로토타입이 정한 값이다.
 // 확정 규칙도, 기획서 제안 수치도 아니다. 플레이테스트로 바꾼다.
 
+import { DECOR_CATALOG } from '../data/decor-catalog.js';
 export const TEMP = Object.freeze({
   // ── 시뮬레이션
   SIM_STEP_MS: 100,           // 한 틱의 최대 시뮬레이션 간격
@@ -91,7 +92,7 @@ export const TEMP = Object.freeze({
   MAX_TABLES: 10,
   AREA_COSTS: Object.freeze([6000, 18000, 40000]), // 공방 증축: 연 구역 수에 따라 오른다
   SPAWN_TABLE_BASE: 5,        // 시작 5테이블은 기본 입장 간격. 증축 이후에만 비례 단축(임시)
-  DECOR_PRICES: Object.freeze({ plant: 400, lamp: 700, bookshelf: 1200, rug: 1500 }),
+  DECOR_PRICES: Object.freeze({ plant: 400, lamp: 700, bookshelf: 1200, rug: 1500, ...Object.fromEntries(DECOR_CATALOG.map(d => [d.id, d.price])) }),
 
   // ── 달력·이자·행동력(임시). 영업 1회 = 한 순, 3순 = 한 달. 3월부터 12달(36순) 뒤 결말.
   CALENDAR: Object.freeze({
@@ -117,5 +118,5 @@ export const TEMP = Object.freeze({
 
   // ── 자동 운영
   AUTO_DECIDE_MS: 600,
-  HUNT_CAREER: Object.freeze({ xpBase: 100, xpStep: 20, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.5, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100 }),
+  HUNT_CAREER: Object.freeze({ xpBase: 500, xpStep: 150, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.5, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100 }),
 });

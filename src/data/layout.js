@@ -2,6 +2,7 @@
 // 고정 설비(이동 불가)와 배치 가능한 가구를 분리한다.
 // 연이는 입구 옆 계산대에서 계산만 한다. 루나 언니는 주방(굽기), 루나는 홀(서빙·정리)을 맡는다(게임 오리지널).
 
+import { DECOR_CATALOG } from './decor-catalog.js';
 export const GRID = Object.freeze({ cols: 12, rows: 16 });
 
 export const SPOTS = Object.freeze({
@@ -46,6 +47,7 @@ export function areaCells(a) {
 
 // 가구 정의. cells는 회전 0 기준의 상대 좌표. kind: table / chair / block / floor(통과 가능 장식)
 export const FURNITURE = Object.freeze({
+  ...Object.fromEntries(DECOR_CATALOG.map(d => [d.id, d])),
   table_set: { id: 'table_set', name: '2인 테이블 세트', cells: [{ dx: 0, dy: 0, kind: 'table' }, { dx: 0, dy: 1, kind: 'chair' }], color: '#c79a6b', ambience: 0, table: true, storable: false },
   plant: { id: 'plant', name: '화분', cells: [{ dx: 0, dy: 0, kind: 'block' }], color: '#6aa36a', ambience: 2 },
   bookshelf: { id: 'bookshelf', name: '책장', cells: [{ dx: 0, dy: 0, kind: 'block' }, { dx: 1, dy: 0, kind: 'block' }], color: '#9a6f4e', ambience: 3 },
