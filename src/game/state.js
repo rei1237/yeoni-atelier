@@ -26,7 +26,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     day: 1,                 // 다음(또는 진행 중) 정규 영업 번호
     paused: false,
     auto: false,           // 전체 자동(접대 판단 포함)
-    autoKitchen: true,     // 주방 자동: 주문 조리·서빙·정리는 기본 자동
+    autoKitchen: false,    // 편한 수동 기본: 조리·서빙은 탭, 이동·정리는 보조
     hostbar: { open: false, openedDay: null },
     huntUnlocked: false,
     neoStress: 0,

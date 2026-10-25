@@ -31,8 +31,8 @@ test('일반 손님은 접대 없이 주문·식사하고 떠난다', () => {
   assert.equal(s.shift.hostings.length, 0);
 });
 
-test('주방 자동(기본 켜짐)은 조리·서빙만 하고 지명 수락은 사람에게 남긴다', () => {
-  assert.equal(createGame().autoKitchen, true, '새 게임은 주방 자동이 켜져 있다');
+test('편한 수동이 기본이며 주방 자동을 켜면 조리·서빙만 하고 지명 수락은 사람에게 남긴다', () => {
+  assert.equal(createGame().autoKitchen, false, '새 게임은 수동 조리·서빙으로 시작한다');
   const s = quietShift({ kitchen: true });
   assert.equal(s.auto, false);
   const reg = seat(s, { kind: 'regular' });

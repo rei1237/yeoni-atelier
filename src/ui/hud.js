@@ -206,7 +206,7 @@ export function bubblesHtml(state, v) {
     const b = bubbleOf(state, t, now);
     if (!b) return '';
     const p = cellToPx(v, t.table.x + 0.5, t.table.y);
-    return `<button type="button" class="bubble ${b.cls}" data-key="b${t.no}" data-action="table.tap" data-no="${t.no}" style="left:${Math.round(p.x)}px;top:${Math.round(p.y - 2)}px" aria-label="${t.no}번 테이블: ${esc(b.text)}">${esc(b.text)}</button>`;
+    return `<button type="button" class="bubble ${b.cls}" data-key="b${t.no}" data-action="${b.orderId ? 'order.quick' : 'table.tap'}" data-id="${b.orderId || ''}" data-no="${t.no}" style="left:${Math.round(p.x)}px;top:${Math.round(p.y - 2)}px" aria-label="${t.no}번 테이블: ${esc(b.text)}">${esc(b.text)}</button>`;
   }).join('');
 }
 
@@ -235,7 +235,9 @@ function bubbleOf(state, t, now) {
     case 'waiting_food': {
       if (!orders.length) return { cls: '', text: '🍽 대기' };
       const left = TEMP.FOOD_PATIENCE_MS - (now - orders[0].placedAt);
-      return { cls: '', text: `🍽 ${orderText} ⏳${fmtTime(left)}` };
+      const waiting = orders.find(o => o.status === 'waiting');
+      const ready = waiting && state.tray.some(it => it && !it.reservedFor && it.menuId === waiting.menuId);
+      return { cls: ready ? 'ready' : '', orderId: waiting?.id, text: `🍽 ${orderText} · ${ready ? '서빙' : waiting ? '만들기' : '운반 중'} ${fmtTime(left)}` };
     }
     case 'eating': return { cls: '', text: '😋 식사 중' };
     default: return null;

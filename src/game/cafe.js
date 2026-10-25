@@ -97,6 +97,22 @@ function moveAlong(e, dt, tilesPerS) {
 }
 
 // ── 재고·조리
+// 주문 말풍선 한 번: 완성 음식은 그 테이블로 보내고, 없으면 한 개만 조리 예약한다.
+export function quickOrder(state, orderId) {
+  const order = state.orders[orderId];
+  if (!order || order.status !== 'waiting') return { ok: false, reason: '이미 서빙 중이거나 끝난 주문이에요' };
+  const item = state.tray.find(it => it && !it.reservedFor && it.menuId === order.menuId);
+  if (item) return serve(state, item.id, order.tableNo);
+  const station = state.stations[MENUS[order.menuId].station];
+  if ([station.current, station.next].some(job => job?.orderId === orderId)) return { ok: false, reason: '이 주문은 만들고 있어요. 완성 트레이를 눌러 주세요' };
+  const prepared = [station.current, station.next, station.held].filter(job => job?.menuId === order.menuId).length;
+  const waiting = Object.values(state.orders).filter(o => o.status === 'waiting' && o.menuId === order.menuId);
+  if (prepared > waiting.findIndex(o => o.id === orderId)) return { ok: false, reason: '이 주문은 만들고 있어요. 완성 트레이를 눌러 주세요' };
+  const result = cook(state, order.menuId);
+  if (result.ok) (result.started ? station.current : station.next).orderId = orderId;
+  return result;
+}
+
 export function stockCheck(state, menuId) {
   const m = MENUS[menuId];
   for (const [id, n] of Object.entries(m.ingredients)) {

@@ -202,7 +202,6 @@ const ACTIONS = {
     const it = state.tray[i];
     if (!it) { ui.selectedSlot = null; return; }
     if (it.reservedFor) { toast('이미 서빙하러 가는 중입니다'); return; }
-    if (ui.selectedSlot !== i) { ui.selectedSlot = i; return; }
     const target = findServeTarget(state, it);
     if (target == null) { toast('이 메뉴를 기다리는 테이블이 없습니다', 'bad'); return; }
     if (run({ type: 'serve', itemId: it.id, tableNo: target }).ok) ui.selectedSlot = null;
@@ -216,6 +215,7 @@ const ACTIONS = {
   'nomination.propose': d => run({ type: 'nomination.propose', tableNo: n(d.no), personId: d.person }),
   'help.respond': d => run({ type: 'help.respond', visitId: d.visit, index: n(d.index), choice: d.choice }),
   'cook': d => run({ type: 'cook', menuId: d.menu }),
+  'order.quick': d => run({ type: 'order.quick', orderId: d.id }),
   'cook.cancelNext': d => run({ type: 'cook.cancelNext', station: d.station }),
   'shop.buy': d => run({ type: 'shop.buy', ingredientId: d.id, qty: n(d.qty) }),
   'debt.repay': d => run({ type: 'debt.repay', amount: n(d.amount), requestId: `repay-${Date.now()}-${++repaySeq}` }),

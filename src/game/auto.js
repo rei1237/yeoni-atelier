@@ -41,14 +41,15 @@ export function autoStep(state, run) {
   }
   // 3) 피버
   if (full && feverCheck(state).ok) run({ type: 'fever.activate' });
+  // 정리는 수동 조작에서도 보조한다. 조리·서빙은 자동 모드에서만 명령한다.
+  for (const t of state.tables) if (t.state === 'dirty' && !t.cleanQueued) run({ type: 'clean', tableNo: t.no });
+  if (!state.auto && !state.autoKitchen) return;
   // 4) 서빙
   for (const it of state.tray) {
     if (!it || it.reservedFor) continue;
     const t = findServeTarget(state, it);
     if (t != null) run({ type: 'serve', itemId: it.id, tableNo: t });
   }
-  // 5) 정리
-  for (const t of state.tables) if (t.state === 'dirty' && !t.cleanQueued) run({ type: 'clean', tableNo: t.no });
   // 6) 조리: 대기 주문 중 트레이·조리 중인 것으로 아직 덮이지 않은 메뉴
   const supply = {};
   const add = id => { supply[id] = (supply[id] || 0) + 1; };

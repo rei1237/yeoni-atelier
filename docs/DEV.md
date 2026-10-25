@@ -155,3 +155,6 @@ state.farm: xp, seed, greenhouse, lastAdvancedDay, harvests, plots. 작물 인�
 
 ## 영냥이 영구 성장
 `state.hunter {xp,kills}`는 사냥 사이에 유지한다. `hunt.careerLevel/depth/scale`는 출발 스냅샷, `careerXP`는 처치로 쌓인 이번 사냥 보상. `hunt.finish`의 기존 hunt:<id> 원장 안에서 경험치·처치 수·월정석을 한 번에 지급한다. 옛 저장에 누적 성장은 0으로 추가하고 과거 보상은 소급하지 않는다. `hunt.start {depth}`는 해금 깊이와 정수를 검증한 뒤 AP를 쓴다. 사냥 내 무기 레벨은 기존처럼 매번 초기화한다.
+
+## 편한 수동 (2026-10-25 사용자 선택)
+새 게임 autoKitchen=false. 주문 말풍선 또는 주문 카드 한 번으로 조리 예약, 완성 트레이 한 번으로 맞는 테이블에 운반 요청. 루나 이동·마감 정리는 보조하며 자동 조리·서빙과 전체 자동은 별도 선택이다. 기존 저장의 autoKitchen 선택은 유지한다. `order.quick {orderId}`는 영업 중 대기 주문만 받고 반복 탭으로 동일 주문의 조리 예약을 중복하지 않는다.

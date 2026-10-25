@@ -91,7 +91,7 @@ function ordersHtml(state, visit, no) {
     if (o.status === 'waiting') {
       const item = state.tray.find(it => it && !it.reservedFor && it.menuId === o.menuId && !usedItems.has(it.id));
       if (item) { usedItems.add(item.id); action = btn({ action: 'serve', args: { item: item.id, no }, cls: 'primary', label: '트레이에서 서빙' }); }
-      else action = `<span class="small muted">${state.learned[o.menuId] ? '주방에서 만들어 주세요' : '레시피 없음'}</span>`;
+      else action = btn({ action: 'order.quick', args: { id: o.id }, cls: 'primary', disabled: !stockCheck(state, o.menuId).ok, label: '만들기' });
     }
     return `<div class="item"><i class="swatch" style="background:${m.color}"></i><div class="meta grow"><b>${esc(m.name)} · ${won(o.price)}</b><span>${ORDER_STATUS[o.status]}</span></div>${action}</div>`;
   }).join('')}</div>`;

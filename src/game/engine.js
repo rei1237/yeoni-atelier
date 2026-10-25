@@ -19,7 +19,7 @@ import { autoStep } from './auto.js';
 // 일시정지 중에도 받는 명령
 const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle', 'kitchen.toggle']);
 // 영업 중에만 의미가 있는 명령
-const SHIFT_ONLY = new Set(['cook', 'cook.cancelNext', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate']);
+const SHIFT_ONLY = new Set(['order.quick', 'cook', 'cook.cancelNext', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate']);
 
 function route(state, cmd) {
   const t = cmd?.type;
@@ -36,6 +36,7 @@ function route(state, cmd) {
     case 'kitchen.toggle': state.autoKitchen = cmd.on ?? !state.autoKitchen; return { ok: true, autoKitchen: state.autoKitchen };
 
     case 'cook': return cafe.cook(state, cmd.menuId);
+    case 'order.quick': return cafe.quickOrder(state, cmd.orderId);
     case 'recipe.try': return recipe.tryCombo(state, cmd.ingredients);
     case 'cook.cancelNext': return cafe.cancelNext(state, cmd.station);
     case 'serve': return cafe.serve(state, cmd.itemId, cmd.tableNo);

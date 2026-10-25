@@ -83,7 +83,7 @@ export function stepShift(state, dt, autoStep) {
   stepStaff(state, step);
   stepCustomers(state, step, { onRequesting });
   stepSpawn(state);
-  if (autoStep && (state.auto || state.autoKitchen)) autoStep(state);
+  if (autoStep) autoStep(state);
   if (sh.elapsedMs >= shiftDuration(state)) closeShift(state);
 }
 
