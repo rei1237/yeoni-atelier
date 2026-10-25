@@ -3,6 +3,7 @@
 // 장소 이름과 역할(루나의 저울, 무인 좌판)은 게임 오리지널 설정이다.
 
 import { TEMP } from '../config/balance.temp.js';
+import { RULES } from '../config/rules.js';
 import { GEAR } from '../data/gear.js';
 import { FURNITURE, GRID, AREAS } from '../data/layout.js';
 import { validateLayout } from './space.js';
@@ -65,7 +66,7 @@ export function equipGear(state, slot, id) {
 export const tableCount = state => state.interior.furniture.filter(f => FURNITURE[f.defId].table).length;
 
 export function tablePrice(count) {
-  return Math.round(TEMP.TABLE_PRICE_BASE * TEMP.TABLE_PRICE_GROWTH ** Math.max(0, count - 3) / 100) * 100;
+  return Math.round(TEMP.TABLE_PRICE_BASE * TEMP.TABLE_PRICE_GROWTH ** Math.max(0, count - RULES.TABLE_COUNT) / 100) * 100;
 }
 
 export function nextExpansion(state) {

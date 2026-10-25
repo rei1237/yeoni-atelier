@@ -67,10 +67,10 @@ test('모카 식재료점: 준비 중엔 재료값만, 영업 중엔 긴급 배�
   assert.equal(t.gold, 1000 - 180 - r2.fee);
 });
 
-test('가게 확장: 테이블 값은 들일수록 오르고, 4·5번 테이블에도 다음 영업에서 손님이 앉는다', () => {
+test('가게 확장: 테이블 값은 들일수록 오르고, 6·7번 테이블에도 다음 영업에서 손님이 앉는다', () => {
   const s = createGame();
   s.gold = 20000;
-  const p4 = tablePrice(3), p5 = tablePrice(4);
+  const p4 = tablePrice(5), p5 = tablePrice(6);
   assert.equal(p4, TEMP.TABLE_PRICE_BASE);
   assert.ok(p5 > p4, '두 번째 테이블이 더 비싸다');
   assert.ok(dispatch(s, { type: 'expand.table' }).ok);
@@ -83,9 +83,9 @@ test('가게 확장: 테이블 값은 들일수록 오르고, 4·5번 테이블�
   assert.ok(dispatch(s, { type: 'shift.start' }).ok);
   s.shift.scriptIndex = 99;
   s.shift.nextSpawnAt = Number.MAX_SAFE_INTEGER;
-  assert.deepEqual(s.tables.map(t => t.no).sort(), [1, 2, 3, 4, 5]);
-  const seated = [1, 2, 3, 4, 5].map(() => seat(s, { kind: 'normal' }).tableNo);
-  assert.deepEqual(seated.sort(), [1, 2, 3, 4, 5]);
+  assert.deepEqual(s.tables.map(t => t.no).sort(), [1, 2, 3, 4, 5, 6, 7]);
+  const seated = [1, 2, 3, 4, 5, 6, 7].map(() => seat(s, { kind: 'normal' }).tableNo);
+  assert.deepEqual(seated.sort(), [1, 2, 3, 4, 5, 6, 7]);
 });
 
 test('공방 증축: 잠긴 구역에는 가구를 못 놓고, 열 때마다 다음 구역이 비싸진다', () => {

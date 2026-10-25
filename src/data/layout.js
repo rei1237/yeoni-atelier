@@ -59,6 +59,8 @@ export const START_FURNITURE = Object.freeze([
   { uid: 'table1', defId: 'table_set', x: 2, y: 4, rot: 0, tableNo: 1 },
   { uid: 'table2', defId: 'table_set', x: 6, y: 4, rot: 0, tableNo: 2 },
   { uid: 'table3', defId: 'table_set', x: 6, y: 8, rot: 0, tableNo: 3 },
+  { uid: 'table4', defId: 'table_set', x: 2, y: 8, rot: 0, tableNo: 4 },
+  { uid: 'table5', defId: 'table_set', x: 6, y: 11, rot: 0, tableNo: 5 },
   { uid: 'plant1', defId: 'plant', x: 0, y: 10, rot: 0 },
   { uid: 'plant2', defId: 'plant', x: 8, y: 15, rot: 0 },
   { uid: 'rug1', defId: 'rug', x: 3, y: 4, rot: 0 },

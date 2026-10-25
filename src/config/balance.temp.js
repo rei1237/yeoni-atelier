@@ -85,11 +85,11 @@ export const TEMP = Object.freeze({
   // ── 마을(임시). 월정석 환전·모카 긴급 배달·가게 확장
   MOONSTONE_GOLD: 35,         // 루나의 저울: 월정석 1개 = 35G
   DELIVERY_FEE_RATE: 0.25,    // 영업 중 모카 긴급 배달 = 재료값 +25%
-  TABLE_PRICE_BASE: 2500,     // 4번 테이블 값. 한 개 들일 때마다 ×1.6 (2,500 → 4,000 → 6,400 …)
+  TABLE_PRICE_BASE: 2500,     // 6번 테이블 값. 한 개 들일 때마다 ×1.6 (2,500 → 4,000 → 6,400 …)
   TABLE_PRICE_GROWTH: 1.6,
   MAX_TABLES: 10,
   AREA_COSTS: Object.freeze([6000, 18000, 40000]), // 공방 증축: 연 구역 수에 따라 오른다
-  SPAWN_TABLE_BASE: 3,        // 테이블이 이보다 많으면 손님 간격이 테이블 수에 비례해 짧아진다
+  SPAWN_TABLE_BASE: 5,        // 시작 5테이블은 기본 입장 간격. 증축 이후에만 비례 단축(임시)
   DECOR_PRICES: Object.freeze({ plant: 400, lamp: 700, bookshelf: 1200, rug: 1500 }),
 
   // ── 달력·이자·행동력(임시). 영업 1회 = 한 순, 3순 = 한 달. 3월부터 12달(36순) 뒤 결말.

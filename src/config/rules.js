@@ -39,7 +39,7 @@ export const RULES = Object.freeze({
   FEVER_GAIN_SPECIAL: 8,
 
   // 첫 구성
-  TABLE_COUNT: 3, // 시작 테이블 수(마을 「가게 확장」으로 늘어난다)
+  TABLE_COUNT: 5, // 사용자 결정 2026-10-25: 시작 테이블 세트 5개
   TRAY_SLOTS: 3,
   STATION_SLOTS: 2, // 현재 작업 1 + 다음 작업 1
 

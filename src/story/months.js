@@ -19,7 +19,7 @@ export const MONTH_STORIES = Object.freeze([
   [
     { chapter: ['1년차 4월', '꽃길과 별 하나'], bg: 'atelier_lit', l: 'yeoni:smile', c: 'moka:normal', r: null },
     { s: 'nar', t: '사주의 강가에 꽃이 피자, 꽃길을 걷던 손님들이 하나둘 카페 문을 열었다.' },
-    { s: 'moka', t: '손님은 늘었네. 근데 테이블이 세 개뿐이야. 이 가게 수용력 별 하나.', c: 'moka:smug' },
+    { s: 'moka', t: '손님은 늘었네. 근데 테이블이 다섯 개뿐이야. 이 가게 수용력 별 하나.', c: 'moka:smug' },
     { s: 'yeoni', t: '별 하나는 내 전문 분야인데! 남한테 받으니까 왜 이렇게 아파?', l: 'yeoni:sulky' },
     { s: 'moka', t: '마을 공방에 가 봐. 테이블도 들이고 막힌 벽도 터 줘. 돈은 점점 비싸지지만.', c: 'moka:normal' },
     { s: 'luna_sis', t: '창가 자리를 열면… 꽃 보는 손님이 오래 앉아 있을 거예요.', r: 'luna_sis:normal' },
