@@ -5,6 +5,7 @@
 import { RULES } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
 import { MENUS } from '../data/menus.js';
+import { bestHelpChoice } from '../data/help.js';
 import { acceptCheck, hostingPreview, topPref, feverCheck, hostingVisits } from './nomination.js';
 import { findServeTarget, stockCheck } from './cafe.js';
 
@@ -12,7 +13,6 @@ export function autoAcceptDecision(state, tableNo) {
   const chk = acceptCheck(state, tableNo);
   if (!chk.visit) return { accept: false, why: chk.reasons[0] };
   const pv = hostingPreview(state, chk.visit);
-  if (topPref(chk.visit.prefs) === 'fun' || chk.visit.profileId === 'fun') return { accept: false, decline: true, why: '재미 중심 요청(네오의 재미 0 → 만족 불가)' };
   if (!pv || pv.H < RULES.TIP_MIN_H) return { accept: false, decline: true, why: `예상 만족 ${pv ? pv.H.toFixed(1) : '-'} < 60` };
   if (!chk.ok) return { accept: false, why: chk.reasons[0] };
   return { accept: true, H: pv.H };
@@ -36,7 +36,7 @@ export function autoStep(state, run) {
   if (full) for (const v of hostingVisits(state)) {
     v.help.forEach((h, i) => {
       if (h.status !== 'open') return;
-      run({ type: 'help.respond', visitId: v.id, index: i, choice: h.kind === 'topic' ? topPref(v.prefs) : h.kind });
+      run({ type: 'help.respond', visitId: v.id, index: i, choice: bestHelpChoice(h.kind, v.prefs) });
     });
   }
   // 3) 피버

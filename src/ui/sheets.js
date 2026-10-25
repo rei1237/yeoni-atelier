@@ -1,3 +1,4 @@
+import { HELP_SCENES } from '../data/help.js';
 // 바텀시트(테이블·주방·재료·마을·퀘스트·기타·부채·동료·의상)와 전면 오버레이(타이틀·확인·일시정지·결산·사냥 결과·만남 이벤트).
 // 상태를 읽기만 하고, 버튼은 data-action 으로 명령을 요청한다.
 
@@ -158,11 +159,10 @@ function helpHtml(state, visit, h, now) {
   if (h.status === 'done') return `<div class="item"><div class="meta grow"><b>${label}</b><span>✅ 응답함${h.result === 'good' ? ' · 좋은 반응' : ''}</span></div></div>`;
   if (h.status === 'missed') return `<div class="item"><div class="meta grow"><b>${label}</b><span>✖ 놓침 (대화 보정 −1)</span></div></div>`;
   const args = c => ({ visit: visit.id, index: h.index, choice: c });
-  let choices;
-  if (h.kind === 'topic') choices = `<div class="choice-grid">${STAT_KEYS.map(k => btn({ action: 'help.respond', args: args(k), label: `${esc(TOPICS[k])}` })).join('')}</div>`;
-  else if (h.kind === 'listen') choices = btn({ action: 'help.respond', args: args('listen'), cls: 'primary', label: '👂 이야기 들어주기' });
-  else choices = btn({ action: 'help.respond', args: args('photo'), cls: 'primary', label: '📸 사진 찍어 주기 (피버 +8, 1회)' });
-  return `<div class="card"><b>❗ ${label}</b> <span class="small">${fmtTime(h.until - now)} 안에 응답</span>${choices}</div>`;
+  const scene = HELP_SCENES[h.kind];
+  const choices = `<div class="choice-grid">${scene.choices.map(([id, label]) => btn({ action: 'help.respond', args: args(id), label: esc(label) })).join('')}</div>`;
+  return `<div class="sos-card"><b>SOS · ${label}</b><p>${esc(scene.prompt)}</p><span class="small">${fmtTime(h.until - now)} 안에 응답</span>${bar((h.until - now) / (h.until - h.at) * 100)}${choices}</div>`;
+
 }
 
 // ── 주방

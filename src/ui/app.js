@@ -283,8 +283,8 @@ function handleEvents(events) {
       case 'nominationAccepted': toast(`🫖 ${ev.tableNo}번 접대 시작 · 60초 전담`, 'good'); gagLines(ev.gag); break;
       case 'nominationConverted': toast(`${ev.tableNo}번: ${ev.why}`); break;
       case 'nominationProposed': toast(`${ev.tableNo}번에 ${personName(state, ev.personId)} 추천`); break;
-      case 'helpOpen': toast(`❗ ${ev.tableNo}번: ${ev.label} — 테이블을 눌러 응답`, '', 3200); break;
-      case 'helpDone': floater(p.x, p.y - 20, ev.gain > 0 ? `대화 +${ev.gain}` : '대화 ±0', '#3f74c9'); gagLines(ev.gag); break;
+      case 'helpOpen': navigator.vibrate?.([70, 40, 70]); toast(`❗ ${ev.tableNo}번: ${ev.label} — 테이블을 눌러 응답`, '', 3200); break;
+      case 'helpDone': floater(p.x, p.y - 20, ev.gain > 0 ? `대화 +${ev.gain}` : '대화 ±0', '#3f74c9'); gagLines(ev.gag); if (ev.reaction) gagLines([{ who: personName(state, ev.nominee), text: ev.reaction[0] }, { who: '손님', text: ev.reaction[1] }]); break;
       case 'helpMissed': toast(`${ev.tableNo}번 도움 요청을 놓쳤어요 (대화 −1)`, 'bad'); break;
       case 'feverOn': toast(`🔥 피버! ${ev.tables.join('·')}번 테이블 정산 팁 2배`, 'good', 3200); shake(el.panel); break;
       case 'hostingSettled':

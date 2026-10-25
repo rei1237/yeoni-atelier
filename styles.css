@@ -256,3 +256,6 @@ button.on { background: #2f6e4a; color: #fff; box-shadow: none; }
 .bond-card .row button { flex: 1 1 auto; font-size: 12px; }
 .bar > i.bond { background: linear-gradient(90deg, #f5a3b7, var(--accent)); }
 @media (prefers-reduced-motion: reduce) { .tm-me { transition: none; animation: none; } }
+
+/* SOS와 상태는 색 외에 문구·게이지로도 알린다. */
+.stress-chip{display:flex;flex-direction:column;gap:3px;font-size:11px;max-width:140px;color:#493c56}.stress-chip meter{width:100%;height:8px}.stress-chip.tired{color:#74450b}.stress-chip.limit{color:#9b263c}.sos-card{padding:14px;background:#fff4dc;border:1px solid #b98d43;border-radius:12px}.sos-card .choice-grid{margin-top:10px}.sos-card p{margin:8px 0}

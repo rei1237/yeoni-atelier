@@ -28,6 +28,7 @@ export const TEMP = Object.freeze({
   HELP_GAIN_GOOD: 2,
   HELP_GAIN_OK: 1,
   HELP_MISS: -1,
+  NEO_STRESS: Object.freeze({ accept: 4, missed: 12, wrong: 8, good: -10, settle: -25, talk: -8 }), // 모두 임시
   EXTRA_ORDER_AT_MS: 20000,  // 추가 주문 시점(수락 기준)
   FEVER_EVAL_AT_MS: 10000,    // 방문당 첫 유효 평가 시점(수락 기준)
 

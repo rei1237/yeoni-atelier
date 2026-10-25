@@ -7,6 +7,7 @@ import { nextRandom } from '../core/rng.js';
 import { emit } from './state.js';
 import { apCheck, spendAp } from './calendar.js';
 import { townCheck } from './town.js';
+import { changeStress } from './stress.js';
 
 const B = TEMP.BONDS;
 
@@ -28,6 +29,7 @@ export function talk(state, id) {
   const ap = apCheck(state, 1);
   if (!ap.ok) return ap;
   spendAp(state, 1);
+  if (id === 'neo') changeStress(state, 'talk');
   state.ap.talked = { ...state.ap.talked, [id]: true };
   const v = gain(state, id, B.TALK + Math.floor(nextRandom(state.rng) * (B.TALK_RAND + 1)));
   const [speaker, line] = b.talk[Math.floor(nextRandom(state.rng) * b.talk.length)];

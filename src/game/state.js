@@ -29,6 +29,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     hostbar: { open: false, openedDay: null },
     huntUnlocked: false,
     neoStress: 0,
+    neoResting: false,
     shift: null,
     lastSettlement: null,
     gold: TEMP.START_GOLD,

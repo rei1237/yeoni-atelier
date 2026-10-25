@@ -1,3 +1,4 @@
+import { stressLabel, stressStage } from '../game/stress.js';
 // 상단 바·하단 패널·테이블 말풍선·테이블 터치 영역의 HTML. 상태를 읽기만 한다.
 // 모든 표시는 글자 + 아이콘 + 시간으로 쓴다(색만으로 구분하지 않는다).
 
@@ -25,6 +26,7 @@ const won = n => `${Math.floor(n).toLocaleString('ko-KR')}G`;
 export function topbarHtml(state, ui) {
   const dev = ui.dev ? '<span class="tag dev">DEV</span>' : '';
   if (!state) return `<div class="tb-col"><span class="clock">연이의 아틀리에</span></div>${dev}`;
+  const stress = `<span class="stress-chip ${stressStage(state)}" aria-label="네오 스트레스 ${state.neoStress}/100">네오 · ${stressLabel(state)}<meter min="0" max="100" value="${state.neoStress}">${state.neoStress}</meter></span>`;
   const gold = `<span class="gold" aria-label="골드">🪙 ${won(state.gold)}</span>`;
   if (state.mode === 'shift') {
     const sh = state.shift;
@@ -38,7 +40,7 @@ export function topbarHtml(state, ui) {
     if (!st.length) st.push(`${dateLabel(state)} 영업 중`);
     if (ui.dev && ui.speed !== 1) st.push(`×${ui.speed}`);
     return `<div class="tb-col"><span class="clock" aria-label="남은 영업 시간">⏱ ${fmtTime(remainingShift(state))}</span><span class="small muted">경과 ${fmtTime(sh.elapsedMs)} / ${fmtTime(shiftDuration(state))}</span></div>
-      ${gold}<span class="status">${esc(st.join(' · '))}</span>${dev}
+      ${gold}${stress}<span class="status">${esc(st.join(' · '))}</span>${dev}
       ${btn({ action: 'pause', label: state.paused ? '▶' : '⏸', title: state.paused ? '계속하기' : '일시정지', cls: 'ghost' })}`;
   }
   if (state.mode === 'hunt') {
@@ -53,7 +55,7 @@ export function topbarHtml(state, ui) {
   }
   const label = state.mode === 'settlement' ? '결산' : state.interior.draft ? '인테리어 편집' : '영업 준비';
   return `<div class="tb-col"><span class="clock">${esc(shortDate(state))}</span><span class="small muted">${label}</span></div>
-    ${gold}<span class="status">🌙 ${state.moonstone || 0} · 빚 ${won(state.debt)}</span>${dev}
+    ${gold}${stress}<span class="status">🌙 ${state.moonstone || 0} · 빚 ${won(state.debt)}</span>${dev}
     ${btn({ action: 'sheet.open', args: { sheet: 'more' }, label: '☰', title: '기타 메뉴', cls: 'ghost' })}`;
 }
 
@@ -225,7 +227,7 @@ function bubbleOf(state, t, now) {
     }
     case 'hosted': {
       const open = visit.help.find(h => h.status === 'open');
-      if (open) return { cls: 'help', text: `❗ ${HELP_KINDS[open.kind].label} ${fmtTime(open.until - now)}` };
+      if (open) return { cls: 'help', text: `SOS · ${HELP_KINDS[open.kind].label} ${fmtTime(open.until - now)}` };
       return { cls: 'host', text: `🫖 접대 ${fmtTime(visit.endAt - now)}${orderText ? ` · 🍽${orderText}` : ''}` };
     }
     case 'thinking': return { cls: '', text: '💭 고민 중' };

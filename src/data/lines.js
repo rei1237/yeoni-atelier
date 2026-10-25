@@ -15,6 +15,9 @@ export const HELP_KINDS = Object.freeze({
   topic: { id: 'topic', label: '대화 주제 고르기' },
   listen: { id: 'listen', label: '이야기 들어주기' },
   photo: { id: 'photo', label: '사진 요청', special: true },
+  refill: { id: 'refill', label: '음료 리필' },
+  trouble: { id: 'trouble', label: '곤란한 요청' },
+  compliment: { id: 'compliment', label: '칭찬 받아치기' },
 });
 
 // 주제 고르기 선택지: 손님의 가장 높은 선호와 맞으면 '좋음'

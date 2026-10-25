@@ -9,6 +9,7 @@ import { settleDue, settleHosting, hostingVisits, stepHosting, onRequesting } fr
 import { nextRandom, randRange, pick } from '../core/rng.js';
 import { chargeInterest, advanceTurn } from './calendar.js';
 import { workShift } from './bonds.js';
+import { changeStress } from './stress.js';
 
 // 첫 영업의 손님 순서(온보딩): 일반 손님 → 외모 중심 지명 → 재미 중심 지명
 const FIRST_SHIFT_SCRIPT = [
@@ -36,6 +37,7 @@ export function startShift(state) {
     nextSpawnAt: TEMP.SPAWN_FIRST_MS, scriptIndex: state.stats.shiftsCompleted === 0 ? 0 : FIRST_SHIFT_SCRIPT.length,
     sales: 0, ingredientCost: 0, baseTips: 0, feverTips: 0, servedCount: 0, lostOrders: 0, wasted: 0,
     spawnCount: 0, regularVisits: 0, nominationVisits: 0, hostings: [], autoAt: 0,
+    stressStart: state.neoStress,
   };
   setupWorld(state);
   emit('shiftStart', { day: state.day });
@@ -97,6 +99,7 @@ export function closeShift(state) {
   sh.wasted = wasted;
   const settlement = {
     shiftId: sh.id, day: sh.day,
+    stressStart: sh.stressStart, stressEnd: state.neoStress,
     sales: sh.sales, ingredientCost: sh.ingredientCost, baseTips: sh.baseTips, feverTips: sh.feverTips,
     result: sh.sales + sh.baseTips + sh.feverTips - sh.ingredientCost,
     gold: state.gold, debt: state.debt,
@@ -123,6 +126,8 @@ export function closeShift(state) {
 export function closeSettlement(state) {
   if (state.mode !== 'settlement') return { ok: false, reason: '결산 화면이 아닙니다' };
   state.mode = 'prep';
+  changeStress(state, 'settle');
+  state.neoResting = false;
   state.shift = null;
   state.day += 1;
   advanceTurn(state);
