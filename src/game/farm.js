@@ -20,14 +20,14 @@ export function plantCheck(state, cropId, index) {
   if (!farmEnergyCheck(state).ok) return farmEnergyCheck(state);
   return { ok: true };
 }
-export function plant(state, cropId, index) {
+export function plant(state, cropId, index, by = '연이') {
   const chk = plantCheck(state, cropId, index); if (!chk.ok) return chk;
   state.gold -= CROPS[cropId].seedCost;
   state.farm.plots[index] = { id: nextId(state, 'crop'), cropId, growth: 0, careTurns: 0, wateredDay: null, caredDay: null };
-  emit('farmAction', { kind:'plant',index,cropId,text: `연이가 ${CROPS[cropId].name} 씨앗을 심었어요` });
+  emit('farmAction', { kind:'plant',index,cropId,text: `${by}가 ${CROPS[cropId].name} 씨앗을 심었어요` });
   return { ok: true };
 }
-export function care(state, index, kind) {
+export function care(state, index, kind, by = '연이') {
   const chk = farmCheck(state); if (!chk.ok) return chk;
   const p = Number.isInteger(index) ? state.farm.plots[index] : null;
   if (!p || !['water', 'tend'].includes(kind)) return fail('돌볼 작물이 없어요');
@@ -35,7 +35,7 @@ export function care(state, index, kind) {
   const key = kind === 'water' ? 'wateredDay' : 'caredDay';
   if (p[key] === state.day || (kind === 'water' && farmWeather(state.farm, state.day) === 'rain')) return fail('이번 순에는 이미 물이나 손길이 충분해요');
   p[key] = state.day;
-  emit('farmAction', { kind,index,cropId:p.cropId,text: kind === 'water' ? '연이가 물을 주었어요' : '연이가 잡초를 뽑고 흙을 덮었어요' });
+  emit('farmAction', { kind,index,cropId:p.cropId,text: kind === 'water' ? `${by}가 물을 주었어요` : `${by}가 잡초를 뽑고 흙을 덮었어요` });
   return { ok: true };
 }
 export function careAll(state) {

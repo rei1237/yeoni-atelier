@@ -20,19 +20,24 @@ function gain(state, id, v) {
   return after - before;
 }
 
-export function talk(state, id, choiceId, token) {
+// 대화를 열 수 있는가(상태를 바꾸지 않는다). 화면은 이것으로 소설을 열고, 답을 고른 순간에만 talk 가 행동력을 쓴다.
+export function talkCheck(state, id) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;
   const b = BONDS[id];
   if (!b) return { ok: false, reason: '없는 동료입니다' };
   if (b.requiresRecruit && !state.roster[id]) return { ok: false, reason: '먼저 만남 이벤트로 영입해 주세요' };
   if (state.ap.talked[id]) return { ok: false, reason: `${b.name}와(과)는 이번 순에 이미 이야기했어요` };
-  const ap = apCheck(state, 1);
-  if (!ap.ok) return ap;
+  return apCheck(state, 1);
+}
+
+export function talk(state, id, choiceId, token) {
+  const chk = talkCheck(state, id);
+  if (!chk.ok) return chk;
   const question=bondQuestion(state,id), answer=question?.answers.find(a=>a.id===choiceId);
   if(!answer || token!==question.token)return {ok:false,reason:'대화에서 답을 골라 주세요'};
   spendAp(state, 1);
-  if (id === 'neo') changeStress(state, 'talk');
+  changeStress(state, 'talk', id);
   state.ap.talked = { ...state.ap.talked, [id]: true };
   const v = gain(state, id, answer.gain);
   const speaker=id, line=answer.response;
@@ -53,6 +58,7 @@ export function gift(state, id, giftId) {
   state.gold -= g.cost;
   state.ap.gifted = { ...state.ap.gifted, [id]: true };
   const v = gain(state, id, g === b.gift ? B.GIFT_LIKED : B.GIFT_COMMON);
+  changeStress(state, 'gift', id);
   emit('bondGift', { id, giftId: g.id, gain: v, liked: g === b.gift });
   return { ok: true, gain: v, liked: g === b.gift };
 }

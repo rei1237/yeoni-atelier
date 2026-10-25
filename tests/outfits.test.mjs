@@ -15,7 +15,7 @@ test('의상은 월정석 정확히 1회 해금하고 준비 중만 올바른 �
   assert.equal(dispatch(s, { type: 'outfit.unlock', id: 'winter_coat' }).ok, false);
   assert.equal(dispatch(s, { type: 'outfit.equip', who: 'yeoni', slot: 'outfit', itemId: item }).ok, false);
   assert.ok(dispatch(s, { type: 'outfit.equip', who: 'neo', slot: 'outfit', itemId: item }).ok);
-  assert.deepEqual(hostStats(s, 'neo'), stats); assert.equal(s.neoStress, 0);
+  assert.deepEqual(hostStats(s, 'neo'), stats); assert.equal(s.stress.neo || 0, 0);
   assert.equal(deserialize(serialize(s)).state.outfits.equipped.neo.outfit, item);
   dispatch(s, { type: 'shift.start' });
   assert.equal(dispatch(s, { type: 'outfit.equip', who: 'neo', slot: 'outfit', itemId: null }).ok, false);

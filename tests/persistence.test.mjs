@@ -36,7 +36,7 @@ test('[자동 시계] 영업 도중 저장·복원해도 매출·팁·재료가 
   const run = withSaveAt => {
     let s = createGame();
     dispatch(s, { type: 'shift.start' });
-    dispatch(s, { type: 'auto.toggle', on: true });
+    dispatch(s, { type: 'auto.toggle', on: true, sim: true });
     tick(s, withSaveAt ?? 0);
     if (withSaveAt != null) {
       s = roundTrip(roundTrip(s)); // 두 번 왕복해도 같아야 한다

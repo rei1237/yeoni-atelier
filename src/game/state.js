@@ -25,12 +25,13 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     mode: 'prep',           // prep(영업 전·마감 후) | shift | settlement | hunt
     day: 1,                 // 다음(또는 진행 중) 정규 영업 번호
     paused: false,
-    auto: false,           // 전체 자동(접대 판단 포함)
-    autoKitchen: false,    // 편한 수동 기본: 조리·서빙은 탭, 이동·정리는 보조
+    auto: false,           // 전체 자동(접대 판단 포함) — 시뮬·테스트 전용
+    automation: { hall: false, kitchen: false, farm: false }, // 인연으로 연 뒤에도 기본은 꺼짐(permissions.js)
     hostbar: { open: false, openedDay: null },
     huntUnlocked: false,
-    neoStress: 0,
-    neoResting: false,
+    stress: {},            // 직원 id → 0~100(stress.js). 없으면 0
+    resting: {},           // 이번 영업을 쉬는 직원(한계·휴무). 결산 때 풀린다
+    dayOff: {},            // 다음 영업을 쉬게 한 직원(준비 중 지정)
     shift: null,
     lastSettlement: null,
     reputation:25,
@@ -59,7 +60,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     stats: { served: 0, servedSpecial: 0, shiftsCompleted: 0, repayCount: 0, nightDewObtained: 0, recruited: 0, huntsCompleted: 0, moonstonesObtained: 0, moonstonesExchanged: 0, expansions: 0, areasOpened: 0 },
     ledger: { sales: {}, tips: {}, settlements: {}, rewards: {}, consumes: {}, repay: {}, interest: {}, story: {} },
     calendar: { ended: false, endingId: null, endedDebt: null }, // 달력(game/calendar.js): day 로 달·순을 계산한다
-    ap: { left: TEMP.CALENDAR.AP_PER_TURN, talked: {}, gifted: {}, shopped: false }, // 이번 순 행동력
+    ap: { left: TEMP.CALENDAR.AP_PER_TURN, talked: {}, gifted: {}, shopped: false, delegated: {}, sheltered: {}, neoTask: null }, // 이번 순 행동력
     affinity: { neo: 0, luna: 0, luna_sis: 0, moka: 0 }, // 친밀도(game/bonds.js)
     hunt: null,
     lastHunt: null,

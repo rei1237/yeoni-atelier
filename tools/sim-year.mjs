@@ -30,7 +30,7 @@ for (const seed of [7,42,20261025]) {
    const qty=Math.min(12-(s.stock[ingredientId]||0),Math.floor(s.gold/ing.price));
    if(qty>0) {const r=dispatch(s,{type:'shop.buy',ingredientId,qty}); if(r.ok)purchases+=r.cost;}
   }
-  dispatch(s,{type:'shift.start'}); dispatch(s,{type:'auto.toggle',on:true});
+  dispatch(s,{type:'shift.start'}); dispatch(s,{type:'auto.toggle',on:true,sim:true});
   while(s.mode==='shift') {
    // 긴급 배달도 실제 가격을 지불한다. 현금/재고를 주입하지 않는다.
    for(const [ingredientId,ing] of Object.entries(INGREDIENTS).filter(([,i])=>i.basic)) {

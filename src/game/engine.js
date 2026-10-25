@@ -20,22 +20,26 @@ import * as armory from './moka-armory.js';
 import * as farm from './farm.js';
 import { unlockOutfit } from './outfits.js';
 import { autoStep } from './auto.js';
+import { toggleAutomation } from './permissions.js';
+import { setDayOff, shelter } from './stress.js';
+import { delegateFarm } from './farm-delegate.js';
 
 // 일시정지 중에도 받는 명령
-const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle', 'kitchen.toggle', 'tutorial.seen']);
+const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle', 'automation.toggle', 'tutorial.seen']);
 // 영업 중에만 의미가 있는 명령
 const SHIFT_ONLY = new Set(['order.quick', 'cook', 'cook.cancelNext', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate']);
 
 const FARM_ACTIONS = new Set(['farm.harvest','farm.plant','farm.water','farm.tend']);
 export const HELPERS = Object.freeze({neo:{tier:1,actions:['farm.water','farm.tend']},moka:{tier:2,actions:['farm.water','farm.tend']},yun:{tier:3,actions:['farm.harvest']}});
-export function helperAvailable(state,id,type){const h=HELPERS[id];return !!(h && state.roster[id] && bondTier(state.affinity[id]||0)>=h.tier && h.actions.includes(type) && !state.ap.delegated?.[id]);}
+// 네오 대행은 같은 순 사냥과 겹치지 않는다(사냥을 다녀왔으면 거절, 대행하면 그 순 사냥 거절)
+export function helperAvailable(state,id,type){const h=HELPERS[id];return !!(h && state.roster[id] && bondTier(state.affinity[id]||0)>=h.tier && h.actions.includes(type) && !state.ap.delegated?.[id] && !(id==='neo'&&state.ap.neoTask==='hunt'));}
 function route(state, cmd) {
  const paid=state.mode==='prep' && FARM_ACTIONS.has(cmd?.type);
  const helper=paid && cmd.helperId && helperAvailable(state,cmd.helperId,cmd.type);
  if(paid && cmd.helperId && !helper)return {ok:false,reason:'이 일을 대신할 수 없거나 이번 순 대행을 이미 마쳤어요'};
  if(paid && !helper){const chk=farm.farmEnergyCheck(state);if(!chk.ok)return chk;}
  const result=execute(state,cmd);
- if(paid && result?.ok && !result.duplicate){if(helper){state.ap.delegated??={};state.ap.delegated[cmd.helperId]=true;}else farm.spendFarmEnergy(state);}
+ if(paid && result?.ok && !result.duplicate){if(helper){state.ap.delegated??={};state.ap.delegated[cmd.helperId]=true;if(cmd.helperId==='neo')state.ap.neoTask='farm';}else farm.spendFarmEnergy(state);}
  return result;
 }
 function execute(state, cmd) {
@@ -52,8 +56,13 @@ function execute(state, cmd) {
       if (state.mode !== 'shift' && state.mode !== 'hunt') return { ok: false, reason: '진행 중인 영업·사냥이 없습니다' };
       state.paused = true; return { ok: true };
     case 'resume': state.paused = false; return { ok: true };
-    case 'auto.toggle': state.auto = cmd.on ?? !state.auto; state.autoKitchen=state.auto; return { ok: true, auto: state.auto };
-    case 'kitchen.toggle': state.autoKitchen = cmd.on ?? !state.autoKitchen; state.auto=false; return { ok: true, autoKitchen: state.autoKitchen };
+    // 전체 자동(지명 수락·도움 응답·피버까지)은 시뮬·테스트 전용이다. 플레이어 화면에는 버튼이 없고 sim 표시 없이는 거절한다.
+    case 'auto.toggle':
+      if (cmd.sim !== true) return { ok: false, reason: '전체 자동은 시뮬레이션 전용이에요. 홀·주방 자동은 인연으로 열려요' };
+      state.auto = cmd.on ?? !state.auto; return { ok: true, auto: state.auto };
+    case 'automation.toggle': return toggleAutomation(state, cmd.ability, cmd.on);
+    case 'staff.dayOff': return setDayOff(state, cmd.id, cmd.on);
+    case 'stress.shelter': return shelter(state, cmd.id);
 
     case 'cook': return cafe.cook(state, cmd.menuId);
     case 'order.quick': return cafe.quickOrder(state, cmd.orderId);
@@ -74,6 +83,7 @@ function execute(state, cmd) {
     case 'farm.tend': return farm.care(state, cmd.index, 'tend');
     case 'farm.careAll': return farm.careAll(state);
     case 'farm.harvest': return farm.harvest(state, cmd.index, cmd.cropInstanceId);
+    case 'farm.delegate': return delegateFarm(state);
     case 'farm.expand': return farm.expansion(state);
     case 'farm.greenhouse': return farm.expansion(state, true);
     case 'debt.repay': return eco.repay(state, cmd.amount, cmd.requestId);

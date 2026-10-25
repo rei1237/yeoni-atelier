@@ -15,6 +15,7 @@ import { emit, nextId, remainingShift, usableHosts } from './state.js';
 import { buildGrid, findPath, tableGeometry } from './space.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
 import { bondFx } from '../data/bonds.js';
+import { changeStress, isResting } from './stress.js';
 
 export const STATION_IDS = ['drink', 'oven'];
 export const STATION_NAMES = { drink: '음료 머신', oven: '오븐' };
@@ -186,6 +187,7 @@ export function stepStations(state, dt) {
         const order=state.orders[st.current.orderId];
         const pickup=order?.status==='waiting' && state.visits[order.visitId]?.kind==='takeaway' && state.visits[order.visitId].status==='active';
         st.current = null;
+        if (state.staff.luna_sis && !isResting(state, 'luna_sis')) changeStress(state, 'cook', 'luna_sis');
         if(pickup){recordServe(state,order);emit('takeawayDone',{price:order.price});}
         else if (placeInTray(state, item)) emit('cooked', { station: sid, menuId: item.menuId });
         else { st.held = item; emit('trayFull', { station: sid, menuId: item.menuId }); }
@@ -295,7 +297,7 @@ export function requestClean(state, tableNo) {
 // ── 직원
 export function staffAvailable(state, id) {
   const s = state.staff[id];
-  if (!s || (s.job && s.job.kind !== 'home')) return false;
+  if (!s || (s.job && s.job.kind !== 'home') || isResting(state, id)) return false;
   const work = PEOPLE[id]?.work;
   if (work) return work === 'runner'; // 연이(계산)·루나 언니(굽기)는 운반하지 않는다
   return state.people[id]?.activity === 'idle'; // 접대 중인 동료는 서빙·정리에 투입하지 않는다
@@ -305,7 +307,8 @@ export function staffStatusText(state, id) {
   const s = state.staff[id];
   if (!s) return '';
   const j = s.job;
-  if (id === 'yeoni') return s.action === 'react' ? '계산 중' : '계산대';
+  if (id === 'yeoni') return j?.kind === 'deliver' ? `${j.tableNo}번 대신 서빙` : j?.kind === 'clean' ? `${j.tableNo}번 대신 정리` : s.action === 'react' ? '계산 중' : '계산대';
+  if (isResting(state, id)) return state.dayOff?.[id] ? '오늘은 휴무' : '지쳐서 쉬는 중';
   if (id === 'luna_sis') return j?.kind === 'station' && j.sid ? `${STATION_NAMES[j.sid]} 앞` : '대기';
   if (state.people[id]?.activity === 'hosting') return `${state.people[id].tableNo}번 접대 중`;
   if (!j || j.kind === 'home') return '대기';
@@ -327,6 +330,9 @@ function assignTasks(state) {
       const d = Math.abs(s.x - target.x) + Math.abs(s.y - target.y) + (PEOPLE[id]?.work === 'runner' ? 0 : 0.5);
       if (!best || d < best.d) best = { id, d };
     }
+    // 쉬는 직원이 있어 손이 모자라면 연이가 계산대를 잠시 비우고 대신 나른다(막힘 방지)
+    const y = state.staff.yeoni;
+    if (!best && y && (!y.job || y.job.kind === 'home') && Object.values(state.resting || {}).some(Boolean)) best = { id: 'yeoni' };
     if (!best) continue;
     const s = state.staff[best.id];
     task.assignedTo = best.id;
@@ -338,6 +344,28 @@ function assignTasks(state) {
       setPath(state, s, t.service);
     }
   }
+}
+
+// 한계에 닿은 직원의 일을 다른 사람에게 넘긴다: 든 음식은 트레이(가득하면 그 기계 보관칸)로, 닦던 테이블은 다시 정리 대기로.
+function handOver(state, s) {
+  const j = s.job, task = state.tasks.find(t => t.id === j.taskId);
+  if (j.kind === 'deliver' && s.carry) {
+    const st = state.stations[MENUS[s.carry.menuId].station], order = task && state.orders[task.orderId];
+    if (placeInTray(state, s.carry)) s.carry = null; // 예약은 그대로: 다른 직원이 트레이에서 이어 나른다
+    else if (!st.held) { // 트레이가 가득하면 기계 보관칸에 두고 서빙 예약을 푼다(다시 눌러 서빙)
+      s.carry.reservedFor = null; st.held = s.carry; s.carry = null;
+      if (order?.status === 'assigned') { order.status = 'waiting'; order.itemId = null; }
+      state.tasks = state.tasks.filter(t => t !== task);
+    } else return; // 둘 곳이 없으면 이 한 접시만 마저 나르고 쉰다
+  }
+  if (j.kind === 'clean') {
+    const t = tableByNo(state, j.tableNo);
+    if (t.state === 'cleaning') { t.state = 'dirty'; t.cleanEndAt = null; }
+  }
+  if (task) task.assignedTo = null;
+  s.action = 'idle';
+  sendHome(state, s);
+  emit('handOver', { id: s.id, kind: j.kind, tableNo: j.tableNo });
 }
 
 function finishTask(state, s) {
@@ -364,6 +392,11 @@ export function sendHostToTable(state, personId, tableNo) {
 const STATION_FRONT = { drink: SPOTS.drinkFront, oven: SPOTS.ovenFront };
 function stepBaker(state, s, dt) {
   moveAlong(s, dt, TEMP.WALK_TILES_PER_S);
+  if (isResting(state, s.id)) { // 쉬는 동안 조리는 기계에 그대로 남고, 연이(플레이어)가 이어서 만든다
+    if (s.job?.kind !== 'home' && (Math.floor(s.x) !== s.home.x || Math.floor(s.y) !== s.home.y)) sendHome(state, s);
+    s.action = s.path.length ? 'walk' : 'idle'; s.facing = 'down';
+    return;
+  }
   const busy = STATION_IDS.filter(id => state.stations[id].current)
     .sort((a, b) => state.stations[b].current.startedAt - state.stations[a].current.startedAt);
   const sid = busy[0] || null;
@@ -382,6 +415,7 @@ export function stepStaff(state, dt) {
   assignTasks(state);
   for (const s of Object.values(state.staff)) {
     if (PEOPLE[s.id]?.work === 'baker') { stepBaker(state, s, dt); continue; }
+    if (isResting(state, s.id) && (s.job?.kind === 'deliver' || s.job?.kind === 'clean')) handOver(state, s);
     const arrived = moveAlong(s, dt, TEMP.WALK_TILES_PER_S);
     const j = s.job;
     if (s.actionUntil && now >= s.actionUntil) { s.actionUntil = 0; if (s.action === 'serve' || s.action === 'react') s.action = 'idle'; }
@@ -402,6 +436,7 @@ export function stepStaff(state, dt) {
       } else if (j.stage === 'toTable' && arrived) {
         if (order && order.status === 'assigned') {
           recordServe(state, order);
+          changeStress(state, 'deliver', s.id);
           s.carry = null;
           s.action = 'serve'; s.actionUntil = now + 600;
           finishTask(state, s);
@@ -426,6 +461,7 @@ export function stepStaff(state, dt) {
         t.state = 'empty'; t.cleanQueued = false; t.cleanEndAt = null;
         s.action = 'idle';
         emit('cleaned', { tableNo: t.no });
+        changeStress(state, 'clean', s.id);
         finishTask(state, s);
       }
     } else if (j.kind === 'host') {

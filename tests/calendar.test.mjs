@@ -13,7 +13,6 @@ const C = TEMP.CALENDAR;
 
 // 손님 없이 한 순을 끝까지 돌리고 결산을 닫는다
 function quietTurn(s) {
-  s.autoKitchen = false;
   assert.ok(dispatch(s, { type: 'shift.start' }).ok);
   s.shift.scriptIndex = 99;
   s.shift.nextSpawnAt = Number.MAX_SAFE_INTEGER;

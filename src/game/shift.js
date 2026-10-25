@@ -12,7 +12,9 @@ import { settleDue, settleHosting, hostingVisits, stepHosting, onRequesting } fr
 import { nextRandom, randRange, pick } from '../core/rng.js';
 import { chargeInterest, advanceTurn } from './calendar.js';
 import { workShift } from './bonds.js';
-import { changeStress } from './stress.js';
+import { settleStress, stressOf } from './stress.js';
+import { canUse } from './permissions.js';
+import { delegateCheck, delegateFarm } from './farm-delegate.js';
 
 // 첫 영업의 손님 순서(온보딩): 일반 손님 → 외모 중심 지명 → 재미 중심 지명
 const FIRST_SHIFT_SCRIPT = [
@@ -32,6 +34,11 @@ export function startCheck(state) {
 export function startShift(state) {
   const chk = startCheck(state);
   if (!chk.ok) return { ok: false, reason: chk.reasons[0], reasons: chk.reasons };
+  // 농장 맡기기를 켜 두었으면 문을 열기 전에 네오가 밭을 한 번 돌보고 온다(사냥을 다녀온 순·이미 맡긴 순은 건너뜀)
+  if (state.automation?.farm && canUse(state, 'farm')) {
+    const d = delegateCheck(state);
+    if (d.ok) delegateFarm(state); else emit('farmDelegateSkipped', { reason: d.reason });
+  }
   state.mode = 'shift';
   state.paused = false;
   state.fever = { gauge: 0, activeUntil: null };
@@ -40,8 +47,9 @@ export function startShift(state) {
     nextSpawnAt: TEMP.SPAWN_FIRST_MS, scriptIndex: state.stats.shiftsCompleted === 0 ? 0 : FIRST_SHIFT_SCRIPT.length,
     sales: 0, ingredientCost: 0, baseTips: 0, feverTips: 0, servedCount: 0, lostOrders: 0, wasted: 0,
     spawnCount: 0, regularVisits: 0, nominationVisits: 0, hostings: [], autoAt: 0,
-    stressStart: state.neoStress,
+    stressStart: stressOf(state, 'neo'),
   };
+  state.resting = { ...state.dayOff }; // 하루 휴무로 정한 직원은 이번 영업에 나오지 않는다
   setupWorld(state);
   emit('shiftStart', { day: state.day });
   return { ok: true };
@@ -105,7 +113,7 @@ export function closeShift(state) {
   sh.wasted = wasted;
   const settlement = {
     shiftId: sh.id, day: sh.day,
-    stressStart: sh.stressStart, stressEnd: state.neoStress,
+    stressStart: sh.stressStart, stressEnd: stressOf(state, 'neo'),
     sales: sh.sales, ingredientCost: sh.ingredientCost, baseTips: sh.baseTips, feverTips: sh.feverTips,
     result: sh.sales + sh.baseTips + sh.feverTips - sh.ingredientCost,
     gold: state.gold, debt: state.debt,
@@ -134,8 +142,7 @@ export function closeShift(state) {
 export function closeSettlement(state) {
   if (state.mode !== 'settlement') return { ok: false, reason: '결산 화면이 아닙니다' };
   state.mode = 'prep';
-  changeStress(state, 'settle');
-  state.neoResting = false;
+  settleStress(state);
   state.shift = null;
   state.day += 1;
   advanceTurn(state);

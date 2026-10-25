@@ -12,7 +12,7 @@ import { hostingScore, gradeOf, tipFor, feverGainFor } from './satisfaction.js';
 import { visitAt, customerAt, chooseMenu, placeOrder, customerLeave, sendHostToTable, sendHome, openOrdersOfVisit } from './cafe.js';
 import { nextRandom } from '../core/rng.js';
 import { HELP_SCENES, helpQuality, bestHelpChoice, HELP_REACTIONS } from '../data/help.js';
-import { changeStress } from './stress.js';
+import { changeStress, isResting, stressOf } from './stress.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
@@ -56,7 +56,7 @@ export function acceptCheck(state, tableNo) {
   if (c.state === 'entering') reasons.push('손님이 아직 자리에 앉는 중입니다');
   else if (c.state !== 'requesting') reasons.push(visit.acceptAt != null ? '이미 수락된 지명입니다' : '지명 요청 상태가 아닙니다');
   const pid = visit.nominee;
-  if (pid === 'neo' && (state.neoResting || state.neoStress >= 100)) reasons.push('네오가 한계에 닿아 이번 영업의 새 지명을 쉬고 있습니다');
+  if (isResting(state, pid) || stressOf(state, pid) >= 100) reasons.push(`${personName(state, pid)}이(가) 한계에 닿아 이번 영업의 새 지명을 쉬고 있습니다`);
   if (!isUsableHost(state, pid)) reasons.push(`${personName(state, pid)}은(는) 아직 접대할 수 없는 동료입니다`);
   else if (!state.staff[pid]) reasons.push(`${personName(state, pid)}은(는) 이번 영업에 출근하지 않았습니다`);
   const busy = personBusyReason(state, pid);
@@ -89,7 +89,7 @@ export function accept(state, tableNo) {
   visit.endAt = now + nominationDuration(state); // 이동 연출을 포함한 수락 시점부터
   visit.help = helpSchedule(state, visit);
   const pid = visit.nominee;
-  if (pid === 'neo') changeStress(state, 'accept');
+  changeStress(state, 'accept', pid);
   Object.assign(state.people[pid], { activity: 'hosting', visitId: visit.id, tableNo, endAt: visit.endAt });
   c.state = 'hosted';
   sendHostToTable(state, pid, tableNo);
@@ -141,7 +141,7 @@ export function respondHelp(state, visitId, index, choice) {
   if (!quality) return { ok: false, reason: '없는 대응입니다' };
   const gain = quality === 'good' ? TEMP.HELP_GAIN_GOOD : quality === 'okay' ? TEMP.HELP_GAIN_OK : TEMP.HELP_MISS;
   const gag = h.kind === 'topic' && choice === 'fun' && visit.nominee === 'neo' ? GAG_NEO_FUN : null;
-  if (visit.nominee === 'neo' && quality !== 'okay') changeStress(state, quality === 'good' ? 'good' : 'wrong');
+  if (quality !== 'okay') changeStress(state, quality === 'good' ? 'good' : 'wrong', visit.nominee);
   if (h.kind === 'photo' && quality === 'good' && !visit.feverSpecialDone) {
     visit.feverSpecialDone = true;
     addFever(state, RULES.FEVER_GAIN_SPECIAL, '특별 요청');
@@ -245,7 +245,7 @@ export function stepHosting(state) {
       if (h.status === 'pending' && now >= h.at) { h.status = 'open'; emit('helpOpen', { tableNo: v.tableNo, kind: h.kind, label: HELP_KINDS[h.kind].label }); }
       if (h.status === 'open' && now >= h.until) {
         h.status = 'missed'; h.result = 'miss';
-        if (v.nominee === 'neo') changeStress(state, 'missed');
+        changeStress(state, 'missed', v.nominee);
         v.talkBonus = clamp(v.talkBonus + TEMP.HELP_MISS, RULES.TALK_BONUS_MIN, RULES.TALK_BONUS_MAX);
         emit('helpMissed', { tableNo: v.tableNo });
       }

@@ -10,6 +10,8 @@ export const BOND_IDS = Object.freeze(['neo', 'luna', 'luna_sis', 'moka', ...Obj
 // fx 키: huntHp(사냥 HP+) huntDmg(무기 피해+) bossMoon(보스 월정석 +비율) ap(순마다 행동력+)
 //        patience(음식 기다림 +비율) interestCut(이자 −비율) cookSpeed(조리 시간 −비율)
 //        moonRate(환전 +비율) discount(재료값 −비율) feeCut(배달비 −비율) dailyDew(순마다 밤이슬)
+//        stressResist(직원 스트레스 증가 −비율) stressRecover(휴식·쉼터·결산 회복 +비율)
+// 자동화(홀·주방·농장) 해금은 fx가 아니라 permissions.js 가 인연 단계 + 이야기 기록으로 확인한다.
 export const BONDS = Object.freeze({
   ...CAST_BONDS,
   neo: {
@@ -18,7 +20,7 @@ export const BONDS = Object.freeze({
     perks: [
       { label: '백사자의 수호 · 사냥 HP +40 · 마을 대행 해금', fx: { huntHp: 40 } },
       { label: '빈틈을 읽는 눈 · 사냥 피해 +35%', fx: { huntDmg: 0.35 } },
-      { label: '달빛 전략가 · 보스 월정석 +80%', fx: { bossMoon: 0.8 } },
+      { label: '달빛 전략가 · 보스 월정석 +80% · 농장 맡기기 해금', fx: { bossMoon: 0.8 } },
       { label: '함께 쓰는 내일 · 행동력 +2', fx: { ap: 2 } },
     ],
     talk: [
@@ -32,8 +34,8 @@ export const BONDS = Object.freeze({
     name: '루나', place: 'atelier', speaker: 'luna',
     gift: { id: 'star_ribbon', name: '별 리본', cost: 220 },
     perks: [
-      { label: '손님이 음식을 10% 더 기다려 줌', fx: { patience: 0.1 } },
-      { label: '손님이 음식을 15% 더 기다려 줌', fx: { patience: 0.15 } },
+      { label: '손님이 음식을 10% 더 기다려 줌 · 직원 스트레스 증가 −15%', fx: { patience: 0.1, stressResist: 0.15 } },
+      { label: '손님이 음식을 15% 더 기다려 줌 · 홀 자동(서빙·정리) 해금', fx: { patience: 0.15 } },
       { label: '루나의 검산: 월 이자 −10%', fx: { interestCut: 0.1 } },
       { label: '루나의 검산: 월 이자 −15%', fx: { interestCut: 0.15 } },
     ],
@@ -48,8 +50,8 @@ export const BONDS = Object.freeze({
     name: '루나 언니', place: 'luna', speaker: 'luna_sis',
     gift: { id: 'herb_tea', name: '꿀 허브티', cost: 200 },
     perks: [
-      { label: '조리 시간 −8%', fx: { cookSpeed: 0.08 } },
-      { label: '조리 시간 −8%', fx: { cookSpeed: 0.08 } },
+      { label: '조리 시간 −8% · 휴식·쉼터 회복 +25%', fx: { cookSpeed: 0.08, stressRecover: 0.25 } },
+      { label: '조리 시간 −8% · 주방 자동(대기 주문 조리) 해금', fx: { cookSpeed: 0.08 } },
       { label: '저울 손질: 월정석 환전 +10%', fx: { moonRate: 0.1 } },
       { label: '조리 시간 −9%', fx: { cookSpeed: 0.09 } },
     ],
@@ -89,11 +91,11 @@ export function bondTier(v) {
 
 // 열린 능력의 합
 export function bondFx(affinity = {}) {
-  const fx = { huntHp: 0, huntDmg: 0, bossMoon: 0, ap: 0, patience: 0, interestCut: 0, cookSpeed: 0, moonRate: 0, discount: 0, feeCut: 0, dailyDew: 0 };
+  const fx = { huntHp: 0, huntDmg: 0, bossMoon: 0, ap: 0, patience: 0, interestCut: 0, cookSpeed: 0, moonRate: 0, discount: 0, feeCut: 0, dailyDew: 0, stressResist: 0, stressRecover: 0 };
   for (const id of BOND_IDS) {
     const t = bondTier(affinity[id] || 0);
     for (const p of BONDS[id].perks.slice(0, t)) for (const [k, v] of Object.entries(p.fx)) fx[k] += v;
   }
-  for (const [key, cap] of Object.entries({cookSpeed:.5,discount:.4,feeCut:.75,interestCut:.5,patience:.6})) fx[key] = Math.min(cap, fx[key]);
+  for (const [key, cap] of Object.entries({cookSpeed:.5,discount:.4,feeCut:.75,interestCut:.5,patience:.6,stressResist:.5,stressRecover:1})) fx[key] = Math.min(cap, fx[key]);
   return fx;
 }

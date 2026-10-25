@@ -43,6 +43,7 @@ export function huntCheck(state, hunterId = 'neo') {
   const busy = state.shift ? personBusyReason(state, hunterId) : null;
   if (busy) reasons.push(busy);
   else if (state.people[hunterId]?.activity !== 'idle') reasons.push('선택한 동료가 다른 활동 중입니다');
+  if (hunterId === 'neo' && state.ap?.neoTask === 'farm') reasons.push('네오는 이번 순에 농장을 맡았어요 · 다음 순에 사냥을 떠날 수 있어요');
   if (state.mode === 'shift') reasons.push('정규 영업 중에는 사냥을 떠날 수 없습니다');
   else if (state.mode === 'settlement') reasons.push('결산을 닫은 뒤 떠날 수 있습니다');
   else if (state.mode === 'hunt') reasons.push('이미 사냥 중입니다');
@@ -56,6 +57,7 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
   if (!chk.ok) return { ok: false, reason: chk.reasons[0], reasons: chk.reasons };
   if (!Number.isInteger(depth) || depth < 1 || depth > maxHuntDepth(state)) return { ok: false, reason: '아직 갈 수 없는 깊이입니다' };
   spendAp(state, 1);
+  if (hunterId === 'neo') state.ap.neoTask = 'hunt';
   state.mode = 'hunt';
   state.paused = false;
   Object.assign(state.people[hunterId], { activity: 'hunting', form: hunterId === 'neo' ? 'cat' : 'tiger', visitId: null, tableNo: null, endAt: null });

@@ -84,7 +84,6 @@ test('가게 확장: 테이블 값은 들일수록 오르고, 6·7번 테이블�
   assert.equal(s.stats.expansions, 2);
   assert.ok(validateLayout(s.interior.furniture, s.interior.areas).ok);
 
-  s.autoKitchen = false;
   assert.ok(dispatch(s, { type: 'shift.start' }).ok);
   s.shift.scriptIndex = 99;
   s.shift.nextSpawnAt = Number.MAX_SAFE_INTEGER;

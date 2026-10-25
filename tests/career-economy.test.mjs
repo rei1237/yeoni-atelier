@@ -14,8 +14,9 @@ import {survivalReward} from '../src/game/hunt-rewards.js';
 import {TEMP} from '../src/config/balance.temp.js';
 
 test('수동 전환은 이전 전체 자동도 끄고 새 주문을 임의로 조리하지 않는다',()=>{
- const s=quietShift();dispatch(s,{type:'auto.toggle',on:true});dispatch(s,{type:'kitchen.toggle',on:false});
- assert.equal(s.auto,false);assert.equal(s.autoKitchen,false);seat(s,{kind:'regular'});tick(s,30000);
+ const s=quietShift();assert.equal(dispatch(s,{type:'auto.toggle',on:true}).ok,false,'전체 자동은 시뮬 표시 없이 켜지지 않는다');
+ assert.equal(dispatch(s,{type:'automation.toggle',ability:'kitchen',on:true}).ok,false,'인연으로 열기 전 주방 자동은 거절');
+ assert.equal(s.auto,false);assert.equal(s.automation.kitchen,false);seat(s,{kind:'regular'});tick(s,30000);
  assert.ok(Object.values(s.orders).length);assert.ok(Object.values(s.stations).every(st=>!st.current&&!st.next));assert.ok(s.tray.every(x=>!x));
 });
 test('포장은 테이블과 서빙 없이 빠른 조리 후 카운터에서 한 번 결제한다',()=>{

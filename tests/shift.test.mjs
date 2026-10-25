@@ -16,7 +16,7 @@ const N = RULES.NOMINATION_MS;
 
 test('일반 손님은 접대 없이 주문·식사하고 떠난다', () => {
   const s = quietShift();
-  dispatch(s, { type: 'auto.toggle', on: true }); // 조리·서빙만 사람과 같은 명령으로 대신 누름
+  dispatch(s, { type: 'auto.toggle', on: true, sim: true }); // 조리·서빙만 사람과 같은 명령으로 대신 누름
   const { cid, vid, tableNo } = seat(s, { kind: 'regular' });
   assert.equal(s.customers[cid].state, 'thinking');
   assert.equal(acceptCheck(s, tableNo).ok, false);
@@ -33,7 +33,7 @@ test('일반 손님은 접대 없이 주문·식사하고 떠난다', () => {
 });
 
 test('편한 수동이 기본이며 주방 자동을 켜면 조리·서빙만 하고 지명 수락은 사람에게 남긴다', () => {
-  assert.equal(createGame().autoKitchen, false, '새 게임은 수동 조리·서빙으로 시작한다');
+  assert.deepEqual(createGame().automation, { hall: false, kitchen: false, farm: false }, '새 게임은 수동 조리·서빙으로 시작한다');
   const s = quietShift({ kitchen: true });
   assert.equal(s.auto, false);
   const reg = seat(s, { kind: 'regular' });
@@ -41,8 +41,8 @@ test('편한 수동이 기본이며 주방 자동을 켜면 조리·서빙만 �
   for (let i = 0; i < 1800 && s.customers[reg.cid]; i++) tick(s, 100);
   assert.ok(s.visits[reg.vid].servedTotal > 0, '일반 손님 주문이 자동으로 조리·서빙되었다');
   assert.equal(s.visits[nom.vid].acceptAt, null, '지명 요청은 자동으로 수락하지 않는다');
-  assert.ok(dispatch(s, { type: 'kitchen.toggle', on: false }).ok);
-  assert.equal(s.autoKitchen, false);
+  assert.ok(dispatch(s, { type: 'automation.toggle', ability: 'kitchen', on: false }).ok);
+  assert.equal(s.automation.kitchen, false);
 });
 
 test('연이는 계산만 한다: 서빙은 루나·네오, 굽기는 루나 언니가 오븐 앞에서', () => {
@@ -144,7 +144,7 @@ test('10:00: 마지막 접대를 먼저 정산하고 영업을 닫는다', () =>
   const { s, tableNo, vid } = requestAround(RULES.LAST_ACCEPT_ELAPSED_MS);
   tickTo(s, RULES.LAST_ACCEPT_ELAPSED_MS);
   assert.ok(dispatch(s, { type: 'nomination.accept', tableNo }).ok);
-  dispatch(s, { type: 'auto.toggle', on: true }); // 주문 조리·서빙
+  dispatch(s, { type: 'auto.toggle', on: true, sim: true }); // 주문 조리·서빙
   tickTo(s, RULES.SHIFT_MS - 100);
   assert.equal(s.mode, 'shift');
   assert.equal(s.people.neo.activity, 'hosting');
@@ -242,7 +242,7 @@ test('[자동 시계] 10분 정규 영업 전체를 자동 운영으로 진행 �
   const s = createGame();
   s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   assert.ok(dispatch(s, { type: 'shift.start' }).ok);
-  dispatch(s, { type: 'auto.toggle', on: true });
+  dispatch(s, { type: 'auto.toggle', on: true, sim: true });
   for (let t = 0; t < RULES.SHIFT_MS - 100; t += 60000) tick(s, Math.min(60000, RULES.SHIFT_MS - 100 - s.shift.elapsedMs));
   assert.equal(s.shift.elapsedMs, RULES.SHIFT_MS - 100);
   assert.equal(s.mode, 'shift', '10:00 전에는 닫히지 않는다');

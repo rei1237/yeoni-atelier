@@ -35,7 +35,16 @@ export const TEMP = Object.freeze({
   HELP_GAIN_GOOD: 2,
   HELP_GAIN_OK: 1,
   HELP_MISS: -1,
-  NEO_STRESS: Object.freeze({ accept: 4, missed: 12, wrong: 8, good: -10, settle: -25, talk: -8 }), // 모두 임시
+  // 직원 스트레스(0~100, 모두 임시). 접대(accept~good)는 네오·호스트, 서빙·정리·굽기는 그 일을 한 직원에게 쌓인다.
+  // 회복: 결산(settle)·하루 휴무(rest)·대화(talk)·선물(gift)·루나의 쉼터(shelter, 골드·행동력 무소모).
+  NEO_STRESS: Object.freeze({ accept: 4, missed: 12, wrong: 8, good: -10, settle: -25, talk: -8, deliver: 1, clean: 1, cook: 1, rest: -40, gift: -10, shelter: -35 }),
+  SHELTER_COST: 300,          // 루나의 쉼터 한 사람 한 번(순마다)
+  // 자동화 권한(임시): 그 동료의 인연 단계와, 같은 단계 인연 이야기(ledger.story['bond:<id>:<단계>'])를 본 기록이 함께 있어야 연다.
+  AUTOMATION: Object.freeze({
+    hall: Object.freeze({ id: 'luna', tier: 2, label: '홀 자동 · 서빙·정리' }),
+    kitchen: Object.freeze({ id: 'luna_sis', tier: 2, label: '주방 자동 · 대기 주문 조리' }),
+    farm: Object.freeze({ id: 'neo', tier: 3, label: '농장 맡기기 · 수확·재파종·물·돌봄' }),
+  }),
   EXTRA_ORDER_AT_MS: 20000,  // 추가 주문 시점(수락 기준)
   FEVER_EVAL_AT_MS: 10000,    // 방문당 첫 유효 평가 시점(수락 기준)
 

@@ -81,7 +81,7 @@ export function decideEnding(state) {
 export function advanceTurn(state) {
   advanceFarm(state);
   const fx = bondFx(state.affinity);
-  state.ap = { left: maxActionPoints(state), talked: {}, gifted: {}, shopped: false, delegated: {} };
+  state.ap = { left: maxActionPoints(state), talked: {}, gifted: {}, shopped: false, delegated: {}, sheltered: {}, neoTask: null };
   // 모카 ♥3: 순마다 밤이슬
   if (fx.dailyDew > 0) {
     state.stock.night_dew = (state.stock.night_dew || 0) + fx.dailyDew;

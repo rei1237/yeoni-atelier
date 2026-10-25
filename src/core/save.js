@@ -43,7 +43,17 @@ function migrate(data) {
   data.farm.energy = Number.isFinite(data.farm.energy) ? Math.max(0,Math.min(data.farm.energy,maxFarmEnergy(data.farm))) : maxFarmEnergy(data.farm);
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
   for (const k of ['ledger', 'stats', 'seq', 'quests', 'outfits', 'fever', 'offline', 'gear', 'calendar', 'ap', 'affinity']) data[k] = { ...base[k], ...data[k] };
-  data.neoStress = Math.max(0, Math.min(100, Math.floor(Number(data.neoStress) || 0)));
+  // 네오 전용 스트레스 → 전 직원 스트레스. 예전 자동 켜짐은 권한이 아니므로 모두 끈다(인연으로 다시 연다).
+  if ('neoStress' in data || 'neoResting' in data) {
+    data.stress = { ...data.stress, neo: data.stress?.neo ?? data.neoStress };
+    if (data.neoResting) data.resting = { ...data.resting, neo: true };
+    delete data.neoStress; delete data.neoResting;
+  }
+  for (const k of ['stress', 'resting', 'dayOff']) if (!data[k] || typeof data[k] !== 'object') data[k] = {};
+  for (const [id, v] of Object.entries(data.stress)) data.stress[id] = Math.max(0, Math.min(100, Math.floor(Number(v) || 0)));
+  if ('autoKitchen' in data) { delete data.autoKitchen; data.auto = false; }
+  data.automation = { hall: false, kitchen: false, farm: false, ...(data.automation || {}) };
+  for (const k of Object.keys(data.automation)) data.automation[k] = data.automation[k] === true;
   if (legacy && data.hostbar.open && !data.ledger.rewards['outfit:host_first']) {
     data.ledger.rewards['outfit:host_first'] = true;
     if (!data.outfits.owned.includes('host_first')) data.outfits.owned.push('host_first');

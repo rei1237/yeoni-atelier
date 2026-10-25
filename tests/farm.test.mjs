@@ -11,7 +11,6 @@ const tend = (s, index) => { cmd(s, 'farm.water', { index }); cmd(s, 'farm.tend'
 
 test('연이 농사 → 마감 성장 → 재고 → 실제 조리, 수확 중복 방지와 저장 왕복', () => {
   let s = createGame();
-  s.autoKitchen = false; // 이 검증은 농장 재고만 추적한다.
   const start = s.stock.flour, gold = s.gold;
   assert.ok(cmd(s, 'farm.plant', { cropId: 'wheat', index: 0 }).ok);
   assert.equal(s.gold, gold - CROPS.wheat.seedCost);

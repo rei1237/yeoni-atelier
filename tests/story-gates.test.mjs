@@ -49,7 +49,7 @@ test('새 게임 이야기 순서 m0 → ev:hunt, 사냥 잠금·변신·복귀'
 test('3·4월 일반 영업만, 5월 이야기 완료/건너뛰기 명령이 지명과 정장을 1회 해금', () => {
   for (const day of [1, 4]) {
     const s = createGame(); s.day = day;
-    dispatch(s, { type: 'shift.start' }); dispatch(s, { type: 'auto.toggle', on: true });
+    dispatch(s, { type: 'shift.start' }); dispatch(s, { type: 'auto.toggle', on: true, sim: true });
     tick(s, RULES.SHIFT_MS);
     assert.equal(s.lastSettlement.nominationVisits, 0);
     assert.equal(s.lastSettlement.hostings.length, 0);
