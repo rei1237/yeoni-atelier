@@ -8,3 +8,5 @@ Thumbs.db
 .idea/
 /tmp/
 /scratch/
+tools/*.local.json
+tools/*.local.html

@@ -129,7 +129,7 @@ tools/serve.mjs               정적 서버
 6. 다음 영업부터 지명 제안 가능
 7. 저장 유지
 
-공식 동료 데이터는 [companions.js](../src/data/companions.js) 의 `RECRUITABLE` 에 추가한다. 지금은 비어 있다.
+정식 등장 동료 데이터는 [companions.js](../src/data/companions.js)의 `RECRUITABLE`에 있다. 윤달·모카·서한비·무성·솔브·밤비·루네·레이븐은 월별 만남 및 후속 이야기를 가지며, 사용자 요청으로 창작한 임시 프로필과 능력치는 WORLD.md에 구분했다.
 
 ## 테스트
 
@@ -137,7 +137,7 @@ tools/serve.mjs               정적 서버
 npm test
 ```
 
-결과: 39개 통과(rules 7, shift 11, persistence 11, recipe 4, town 6). 2026-10-25 에 `npm test` 로 실행했다.
+결과: 70개 통과·0개 실패. 2026-10-25에 `npm test`로 실행했다. 최신 검증 기록은 QA.md 참조.
 
 - `[자동 시계]` 가 붙은 테스트는 엔진 `tick` 으로 10분 영업이나 3분 사냥을 수 초 안에 진행한 것이다.
 - **실제 사용자의 10분 플레이테스트가 아니다.** 사람이 10분 동안 직접 플레이하는 테스트는 아직 하지 않았다.
@@ -158,3 +158,8 @@ state.farm: xp, seed, greenhouse, lastAdvancedDay, harvests, plots. 작물 인�
 
 ## 편한 수동 (2026-10-25 사용자 선택)
 새 게임 autoKitchen=false. 주문 말풍선 또는 주문 카드 한 번으로 조리 예약, 완성 트레이 한 번으로 맞는 테이블에 운반 요청. 루나 이동·마감 정리는 보조하며 자동 조리·서빙과 전체 자동은 별도 선택이다. 기존 저장의 autoKitchen 선택은 유지한다. `order.quick {orderId}`는 영업 중 대기 주문만 받고 반복 탭으로 동일 주문의 조리 예약을 중복하지 않는다.
+
+## 의상·대화·그림
+`outfit.unlock {id}`는 준비 중에만 정해진 월정석 가격을 지불하고 보유 목록에 1회 추가한다. `outfit.equip`는 소유·인물·슬롯을 확인한다. 이야기 의상은 story.seen의 기존 원장과 grantEventOutfits로 지급한다. 외형 전용이며 네오 능력·만족도 공식·스트레스에 영향 없음.
+말하기 초상화는 4열(입 닫음/눈감음/작게 열기/크게 열기) × 표정 행이다. 110ms 입 움직임, 2–5초 깜빡임, 문장 부호 정지, reduced-motion 지원. 기존 가로형 초상화는 manifest.legacyPortraits로 읽을 수 있다.
+HTML과 Canvas는 manifest.ready에서 로드 성공한 파일만 사용한다. 시트·소설은 초점을 가두고 닫으면 열었던 버튼에 복귀한다. 변신·숫자 카운트·대사 연출은 엔진 상태를 변경하지 않는다.
