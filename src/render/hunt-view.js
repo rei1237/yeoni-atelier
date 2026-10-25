@@ -5,9 +5,11 @@ import { TEMP } from '../config/balance.temp.js';
 import { ENEMIES } from '../data/hunt-kit.js';
 import { gemTier, mods, weaponStats } from '../game/hunt.js';
 import { drawActor, drawIcon } from './sprite-renderer.js';
+import { imageFor } from './assets.js';
 
 const H = TEMP.HUNT;
 const GEM_KEYS = ['gem_s', 'gem_m', 'gem_l'];
+const fieldPatterns = new WeakMap();
 
 export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const t = opts.t || 0;
@@ -27,6 +29,15 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
 
   // 필드: 밤 강가 들판 + 점 무늬(보이는 곳만)
   ctx.fillStyle = '#243a35'; ctx.fillRect(0, 0, H.FIELD_W, H.FIELD_H);
+  const field = imageFor('tiles/river_field');
+  if (field) {
+    if (!fieldPatterns.has(ctx)) fieldPatterns.set(ctx, ctx.createPattern(field, 'repeat'));
+    const pattern = fieldPatterns.get(ctx);
+    if (pattern) {
+      ctx.fillStyle = pattern; ctx.globalAlpha = 0.45;
+      ctx.fillRect(0, 0, H.FIELD_W, H.FIELD_H); ctx.globalAlpha = 1;
+    }
+  }
   ctx.fillStyle = 'rgba(190,230,200,0.10)';
   const x0 = Math.floor(camX / 60) * 60, y0 = Math.floor(camY / 60) * 60;
   for (let y = y0; y < camY + vh + 60; y += 60) for (let x = x0 + ((y / 60) % 2 ? 30 : 0); x < camX + vw + 60; x += 60) { ctx.fillRect(x, y, 3, 3); }
