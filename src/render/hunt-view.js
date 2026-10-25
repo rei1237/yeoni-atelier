@@ -1,6 +1,7 @@
 // 영냥이 월정석 사냥 화면(뱀서식). 플레이어를 따라가는 카메라, 필드, 적, 무기 효과, 드롭, 피해 숫자, 사건 알림, 조이스틱.
 // 상태는 읽기만 한다. 화면 흔들림 같은 연출에만 Math.random 을 쓴다.
 
+import {fieldTheme} from '../game/hunt-field.js';
 import { TEMP } from '../config/balance.temp.js';
 import { ENEMIES } from '../data/hunt-kit.js';
 import { gemTier, mods, weaponStats } from '../game/hunt.js';
@@ -13,46 +14,34 @@ const fieldPatterns = new WeakMap();
 
 export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const t = opts.t || 0;
-  const fx=(key,x,y,size)=>{const img=imageFor(`effects/${key}`);if(!img)return false;const frame=Math.floor(t/90)%4;ctx.drawImage(img,frame*128,0,128,128,x-size/2,y-size/2,size,size);return true;};
+  const fx=(key,x,y,size)=>{const img=imageFor(`effects/${key}`);if(!img)return false;const frame=Math.floor((opts.reducedMotion?0:t)/100)%4;ctx.drawImage(img,frame*128,0,128,128,x-size/2,y-size/2,size,size);return true;};
   const hs = state.hunt;
   const scale = Math.min(w / 420, h / 600);
   const vw = w / scale, vh = h / scale;
   const p = world.player;
   const now = hs.elapsedMs;
-  let camX = Math.max(-80, Math.min(H.FIELD_W - vw + 80, p.x - vw / 2));
-  let camY = Math.max(-80, Math.min(H.FIELD_H - vh + 80, p.y - vh / 2));
-  if (now < world.shakeUntil && !state.paused) { camX += (Math.random() - 0.5) * 8; camY += (Math.random() - 0.5) * 8; }
+  let camX = p.x-vw/2;
+  let camY = p.y-vh/2;
+  if (now < world.shakeUntil && !state.paused && !opts.reducedMotion) { camX += (Math.random() - 0.5) * 8; camY += (Math.random() - 0.5) * 8; }
 
   ctx.fillStyle = '#141a2b'; ctx.fillRect(0, 0, w, h);
   ctx.save();
   ctx.scale(scale, scale);
   ctx.translate(-Math.round(camX), -Math.round(camY));
 
-  // 필드: 밤 강가 들판 + 점 무늬(보이는 곳만)
-  ctx.fillStyle = '#243a35'; ctx.fillRect(0, 0, H.FIELD_W, H.FIELD_H);
-  const field = imageFor('tiles/river_field');
-  if (field) {
-    if (!fieldPatterns.has(ctx)) fieldPatterns.set(ctx, ctx.createPattern(field, 'repeat'));
-    const pattern = fieldPatterns.get(ctx);
-    if (pattern) {
-      ctx.fillStyle = pattern; ctx.globalAlpha = 0.45;
-      ctx.fillRect(0, 0, H.FIELD_W, H.FIELD_H); ctx.globalAlpha = 1;
-    }
-  }
-  ctx.fillStyle = 'rgba(190,230,200,0.10)';
-  const x0 = Math.floor(camX / 60) * 60, y0 = Math.floor(camY / 60) * 60;
-  for (let y = y0; y < camY + vh + 60; y += 60) for (let x = x0 + ((y / 60) % 2 ? 30 : 0); x < camX + vw + 60; x += 60) { ctx.fillRect(x, y, 3, 3); }
-  ctx.strokeStyle = '#6f8fb3'; ctx.lineWidth = 6; ctx.strokeRect(3, 3, H.FIELD_W - 6, H.FIELD_H - 6);
-
+  const theme=fieldTheme(hs.depth),field=imageFor('tiles/'+theme)||imageFor('tiles/river_field');
+  ctx.fillStyle=hs.depth>=85?'#231a30':'#263a3b';ctx.fillRect(camX-2,camY-2,vw+4,vh+4);
+  if(field){const tile=512;for(let y=Math.floor(camY/tile)*tile;y<camY+vh;y+=tile)for(let x=Math.floor(camX/tile)*tile;x<camX+vw;x+=tile)ctx.drawImage(field,x,y,tile,tile);}
+  for(const o of world.props||[]){if(hs.brokenProps?.[o.id]||o.x<camX-64||o.x>camX+vw+64||o.y<camY-80||o.y>camY+vh+80)continue;const img=imageFor('objects/hunt_'+o.kind);if(img)ctx.drawImage(img,o.x-32,o.y-48,64,64);if(o.hp<o.maxHp){ctx.fillStyle='#e7c275';ctx.fillRect(o.x-20,o.y-52,40*o.hp/o.maxHp,3);}}
   const m = mods(hs);
   // 달빛 장막(바닥 원)
   for (const wp of hs.weapons) {
     if (wp.id !== 'aura') continue;
     const s = weaponStats(wp, m);
-    fx('aura',p.x,p.y,s.radius*2);
+    if(hs.wardUntil>now)fx('aura',p.x,p.y,s.radius*2);
     ctx.fillStyle = wp.evo ? 'rgba(200,190,255,0.20)' : 'rgba(232,213,163,0.14)';
     ctx.strokeStyle = wp.evo ? 'rgba(200,190,255,0.55)' : 'rgba(232,213,163,0.4)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(p.x, p.y, s.radius + Math.sin(t / 300) * 2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(p.x, p.y, s.radius + Math.sin(t / 300) * 2, 0, Math.PI * 2); if(hs.wardUntil>now)ctx.fill(); ctx.stroke();
   }
 
   // 타로 낙하: 경고 원 → 터짐
@@ -87,8 +76,10 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   for (let i = 0; i < world.enemies.count; i++) {
     const e = world.enemies.items[i];
     const def = ENEMIES[e.type];
+    if(e.x<camX-120||e.x>camX+vw+120||e.y<camY-120||e.y>camY+vh+120)continue;
+    drawEnemyWarning(ctx,e,def,now);
     const hit = e.hitAt > 0 && now - e.hitAt < 90;
-    drawActor(ctx, e.type, { x: e.x, y: e.y + def.size * 0.3, size: def.size, state: hit ? 'hurt' : 'walk', facing: 'down', t, seed: e.uid, flash: hit });
+    drawActor(ctx, e.type, { x: e.x, y: e.y + def.size * 0.3, size: def.size, state:e.rolePhase==='warning'||e.rolePhase==='fuse'?'attack':hit?'hurt':'walk', facing:e.facing||'down', t:now+e.uid*73, seed:e.uid, flash:hit, flipX:e.facing==='left' });
     if (def.elite) {
       const bw = def.size * 0.8, k = Math.max(0, e.hp / e.maxHp);
       ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(e.x - bw / 2, e.y - def.size * 0.62, bw, 5);
@@ -110,11 +101,16 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
     }
   }
 
+  for(const shot of world.hostile){ctx.strokeStyle='#c69bdb';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(shot.x-shot.vx*.045,shot.y-shot.vy*.045);ctx.lineTo(shot.x,shot.y);ctx.stroke();ctx.fillStyle='#ffdda9';ctx.beginPath();ctx.arc(shot.x,shot.y,shot.r,0,Math.PI*2);ctx.fill();}
+  const swing=p.swing;
+  if(swing&&now>=swing.hitAt&&now<swing.until){const q=(now-swing.hitAt)/(swing.until-swing.hitAt);ctx.save();ctx.translate(swing.x,swing.y);ctx.rotate(swing.angle);ctx.globalAlpha=1-q;const grad=ctx.createRadialGradient(0,0,swing.radius*.25,0,0,swing.radius);grad.addColorStop(0,'#fff0c000');grad.addColorStop(.76,swing.evo?'#d9b7f6aa':'#ffd58a88');grad.addColorStop(1,'#fff8e8ee');ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,swing.radius,-swing.halfArc,swing.halfArc);ctx.closePath();ctx.fill();ctx.strokeStyle='#fffbea';ctx.lineWidth=opts.reducedMotion?2:5*(1-q)+1;ctx.beginPath();ctx.arc(0,0,swing.radius,-swing.halfArc+swing.halfArc*2*q,swing.halfArc);ctx.stroke();ctx.restore();}
+  for(const burst of world.fx){const q=(now-burst.at)/(burst.until-burst.at);ctx.save();ctx.globalAlpha=1-q;ctx.strokeStyle=burst.kind==='burst'?'#ffb37d':'#fff4b8';ctx.lineWidth=burst.kind==='burst'?3:2;ctx.beginPath();ctx.arc(burst.x,burst.y,burst.r*(.35+.65*q),0,Math.PI*2);ctx.stroke();if(!opts.reducedMotion)for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(burst.x+Math.cos(a)*burst.r*q*.6,burst.y+Math.sin(a)*burst.r*q*.6);ctx.lineTo(burst.x+Math.cos(a)*burst.r*q,burst.y+Math.sin(a)*burst.r*q);ctx.stroke();}ctx.restore();}
   // 영냥이
   const hurt = now < p.hurtUntil;
   const st = p.action !== 'idle' ? p.action : p.moving ? 'walk' : 'idle';
   if (hurt && Math.floor(t / 80) % 2) ctx.globalAlpha = 0.5;
-  drawActor(ctx, hs.hunterId==='seohanbi'?'seohanbi_tiger':'neo_cat', { x: p.x, y: p.y + 20, size: hs.hunterId==='seohanbi'?76:64, state: p.moving?'walk':st, facing: p.facing, t, name: hs.hunterId==='seohanbi'?'서한비':'영냥이' });
+  const attacking=swing&&now<swing.until;
+  drawActor(ctx, hs.hunterId==='seohanbi'?'seohanbi_tiger':attacking?'neo_cat_attack':'neo_cat', {x:p.x,y:p.y+20,size:hs.hunterId==='seohanbi'?76:68,state:attacking?'walk':st,facing:attacking?p.attackFacing:p.facing,t:now,animationFrame:attacking?Math.min(3,Math.floor((now-swing.at)/90)):undefined});
   ctx.globalAlpha = 1;
 
   // 별자리 궤도(플레이어 위에 그림)
@@ -177,3 +173,5 @@ function star(ctx, x, y, r, color) {
   }
   ctx.closePath(); ctx.fill(); ctx.stroke();
 }
+
+function drawEnemyWarning(ctx,e,def,now){if(!['warning','fuse'].includes(e.rolePhase))return;ctx.save();ctx.strokeStyle='#ffc995';ctx.fillStyle='#e66b452b';ctx.lineWidth=2;if(e.warningR){ctx.beginPath();ctx.arc(e.x,e.y,e.warningR,0,Math.PI*2);ctx.fill();ctx.stroke();const q=Math.max(0,Math.min(1,1-(e.roleUntil-now)/1100));ctx.strokeStyle='#ffe8be';ctx.lineWidth=4;ctx.beginPath();ctx.arc(e.x,e.y,e.warningR,-Math.PI/2,-Math.PI/2+q*Math.PI*2);ctx.stroke();}else{ctx.setLineDash([8,7]);ctx.beginPath();ctx.moveTo(e.x,e.y);ctx.lineTo(e.x+e.aimX*(def.role==='dash'?110:230),e.y+e.aimY*(def.role==='dash'?110:230));ctx.stroke();ctx.setLineDash([]);}ctx.restore();}

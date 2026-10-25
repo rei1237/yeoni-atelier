@@ -12,6 +12,9 @@ export function cafeIdlePose(key, o) {
 }
 
 export function drawActor(ctx, key, o) {
+  const gesture=key==='yeoni'&&o.gesture;
+  if(gesture && imageFor('yeoni_idle')){key='yeoni_idle';o={...o,state:gesture.kind,facing:'down',animationFrame:Math.min(3,Math.floor(gesture.age/260)),idleMotion:false,outfitId:null};}
+  else if((o.state||'idle')==='idle'&&!o.outfitId&&imageFor(key+'_idle')){key=key+'_idle';o={...o,idleMotion:false};}
   const dressed = o.outfitId ? `${key}@${o.outfitId}` : key;
   key = imageFor(dressed) ? dressed : key.split('@')[0];
   const def = actorDef(key) || ASSETS.actors.customer;
@@ -33,15 +36,17 @@ export function drawActor(ctx, key, o) {
 function drawFromSheet(ctx, def, img, st, o) {
   const s = def.states[st];
   const row = def.stateRows[st] + Math.max(0, def.directions.indexOf(o.facing || 'down')) * def.directionRows;
-  const frame = (s.frameOffset || 0) + Math.floor((o.t / 1000) * s.fps) % s.frames;
+  const frame = (s.frameOffset || 0) + (o.animationFrame==null?Math.floor((o.t / 1000) * s.fps) % s.frames:Math.max(0,Math.min(s.frames-1,o.animationFrame)));
   // 고해상도 원본을 실제 화면 크기에 맞춰 축소한다.
   const scale = o.size / def.frame.h;
   const prev = ctx.imageSmoothingEnabled;
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  if(o.flipX){ctx.save();ctx.translate(o.x,0);ctx.scale(-1,1);ctx.translate(-o.x,0);}
   if (o.flash) ctx.filter = 'brightness(3)';
   ctx.drawImage(img, frame * def.frame.w, row * def.frame.h, def.frame.w, def.frame.h,
     Math.round(o.x - def.anchor.x * scale), Math.round(o.y - def.anchor.y * scale), def.frame.w * scale, def.frame.h * scale);
   ctx.filter = 'none';
+  if(o.flipX)ctx.restore();
   ctx.imageSmoothingEnabled = prev;
   drawWorkProps(ctx, o);
   if (o.name) nameTag(ctx, o.name, o.x, o.y + 4 + (o.nameOffsetY || 0), o.size, o.tagColor);
@@ -70,7 +75,7 @@ function roundRect(ctx, x, y, w, h, r) {
 }
 
 export function nameTag(ctx, text, x, y, size, color = '#3b2f2f') {
-  const fs = Math.max(10, Math.round(size * 0.26));
+  const fs = Math.max(9, Math.min(11, Math.round(size * 0.17)));
   ctx.font = `600 ${fs}px system-ui, sans-serif`;
   const w = ctx.measureText(text).width + 8;
   ctx.fillStyle = 'rgba(255,255,255,0.88)';
@@ -315,8 +320,13 @@ export function drawIcon(ctx, key, x, y, px) {
 }
 
 // 대화 초상화(소설 화면): 초상화 시트가 있으면 표정 칸을, 없으면 캐릭터 도형을 크게 그린다
-export function drawPortrait(ctx, key, expr, w, h, { frame = 0 } = {}) {
+export function drawPortrait(ctx, key, expr, w, h, { frame = 0, talkingSheet = false } = {}) {
   ctx.clearRect(0, 0, w, h);
+  if(talkingSheet){
+    const talkKey=key.startsWith('neo@')?'neo_stage':key.split('@')[0];
+    const sheet=imageFor(`talking/${talkKey}`), d=ASSETS.talking?.[talkKey];
+    if(sheet&&d){const fw=d.frame.w,fh=d.frame.h,k=Math.min(w/fw,h/fh);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(sheet,Math.max(0,Math.min(3,frame))*fw,0,fw,fh,(w-fw*k)/2,h-fh*k,fw*k,fh*k);return;}
+  }
   const actualKey = imageFor(`portraits/${key}`) ? key : key.split('@')[0];
   const def = ASSETS.portraits[actualKey];
   const img = imageFor(`portraits/${actualKey}`);

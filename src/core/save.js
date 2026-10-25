@@ -2,7 +2,7 @@
 // 개발 모드는 별도 키를 쓰므로 일반 저장을 건드리지 않는다.
 
 import { SAVE_VERSION, createGame } from '../game/state.js';
-import { newFarm } from '../data/farm.js';
+import { newFarm, maxFarmEnergy } from '../data/farm.js';
 
 export const SAVE_KEYS = Object.freeze({ normal: 'yeoni-atelier.save.v1', dev: 'yeoni-atelier.dev-save.v1' });
 
@@ -40,6 +40,7 @@ function migrate(data) {
   data.startingDebt ??= 120000; // 이전 저장의 원금과 상환 진척은 보존
   const base = createGame({ dev: !!data.meta?.devData });
   if (!data.farm) data.farm = { ...newFarm(data.rng?.seed), lastAdvancedDay: data.day };
+  data.farm.energy = Number.isFinite(data.farm.energy) ? Math.max(0,Math.min(data.farm.energy,maxFarmEnergy(data.farm))) : maxFarmEnergy(data.farm);
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
   for (const k of ['ledger', 'stats', 'seq', 'quests', 'outfits', 'fever', 'offline', 'gear', 'calendar', 'ap', 'affinity']) data[k] = { ...base[k], ...data[k] };
   data.neoStress = Math.max(0, Math.min(100, Math.floor(Number(data.neoStress) || 0)));

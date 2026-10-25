@@ -42,7 +42,7 @@ test('날씨는 저장 후 동일, 비 자동 급수·건조 돌봄·방치 성�
     assert.ok(cmd(s, 'farm.plant', { cropId: 'wheat', index: 0 }).ok);
     cmd(s, 'farm.water', { index: 0 });
     s.day++; advanceFarm(s);
-    assert.equal(s.farm.plots[0].growth, ['sun', 'rain'].includes(weather) ? 1 : 0);
+    assert.equal(s.farm.plots[0].growth, ['sun', 'rain'].includes(weather) ? 1 : .85);
     const growth = s.farm.plots[0].growth; advanceFarm(s);
     assert.equal(s.farm.plots[0].growth, growth);
     if (weather === 'dry' || weather === 'frost') {
@@ -56,6 +56,7 @@ test('농장 레벨 작물·확장·일괄 돌봄·온실, 수확 레시피와 �
   assert.equal(cmd(s, 'farm.expand').ok, false);
   assert.equal(cmd(s, 'farm.careAll').ok, false);
   assert.equal(cmd(s, 'farm.plant', { cropId: 'berry', index: 0 }).ok, false);
+  s.farm.energy=30; // separate catalog/growth fixture, AP has dedicated tests
   s.farm.xp = 60; assert.equal(farmLevel(s.farm), 2);
   assert.ok(cmd(s, 'farm.expand').ok); assert.equal(s.farm.plots.length, 6);
   assert.ok(cmd(s, 'farm.plant', { cropId: 'berry', index: 0 }).ok);

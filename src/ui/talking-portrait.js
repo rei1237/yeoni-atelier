@@ -13,5 +13,5 @@ export function paintTalkingPortrait(canvas, { key, expression = 'normal', talki
   clock.last = now;
   if (now > clock.blinkAt + 160) clock.blinkAt = now + 2000 + Math.random() * 3000;
   const frame = portraitFrame({ now, talking, blinking: now >= clock.blinkAt && now < clock.blinkAt + 160, pauseUntil, reduced });
-  drawPortrait(canvas.getContext('2d'), key, expression, canvas.width, canvas.height, { frame });
+  drawPortrait(canvas.getContext('2d'), key, expression, canvas.width, canvas.height, { frame, talkingSheet:true });
 }

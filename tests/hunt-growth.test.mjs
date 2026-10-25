@@ -10,7 +10,7 @@ test('영냥이 영구 레벨은 50을 넘어 성장하고 깊은 적·월정석
   assert.ok(hunterProgress(1000000).level > 50);
   const s = createGame(); s.huntUnlocked = true;
   assert.equal(dispatch(s, { type: 'hunt.start', depth: 2 }).ok, false);
-  assert.equal(s.ap.left, 2);
+  assert.equal(s.ap.left, 3);
   s.hunter.xp = 9000; s.hunter.maxStage=2;
   assert.equal(maxHuntDepth(s), 2);
   const before = depthScale(1, { hp: 1, dmg: 1 }, 0), after = depthScale(2, { hp: 1, dmg: 1 }, 0);

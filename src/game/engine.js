@@ -1,7 +1,9 @@
+import {acceptYunQuest} from './yun-quest.js';
 import * as finance from './finance.js';
 // 엔진 진입점. 화면(UI)·자동 운영·테스트는 모두 dispatch(명령)와 tick(활성 시간 진행)만 쓴다.
 // UI 는 골드·지명 시간·영입 상태를 직접 바꾸지 않는다.
 
+import { bondTier } from '../data/bonds.js';
 import { TEMP } from '../config/balance.temp.js';
 import { withEvents } from './state.js';
 import * as cafe from './cafe.js';
@@ -20,15 +22,30 @@ import { unlockOutfit } from './outfits.js';
 import { autoStep } from './auto.js';
 
 // 일시정지 중에도 받는 명령
-const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle', 'kitchen.toggle']);
+const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle', 'kitchen.toggle', 'tutorial.seen']);
 // 영업 중에만 의미가 있는 명령
 const SHIFT_ONLY = new Set(['order.quick', 'cook', 'cook.cancelNext', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate']);
 
+const FARM_ACTIONS = new Set(['farm.harvest','farm.plant','farm.water','farm.tend']);
+export const HELPERS = Object.freeze({neo:{tier:1,actions:['farm.water','farm.tend']},moka:{tier:2,actions:['farm.water','farm.tend']},yun:{tier:3,actions:['farm.harvest']}});
+export function helperAvailable(state,id,type){const h=HELPERS[id];return !!(h && state.roster[id] && bondTier(state.affinity[id]||0)>=h.tier && h.actions.includes(type) && !state.ap.delegated?.[id]);}
 function route(state, cmd) {
+ const paid=state.mode==='prep' && FARM_ACTIONS.has(cmd?.type);
+ const helper=paid && cmd.helperId && helperAvailable(state,cmd.helperId,cmd.type);
+ if(paid && cmd.helperId && !helper)return {ok:false,reason:'이 일을 대신할 수 없거나 이번 순 대행을 이미 마쳤어요'};
+ if(paid && !helper){const chk=farm.farmEnergyCheck(state);if(!chk.ok)return chk;}
+ const result=execute(state,cmd);
+ if(paid && result?.ok && !result.duplicate){if(helper){state.ap.delegated??={};state.ap.delegated[cmd.helperId]=true;}else farm.spendFarmEnergy(state);}
+ return result;
+}
+function execute(state, cmd) {
   const t = cmd?.type;
   if (state.paused && !ALLOWED_WHILE_PAUSED.has(t)) return { ok: false, reason: '일시정지 중입니다 — 계속하기를 눌러 주세요' };
   if (SHIFT_ONLY.has(t) && state.mode !== 'shift') return { ok: false, reason: '정규 영업 중에만 할 수 있습니다' };
   switch (t) {
+    case 'tutorial.seen':
+      if(!/^[a-z]+$/.test(cmd.id||''))return {ok:false,reason:'안내를 찾을 수 없어요'};
+      state.tutorials??={};state.tutorials[cmd.id]=true;return {ok:true};
     case 'shift.start': return shift.startShift(state);
     case 'settlement.close': return shift.closeSettlement(state);
     case 'pause':
@@ -85,6 +102,7 @@ function route(state, cmd) {
     case 'interior.apply': return interior.apply(state);
 
     case 'bond.talk': return bonds.talk(state, cmd.id, cmd.choiceId, cmd.token);
+    case 'yun.quest': return acceptYunQuest(state);
     case 'armory.enhance': return armory.enhance(state,cmd.who,cmd.id);
     case 'armory.buy': return armory.buySupply(state,cmd.id);
     case 'hunt.supply': return hunt.useSupply(state,cmd.id);

@@ -7,6 +7,7 @@ import { PDF } from '../config/balance.pdf.js';
 import { emit } from './state.js';
 import { BONDS, BOND_IDS, bondTier, bondFx } from '../data/bonds.js';
 import { advanceFarm } from './farm.js';
+import { cafeProgress } from './cafe-growth.js';
 import { grantEventOutfits } from './outfits.js';
 
 const C = TEMP.CALENDAR;
@@ -38,6 +39,7 @@ export function monthName(monthIdx) {
 }
 
 // ── 행동력(AP): 순마다 채워진다. 사냥·대화에 쓴다.
+export const maxActionPoints = state => C.AP_PER_TURN + Math.floor((cafeProgress(state).level - 1) / 3) + bondFx(state.affinity).ap;
 export function apCheck(state, cost = 1) {
   if ((state.ap?.left ?? 0) < cost) return { ok: false, reason: `행동력이 부족합니다 (이번 순 남은 행동력 ${state.ap?.left ?? 0}) · 영업을 마치면 다시 채워져요` };
   return { ok: true };
@@ -79,7 +81,7 @@ export function decideEnding(state) {
 export function advanceTurn(state) {
   advanceFarm(state);
   const fx = bondFx(state.affinity);
-  state.ap = { left: C.AP_PER_TURN + fx.ap, talked: {}, gifted: {}, shopped: false };
+  state.ap = { left: maxActionPoints(state), talked: {}, gifted: {}, shopped: false, delegated: {} };
   // 모카 ♥3: 순마다 밤이슬
   if (fx.dailyDew > 0) {
     state.stock.night_dew = (state.stock.night_dew || 0) + fx.dailyDew;

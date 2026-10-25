@@ -3,7 +3,7 @@
 
 import { DECOR_CATALOG } from '../data/decor-catalog.js';
 export const TEMP = Object.freeze({
-  INITIAL_DEBT: 99_999_999, // 사용자 결정 2026-10-26: 새 게임 원금
+  INITIAL_DEBT: 100_000_000, // 사용자 결정 2026-10-26: 1억 골드, 외전 속 현실 약 10억 원 규모
   CAFE_PRICE_GROWTH: 1.45, // 레벨별 메뉴 가격 배율(임시, 5년 시뮬레이션 기준)
   LOAN_RATE: .08, // 청토끼 신규 운영 대출: 월 8%, 미납 이자는 원금에 가산
   PAYROLL_BASE: 1000, // 월 정액, 근무 순 비례
@@ -59,11 +59,11 @@ export const TEMP = Object.freeze({
     PLAYER_HP: 100,
     HURT_IFRAME_MS: 700,
     SUB_STEP_MS: 34,          // 탄이 적을 뚫고 지나가지 않도록 탐색 안에서 더 잘게 나눈다
-    SPAWN_RATE_START: 0.7,    // 초당 생성 수(시간에 따라 선형 증가)
-    SPAWN_RATE_END: 3.2,
-    DENSITY_START: 5,         // 이 수보다 적으면 생성 속도 2배
-    DENSITY_END: 45,
-    MAX_ENEMIES: 90,
+    SPAWN_RATE_START: 1.1,    // 초당 생성 수(시간에 따라 선형 증가)
+    SPAWN_RATE_END: 4.2,
+    DENSITY_START: 9,         // 이 수보다 적으면 생성 속도 2배
+    DENSITY_END: 70,
+    MAX_ENEMIES: 140,
     HP_GROWTH: 1.7,           // 3분 끝에서 적 HP 배율 +170%
     MONTH_HP: 0.08,           // 달이 지날 때마다 적 HP +8% (3월 0, 다음 해 2월 +88%)
     MONTH_DMG: 0.04,          // 달마다 접촉 피해 +4%
@@ -106,7 +106,7 @@ export const TEMP = Object.freeze({
     TURNS_PER_MONTH: 3,
     TOTAL_TURNS: 180,
     INTEREST_RATE: 0.02,      // 하순 마감 때 남은 빚 × 2% (올림)
-    AP_PER_TURN: 2,           // 사냥 1 · 대화 1
+    AP_PER_TURN: 3,           // 사냥 1 · 대화 1
     ENDING_BOND_BEST: 520,    // 빚을 다 갚고 친밀도 합이 이 이상이면 최고 결말(일만으로는 ~320, 대화·선물이 더 필요)
   }),
 

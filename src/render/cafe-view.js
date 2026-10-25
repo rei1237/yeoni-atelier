@@ -52,7 +52,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   ctx.fillStyle = '#eadbc8'; ctx.fillRect(0, 0, v.w, v.h);
 
   const luxurious=atmosphere(state)>=20;
-  const backdrop=luxurious?imageFor('backgrounds/atelier_lit'):null;
+  const backdrop=imageFor('backgrounds/cafe_room');
   if(backdrop)ctx.drawImage(backdrop,v.ox,v.oy,T*v.cols,T*v.rows);
   // 바닥
   for (let y = 0; y < v.rows; y++) for (let x = 0; x < v.cols; x++) {
@@ -120,7 +120,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
       roundRect(ctx, p.x + 2, p.y + 2, b.w * T - 4, b.h * T - 4, T * 0.15); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(p.x + 4, p.y + 4, b.w * T - 8, T * 0.18);
     }
-    label(ctx, fx.name, p.x + b.w * T / 2, p.y + (b.h === 1 ? T * 0.42 : b.h * T / 2), T * 0.27);
+
   }
 
   // 가구(테이블·의자·막는 장식)
@@ -144,13 +144,13 @@ export function drawCafe(ctx, state, v, opts = {}) {
   if (state.mode === 'shift') {
     for (const c of Object.values(state.customers)) {
       const st = c.action === 'walk' ? 'walk' : c.action === 'react' ? 'react' : 'idle';
-      actors.push({ key: 'customer', x: c.x, y: c.y, o: { state: st, facing: c.facing, hue: c.hue, name:CUSTOMER_WEALTH[c.wealthId]?.name, tagColor:CUSTOMER_WEALTH[c.wealthId]?.color } });
+      actors.push({ key: 'customer', x: c.x, y: c.y, o: { state: st, facing: c.facing, hue: c.hue, name:null, tagColor:CUSTOMER_WEALTH[c.wealthId]?.color } });
     }
     for (const s of Object.values(state.staff)) {
       const map = { walk: 'walk', serve: 'serve', clean: 'clean', host: 'host', react: 'react' };
       let st = map[s.action] || 'idle';
       if (s.action === 'cook') st = 'cook'; // 루나 언니가 굽는 중
-      actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, ...outfitLook(state, s.id) } });
+      actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, ...outfitLook(state, s.id) } });
     }
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
     actors.push({ key: 'yeoni', x: SPOTS.yeoniHome.x + 0.5, y: SPOTS.yeoniHome.y + 0.5, o: { state: 'idle', facing: 'down', name: '연이', ...outfitLook(state, 'yeoni') } });
@@ -256,16 +256,13 @@ function drawStations(ctx, state, v) {
       const k = Math.min(1, st.current.progressMs / st.current.durationMs);
       ctx.fillStyle = 'rgba(0,0,0,0.25)'; roundRect(ctx, p.x + 4, p.y + T * 0.66, w - 8, T * 0.22, 4); ctx.fill();
       ctx.fillStyle = MENUS[st.current.menuId].color; roundRect(ctx, p.x + 4, p.y + T * 0.66, (w - 8) * k, T * 0.22, 4); ctx.fill();
-      label(ctx, `${MENUS[st.current.menuId].short} ${Math.ceil((st.current.durationMs - st.current.progressMs) / 1000)}초`, p.x + w / 2, p.y + T * 0.77, T * 0.2, '#fff');
     }
     if (st.next) {
       ctx.fillStyle = '#fff'; roundRect(ctx, p.x + w - T * 0.62, p.y - T * 0.02, T * 0.62, T * 0.28, 5); ctx.fill();
-      label(ctx, `다음 ${MENUS[st.next.menuId].short}`, p.x + w - T * 0.31, p.y + T * 0.12, T * 0.17, '#5a3b22');
     }
     if (st.held) {
       ctx.strokeStyle = '#d9443a'; ctx.lineWidth = 3; ctx.strokeRect(p.x + 2, p.y + 2, w - 4, T - 4);
       ctx.fillStyle = '#d9443a'; roundRect(ctx, p.x + 2, p.y + T * 0.02, T * 1.1, T * 0.28, 5); ctx.fill();
-      label(ctx, '트레이 가득', p.x + 2 + T * 0.55, p.y + T * 0.16, T * 0.17, '#fff');
     }
   }
   // 서빙대 위 완성 음식(트레이 3칸)

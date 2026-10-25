@@ -1,6 +1,13 @@
 // 게임 오리지널 외전. 이야기 데이터는 상태를 바꾸지 않고 story.seen 명령만 해금을 담당한다.
 export const EVENT_STORIES = Object.freeze({
   'ev:hunt': [
+    {chapter:['월정석 원정의 시작','돈 벌어 와, 네오!'],bg:'atelier_lit',l:'yeoni:surprised',c:'neo:normal',r:'moka:smug'},
+    {s:'moka',t:'월정석은 청토끼 금융 센터에서 골드로 바꿔 줘. 빚 상환에도 쓸 수 있고.'},
+    {s:'yeoni',t:'잠깐. 저 반짝이는 돌이 돈이라고? 네오, 운세 세계의 던전으로 가서 돈 벌어 와!',l:'yeoni:determined'},
+    {s:'neo',t:'아까는 소중한 동료라며. 수익 구조를 안 지 삼 초 만에 원정대장이 됐군.'},
+    {s:'nar',t:'별무늬 망토가 빙글 돌았다. 네오가 있던 자리에서 두 발로 선 하얀 고양이가 장부를 노려보았다.',c:'neo_cat:serious',fx:'sparkle'},
+    {s:'neo_cat',t:'살아서 돌아오면 생선. 성과급과 별도다.'},
+    {s:'yeoni',t:'좋아! 영냥이 원정대, 출발! 생선은 장부 맨 위에 적어 둘게.',l:'yeoni:smile'},
     { chapter: ['3월 · 첫 출발', '가치 있는 돌과 직원 복지'], bg: 'atelier_dark', l: 'yeoni:sulky', c: 'neo:normal', r: null },
     { s: 'yeoni', t: '한 순에 삼천 골드라니… 어떻게든 돈을 벌어야 해!', fx:'ledger' },
     { s: 'neo', t: '강 건너 달그늘에는 검은 손들이 있어. 쓰러지면 월정석을 떨어뜨리는데, 이게 꽤 가치가 있어!', c: 'neo:smile' },

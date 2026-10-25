@@ -11,8 +11,8 @@ test('고해상도 시트는 방향·동작 셀을 읽고 작은 화면 크기�
     globalThis.Image=class {
       set src(path){requests.push(path);this.width=path.includes('portraits')?384:512;this.height=path.includes('portraits')?576:512;queueMicrotask(()=>this.onload());}
     };
-    await loadAssetImages();
-    assert.equal(requests.length,3,'서로 다른 의상은 각각 로드하고 동일 초상화 별칭은 디코딩을 공유한다');
+    await loadAssetImages('assets/manifest.json',{keys:['actors/neo','portraits/neo','actors/neo@vest_night','portraits/neo@vest_night']});
+    assert.equal(requests.length,4,'캐릭터와 의상별로 서로 다른 스프라이트와 초상화를 로드한다');
     const calls=[],ctx={imageSmoothingEnabled:false,filter:'none',drawImage(...a){calls.push(a);},clearRect(){}};
     drawActor(ctx,'neo',{x:50,y:70,size:32,state:'walk',facing:'right',t:200});
     assert.deepEqual(calls[0].slice(1,5),[128,256,128,128]);
@@ -26,7 +26,7 @@ test('고해상도 시트는 방향·동작 셀을 읽고 작은 화면 크기�
     for(const def of [...Object.values(ASSETS.actors),...Object.values(ASSETS.enemies)]) {
       for(const [state,animation] of Object.entries(def.states)) {
         if(!animation)continue;
-        assert.ok(def.stateRows[state]<def.directionRows);
+        assert.ok(def.stateRows[state]>=0 && def.stateRows[state]<(def.dimensions?.[1]/def.frame.h || def.directionRows*def.directions.length));
         assert.ok(animation.frames<=def.columns);
       }
     }

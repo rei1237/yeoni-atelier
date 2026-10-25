@@ -11,9 +11,9 @@ export const EVO_MULT = 1.35;
 // 무기: base = 1레벨 값, per = 레벨마다 더하는 값, counts = 레벨별 개수(1~5)
 export const WEAPONS = Object.freeze({
   bolt: {
-    name: '사주성광', icon: '✦', desc: '가장 가까운 적에게 별빛 탄을 쏜다',
-    base: { cooldown: 720, damage: 16, speed: 440, pierce: 0 }, per: { damage: 3 }, counts: [1, 1, 2, 2, 3],
-    pierceAt: { 4: 1 }, evo: { pair: 'bell', name: '사주 유성우', desc: '탄 +2 · 관통 +2' },
+    name: '사주 성광', icon: '✦', desc: '주력 근접 참격 · 치명타 확률 +15%p · 치명타 피해 2.3배',
+    base: { cooldown: 850, damage: 36, radius: 96, halfArc: Math.PI*.44 }, per: { damage: 7, radius: 5 }, counts: [1,1,1,1,1],
+    evo: {pair:'bell',name:'사주 월광참',desc:'반경 +30% · 넓은 216도 참격'},
   },
   orbit: {
     name: '별자리 궤도', icon: '✧', desc: '별이 영냥이 주위를 돈다',
@@ -26,9 +26,9 @@ export const WEAPONS = Object.freeze({
     evo: { pair: 'paw', name: '보름달 회전', desc: '부메랑 +2 · 사거리 증가' },
   },
   aura: {
-    name: '달빛 장막', icon: '◎', desc: '주위의 적에게 계속 피해를 준다',
-    base: { radius: 68, damage: 5, tickMs: 700 }, per: { damage: 2, radius: 10 }, counts: [1, 1, 1, 1, 1],
-    evo: { pair: 'fish_stock', name: '월광 결계', desc: '범위 안 적 40% 느려짐' },
+    name: '달빛 수호부', icon: '◎', desc: '주변 적 둔화 · 주기적으로 적 탄환을 지우고 보호막을 펼친다',
+    base: { radius: 105, damage: 0, tickMs: 8000, wardMs: 1100, slow:.2 }, per: { radius: 10,wardMs:150,tickMs:-400 }, counts: [1, 1, 1, 1, 1],
+    evo: { pair: 'fish_stock', name: '월광 결계', desc: '범위 안 적 40% 둔화 · 보호 시간 증가' },
   },
   tarot: {
     name: '타로 낙하', icon: '🂠', desc: '무작위 적 위로 카드가 떨어진다',
@@ -48,22 +48,26 @@ export const PASSIVES = Object.freeze({
 
 // 적: r = 충돌 반지름, size = 그릴 크기, xp = 떨어뜨리는 별조각 값
 export const ENEMIES = Object.freeze({
-  shade_thorn: {hp:65,speed:46,dmg:12,xp:3,r:18,size:46,zigzag:true},
-  shade_clock: {hp:40,speed:100,dmg:9,xp:3,r:14,size:42},
+  rabbit_scout:{name:'청토끼 정찰병',hp:20,speed:66,dmg:7,xp:1,r:14,size:44},
+  moon_bomber:{name:'불안정한 월광',hp:38,speed:70,dmg:24,xp:2,r:15,size:44,role:'bomber'},
+  shade_thorn: {role:'ranged',hp:65,speed:46,dmg:12,xp:3,r:18,size:46,zigzag:true},
+  shade_clock: {role:'dash',hp:40,speed:100,dmg:9,xp:3,r:14,size:42},
   blue_rabbit: {name:'청토끼',hp:80,speed:86,dmg:14,xp:3,r:16,size:48,behavior:'chase'},
-  rabbit_brute: {name:'변이 청토끼',hp:160,speed:54,dmg:22,xp:4,r:21,size:60,behavior:'chase'},
-  heukwol_fragment: {name:'흑월의 파편',hp:460,speed:80,dmg:34,xp:6,r:22,size:64,behavior:'zigzag'},
+  rabbit_brute: {role:'slam',name:'변이 청토끼',hp:160,speed:54,dmg:22,xp:4,r:21,size:60,behavior:'chase'},
+  heukwol_fragment: {role:'fan',name:'흑월의 파편',hp:460,speed:80,dmg:34,xp:6,r:22,size:64,behavior:'zigzag'},
   shade_hand: { hp: 24, speed: 60, dmg: 8, xp: 1, r: 14, size: 40 },
   shade_bat: { hp: 16, speed: 100, dmg: 6, xp: 1, r: 11, size: 34 },
   shade_blob: { hp: 75, speed: 38, dmg: 12, xp: 4, r: 18, size: 46 },
   shade_wisp: { hp: 26, speed: 76, dmg: 7, xp: 2, r: 12, size: 36, zigzag: true },
   elite_hand: { hp: 520, speed: 60, dmg: 15, xp: 20, r: 26, size: 72, chest: true, elite: true },
-  boss_hand: { hp: 1650, speed: 48, dmg: 22, xp: 60, r: 40, size: 108, chest: true, elite: true, boss: true },
+  boss_hand: { role:'boss',hp: 1650, speed: 48, dmg: 22, xp: 60, r: 40, size: 108, chest: true, elite: true, boss: true },
 });
 
 // 시간대별 등장 적(초 이상이면 섞인다)
 export const SPAWN_MIX = Object.freeze([
-  { from: 0, id: 'shade_hand', w: 6 },
+  { from: 0, id: 'shade_hand', w: 5 },
+  { from: 0, id: 'rabbit_scout', w: 4 },
+  { from: 35, id: 'moon_bomber', w: 2 },
   { from: 25, id: 'shade_bat', w: 3 },
   { from: 55, id: 'shade_blob', w: 2 },
   { from: 85, id: 'shade_wisp', w: 3 },

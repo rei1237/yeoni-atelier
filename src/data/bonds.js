@@ -16,10 +16,10 @@ export const BONDS = Object.freeze({
     name: '네오', place: 'hunt', speaker: 'neo_cat',
     gift: { id: 'tuna_churu', name: '참치 츄르', cost: 180 },
     perks: [
-      { label: '사냥 시작 HP +20', fx: { huntHp: 20 } },
-      { label: '사냥 무기 피해 +15%', fx: { huntDmg: 0.15 } },
-      { label: '보스 월정석 +50%', fx: { bossMoon: 0.5 } },
-      { label: '순마다 행동력 +1', fx: { ap: 1 } },
+      { label: '백사자의 수호 · 사냥 HP +40 · 마을 대행 해금', fx: { huntHp: 40 } },
+      { label: '빈틈을 읽는 눈 · 사냥 피해 +35%', fx: { huntDmg: 0.35 } },
+      { label: '달빛 전략가 · 보스 월정석 +80%', fx: { bossMoon: 0.8 } },
+      { label: '함께 쓰는 내일 · 행동력 +2', fx: { ap: 2 } },
     ],
     talk: [
       ['neo_cat', '사냥터 바람이 차갑다. 그래도 네 계산대보다는 따뜻하겠지.'],

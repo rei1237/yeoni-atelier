@@ -1,4 +1,5 @@
-import {changePopularity,guestChatter} from './reputation.js';
+import {wealthEligible} from './cafe-growth.js';
+import {changePopularity,guestChatter,waitingSatisfaction,reviewVisit} from './reputation.js';
 import {cafeProgress,customerWealth,atmosphere,menuWeight,menuPrice} from './cafe-growth.js';
 import {CUSTOMER_WEALTH,wealthAt,hostRevenueMultiplier} from '../data/customer-wealth.js';
 // 카페 영업 루프: 입장 → 착석 → 주문 → 조리 → 완성 → 트레이 → 직원 운반 → 서빙 → 식사 → 퇴장 → 정리 → 빈 테이블
@@ -259,7 +260,7 @@ function recordServe(state, order) {
   state.shift.sales += revenue;
   state.shift.servedCount += 1;
   state.stats.served += 1;
-  changePopularity(state,.3);
+
   if (MENUS[order.menuId].special) state.stats.servedSpecial += 1;
   order.status = 'served';
   order.servedAt = now;
@@ -270,12 +271,13 @@ function recordServe(state, order) {
   const c = state.customers[visit.customerId];
   if (c) {
     c.action = 'eat'; c.actionUntil = now + TEMP.EAT_MS;
-    if (visit.kind === 'regular') { c.state = 'eating'; c.eatEndAt = now + TEMP.EAT_MS; }
+    if (visit.kind === 'regular' && !openOrdersOfVisit(state,visit).length) { c.state = 'eating'; c.eatEndAt = now + TEMP.EAT_MS; }
   }
   // 연이의 계산 동작은 실제 카운터 결제 때 실행한다.
+  if(!openOrdersOfVisit(state,visit).length)guestChatter(state,visit,(state.shift.servedCount%7)/7,food>=70?'served':'late');
   emit('served', { tableNo: order.tableNo||null, menuId: order.menuId, price: revenue });
-  if(cafeProgress(state).level>levelBefore)emit('cafeLevelUp',{level:cafeProgress(state).level});
-  if(visit.kind==='takeaway' && c){state.stats.takeaways=(state.stats.takeaways||0)+1;customerLeave(state,c,'포장 수령');}
+  if(cafeProgress(state).level>levelBefore){const next=cafeProgress(state).level;state.ap.left+=Math.floor((next-1)/3)-Math.floor((levelBefore-1)/3);emit('cafeLevelUp',{level:next});};
+  if(visit.kind==='takeaway' && c && !openOrdersOfVisit(state,visit).length){state.stats.takeaways=(state.stats.takeaways||0)+1;customerLeave(state,c,'포장 수령');}
 
 }
 
@@ -456,12 +458,14 @@ function cancelVisitOrders(state, visit) {
 
 export function customerLeave(state, c, reason) {
   const visit = state.visits[c.visitId];
+  reviewVisit(state,visit,reason);
+  if(visit.reviewScore>=65)guestChatter(state,visit,(state.shift.spawnCount%5)/5,'farewell');
   cancelVisitOrders(state, visit);
   const t = tableByNo(state, c.tableNo);
   if (t && t.customerId === c.id) { t.customerId = null; t.state = 'dirty'; }
   visit.status = 'done';
   visit.leaveReason = reason;
-  if(reason.includes('오래 기다려')||reason.includes('주문할 수'))changePopularity(state,-1.5);
+  state.cafeGesture={kind:'bow',at:state.shift.elapsedMs};
   c.state = visit.bill>0 && !visit.paid ? 'checkout' : 'leaving';
   c.action = 'walk';c.payAt=null;
   setPath(state,c,c.state==='checkout'?nearestWalkable(getGrid(state),{x:5,y:14}):SPOTS.entrance);
@@ -476,7 +480,7 @@ export function spawnCustomer(state, spec) {
   if (!takeaway && !empty.length) return null;
   const t = takeaway?{no:0,chair:nearestWalkable(getGrid(state),{x:5,y:14})}:pick(state.rng, empty);
   const profile = spec.profileId ? PDF.PROFILES.find(p => p.id === spec.profileId) : pick(state.rng, PDF.PROFILES);
-  const wealthId = CUSTOMER_WEALTH[spec.wealthId] ? spec.wealthId : customerWealth(state,nextRandom(state.rng));
+  const wealthId = CUSTOMER_WEALTH[spec.wealthId] && (state.meta.devData||wealthEligible(state,spec.wealthId)) ? spec.wealthId : customerWealth(state,nextRandom(state.rng));
   const cid = nextId(state, 'customer');
   const vid = nextId(state, 'visit');
   state.shift.spawnCount += 1;
@@ -500,6 +504,7 @@ export function spawnCustomer(state, spec) {
   setPath(state, c, t.chair, { goalBlocked: true });
   if (spec.kind !== 'nomination') state.shift.regularVisits += 1; else state.shift.nominationVisits += 1;
   visit.chatter=guestChatter(state,visit,nextRandom(state.rng));
+  if(!state.cafeGesture||state.shift.elapsedMs-state.cafeGesture.at>1100)state.cafeGesture={kind:'welcome',at:state.shift.elapsedMs};
   emit('enter', { tableNo: t.no, kind: spec.kind });
   return c;
 }
@@ -530,11 +535,16 @@ export function stepCustomers(state, dt, hooks) {
           const menuId = chooseMenu(state, remainingShift(state),visit);
           if (!menuId) { customerLeave(state, c, remainingShift(state) < 60000 ? '마감이 가까워 주문하지 않음' : '주문할 수 있는 메뉴가 없음'); break; }
           placeOrder(state, visit, menuId);
+          const extraChance={frugal:.12,ordinary:.3,generous:.6,tycoon:.85}[visit.wealthId]||0;
+          if(nextRandom(state.rng)<extraChance){const extra=chooseMenu(state,remainingShift(state),visit);if(extra)placeOrder(state,visit,extra);if(visit.wealthId==='tycoon'&&nextRandom(state.rng)<.4){const third=chooseMenu(state,remainingShift(state),visit);if(third)placeOrder(state,visit,third);}}
           c.state = 'waiting_food';
         }
         break;
       case 'waiting_food': {
         const open = openOrdersOfVisit(state, visit);
+        const satisfaction=waitingSatisfaction(state,visit);
+        if(satisfaction<55 && !visit.lateSpoken){visit.lateSpoken=true;guestChatter(state,visit,(state.shift.spawnCount%4)/4,'late');}
+        else if(satisfaction<80 && !visit.waitSpoken){visit.waitSpoken=true;guestChatter(state,visit,(state.shift.spawnCount%4)/4,'waiting');}
         if (open.length && now - open[0].placedAt >= TEMP.FOOD_PATIENCE_MS * (1 + bondFx(state.affinity).patience)) customerLeave(state, c, '음식을 오래 기다려 떠남');
         break;
       }
@@ -563,5 +573,6 @@ export function checkout(state,visit){
  if(state.ledger.checkouts[visit.id]!=null){visit.paid=true;return false;}
  const amount=Math.max(0,visit.bill||0);state.ledger.checkouts[visit.id]=amount;visit.paid=true;state.gold+=amount;
  const yeoni=state.staff.yeoni;if(yeoni){yeoni.action='react';yeoni.actionUntil=state.shift.elapsedMs+650;yeoni.facing='right';}
+ state.cafeGesture={kind:'cashier',at:state.shift.elapsedMs};
  if(amount)emit('paidAtCounter',{amount});return true;
 }

@@ -14,10 +14,10 @@ test('주문 현황은 빈 칸 대신 고민·메뉴명·조리·운반 상태�
  s.stations.drink.current={menuId:'starlight_tea',progressMs:0,durationMs:1000};
  assert.ok(panelHtml(s,ui).includes('메뉴 고르는 중'));s.stations.drink.current=null;
  for(let i=0;i<100&&!v.orderIds.length;i++)tick(s,100);
- const o=s.orders[v.orderIds[0]];assert.ok(o);html=panelHtml(s,ui);assert.ok(html.includes(MENUS[o.menuId].name));assert.ok(html.includes('눌러서 만들기'));
+ const o=s.orders[v.orderIds[0]];assert.ok(o);html=panelHtml(s,ui);assert.ok(html.includes(MENUS[o.menuId].short));assert.ok(html.includes('주문 · 만들기'));
  assert.ok(dispatch(s,{type:'order.quick',orderId:o.id}).ok);assert.ok(panelHtml(s,ui).includes('조리 중'));
- s.stations[MENUS[o.menuId].station].current=null;o.status='assigned';assert.ok(panelHtml(s,ui).includes('직원이 가져가는 중'));
- o.status='served';c.state='eating';html=panelHtml(s,ui);assert.ok(html.includes(MENUS[o.menuId].name));assert.ok(html.includes('맛있게 먹는 중'));
+ s.stations[MENUS[o.menuId].station].current=null;o.status='assigned';assert.ok(panelHtml(s,ui).includes('가져가는 중'));
+ o.status='served';c.state='eating';html=panelHtml(s,ui);assert.ok(html.includes(MENUS[o.menuId].short));assert.ok(html.includes('맛있게 먹는 중'));
  c.state='checkout';assert.ok(panelHtml(s,ui).includes('연이에게 결제 중'));
 });
 test('히든 사냥꾼은 영입 전 금지, 영입 후 같은 조건에서 영냥이보다 강하다',()=>{

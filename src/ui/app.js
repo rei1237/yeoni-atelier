@@ -1,15 +1,18 @@
+import { bondQuestion } from '../data/bond-dialogues.js';
+import {CAFE_LINES,selectLine} from '../data/cafe-dialogue.js';
+import {newCraft,addCraftIngredient,stirCraft,craftHeat} from './crafting.js';
 import {findRecipe} from '../game/recipe.js';
 import {TEMP as GAME_TEMP} from '../config/balance.temp.js';
 // 연이의 아틀리에 진입점. 화면 ↔ 엔진 연결만 한다.
 // 상태 변경은 모두 dispatch(명령)·tick(활성 시간)으로만 하고, 이 파일은 골드·지명 시간·영입 상태를 직접 바꾸지 않는다.
 
 import {showHelpFeedback} from './help-feedback.js';
-import { unlockAudio,setAudioScene,audioAction,sound } from './audio.js';
+import { unlockAudio,setAudioScene,audioAction,sound,audioStatus } from './audio.js';
 import { GUIDES } from './tutorials.js';
 import { btn } from './dom.js';
 import { TEMP } from '../config/balance.temp.js';
 import { createGame, personName, personDef } from '../game/state.js';
-import { dispatch, tick } from '../game/engine.js';
+import { dispatch, tick, helperAvailable, HELPERS } from '../game/engine.js';
 import { findServeTarget } from '../game/cafe.js';
 import { getHuntWorld } from '../game/hunt.js';
 import { preview as interiorPreview } from '../game/interior.js';
@@ -72,7 +75,7 @@ function resize() {
 }
 new ResizeObserver(resize).observe(el.stage);
 resize();
-loadAssetImages().then(() => { applyAssetTheme(); render(true); });
+loadAssetImages(undefined,{onProgress:(done,total)=>{const p=document.getElementById('boot-progress');if(p){p.max=total||1;p.value=done;}const copy=document.getElementById('boot-copy');if(copy)copy.textContent=`찻잔과 친구들을 준비하고 있어요. ${done} / ${total}`;}}).then(()=>{document.getElementById('boot-screen')?.remove();applyAssetTheme();render(true);});
 
 const joystick = createJoystick(el.canvas, { radius: 56 });
 
@@ -88,7 +91,8 @@ function save(quiet = true) {
 let repaySeq = 0;
 function run(cmd, { keepQuiet = false } = {}) {
   if (!state) return { ok: false };
-  const r = dispatch(state, cmd);
+  const helperId=ui.delegate && helperAvailable(state,ui.delegate,cmd.type)?ui.delegate:null;
+  const r = dispatch(state, helperId?{...cmd,helperId}:cmd);
   handleEvents(r.events);
   sound(r.ok ? cmd.type.startsWith('farm.')?'farm':cmd.type.startsWith('bond.')?'bond':'good' : 'bad');
   if (!r.ok) {
@@ -157,10 +161,15 @@ const ACTIONS = {
   'armory.buy': d => run({type:'armory.buy',id:d.id}),
   'hunt.supply': d => run({type:'hunt.supply',id:d.id}),
   'audio.change': d => audioAction(d.key,d.value),
-  'guide.select': d => {ui.guideId=d.id;ui.sheet={kind:'tutorial'};},
+  'guide.select': d => {ui.guideId=d.id;ui.guideStep=0;ui.sheet={kind:'tutorial'};},
+  'guide.next':()=>{const g=GUIDES[ui.guideId||'cook'];if((ui.guideStep||0)<g.steps.length-1)ui.guideStep=(ui.guideStep||0)+1;else finishGuide();},
+  'guide.back':()=>{ui.guideStep=Math.max(0,(ui.guideStep||0)-1);},
+  'guide.close':()=>finishGuide(),
   'hunt.start': () => { ui.sheet = { kind: 'hunt' }; },
   'hunt.depart': d => { if (run({ type: 'hunt.start', depth: n(d.depth), hunterId:ui.hunterId||'neo' }).ok) ui.sheet = null; },
   'farm.select': d => { ui.farmCrop = d.id; },
+  'farm.plot': d => { ui.farmPlot = n(d.index); },
+  'world.delegate': d => {ui.delegate=ui.delegate===d.id?null:d.id;},
   'farm.plant': d => run({ type: 'farm.plant', cropId: d.id, index: n(d.index) }),
   'farm.water': d => run({ type: 'farm.water', index: n(d.index) }),
   'farm.tend': d => run({ type: 'farm.tend', index: n(d.index) }),
@@ -171,7 +180,7 @@ const ACTIONS = {
   // 화면 전용
   'sheet.open': d => { ui.sheet = { kind: d.sheet, tab: d.tab }; },
   'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; },
-  'sheet.close': () => { ui.sheet = null; },
+  'sheet.close': () => { if(ui.sheet?.kind==='tutorial')finishGuide();else ui.sheet = null; },
   'overlay.settlement': () => {},
   'overlay.hunt': () => {},
   'confirm.yes': () => { const cf = ui.confirm; ui.confirm = null; cf?.onYes(); },
@@ -216,7 +225,7 @@ const ACTIONS = {
   },
   'game.new': () => {
     if (!ui.hasSave) { startNew(); return; }
-    ui.confirm = { title: '새 게임을 시작할까요?', text: '지금 저장된 진행은 새 게임으로 덮어씌워집니다.', yesLabel: '새 게임 시작', danger: true, onYes: startNew };
+    ui.confirm = { title:'새로운 카페를 열까요?', text:'지금까지의 저장은 지워지고 첫날부터 시작해요. 현재 이야기를 계속하려면 아래 버튼을 눌러 주세요.', art:'ui/new_game', yesLabel:'새 이야기 시작', noLabel:'현재 이야기 유지', danger:true, onYes:startNew };
   },
   'game.reset': () => {
     ui.confirm = { title: '저장을 초기화할까요?', text: '이 기기에 저장된 연이의 아틀리에 진행이 지워집니다. 되돌릴 수 없습니다.', yesLabel: '초기화', danger: true,
@@ -262,9 +271,14 @@ const ACTIONS = {
   'cook': d => beginCraft(d.menu),
   'order.quick': d => {const o=state.orders[d.id];if(!o)return;if(state.tray.some(it=>it?.menuId===o.menuId&&!it.reservedFor))run({type:'order.quick',orderId:d.id});else beginCraft(o.menuId,d.id);},
   'craft.cancel':()=>{ui.craft=null;ui.sheet={kind:'kitchen'};},
-  'craft.step':()=>{if(!ui.craft)return;sound('cook');if(ui.craft.step<2){ui.craft.step++;return;}const c=ui.craft;const r=run(c.orderId?{type:'order.quick',orderId:c.orderId}:{type:'cook',menuId:c.menuId});if(r.ok){ui.craft=null;ui.sheet=null;toast('재료가 어우러지고 있어요. 곧 완성돼요.','good');}},
+  'craft.add':d=>{if(ui.craft&&addCraftIngredient(ui.craft,d.id))sound('cook');},
+  'craft.stir':()=>{if(ui.craft&&stirCraft(ui.craft))sound('cook');},
+  'craft.heat':()=>{const c=ui.craft;if(!c||c.step!==2||c.ready)return;const value=craftHeat(c);c.ready=true;c.quality=value>=35&&value<=65?'향이 딱 알맞게 어우러졌어요!':'따뜻하게 준비됐어요. 다음엔 가운데에서 맞춰 봐요.';sound('cook');},
+  'craft.finish':()=>{const c=ui.craft;if(!c?.ready)return;const r=run(c.orderId?{type:'order.quick',orderId:c.orderId}:{type:'cook',menuId:c.menuId});if(r.ok){ui.craft=null;ui.sheet=null;toast('조리를 시작했어요. 완성되면 서빙대에서 만나요.','good');}},
+
   'cook.cancelNext': d => run({ type: 'cook.cancelNext', station: d.station }),
   'shop.buy': d => run({ type: 'shop.buy', ingredientId: d.id, qty: n(d.qty) }),
+  'play.cycle':()=>{ui.playSpeed=ui.playSpeed===3?1:ui.playSpeed+1;},
   'play.speed': d => {ui.playSpeed=[1,2,3].includes(n(d.speed))?n(d.speed):1;},
   'finance.borrow': d => {const amount=n(d.amount);ui.confirm={title:`${amount.toLocaleString('ko-KR')}G를 빌릴까요?`,text:`월 이자 ${GAME_TEMP.LOAN_RATE*100}% · 다음 하순 이자 ${Math.ceil(amount*GAME_TEMP.LOAN_RATE).toLocaleString('ko-KR')}G가 추가됩니다. 미납 이자는 대출 원금에 더해져요.`,yesLabel:'조건 확인하고 빌리기',onYes:()=>run({type:'finance.borrow',amount,requestId:`loan-${Date.now()}-${++repaySeq}`})};},
   'finance.repay': d => run({type:'finance.repay',target:d.target,amount:n(d.amount),currency:d.currency}),
@@ -287,8 +301,9 @@ const ACTIONS = {
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
   'hunt.retreat', 'hunt.finish', 'expand.table']) ACTIONS[t] = () => run({ type: t });
 ACTIONS['hunt.pick'] = d => run({ type: 'hunt.pick', index: n(d.index) });
-ACTIONS['bond.talk'] = d => {ui.sheet={kind:'bond-choice',id:d.id};};
-ACTIONS['bond.answer'] = d => {if(run({type:'bond.talk',id:d.id,choiceId:d.choice,token:d.token}).ok)ui.sheet={kind:'companions'};};
+ACTIONS['yun.quest']=()=>run({type:'yun.quest'});
+ACTIONS['bond.talk'] = d => {const q=bondQuestion(state,d.id);if(!q)return;ui.sheet=null;playNovel([{chapter:[BONDS[d.id].name+' · '+q.phase,q.title],bg:'atelier_dark',l:'yeoni:normal',c:d.id+':normal',r:null},{s:'nar',t:q.intro},{s:d.id,t:q.question}],{onEnd:()=>{ui.sheet={kind:'bond-choice',id:d.id};render(true);}});};
+ACTIONS['bond.answer'] = d => {const r=run({type:'bond.talk',id:d.id,choiceId:d.choice,token:d.token});if(!r.ok)return;ui.sheet=null;playNovel([{bg:'atelier_lit',l:'yeoni:smile',c:d.id+':smile',r:null,s:d.id,t:r.line},{s:'sys',t:'인연 +'+r.gain+' · 오늘의 대화가 마음에 남았습니다.'}],{onEnd:()=>{ui.sheet={kind:'companions'};render(true);}});};
 ACTIONS['bond.gift'] = d => run({ type: 'bond.gift', id: d.id, giftId: d.gift });
 
 document.addEventListener('click', e => {
@@ -304,7 +319,7 @@ document.addEventListener('click', e => {
   }
   const fn = ACTIONS[action];
   if (!fn) { console.warn('unknown action', action); return; }
-  if (!state && !action.startsWith('game.') && !action.startsWith('confirm.')) return;
+  if (!state && !action.startsWith('game.') && !action.startsWith('confirm.') && !action.startsWith('audio.')) return;
   unlockAudio(); sound('tap');
   fn(b.dataset);
   render(true);
@@ -345,18 +360,25 @@ function gagOnce(kind, lines, gapMs = 15000) {
 }
 
 function handleEvents(events) {
+  for(const e of events){
+    const speaker=({cooked:'luna_sis',served:'luna',paidAtCounter:'yeoni',feverOn:'neo'})[e.type];
+    if(speaker && state?.mode==='shift'){const pool=CAFE_LINES[speaker];ui.staffLineIndex=(ui.staffLineIndex||0)+1;showCafeLine(pool[ui.staffLineIndex%pool.length],personName(state,speaker),speaker);}
+  }
+
   if (!events?.length) return;
   for (const ev of events) {
     if(['served','cooked','takeawayDone'].includes(ev.type))sound('cook');
-    if(['huntPickup','huntLevelUp','feverOn'].includes(ev.type))sound('moon');
-    if(ev.type==='huntHurt'||ev.type==='huntHit')sound('hit');
+    const soundKind={huntAttack:ev.weapon,huntHit:'hit',huntHurt:'hurt',huntDeath:'death',huntGem:'gem',huntPickup:'moon',huntLevelUp:'level',huntChest:'chest',huntEvolve:'level',huntEnemyAttack:'aura',feverOn:'level'}[ev.type];if(soundKind)sound(soundKind);
+    if(ev.type==='huntEvent'&&ev.warn)sound('boss');
     const p = ev.tableNo != null ? tableAt(ev.tableNo) : null;
     switch (ev.type) {
-      case 'guestChatter': gagOnce('guest',{who:'손님',text:ev.line},14000);break;
+      case 'huntCritical': ui.critLine=(ui.critLine||0)+1;showCafeLine(CAFE_LINES.critical[ui.critLine%CAFE_LINES.critical.length],'영냥이','neo_cat');sound('level');break;
+      case 'huntObjectBroken': sound('gem');break;
+      case 'guestChatter': showCafeLine(ev.line,ev.kind==='takeaway'?'포장 손님':ev.tableNo?`${ev.tableNo}번 손님`:'손님','customer'); break;
       case 'paidAtCounter': sound('moon'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;
       case 'cafeLevelUp': sound('bond'); toast(`카페 Lv.${ev.level}! 더 많은 손님과 새로운 취향이 찾아와요`,'good');break;
       case 'takeawayDone': toast('포장 완료 · 손님이 계산대에서 받아 갔어요','good');break;
-      case 'farmAction': toast(ev.text, 'good'); break;
+      case 'farmAction': ui.farmFeedback=ev.text;ui.farmMotion={kind:ev.kind,index:ev.index,cropId:ev.cropId,at:performance.now()};ui.farmAnimUntil=performance.now()+1800;toast(ev.text,'good');break;
       case 'shiftStart': toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 10:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
       case 'served': floater(p?.x??cssW/2, (p?.y??cssH*.75) - 10, '주문 완료', '#b07a12'); if (Math.random() < 0.25) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
       case 'nominationRequest': toast(`💌 ${ev.tableNo}번 손님이 ${personName(state, ev.nominee)} 지명 요청 — 테이블을 눌러 확인`, 'good', 3600); break;
@@ -383,14 +405,14 @@ function handleEvents(events) {
       case 'repaid': toast(`💳 ${ev.amount}G 상환 · 남은 빚 ${ev.debt}G`, 'good'); gagOnce('repay', pickLine(GAG_CHEONGTOKKI_REPAY), 0); break;
       case 'bought': if (ev.delivery) { toast(`🛵 모카 긴급 배달 · 배달비 ${ev.fee}G 포함 ${ev.cost}G`); gagOnce('delivery', pickLine(GAG_MOKA_DELIVERY), 20000); } else gagOnce('moka', pickLine(GAG_MOKA_BUY), 12000); break;
       case 'exchanged': toast(`⚖ 월정석 ${ev.qty}개 → ${ev.gold}G`, 'good'); gagOnce('luna', pickLine(GAG_LUNA_EXCHANGE), 8000); break;
-      case 'gearBought': toast(`🗡 ${ev.name} 구입 · 모카의 무기 공방`, 'good'); gagOnce('stall', pickLine(GAG_GEAR_STALL), 8000); break;
+      case 'gearBought': toast(`🗡 ${ev.name} 구입 · 윤달의 무기 공방`, 'good'); gagOnce('stall', pickLine(GAG_GEAR_STALL), 8000); break;
       case 'expanded': toast(`🪑 ${ev.tableNo}번 테이블을 들였어요 · 다음 영업부터 손님 자리가 늘어요`, 'good', 3600); break;
       case 'areaOpened': resize(); toast(`🔓 ${ev.name} 증축 완료 · 인테리어에서 테이블과 장식을 놓아 보세요`, 'good', 3600); break;
       case 'decorBought': toast(`📦 ${ev.name} 보관함에 도착 · 인테리어에서 놓아 주세요`, 'good'); break;
       case 'huntFinished': pixelFx(el.stage,'transform',{frames:8}); if ((ev.bag?.moonstone || 0) > 0) gagOnce('hunt', pickLine(GAG_HUNT_RETURN), 0); break;
       case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast(state.hunt.hunterId==='seohanbi'?'검은 호랑이 서한비가 출발했어요':'영냥이가 출발했어요 · 오래 버틸수록 추가 보상', 'good'); break;
       case 'huntPickup': floater(cssW / 2, cssH * 0.4, `+${ev.name}`, '#7d86e8'); break;
-      case 'huntHurt': shake(el.stage); break;
+      case 'huntHurt': if(!matchMedia('(prefers-reduced-motion: reduce)').matches)shake(el.stage); break;
       case 'huntEvolve': toast(`🌟 진화! ${ev.name}`, 'good', 3200); break;
       case 'huntChest': toast(`🎁 상자: ${ev.label}`, 'good'); break;
       case 'huntPower': toast(ev.label, 'good', 1800); break;
@@ -410,6 +432,7 @@ function handleEvents(events) {
 
 function render(force = false) {
   const now = performance.now();
+  document.body.dataset.mode=state?.mode||'title';
   if (!force && now - lastUi < 200) return;
   lastUi = now;
   if (state && ui.selectedSlot != null && !state.tray[ui.selectedSlot]) ui.selectedSlot = null;
@@ -419,9 +442,14 @@ function render(force = false) {
   morph(el.bubbles, state?.mode === 'shift' && view ? bubblesHtml(state, view) : '');
   morph(el.hits, hitsHtml(state, view, ui));
   document.getElementById('camera-controls').hidden=!state||state.mode==='hunt';
-  setAudioScene(novelActive()?'story':state?.mode==='hunt'?'hunt':state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind|| (state?'cafe':'title'));
-  const guide=({kitchen:'cook',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',town:'interior'})[ui.sheet?.kind];
-  const sh = sheetHtml(state, ui)+(guide?`<div class="context-guide">${btn({action:'guide.select',args:{id:guide},label:'그림으로 보는 사용법 · '+GUIDES[guide].title})}</div>`:'');
+  const hunting=state?.mode==='hunt', h=state?.hunt;
+  const bossAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>e.type==='boss_hand');
+  setAudioScene(novelActive()?'story':hunting?(h.status!=='running'?'huntResult':bossAlive?'huntBoss':h.depth>=55?'huntDeep':'hunt'):state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind==='hunt'?'huntPrep':ui.sheet?.kind||(state?'cafe':'title'));
+  const guide=({kitchen:'cook',craft:'cook',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop'})[ui.sheet?.kind] || (state?.interior.draft?'interior':null);
+  if(state && guide && (guide!=='outfits'||state.hostbar.open) && !state.tutorials?.[guide] && !novelActive()){
+    ui.guideReturn=ui.sheet;ui.guideId=guide;ui.guideStep=0;ui.sheet={kind:'tutorial'};
+  }
+  const sh = sheetHtml(state, ui);
   el.sheetWrap.hidden = !sh;
   morph(el.sheet, sh);
   const ov = overlayHtml(state, ui);
@@ -433,13 +461,13 @@ function render(force = false) {
 const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');
 function draw(t) {
   drawNumbers(t);
-  if (state && ui.sheet?.kind === 'farm') drawFarm(state, t);
+  if (state && ui.sheet?.kind === 'farm') drawFarm(state, t, ui);
   if (state && ui.sheet?.kind === 'outfits') drawDressroom(state, ui, t);
   drawInlinePortraits(t);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.imageSmoothingEnabled = true; // 고해상도 일러스트 축소
   if (state?.mode === 'hunt' && state.hunt) {
-    drawHunt(ctx, state, getHuntWorld(state), cssW, cssH, { t, joy: joystick.state.joy, rect: el.canvas.getBoundingClientRect() });
+    drawHunt(ctx, state, getHuntWorld(state), cssW, cssH, { t, reducedMotion:motionPreference.matches, joy: joystick.state.joy, rect: el.canvas.getBoundingClientRect() });
     return;
   }
   if (!state) { ctx.fillStyle = '#f3e6d6'; ctx.fillRect(0, 0, cssW, cssH); return; }
@@ -466,7 +494,7 @@ const loop = createFrameLoop({
       const huntOn = state.mode === 'hunt' && state.hunt?.status === 'running' && !state.paused && !state.hunt.picks?.length;
       if (huntOn && !joystick.state.enabled) joystick.enable();
       if (!huntOn && joystick.state.enabled) joystick.disable();
-      const running = !state.paused && (state.mode === 'shift' || state.mode === 'hunt');
+      const running = !state.paused && ui.sheet?.kind!=='tutorial' && !novelActive() && (state.mode === 'shift' || state.mode === 'hunt');
       if (running && raw > 0) {
         const dt = raw * (DEV && ui.speed!==1 ? ui.speed : state.mode==='shift'?ui.playSpeed:1);
         handleEvents(tick(state, dt, { input: joystick.state.move }));
@@ -483,7 +511,7 @@ render(true);
 installDialogFocus();
 
 // 개발 모드에서만 콘솔 확인용 핸들 노출(일반 플레이에는 없음)
-if (DEV) window.__yeoni = { get state() { return state; }, ui };
+if (DEV) window.__yeoni = { get state() { return state; }, ui, audioStatus };
 
 document.addEventListener('change',e=>{if(e.target.id==='hunt-stage'){ui.huntStage=Number(e.target.value);render(true);}});
 
@@ -495,5 +523,17 @@ el.stage.addEventListener('pointerup',()=>cameraDrag=null);el.stage.addEventList
 function beginCraft(menuId,orderId=null){
  if(state.autoKitchen||state.auto){run(orderId?{type:'order.quick',orderId}:{type:'cook',menuId});return;}
  const order=state.orders[orderId];if(order&&Object.values(state.stations).some(st=>[st.current,st.next].some(j=>j?.orderId===orderId))){toast('이 주문은 조리 중이에요.');return;}
- ui.playSpeed=1;ui.craft={menuId,orderId,step:0};ui.sheet={kind:'craft'};
+ ui.playSpeed=1;ui.craft=newCraft(menuId,orderId);ui.sheet={kind:'craft'};
 }
+
+function finishGuide(){const back=ui.guideReturn;ui.guideReturn=null;run({type:'tutorial.seen',id:ui.guideId||'cook'});ui.sheet=back||null;}
+function showCafeLine(line,speaker,portrait='customer'){
+ const now=performance.now();if(ui.chatter&&now<ui.chatter.until-1800)return;
+ ui.chatter={line,speaker,portrait,until:now+6500};
+}
+document.addEventListener('change',e=>{if(e.target.id==='guide-selector'){ui.guideId=e.target.value;ui.guideStep=0;render(true);}});
+
+let stirring=null;
+document.addEventListener('pointerdown',e=>{const bowl=e.target.closest('#mix-bowl');if(!bowl||ui.craft?.step!==1)return;const r=bowl.getBoundingClientRect();stirring={x:r.x+r.width/2,y:r.y+r.height/2,angle:Math.atan2(e.clientY-r.y-r.height/2,e.clientX-r.x-r.width/2),travel:0};bowl.setPointerCapture(e.pointerId);});
+document.addEventListener('pointermove',e=>{if(!stirring||ui.craft?.step!==1)return;const a=Math.atan2(e.clientY-stirring.y,e.clientX-stirring.x),diff=Math.atan2(Math.sin(a-stirring.angle),Math.cos(a-stirring.angle));stirring.angle=a;if(Math.hypot(e.clientX-stirring.x,e.clientY-stirring.y)<25)return;stirring.travel+=Math.abs(diff);if(stirring.travel>=Math.PI/2){stirring.travel=0;stirCraft(ui.craft);sound('cook');render(true);}});
+for(const ev of ['pointerup','pointercancel'])document.addEventListener(ev,()=>stirring=null);

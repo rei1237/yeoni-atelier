@@ -1,11 +1,35 @@
 import {personName,emit} from './state.js';
+import {CAFE_LINES,selectLine} from '../data/cafe-dialogue.js';
 export const popularity=state=>Math.max(0,Math.min(100,state.reputation??25));
 export function changePopularity(state,n){state.reputation=Math.max(0,Math.min(100,Math.round((popularity(state)+n)*10)/10));}
-export function guestChatter(state,visit,roll){
- const latest=Object.entries(state.recruitment).filter(([id,r])=>r.status==='recruited' && state.day-r.at<=6 && state.day>=r.at).sort((a,b)=>b[1].at-a[1].at)[0];
- let lines=popularity(state)>=70?['소문보다 더 좋은데? 다음엔 친구도 데려와야지.','단골 자리를 예약하고 싶을 정도야.']:popularity(state)<20?['응대가 아쉽다는 얘길 들었는데… 오늘은 괜찮을까?','조금만 더 차분히 챙겨 주면 좋겠어.']:['길을 걷다가 차 향기에 이끌려 들어왔어.','오늘은 무슨 메뉴가 잘 나가나요?'];
- if(latest&&roll<.55)lines=[`${personName(state,latest[0])} 님이 합류했다면서요? 소문 듣고 왔어요!`];
- else if(visit.motive==='atmosphere')lines=['이 의자에 앉아 조용히 쉬고 싶어서 왔어요.','차도 좋지만, 이 가게의 분위기가 마음에 들어요.'];
- else if(visit.kind==='takeaway')lines=['가는 길에 한 잔만! 포장은 금방 되죠?','오늘은 바빠서 포장할게요. 다음엔 앉았다 갈게요.'];
- const line=lines[Math.min(lines.length-1,Math.floor(roll*lines.length))];emit('guestChatter',{line,wealthId:visit.wealthId});return line;
+export function waitingSatisfaction(state,visit){
+ const open=visit.orderIds.map(id=>state.orders[id]).filter(o=>o&&['waiting','assigned'].includes(o.status));
+ if(!open.length)return visit.foodScores.length?Math.round(visit.foodScores.reduce((a,b)=>a+b,0)/visit.foodScores.length):100;
+ const wait=Math.max(0,(state.shift.elapsedMs-Math.min(...open.map(o=>o.placedAt)))/1000);
+ return Math.max(20,Math.round(100-Math.max(0,wait-30)*.8));
+}
+export function reviewVisit(state,visit,reason){
+ if(visit.reviewed)return;
+ visit.reviewed=true;
+ const abandoned=reason.includes('오래 기다려')||reason.includes('주문할 수');
+ const food=visit.foodScores.length?visit.foodScores.reduce((a,b)=>a+b,0)/visit.foodScores.length:null;
+ const score=abandoned?20:food==null?null:Math.round(visit.finalH==null?food:food*.6+visit.finalH*.4);
+ if(score==null)return;
+ const delta=score>=85?1:score>=65?.4:score>=45?-.4:-1.5;
+ changePopularity(state,delta);visit.reviewScore=score;
+ state.reviews??={count:0,total:0};state.reviews.count++;state.reviews.total+=score;
+ emit('guestReview',{score,delta});
+}
+export function guestChatter(state,visit,roll,context='arrival'){
+ let kind=context;
+ const latest=Object.entries(state.recruitment).filter(([,r])=>r.status==='recruited'&&state.day-r.at<=6&&state.day>=r.at).sort((a,b)=>b[1].at-a[1].at)[0];
+ let lines;
+ if(context==='arrival'){
+  if(latest&&roll<.25)lines=[`${personName(state,latest[0])} 님이 합류했다면서요? 소문 듣고 왔어요!`,`${personName(state,latest[0])} 님과 이 카페라니, 오늘이 기다려졌어요.`,`${personName(state,latest[0])} 님의 새로운 시작을 응원하러 왔어요.`];
+  else kind=visit.kind==='takeaway'?'takeaway':visit.motive==='atmosphere'?'atmosphere':roll<.45&&CAFE_LINES[visit.wealthId]?visit.wealthId:popularity(state)>=70?'high':popularity(state)<20?'low':'arrival';
+ }
+ state.dialogueRecent??=[];
+ const line=selectLine(lines||CAFE_LINES[kind]||CAFE_LINES.arrival,roll,state.dialogueRecent);
+ state.dialogueRecent=[...state.dialogueRecent.slice(-11),line];
+ visit.chatter=line;emit('guestChatter',{line,wealthId:visit.wealthId,tableNo:visit.tableNo,kind:visit.kind,context});return line;
 }

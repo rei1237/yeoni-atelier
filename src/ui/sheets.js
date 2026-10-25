@@ -1,11 +1,13 @@
+import {HELPERS,helperAvailable} from '../game/engine.js';
+import {maxActionPoints} from '../game/calendar.js';
 import {craftingSheet} from './crafting.js';
 import {creditView,exchangeRate} from '../game/finance.js';
 import {menuPrice,cafeProgress} from '../game/cafe-growth.js';
 import {payrollView} from '../game/payroll.js';
-import { armorySheet } from './armory.js';
+import { armorySheet, supplyShop } from './armory.js';
 import { bondChoiceSheet } from './bond-choice.js';
 import { tutorialSheet } from './tutorials.js';
-import { audioSheet } from './audio.js';
+import { audioSheet,audioQuickButton } from './audio.js';
 import { HELP_SCENES } from '../data/help.js';
 import { farmSheet } from './farm.js';
 import { huntPrepSheet } from './hunt-prep.js';
@@ -46,10 +48,12 @@ const head = title => `<h2>${title}${btn({ action: 'sheet.close', cls: 'close gh
 const serviceBanner = (key, name, title, line) => `<section class="service-banner" style="${assetStyle(`services/${key}`)}"><div><h3>${esc(title)}</h3><p>${esc(line)}</p></div></section>`;
 const bar = (pct, cls = '') => `<span class="bar" aria-hidden="true"><i class="${cls}" style="width:${Math.max(0, Math.min(100, pct))}%"></i></span>`;
 
-export function sheetHtml(state, ui) {
+export function sheetHtml(state,ui){const html=sheetBody(state,ui);if(state?.mode!=='prep'||ui.sheet?.kind!=='farm')return html;const helpers=Object.keys(HELPERS).filter(id=>state.roster[id]&&bondTier(state.affinity[id]||0)>=HELPERS[id].tier);return `<div class="delegate-strip"><span>농장 돌봄을 동료에게 부탁할 수 있어요</span>${helpers.map(id=>btn({action:'world.delegate',args:{id},disabled:!!state.ap.delegated?.[id],cls:ui.delegate===id?'on':'',label:`${BONDS[id].name} ${state.ap.delegated?.[id]?'대행 완료':'대행 선택'}`})).join('')}</div>${html}`;}
+function sheetBody(state, ui) {
   const s = ui.sheet;
   if (!state || !s) return '';
   switch (s.kind) {
+    case 'manage': return manageSheet(state);
     case 'table': return tableSheet(state, s.no, ui);
     case 'craft': return craftingSheet(ui);
     case 'kitchen': return kitchenSheet(state, ui);
@@ -59,7 +63,7 @@ export function sheetHtml(state, ui) {
     case 'more': return moreSheet(state, ui);
     case 'debt': return debtSheet(state);
     case 'companions': return companionSheet(state);
-    case 'outfits': return dressroomSheet(state, ui);
+    case 'outfits': return state.hostbar.open?dressroomSheet(state, ui):`${head('아직 닫힌 드레스룸')}<div class="locked-room"><b>옷걸이에 초대장이 걸려 있어요</b><p>첫해 5월의 호스트 카페 개업 이야기를 마치면 동료들과 새 의상을 골라요.</p></div>`;
     case 'farm': return farmSheet(state, ui);
     case 'hunt': return huntPrepSheet(state,ui);
     case 'armory': return armorySheet(state,ui);
@@ -262,7 +266,7 @@ const TOWN_PLACES = [
   { id: 'moka', icon: '🦦', name: '모카 식재료점', x: 17, y: 66 },
   { id: 'luna', icon: '🐰', name: '루나의 쉼터', x: 84, y: 78 },
   { id: 'finance', icon: '🌙', name: '청토끼 금융 센터', x: 83, y: 48 },
-  { id: 'gear', icon: '🗡', name: '모카의 무기 공방', x: 20, y: 24 },
+  { id: 'gear', icon: '🗡', name: '윤달의 무기 공방', x: 20, y: 24 },
   { id: 'hunt', icon: '🌙', name: '달그늘 사냥터', x: 80, y: 20 },
 ];
 const TOWN_PATHS = [['atelier', 'expand'], ['atelier', 'moka'], ['atelier', 'luna'], ['expand', 'moka'], ['expand', 'luna'], ['moka', 'gear'], ['expand', 'gear'], ['luna', 'hunt'], ['expand','finance'], ['expand', 'hunt']];
@@ -288,7 +292,7 @@ function townSheet(state, tab = 'atelier') {
   const bid = bondAt(here.id);
   const body = !chk.ok ? `<p class="warn">${esc(chk.reason)}</p>`
     : (bid ? bondCard(state, bid) : '') + placeBody(state, here.id);
-  return `${head('🏘 마을')}<p class="small">보유 ${won(state.gold)} · 🌙 월정석 ${state.moonstone || 0}개 · 행동력 ${state.ap.left}</p>${map}<h3>${here.icon} ${esc(here.name)}</h3>${body}`;
+  return `${head('🏘 마을')}<p class="small">보유 ${won(state.gold)} · 🌙 월정석 ${state.moonstone || 0}개 · 마을 행동력 ${state.ap.left}</p><p class="small muted">대화와 사냥 출발에만 행동력 1을 써요. 구매·강화·환전은 자유롭게 이용해요.</p>${map}<h3>${here.icon} ${esc(here.name)}</h3>${body}`;
 }
 
 function placeBody(state, id) {
@@ -323,7 +327,7 @@ function bondCard(state, id) {
 }
 
 function mokaShop(state) {
-  return `<p class="small">🦦 모카: "신선도 별 다섯 개짜리만 들여놨어. 밤이슬은 오늘 별 네 개 반, 그래도 이 동네 최고."</p><div class="list">${ingredientRows(state, false)}</div>`;
+  return `<p class="small">🦦 모카: "신선도 별 다섯 개짜리만 들여놨어. 밤이슬은 오늘 별 네 개 반, 그래도 이 동네 최고."</p><div class="list">${ingredientRows(state, false)}</div>${supplyShop(state)}`;
 }
 
 function gearStall(state) {
@@ -340,7 +344,7 @@ function gearStall(state) {
     else right = btn({ action: 'gear.equip', args: { slot: g.slot, id }, label: '장착' });
     return `<div class="item"><div class="meta grow"><b>${esc(g.name)} · ${GEAR_SLOTS[g.slot]}</b><span>${esc(g.desc)}</span></div>${right}</div>`;
   }).join('');
-  return `<p class="small muted">모카가 돌보는 장비 좌판 · 장비는 사냥 능력치만 바꿔요.</p>${btn({action:'sheet.open',args:{sheet:'armory'},cls:'primary',label:'모카의 무기 공방 · 강화와 회복'})}<div class="kv">${slots}</div><div class="list">${rows}</div>`;
+  return `<p class="small muted">윤달이 손질하는 장비 좌판 · 장비는 사냥 능력치만 바꿔요.</p>${btn({action:'sheet.open',args:{sheet:'armory'},cls:'primary',label:'윤달의 무기 공방 · 강화와 회복'})}<div class="kv">${slots}</div><div class="list">${rows}</div>`;
 }
 
 function financeCenter(state) {
@@ -397,7 +401,7 @@ function moreSheet(state, ui) {
       <p class="small muted">별도 저장 키를 씁니다. 배속은 저장하지 않으며 일반 플레이에는 없습니다. 정규 영업 길이(10:00)는 그대로입니다.</p>
       <div class="btns">${[1, 10, 60].map(sp => btn({ action: 'dev.speed', args: { speed: sp }, cls: ui.speed === sp ? 'on' : '', label: `×${sp}` })).join('')}
       ${btn({ action: 'dev.skip', disabled: !inShift || state.paused, label: '+60초 진행' })}</div></div>` : '';
-  return `${head('영냥이의 안내 데스크')}${serviceBanner('more','YEONGNYANGI’S DESK','오늘의 판을 정리해 볼까','저장부터 동료와 음악까지, 여기서 챙겨.')}<div class="grid2">${btn({action:'sheet.open',args:{sheet:'tutorial'},label:'그림으로 보는 사용법'})}${btn({action:'sheet.open',args:{sheet:'audio'},label:'음악과 효과음'})}${btn({action:'sheet.open',args:{sheet:'armory'},label:'모카의 무기 공방'})}</div>
+  return `${head('영냥이의 안내 데스크')}${serviceBanner('more','YEONGNYANGI’S DESK','오늘의 판을 정리해 볼까','저장부터 동료와 음악까지, 여기서 챙겨.')}<div class="grid2">${btn({action:'sheet.open',args:{sheet:'tutorial'},label:'튜토리얼'})}${btn({action:'sheet.open',args:{sheet:'audio'},label:'음악과 효과음'})}${btn({action:'sheet.open',args:{sheet:'armory'},label:'윤달의 무기 공방'})}</div>
     <div class="list">
       ${btn({ action: 'sheet.open', args: { sheet: 'debt' }, label: `💳 빚 상환 (남은 빚 ${won(state.debt)})` })}
       ${btn({ action: 'sheet.open', args: { sheet: 'companions' }, label: '👥 동료' })}
@@ -437,7 +441,7 @@ function companionSheet(state) {
     const def = personDef(state, r.id);
     if(r.id === 'seohanbi' && !state.roster.seohanbi) {
       const quest = hiddenGuestQuest(state);
-      rows.push(`<article class="hidden-guest"><div class="mystery-silhouette" aria-label="정체를 알 수 없는 손님">?</div><h3>??? · 붉은 봉인의 손님</h3><p>까다로운 다섯 단서를 모두 모으면, 특별한 동료가 찾아옵니다.</p><ul>${quest.steps.map(step=>`<li>${step.done?'✓':'○'} ${esc(step.text)}</li>`).join('')}</ul>${btn({action:'recruit.event',args:{id:r.id},disabled:!quest.ready || state.mode!=='prep',cls:'primary',label:quest.ready?'봉인된 초대장 열기':'단서를 더 모으기'})}</article>`);
+      rows.push(`<article class="hidden-guest"><div class="mystery-silhouette" aria-label="정체를 알 수 없는 손님">?</div><h3>??? · 붉은 봉인의 손님</h3><p>장부 사이에 붉은 봉인이 찍힌 편지가 놓여 있어요. 마지막 서명은 아직 읽히지 않아요.</p><ul>${quest.steps.map((step,i)=>`<li>${step.done?'✓':i===quest.next?'◇':'·'} ${esc(step.done||i===quest.next?step.text:'아직 읽히지 않는 문장')}</li>`).join('')}</ul>${btn({action:'recruit.event',args:{id:r.id},disabled:!quest.ready || state.mode!=='prep',cls:'primary',label:quest.ready?'봉인된 초대장 열기':'단서를 더 모으기'})}</article>`);
       continue;
     }
     const tag = r.devOnly ? '<span class="tag dev">DEV 임시</span> ' : '';
@@ -450,7 +454,7 @@ function companionSheet(state) {
       sub = '만남 조건 충족';
       right = btn({ action: 'recruit.event', args: { id: r.id }, cls: 'primary', disabled: state.mode !== 'prep', title: state.mode === 'prep' ? '만남 이벤트 보기' : '영업 준비 중에만 진행할 수 있습니다', label: '만남 이벤트 보기' });
     } else {
-      sub = r.condition.debtFree ? `빚 완납 + 보유금 ${won(r.condition.wealth)} · 담당 접대 수입 +35%` : r.condition.month ? `운영 ${r.condition.year || 1}년차 ${r.condition.month}월부터 만남 · 놓치면 다음 해에 다시 찾아와요${r.condition.neoAffinity ? ` · 네오 인연 ${r.condition.neoAffinity} 필요` : ''}` : `조건: 정규 영업 ${Math.min(state.stats.shiftsCompleted, r.condition.shiftsCompleted)}/${r.condition.shiftsCompleted}회 · 상환 ${Math.min(state.stats.repayCount, r.condition.repaidAtLeast)}/${r.condition.repaidAtLeast}회`;
+      sub = r.id==='yun'?'윤달의 공방 거래 → 영냥이의 보스 토벌 부탁':r.id==='museong'?'영냥이 성장 Lv.8 이상, 사냥에서 90초 생존하면 만남':r.condition.debtFree ? `빚 완납 + 보유금 ${won(r.condition.wealth)} · 담당 접대 수입 +35%` : r.condition.month ? `운영 ${r.condition.year || 1}년차 ${r.condition.month}월부터 만남 · 놓치면 다음 해에 다시 찾아와요${r.condition.neoAffinity ? ` · 네오 인연 ${r.condition.neoAffinity} 필요` : ''}` : `조건: 정규 영업 ${Math.min(state.stats.shiftsCompleted, r.condition.shiftsCompleted)}/${r.condition.shiftsCompleted}회 · 상환 ${Math.min(state.stats.repayCount, r.condition.repaidAtLeast)}/${r.condition.repaidAtLeast}회`;
       right = '<span class="small muted">🔒 잠김</span>';
     }
     const stats = def?.stats ? STAT_KEYS.map(k => `${STAT_LABELS[k]} ${def.stats[k]}`).join(' · ') : '';
@@ -484,22 +488,12 @@ export function overlayHtml(state, ui) {
 }
 
 function confirmDialog(cf) {
-  return `<div class="dialog" role="alertdialog" aria-modal="true"><h2>${esc(cf.title)}</h2><p>${esc(cf.text)}</p>
-    <div class="stack">${btn({ action: 'confirm.yes', cls: cf.danger ? 'primary danger' : 'primary', label: esc(cf.yesLabel || '확인') })}${btn({ action: 'confirm.no', label: '취소' })}</div></div>`;
+  return `<div class="dialog confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-copy">${cf.art?`<div class="confirm-art" style="${assetStyle(cf.art)}" role="img" aria-label="꽃돼지 연이와 영냥이가 새 카페의 문을 열어요"></div>`:''}<div class="confirm-content"><h2 id="confirm-title">${esc(cf.title)}</h2><p id="confirm-copy">${esc(cf.text)}</p>
+    <div class="stack">${btn({action:'confirm.yes',cls:'primary',label:esc(cf.yesLabel||'확인')})}${btn({action:'confirm.no',label:esc(cf.noLabel||'취소')})}</div></div></div>`;
 }
 
 function titleDialog(ui) {
-  const dev = ui.dev ? '<p class="small"><span class="tag dev">DEV</span> 개발 모드 · 일반 저장과 다른 별도 저장 키를 씁니다.</p>' : '';
-  const store = ui.storageOk ? '' : '<p class="small warn">⚠ 이 브라우저에서 저장소를 쓸 수 없어 새로고침하면 진행이 사라집니다.</p>';
-  return `<div class="dialog" role="dialog" aria-modal="true">
-    <div class="title-art" style="${assetStyle('backgrounds/title')}" role="img" aria-label="달빛 카페의 연이와 영냥이"></div>
-    <h1>연이의 아틀리에</h1><p class="small muted">CODE DESTINY · 달빛 아래, 함께 쌓는 다섯 해</p>${dev}${store}
-    <div class="stack">
-      ${btn({ action: 'game.continue', cls: 'primary', disabled: !ui.hasSave, label: ui.hasSave ? '이어하기' : '이어하기 (저장 없음)' })}
-      ${btn({ action: 'game.new', label: '새 게임' })}
-      ${btn({ action: 'game.prologue', label: '📖 프롤로그 보기' })}
-      ${btn({ action: 'game.reset', disabled: !ui.hasSave, label: '저장 초기화' })}
-    </div></div>`;
+ return `<section class="title-screen" role="dialog" aria-modal="true" aria-labelledby="game-title" style="${assetStyle('backgrounds/title')}"><div class="title-wordmark"><h1 id="game-title">연이의<br><strong>아틀리에</strong></h1><p>차 한 잔에서 시작되는 우리의 이야기</p></div><div class="title-menu">${ui.hasSave?btn({action:'game.continue',cls:'primary',label:'카페 이어하기'}):btn({action:'game.new',cls:'primary',label:'나의 카페 열기'})}${ui.hasSave?btn({action:'game.new',label:'새로운 이야기 시작'}):''}${btn({action:'game.prologue',label:'처음 만나는 이야기'})}<details class="title-options"><summary>음악 · 저장 설정</summary>${audioQuickButton()}${btn({action:'game.reset',disabled:!ui.hasSave,label:'저장 초기화'})}</details>${!ui.storageOk?'<p role="status">브라우저 저장이 제한되어 새로고침하면 진행이 사라져요.</p>':''}${ui.dev?'<small>개발 모드 · 일반 저장과 분리</small>':''}</div></section>`;
 }
 
 function pausedDialog(state) {
@@ -599,3 +593,5 @@ function recruitDialog(state, id) {
 function financeLoanHtml(state,c){
  return `<h3>확장을 앞당기는 운영 대출</h3><p class="small">청토끼: “기회는 빌려줄게. 이자까지 챙기는 건 네 몫이지!”</p><div class="kv"><span>대출 한도 / 사용 중</span><b>${won(c.limit)} / ${won(c.balance)}</b><span>월 이율</span><b>${c.rate*100}% · 복리</b><span>다음 하순 예상 이자</span><b>${won(c.nextInterest)}</b></div><p class="small muted">월말 하순에 이자를 내며, 못 낸 이자는 대출 잔액에 더해져요. 마감 직전 빌려도 한 달 이자가 발생해요. 본래 인수 빚은 별도이며 월 ${TEMP.CALENDAR.INTEREST_RATE*100}%입니다. 시설 확장 후 늘어날 수익과 비교하세요.</p><div class="btns">${[10000,50000,200000,1000000].map(amount=>btn({action:'finance.borrow',args:{amount},disabled:c.available<amount,label:`${won(amount)} 빌리기`})).join('')}</div><h3>골드 · 월정석으로 상환</h3>${[['inheritance','인수 빚',state.debt],['loan','운영 대출',c.balance]].map(([target,name,debt])=>`<div class="card"><b>${name} ${won(debt)}</b><div class="btns">${btn({action:'finance.repay',args:{target,currency:'gold',amount:Math.min(debt,state.gold)},disabled:!debt||!state.gold,label:'가진 골드로 갚기'})}${btn({action:'finance.repay',args:{target,currency:'moonstone',amount:Math.min(state.moonstone,Math.ceil(debt/exchangeRate(state)))},disabled:!debt||!state.moonstone,label:'월정석으로 갚기'})}</div></div>`).join('')}<p class="small muted">월정석은 우대 환율까지 동일하게 적용해요. 빚보다 많이 환산된 잔액은 골드로 돌려드려요.</p>`;
 }
+
+function manageSheet(state){return `${head('카페 수첩')}<div class="notebook-menu">${[['quests','퀘스트','연이와 오늘의 목표','farm/seeds'],['companions','동료와 인연','함께할 친구들의 이야기','skills/bell'],['outfits','드레스룸','오늘은 어떤 모습으로 만날까','icons/vest_night'],['debt','장부와 상환','빚과 이번 달의 계획','ui/ledger'],['audio','달빛 음악실','음악과 효과음','skills/bell'],['tutorial','튜토리얼','기능별 안내 다시 보기','farm/seeds'],['more','기타','저장·음악·튜토리얼','skills/hat']].map(([id,title,line,icon])=>btn({action:'sheet.open',args:{sheet:id},cls:'notebook-link',label:`${assetIcon(icon)}<span><b>${title}</b><small>${line}</small></span><span aria-hidden="true">›</span>`})).join('')}${btn({action:'interior.begin',disabled:state.mode!=='prep',cls:'notebook-link',label:`${assetIcon('objects/basic_table')}<span><b>가구 배치</b><small>우리 카페를 꾸며요</small></span><span aria-hidden="true">›</span>`})}</div><div class="manage-auto">${btn({action:'kitchen.toggle',cls:state.autoKitchen?'on':'',label:`주방 ${state.autoKitchen?'자동':'수동'}`})}${btn({action:'auto.toggle',cls:state.auto?'on':'',label:`전체 자동 ${state.auto?'켜짐':'꺼짐'}`})}</div>`;}

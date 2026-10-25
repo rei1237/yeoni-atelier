@@ -1,4 +1,5 @@
 // 게임 내 전용 월정석. 실제 Code Destiny 결제·잔액과 연결하지 않는다. 수치는 TEMP.
+import {recordYunTrade} from './yun-quest.js';
 import { emit } from './state.js';
 import { bondTier } from '../data/bonds.js';
 import { workShop } from './bonds.js';
@@ -26,7 +27,7 @@ export function enhance(state,who,id) {
   const cost=upgradeCost(state,who,id); if(!Number.isSafeInteger(cost)||state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
   const a=ensure(state), n=upgradeLevel(state,who,id); if(!Number.isSafeInteger(n+1))return {ok:false,reason:'저장할 수 있는 수치 범위를 넘었습니다'};
   state.moonstone-=cost; (a.upgrades[who] ||= {})[id]=n+1;
-  workShop(state); emit('armoryUpgrade',{who,id,level:n+1,cost}); return {ok:true,cost,level:n+1};
+  recordYunTrade(state,0,cost); emit('armoryUpgrade',{who,id,level:n+1,cost}); return {ok:true,cost,level:n+1};
 }
 export function buySupply(state,id) {
   const chk=check(state);if(!chk.ok)return chk;const item=SUPPLIES[id];

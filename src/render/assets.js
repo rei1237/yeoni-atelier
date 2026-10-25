@@ -137,31 +137,27 @@ const LEGACY_ASSETS = {
 export const ASSETS=Object.freeze(Object.fromEntries([...new Set([...Object.keys(LEGACY_ASSETS),...Object.keys(ASSET_UPDATES)])].map(g=>[g,{...LEGACY_ASSETS[g],...ASSET_UPDATES[g]}])));
 
 // assets/manifest.json 의 ready 에 적힌 키만 불러온다. 파일이 없거나 실패하면 도형 대체로 남는다.
-const loaded = new Map();
-// 매니페스트 id 는 '묶음/키' 형식(예: actors/yeoni, portraits/yeoni, icons/bean)
-const allEntries = () => Object.entries(ASSETS).flatMap(([g, group]) => Object.entries(group).map(([k, d]) => [`${g}/${k}`, d]));
-export async function loadAssetImages(manifestUrl = 'assets/manifest.json') {
-  let ready = [], legacyPortraits = [];
-  try {
-    const r = await fetch(manifestUrl, { cache: 'no-store' });
-    if (r.ok) { const manifest = await r.json(); ready = manifest.ready || []; legacyPortraits = manifest.legacyPortraits || []; }
-  } catch { /* 매니페스트가 없으면 전부 도형 */ }
-  const want = new Set(ready);
-  const requests = new Map();
-  await Promise.all(allEntries().filter(([k]) => want.has(k)).map(async ([k, d]) => {
-    const src = d.image || (d.legacyPath && legacyPortraits.includes(k) ? d.legacyPath : d.path);
-    if (!requests.has(src)) requests.set(src, new Promise(res => {
-      const img = new Image();
-      img.onload = () => res(img);
-      img.onerror = () => res(null);
-      img.src = src;
-    }));
-    const img = await requests.get(src);
-    if (img) loaded.set(k, img);
-  }));
-  return [...loaded.keys()];
+const loaded = new Map(), requests = new Map();
+let available = new Set(), manifestTask;
+const allEntries = () => Object.entries(ASSETS).flatMap(([g,group])=>Object.entries(group).map(([k,d])=>[`${g}/${k}`,d]));
+const definitions = new Map(allEntries());
+export const BOOT_ASSETS = ['backgrounds/title','ui/loading','actors/yeoni','actors/neo','actors/luna','actors/luna_sis','portraits/yeoni','portraits/neo','portraits/neo_cat','portraits/luna','portraits/luna_sis','backgrounds/atelier_lit','backgrounds/cafe_room','tiles/cafe_floor','tiles/cafe_wall',...allEntries().filter(([id])=>id.startsWith('objects/')||id.startsWith('icons/')).map(([id])=>id)];
+async function requestImage(id){
+ if(!available.has(id))return null;const d=definitions.get(id);if(!d)return null;const src=d.image||d.path;
+ if(!requests.has(src))requests.set(src,new Promise(resolve=>{const img=new Image();let timer=setTimeout(()=>resolve(null),12000);img.onload=()=>{clearTimeout(timer);resolve(img);};img.onerror=()=>{clearTimeout(timer);resolve(null);};img.src=src;}));
+ const img=await requests.get(src);if(img)loaded.set(id,img);return img;
 }
-export const imageFor = id => loaded.get(id) || loaded.get(`actors/${id}`) || loaded.get(`enemies/${id}`) || null;
+export async function loadAssetImages(manifestUrl='assets/manifest.json',{keys=BOOT_ASSETS,onProgress=()=>{}}={}){
+ manifestTask ||= fetch(manifestUrl).then(r=>r.ok?r.json():{ready:[]}).then(m=>{available=new Set(m.ready||[]);}).catch(()=>{});
+ await manifestTask;const wanted=[...new Set(keys)].filter(id=>available.has(id));let done=0;onProgress(0,wanted.length);
+ await Promise.all(wanted.map(id=>requestImage(id).finally(()=>onProgress(++done,wanted.length))));return [...loaded.keys()];
+}
+export function imageFor(id){
+ const key=definitions.has(id)?id:definitions.has(`actors/${id}`)?`actors/${id}`:`enemies/${id}`;
+ if(!loaded.has(key)&&available.has(key))requestImage(key);
+ return loaded.get(key)||null;
+}
+export function assetLoadStatus(){return {loaded:loaded.size,requested:requests.size,available:available.size};}
 export const actorDef = key => ASSETS.actors[key] || ASSETS.enemies[key] || null;
 
 // 상태 이름 → 실제로 그릴 상태(정의가 없으면 idle)

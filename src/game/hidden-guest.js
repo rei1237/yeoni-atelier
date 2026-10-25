@@ -8,5 +8,5 @@ export function hiddenGuestQuest(state) {
     { text:'사냥에서 5분 생존 · 검은 발자국', done:(state.stats.longestHuntMs || 0) >= 300000 },
     { text:'거대한 검은 손 3회 처치 · 붉은 봉인', done:(state.stats.huntBosses || 0) >= 3 },
   ];
-  return { steps, ready:steps.every(s=>s.done), known:!!state.roster.seohanbi };
+  return { steps, next:steps.findIndex(s=>!s.done), ready:steps.every(s=>s.done), known:!!state.roster.seohanbi };
 }

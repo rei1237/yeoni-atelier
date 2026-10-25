@@ -2,6 +2,7 @@
 // 모카 식재료점 구매는 economy.buy 를 그대로 쓴다. 가격·환율은 모두 임시값(balance.temp.js, data/gear.js).
 // 장소 이름과 역할(청토끼 금융 센터, 모카 무기 공방)은 게임 오리지널 설정이다.
 
+import {recordYunTrade} from './yun-quest.js';
 import { TEMP } from '../config/balance.temp.js';
 import { RULES } from '../config/rules.js';
 import { GEAR } from '../data/gear.js';
@@ -44,6 +45,7 @@ export function buyGear(state, id) {
   if (g.cost.moonstone && (state.moonstone || 0) < g.cost.moonstone) return { ok: false, reason: `월정석이 부족합니다 (${g.cost.moonstone}개 필요)` };
   if (g.cost.gold) state.gold -= g.cost.gold;
   if (g.cost.moonstone) state.moonstone -= g.cost.moonstone;
+  recordYunTrade(state,g.cost.gold||0,g.cost.moonstone||0);
   state.gear.owned.push(id);
   if (!state.gear.equipped[g.slot]) state.gear.equipped[g.slot] = id; // 빈 칸이면 바로 장착
   emit('gearBought', { id, name: g.name });

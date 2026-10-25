@@ -48,4 +48,4 @@ test('개별 능력치·이야기가 다르고 새 게임의 활동 명단은 �
   for (const c of MONTHLY_CAST) { assert.ok(c.profile && c.meetEvent.lines.length && c.followup.lines.length); }
 });
 
-function unlock(s){s.affinity.neo=500;s.farm.xp=9999;s.stats.longestHuntMs=300000;s.stats.huntBosses=3;}
+function unlock(s){s.yunQuest={gold:10000,moonstone:0,status:'complete'};s.museongEncounter=true;s.affinity.neo=500;s.farm.xp=9999;s.stats.longestHuntMs=300000;s.stats.huntBosses=3;}

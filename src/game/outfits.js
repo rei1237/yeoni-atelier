@@ -10,6 +10,7 @@ export function grantEventOutfits(state, eventKey) {
   for (const item of Object.values(OUTFITS)) if (item.unlock?.type === 'event' && item.unlock.key === eventKey) grantOutfit(state, item.id);
 }
 export function unlockOutfit(state, id) {
+  if(!state.hostbar.open)return {ok:false,reason:'첫해 5월, 호스트 카페 개업 이야기를 마치면 드레스룸이 열려요'};
   if (state.mode !== 'prep') return { ok: false, reason: '의상은 영업 준비 중에 해금할 수 있어요' };
   const item = OUTFITS[id];
   if (!item) return { ok: false, reason: '없는 의상이에요' };

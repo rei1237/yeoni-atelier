@@ -24,7 +24,7 @@ test('포장은 테이블과 서빙 없이 빠른 조리 후 카운터에서 한
  assert.equal(s.tables.filter(t=>t.state!=='empty').length,0);
  const o=s.orders[v.orderIds[0]],before=s.gold;assert.ok(dispatch(s,{type:'order.quick',orderId:o.id}).ok);
  const job=s.stations[MENUS[o.menuId].station].current;assert.ok(job.durationMs<MENUS[o.menuId].cookMs);
- for(let i=0;i<1000&&!v.paid;i++)tick(s,100);
+ for(let i=0;i<1000&&!v.paid;i++){for(const id of v.orderIds){const pending=s.orders[id];if(pending.status==='waiting')dispatch(s,{type:'order.quick',orderId:id});}tick(s,100);}
  assert.equal(o.status,'served');assert.ok(v.paid);assert.equal(s.tasks.filter(t=>t.type==='deliver').length,0);assert.equal(s.gold,before+v.bill);assert.equal(checkout(s,v),false);
  const back=deserialize(serialize(s)).state;assert.equal(checkout(back,back.visits[v.id]),false);assert.equal(back.gold,s.gold);
 });
@@ -36,8 +36,14 @@ test('운명 찻집은 지명 없이 조리 가능하지만 지명 수락 고객
  for(const id of Object.keys(m.ingredients).filter(id=>INGREDIENTS[id].huntOnly)){assert.ok(!INGREDIENTS[id].shop&&!INGREDIENTS[id].basic);assert.equal(dispatch(s,{type:'shop.buy',ingredientId:id,qty:1}).ok,false);}
 });
 test('카페 성장과 분위기는 방문 등급과 판매가에 반영되고 초기 빚은 사용자 지정액',()=>{
- const s=createGame();assert.equal(s.debt,99_999_999);const w=wealthWeights(s),price=menuPrice(s,MENUS.fortune_latte);
- s.stats.served=1000;assert.ok(cafeProgress(s).level>1);assert.ok(wealthWeights(s).tycoon>w.tycoon);assert.ok(menuPrice(s,MENUS.fortune_latte)>price);assert.ok(atmosphere(s)>=0);
+ const s=createGame();assert.equal(TEMP.INITIAL_DEBT,100_000_000);assert.equal(s.debt,TEMP.INITIAL_DEBT);assert.equal(s.startingDebt,TEMP.INITIAL_DEBT);const w=wealthWeights(s),price=menuPrice(s,MENUS.fortune_latte);
+ s.stats.served=1000;assert.ok(cafeProgress(s).level>1);assert.equal(wealthWeights(s).tycoon,0,"레벨만 올려도 대부호는 오지 않는다");assert.ok(menuPrice(s,MENUS.fortune_latte)>price);assert.ok(atmosphere(s)>=0);
+});
+test('새 빚 1억은 새 게임에만: 기존 저장의 남은 빚·원금은 그대로 이어진다',()=>{
+ const old=createGame();old.debt=87_654;old.startingDebt=120000;
+ const back=deserialize(serialize(old)).state;assert.equal(back.debt,87_654);assert.equal(back.startingDebt,120000);
+ const legacy=JSON.parse(serialize(createGame()));legacy.debt=99_999_999;delete legacy.startingDebt;
+ const b2=deserialize(JSON.stringify(legacy)).state;assert.equal(b2.debt,99_999_999);assert.equal(b2.startingDebt,120000);
 });
 test('월급은 창업 동료 제외, 영입 후 근무 순만 발생하며 월말·저장 복원 중복 지급 방지',()=>{
  let s=createGame();s.gold=100000;s.roster.moka={usableFrom:2};

@@ -133,7 +133,7 @@ test('장식 들이기는 보관함으로 오고, 월정석·장비는 저장 �
   assert.equal(r.state.interior.furniture.length, n0 + 1);
 });
 test('네 테마의 새 장식 16종은 정해진 가격으로 보관함에 오고 저장 후 유지된다', () => {
-  const s=createGame();s.gold=50000;const before=s.gold;
+  const s=createGame();s.ap.left=20;s.gold=50000;const before=s.gold;
   for(const d of DECOR_CATALOG)assert.ok(dispatch(s,{type:'expand.decor',defId:d.id}).ok);
   assert.equal(s.gold,before-DECOR_CATALOG.reduce((sum,d)=>sum+d.price,0));
   const back=deserialize(serialize(s)).state;

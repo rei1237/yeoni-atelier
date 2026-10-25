@@ -1,3 +1,6 @@
+import {nearbyProps,hitFieldProp} from './hunt-field.js';
+import {withinMeleeArc,facingAngle} from './melee.js';
+import {stepEnemyBehaviors,addBattleFx} from './enemy-behaviors.js';
 // 영냥이 월정석 사냥(생존형, 100단계). 적은 재료가 아니라 월정석(환전용)을 떨어뜨린다. 정규 영업과 분리된 모드이며 네오와 같은 인물 잠금(people.neo)을 쓴다.
 // 장비(data/gear.js) 효과는 출발할 때 hs.gear 로 고정해 사냥 중 바뀌지 않는다.
 // 저장되는 것: 진행 시간·HP·가방·장비 효과·레벨·경험치·무기·보조 능력·대기 중인 레벨업 카드·지난 사건.
@@ -67,11 +70,14 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
   const careerLevel = hunterProgress(state.hunter.xp).level;
   gear.hp += (careerLevel - 1) * TEMP.HUNT_CAREER.hpPerLevel;
   gear.dmg += (careerLevel - 1) * TEMP.HUNT_CAREER.damagePerLevel;
-  const hp = H.PLAYER_HP + gear.hp;
+  const saved=state.hunter.builds?.[hunterId];
+  const hp = H.PLAYER_HP + gear.hp + (saved?.passives?.fish_stock||0)*20;
   state.hunt = normalizeHunt({
     id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: null, hunterId, hp, maxHp: hp, gear,
     bag: { moonstone: 0 }, kills: 0, status: 'running', depth, careerLevel, careerXP: 0,
     scale: depthScale(depth, monthScale(state.day), calendarOf(state.day).monthIdx),
+    fieldSeed:Math.floor(nextRandom(state.rng)*2147483647),brokenProps:{},propDamage:{},
+    ...(saved?{level:saved.level,xp:saved.xp,weapons:structuredClone(saved.weapons),passives:{...saved.passives}}:{}),
   });
   emit('huntStart', {});
   return { ok: true };
@@ -103,6 +109,7 @@ function makeWorld() {
     strikes: new Pool(() => ({ x: 0, y: 0, at: 0, r: 0, dmg: 0, boomUntil: 0 })),
     drops: new Pool(() => ({ kind: 'gem', id: '', v: 0, x: 0, y: 0, speed: 0, magnet: false })),
     texts: new Pool(() => ({ x: 0, y: 0, v: 0, crit: false, life: 0 })),
+    hostile: [], fx: [], props: [],
     cool: {},      // 무기별 다음 발사 시각
     orbitAngle: 0,
     auraAt: 0,
@@ -144,7 +151,7 @@ export function weaponStats(wp, m) {
   if (def.pierceAt) for (const [at, v] of Object.entries(def.pierceAt)) if (lv >= +at) s.pierce += v;
   if (wp.evo) {
     s.damage *= EVO_MULT;
-    if (wp.id === 'bolt') { s.count += 2; s.pierce += 2; }
+    if (wp.id === 'bolt') { s.radius *= 1.3; s.halfArc = Math.PI * .6; }
     if (wp.id === 'orbit') { s.count = 6; s.radius *= 1.25; }
     if (wp.id === 'crescent') { s.count += 2; s.range *= 1.3; }
     if (wp.id === 'aura') s.slow = 0.4;
@@ -235,8 +242,8 @@ function gainXp(state, v) {
 }
 
 // ── 생성
-function spawnEnemy(state, w, type, x, y) {
-  if (w.enemies.count >= H.MAX_ENEMIES && !ENEMIES[type].elite) return null;
+export function spawnEnemy(state, w, type, x, y) {
+  if (w.enemies.count >= H.MAX_ENEMIES + (ENEMIES[type].elite ? 2 : 0)) return null;
   const hs = state.hunt;
   if(type==='shade_hand') { if(hs.depth>=85)type='heukwol_fragment'; else if(hs.depth>=55)type='rabbit_brute'; else if(hs.depth>=35)type='blue_rabbit'; }
   const def = ENEMIES[type];
@@ -244,9 +251,10 @@ function spawnEnemy(state, w, type, x, y) {
   const grow = (1 + .55 * (hs.elapsedMs / 60000) + .08 * (hs.elapsedMs / 60000) ** 2) * hs.scale.hp;
   const e = w.enemies.spawn();
   Object.assign(e, {
+    rolePhase:'approach',roleUntil:0,nextAttack:hs.elapsedMs+1500,aimX:0,aimY:1,motionX:0,motionY:0,warningR:0,facing:'down',
     uid: ++w.uidSeq, type, hp: Math.round(def.hp * grow), speed: def.speed * randRange(state.rng, 0.85, 1.15),
     kx: 0, ky: 0, hitAt: 0, orbitAt: 0, cresAt: 0, vx: 0, vy: 0, life: 0, phase: nextRandom(state.rng) * 6.28,
-    x: Math.max(10, Math.min(H.FIELD_W - 10, x)), y: Math.max(10, Math.min(H.FIELD_H - 10, y)),
+    x, y,
   });
   e.maxHp = e.hp;
   return e;
@@ -314,9 +322,9 @@ function events(state, w, t) {
 
 // ── 피해·처치·드롭
 function addDrop(w, kind, id, v, x, y) {
-  if (kind === 'gem' && w.drops.count >= H.GEM_CAP) {
+  if (w.drops.count >= H.GEM_CAP) {
     // 별조각이 너무 많으면 가장 가까운 기존 별조각에 값을 합친다
-    for (let i = w.drops.count - 1; i >= 0; i--) { const d = w.drops.items[i]; if (d.kind === 'gem') { d.v += v; return; } }
+    for (let i = w.drops.count - 1; i >= 0; i--) { const d = w.drops.items[i]; if (d.kind === kind && d.id === id) { d.v += v; return; } }
   }
   const d = w.drops.spawn();
   Object.assign(d, { kind, id, v, x, y, speed: 0, magnet: false });
@@ -341,6 +349,8 @@ function killEnemy(state, w, i) {
   const def = ENEMIES[e.type];
   dropFrom(state, w, e);
   if (def.boss) { state.hunt.bossDown = true; state.hunt.bossKills += 1; w.banner = { label: '거대한 검은 손을 물리쳤다!', warn: false, until: state.hunt.elapsedMs + 2000 }; emit('huntEvent', { kind: 'bossDown', label: '거대한 검은 손을 물리쳤다!', warn: false }); }
+  if(state.hunt.elapsedMs-(w.lastDeathSound||-1000)>140){emit('huntDeath',{});w.lastDeathSound=state.hunt.elapsedMs;}
+  if(def.boss && state.yunQuest?.status==='active' && state.hunt.hunterId==='neo') {state.yunQuest.status='complete';emit('questProgress',{label:'윤달의 부탁 · 거대한 검은 손 토벌 완료'});}
   w.enemies.release(i);
   state.hunt.kills += 1;
   const c = TEMP.HUNT_CAREER;
@@ -348,13 +358,15 @@ function killEnemy(state, w, i) {
 }
 
 // 피해를 주고 죽었으면 true. kb = 밀어낼 방향(정규화 전 벡터)
-function hurt(state, w, i, base, m, kbx = 0, kby = 0) {
+function hurt(state, w, i, base, m, kbx = 0, kby = 0, melee=false) {
   const e = w.enemies.items[i];
   if(state.hunt.elapsedMs-(w.lastHitSound||-1000)>=180){emit('huntHit',{});w.lastHitSound=state.hunt.elapsedMs;}
-  const crit = nextRandom(state.rng) < m.crit;
-  const dmg = Math.round(base * (crit ? H.CRIT_MULT : 1));
+  const crit = nextRandom(state.rng) < Math.min(.8,m.crit+(melee?.15:0));
+  const dmg = Math.round(base * (crit ? (melee?2.3:H.CRIT_MULT) : 1));
+  if(crit && melee && state.hunt.hunterId==='neo' && state.hunt.elapsedMs-(w.lastCritLine||-5000)>4200){w.lastCritLine=state.hunt.elapsedMs;emit('huntCritical',{});}
   e.hp -= dmg;
   e.hitAt = state.hunt.elapsedMs;
+  addBattleFx(w,{kind:'hit',x:e.x,y:e.y-8,r:crit?24:16,at:e.hitAt,until:e.hitAt+180});
   const kl = Math.hypot(kbx, kby);
   if (kl > 0 && !ENEMIES[e.type].boss) { const k = H.KNOCKBACK * (ENEMIES[e.type].elite ? 0.3 : 1); e.kx += kbx / kl * k; e.ky += kby / kl * k; }
   if (w.texts.count < 40) { const tx = w.texts.spawn(); Object.assign(tx, { x: e.x + randRange(state.rng, -6, 6), y: e.y - 18, v: dmg, crit, life: 650 }); }
@@ -393,25 +405,19 @@ function fireWeapons(state, w, t, m, sec) {
     }
     if (wp.id === 'aura') {
       if (t < w.auraAt) continue;
-      w.auraAt = t + s.tickMs;
-      for (let i = w.enemies.count - 1; i >= 0; i--) {
-        const e = w.enemies.items[i];
-        if ((e.x - p.x) ** 2 + (e.y - p.y) ** 2 < (s.radius + ENEMIES[e.type].r) ** 2) hurt(state, w, i, s.damage, m);
-      }
-      continue;
+      w.auraAt=t+s.tickMs;hs.wardUntil=t+s.wardMs;
+      w.hostile=w.hostile.filter(b=>Math.hypot(b.x-p.x,b.y-p.y)>s.radius);
+      addBattleFx(w,{kind:'ward',x:p.x,y:p.y,r:s.radius,at:t,until:t+500});
+      emit('huntAttack',{weapon:'aura'});continue;
     }
     if (t < (w.cool[wp.id] || 0)) continue;
     if (wp.id === 'bolt') {
-      const target = nearest(w, p.x, p.y, 320);
-      if (target < 0) continue;
-      const e = w.enemies.items[target];
-      const base = Math.atan2(e.y - p.y, e.x - p.x);
-      for (let k = 0; k < s.count; k++) {
-        const a = base + (k - (s.count - 1) / 2) * 0.2;
-        const b = w.shots.spawn();
-        Object.assign(b, { kind: 'bolt', x: p.x, y: p.y, vx: Math.cos(a) * s.speed, vy: Math.sin(a) * s.speed, life: 900, dmg: s.damage, pierce: s.pierce, lastHit: 0 });
-      }
-      p.action = 'attack'; p.actionUntil = t + 180;
+      const target=nearest(w,p.x,p.y,s.radius+22);
+      const prop=(w.props||[]).filter(o=>Math.hypot(o.x-p.x,o.y-p.y)<s.radius+22).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
+      const e=target>=0?w.enemies.items[target]:prop;if(!e)continue;
+      const angle=Math.atan2(e.y-p.y,e.x-p.x);
+      p.swing={at:t,hitAt:t+90,until:t+360,hit:false,x:p.x,y:p.y,angle,radius:s.radius,halfArc:s.halfArc,damage:s.damage,evo:wp.evo};
+      p.attackFacing=facingAngle(angle);p.action='attack';p.actionUntil=t+360;
     } else if (wp.id === 'crescent') {
       for (let k = 0; k < s.count; k++) {
         const a = Math.atan2(p.dirY, p.dirX) + (k - (s.count - 1) / 2) * 0.7;
@@ -431,6 +437,7 @@ function fireWeapons(state, w, t, m, sec) {
         Object.assign(st, { x, y, at: t + s.warnMs + k * 70, r: s.radius, dmg: s.damage, boomUntil: 0 });
       }
     }
+    if(wp.id!=='bolt')emit('huntAttack',{weapon:wp.id});
     w.cool[wp.id] = t + s.cooldown;
   }
 }
@@ -479,36 +486,10 @@ function stepShots(state, w, t, m, dt) {
   }
 }
 
-function stepEnemies(state, w, t, dt, auraSlow) {
-  const hs = state.hunt, p = w.player, sec = dt / 1000;
-  const decay = Math.exp(-8 * sec);
-  for (let i = w.enemies.count - 1; i >= 0; i--) {
-    const e = w.enemies.items[i];
-    const def = ENEMIES[e.type];
-    const dx = p.x - e.x, dy = p.y - e.y;
-    const d = Math.hypot(dx, dy) || 1;
-    let sp = e.speed;
-    if (auraSlow && d < auraSlow.radius + def.r) sp *= 1 - auraSlow.slow;
-    if (e.life > 0) {
-      // 가로지르는 박쥐 떼: 쫓지 않고 정해진 방향으로 날다가 사라진다
-      e.life -= dt;
-      e.x += e.vx * sec; e.y += e.vy * sec;
-      if (e.life <= 0) { w.enemies.release(i); continue; }
-    } else {
-      let mx = dx / d, my = dy / d;
-      if (def.zigzag) { const z = Math.sin(t / 260 + e.phase) * 0.9; const nx = mx - my * z, ny = my + mx * z; const nl = Math.hypot(nx, ny) || 1; mx = nx / nl; my = ny / nl; }
-      e.x += mx * sp * sec; e.y += my * sp * sec;
-    }
-    e.x += e.kx * sec; e.y += e.ky * sec; e.kx *= decay; e.ky *= decay;
-    if (d < def.r + 14 && t >= p.hurtUntil) {
-      hs.hp = Math.max(0, hs.hp - (t < (hs.shieldUntil || 0) ? 0 : Math.round(def.dmg * hs.scale.dmg * (1 + .12 * hs.elapsedMs / 60000))));
-      p.hurtUntil = t + H.HURT_IFRAME_MS;
-      p.action = 'hurt'; p.actionUntil = t + 300;
-      w.shakeUntil = t + 220;
-      if (!def.boss) { e.kx -= dx / d * 220; e.ky -= dy / d * 220; }
-      emit('huntHurt', { hp: hs.hp });
-    }
-  }
+export function resolveMelee(state,w,t,m){
+ const a=w.player.swing;if(!a||a.hit||t<a.hitAt)return;a.hit=true;emit('huntAttack',{weapon:'bolt'});
+ for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(withinMeleeArc(a.x,a.y,a.angle,a.radius,a.halfArc,e,ENEMIES[e.type].r))hurt(state,w,i,a.damage,m,e.x-a.x,e.y-a.y,true);}
+ for(const prop of w.props||[]){if(!withinMeleeArc(a.x,a.y,a.angle,a.radius,a.halfArc,prop,prop.r))continue;const reward=hitFieldProp(state.hunt,prop,a.damage);addBattleFx(w,{kind:'hit',x:prop.x,y:prop.y,r:30,at:t,until:t+250});if(reward){addDrop(w,'moon','moonstone',reward,prop.x,prop.y);emit('huntObjectBroken',{reward});}}
 }
 
 function collect(state, w, t, m, dt) {
@@ -526,7 +507,7 @@ function collect(state, w, t, m, dt) {
     }
     if (d >= H.PICKUP_RADIUS) continue;
     w.drops.release(i);
-    if (it.kind === 'gem') gainXp(state, it.v);
+    if (it.kind === 'gem') {gainXp(state,it.v);if(t-(w.lastGemSound||-1000)>90){emit('huntGem',{});w.lastGemSound=t;}}
     else if (it.kind === 'moon') {
       hs.bag.moonstone = (hs.bag.moonstone || 0) + it.v;
       emit('huntPickup', { id: 'moonstone', name: `월정석 ×${it.v}`, v: it.v });
@@ -564,14 +545,15 @@ function subStep(state, dt, input) {
   hs.elapsedMs += dt;
   const t = hs.elapsedMs;
   const m = mods(hs);
+  if(!state.roster.museong && hs.careerLevel>=8 && t>=90000 && !state.museongEncounter){state.museongEncounter=true;w.banner={label:'안개 너머, 무성의 노래가 들려온다',warn:false,until:t+4000};emit('huntEvent',{kind:'encounter',label:'사냥을 마치고 무성의 이야기를 확인하세요',warn:false});}
 
   // 이동
   const len = Math.hypot(input.x, input.y);
   p.moving = len > 0.05;
   if (p.moving) {
     const k = Math.min(1, len) / len;
-    p.x = Math.max(16, Math.min(H.FIELD_W - 16, p.x + input.x * k * H.PLAYER_SPEED * m.speed * sec));
-    p.y = Math.max(16, Math.min(H.FIELD_H - 16, p.y + input.y * k * H.PLAYER_SPEED * m.speed * sec));
+    p.x += input.x * k * H.PLAYER_SPEED * m.speed * sec;
+    p.y += input.y * k * H.PLAYER_SPEED * m.speed * sec;
     p.dirX = input.x / len; p.dirY = input.y / len;
     p.facing = Math.abs(input.x) > Math.abs(input.y) ? (input.x > 0 ? 'right' : 'left') : (input.y > 0 ? 'down' : 'up');
   }
@@ -586,9 +568,12 @@ function subStep(state, dt, input) {
   while (w.spawnAcc >= 1) { w.spawnAcc -= 1; aroundPlayer(state, w, pickType(state, t / 1000)); }
 
   fireWeapons(state, w, t, m, sec);
+  for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(!ENEMIES[e.type].elite&&Math.hypot(e.x-p.x,e.y-p.y)>1300)w.enemies.release(i);}
+  w.props=nearbyProps(hs,p);
+  resolveMelee(state,w,t,m);
   stepShots(state, w, t, m, dt);
-  const aura = hs.weapons.find(x => x.id === 'aura' && x.evo);
-  stepEnemies(state, w, t, dt, aura ? weaponStats(aura, m) : null);
+  const aura = hs.weapons.find(x => x.id === 'aura');
+  stepEnemyBehaviors(state, w, t, dt, aura ? weaponStats(aura, m) : null);
   collect(state, w, t, m, dt);
 
   for (let i = w.texts.count - 1; i >= 0; i--) { const tx = w.texts.items[i]; tx.life -= dt; tx.y -= 30 * sec; if (tx.life <= 0) w.texts.release(i); }
@@ -639,6 +624,9 @@ export function finishHunt(state) {
     state.stats.huntsCompleted += 1;
     state.hunter.xp += hs.careerXP || 0;
     state.hunter.kills += hs.kills;
+    state.hunter.lastStage=hs.depth;
+    state.hunter.builds??={};
+    state.hunter.builds[hs.hunterId]={level:hs.level,xp:hs.xp,weapons:structuredClone(hs.weapons),passives:{...hs.passives},stage:hs.depth};
     if(hs.elapsedMs>=180000)state.hunter.maxStage=Math.min(100,Math.max(state.hunter.maxStage||1,hs.depth+1));
     state.stats.longestHuntMs = Math.max(state.stats.longestHuntMs || 0, hs.elapsedMs);
     state.stats.huntBosses = (state.stats.huntBosses || 0) + (hs.bossKills || 0);

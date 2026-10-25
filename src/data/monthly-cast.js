@@ -3,7 +3,7 @@ export const MONTHLY_CAST = Object.freeze([
   { id: 'yun', name: '윤달', color: '#8d80ad', month: 4, stats: { empathy: 6, talk: 9, fun: 8, looks: 7 },
     profile: '낯선 자리에서도 먼저 말을 건네는 점술가. 생시를 묻는 가벼운 농담 뒤에 상대의 말을 오래 기억한다.',
     specialty: '대화·재미 중심 손님',
-    meetEvent: { title: '4월 · 생시보다 먼저 물어볼 것', lines: ['윤달: 생시는 알아? 아, 오늘은 출근 가능한 시간부터 물어봐야겠네.', '연이: 주문서를 사주판처럼 펼치면 안 돼. 손님 이름부터 기억해 줘.', '윤달: 그건 자신 있어. 자기 얘기를 기억해 주는 가게엔 다시 오거든.', '연이: (첫인상 별 넷. 근무표 적응은 지켜보자.)'] },
+    meetEvent: { title: '윤달의 공방 · 돌아온 약속', lines: ['윤달: 거대한 검은 손의 흔적이네. 영냥이가 약속을 지켜 돌아왔구나.', '연이: 네가 손질한 장비 덕분이야. 이제 우리 카페에서도 함께할래?', '윤달: 그건 자신 있어. 자기 얘기를 기억해 주는 가게엔 다시 오거든.', '연이: (첫인상 별 넷. 근무표 적응은 지켜보자.)'] },
     followup: { title: '기억해 둔 한 잔', lines: ['윤달: 저 손님은 오늘도 설탕 반만. 지난번에는 잠을 잘 못 잤다고 했지.', '연이: 그런 것도 다 기억해?', '윤달: 다음 운세보다 오늘 차 한 잔이 먼저일 때도 있거든.'] }, reward: { items: { tea: 6 } } },
   { id: 'moka', name: '모카', color: '#ba8051', month: 6, stats: { empathy: 4, talk: 7, fun: 10, looks: 5 },
     gender: 'female', species: 'otter', profile: '식상의 섬에서 온 여성 수달 요리사. 퉁명한 별점 평가와 몰래 연습한 랩, 한번 편이 되면 끝까지 챙기는 의리가 있다.',
@@ -18,6 +18,6 @@ export const MONTHLY_CAST = Object.freeze([
   { id: 'museong', name: '무성', color: '#666e82', month: 9, stats: { empathy: 5, talk: 10, fun: 6, looks: 8 },
     profile: '원칙과 약속을 또렷하게 말하는 인물. 엄격한 첫인상과 달리 노래가 시작되면 공간의 분위기를 바꾼다.',
     specialty: '대화 중심 손님',
-    meetEvent: { title: '9월 · 무대의 약속', lines: ['무성: 예약 시간을 지키는 것은 가게와 손님 모두의 약속이다.', '연이: 맞는 말인데 입구에서 판결하는 건 조금… 노래 한 곡은 어때?', '무성: 끝나는 시각을 정해 둬라. 그 안에서 제대로 부르겠다.', '연이: (발성 별 다섯. 안내 방송으로 쓰면 안 되겠지.)'] },
+    meetEvent: { title: '달그늘의 노래 · 무성의 약속', lines: ['무성: 깊은 사냥터에서 네 발소리를 들었다. 끝까지 무너지지 않는 박자더군.', '연이: 맞는 말인데 입구에서 판결하는 건 조금… 노래 한 곡은 어때?', '무성: 끝나는 시각을 정해 둬라. 그 안에서 제대로 부르겠다.', '연이: (발성 별 다섯. 안내 방송으로 쓰면 안 되겠지.)'] },
     followup: { title: '한 곡의 여백', lines: ['무성: 오늘 앙코르는 없다. 마지막 손님도 돌아갈 차편이 있다.', '연이: 아쉬워하시던데?', '무성: 다음에 올 이유를 남겨 두는 것도 약속이다. 다음 곡은 연습해 두겠다.'] }, reward: { items: { bean: 6 } } },
 ].map(c => ({ ...c, role: 'host', canServe: false, canHost: true, temp: true, condition: { shiftsCompleted: 0, repaidAtLeast: 0, month: c.month, year: ({yun:1,moka:1,seohanbi:2,museong:3})[c.id] } })));
