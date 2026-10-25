@@ -3,6 +3,9 @@
 // 재료는 모두 마을 모카 식재료점에서 산다. basic = 기본 재료, shop = 모카가 파는 특별 재료(밤이슬, 가격 임시).
 
 export const INGREDIENTS = Object.freeze({
+  berry: { id: 'berry', name: '딸기', price: 34, basic: false, farm: true, color: '#da7495' },
+  rice: { id: 'rice', name: '쌀', price: 32, basic: false, farm: true, color: '#f5e8d0' },
+  pumpkin: { id: 'pumpkin', name: '호박', price: 38, basic: false, farm: true, color: '#e5a34c' },
   bean:      { id: 'bean',      name: '원두',   price: 30, basic: true,  color: '#7a4b2a' },
   milk:      { id: 'milk',      name: '우유',   price: 26, basic: true,  color: '#f3efe2' },
   tea:       { id: 'tea',       name: '찻잎',   price: 30, basic: true,  color: '#7fa65a' },
@@ -15,6 +18,9 @@ export const INGREDIENTS = Object.freeze({
 // station: 'drink' = 음료 머신, 'oven' = 오븐
 // group: 기획서 조리 시간 구분(drink / dessert / meal)
 export const MENUS = Object.freeze({
+  lotus_berry_tart: { id: 'lotus_berry_tart', name: '연꽃 딸기 타르트', short: '딸기타르트', station: 'oven', group: 'dessert', cookMs: 18000, price: 195, ingredients: { berry: 1, flour: 1, sugar: 1 }, color: '#da7495', learned: false, farm: true },
+  moon_rice_bowl: { id: 'moon_rice_bowl', name: '초승달 달걀밥', short: '달걀밥', station: 'oven', group: 'meal', cookMs: 24000, price: 220, ingredients: { rice: 1, egg: 1 }, color: '#f5d36b', learned: false, farm: true },
+  golden_pumpkin_soup: { id: 'golden_pumpkin_soup', name: '황금 호박 수프', short: '호박수프', station: 'oven', group: 'meal', cookMs: 22000, price: 210, ingredients: { pumpkin: 1, milk: 1 }, color: '#e5a34c', learned: false, farm: true },
   fortune_latte:   { id: 'fortune_latte',   name: '운세 라테',   short: '라테',  station: 'drink', group: 'drink',   cookMs: 14000, price: 140, ingredients: { bean: 1, milk: 1 }, color: '#c89b6d', learned: true },
   starlight_tea:   { id: 'starlight_tea',   name: '별빛 차',     short: '별차',  station: 'drink', group: 'drink',   cookMs: 12000, price: 120, ingredients: { tea: 1, sugar: 1 }, color: '#9fc46f', learned: true },
   flower_cookie:   { id: 'flower_cookie',   name: '꽃 쿠키',     short: '쿠키',  station: 'oven',  group: 'dessert', cookMs: 18000, price: 150, ingredients: { flour: 1, sugar: 1 }, color: '#f2a7b8', learned: true },
@@ -28,7 +34,7 @@ export const MENUS = Object.freeze({
   night_dew_latte: { id: 'night_dew_latte', name: '밤이슬 라테', short: '밤라테', station: 'drink', group: 'drink',   cookMs: 16000, price: 320, ingredients: { night_dew: 1, milk: 1, bean: 1 }, color: '#7d86e8', learned: false, special: true },
 });
 
-export const MENU_ORDER = Object.freeze(['fortune_latte', 'starlight_tea', 'flower_cookie', 'moon_pudding', 'lucky_sand', 'moon_milk_tea', 'stardust_castella', 'oink_cream_latte', 'night_dew_latte']);
+export const MENU_ORDER = Object.freeze(['fortune_latte', 'starlight_tea', 'flower_cookie', 'moon_pudding', 'lucky_sand', 'moon_milk_tea', 'stardust_castella', 'oink_cream_latte', 'night_dew_latte', 'lotus_berry_tart', 'moon_rice_bowl', 'golden_pumpkin_soup']);
 
 export function ingredientCostOf(menuId) {
   const m = MENUS[menuId];

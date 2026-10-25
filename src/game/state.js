@@ -8,6 +8,7 @@ import { START_FURNITURE } from '../data/layout.js';
 import { PEOPLE, RECRUITABLE } from '../data/companions.js';
 import { DEV_RECRUITABLE } from '../data/dev-companions.js';
 import { START_OUTFITS, OUTFIT_WEARERS } from '../data/outfits.js';
+import { newFarm } from '../data/farm.js';
 
 export const SAVE_VERSION = 2;
 
@@ -37,6 +38,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     repaidTotal: 0,
     stock: { ...TEMP.START_STOCK, night_dew: 0 },
     moonstone: 0,          // 월정석: 사냥에서 얻고 루나의 저울에서 골드로 바꾼다
+    farm: newFarm(seed),
     gear: { owned: [], equipped: { weapon: null, armor: null, charm: null } }, // 영냥이 장비(data/gear.js)
     learned,
     // 접대 가능한 명단: 새 게임은 네오 한 명

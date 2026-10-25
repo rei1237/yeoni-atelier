@@ -129,6 +129,14 @@ function replayStory() {
 const n = v => Number(v);
 // data-action → 처리. 엔진 명령은 같은 이름을 쓰고, 화면 전용 동작(시트·확인창·저장)은 여기서만 처리한다.
 const ACTIONS = {
+  'farm.select': d => { ui.farmCrop = d.id; },
+  'farm.plant': d => run({ type: 'farm.plant', cropId: d.id, index: n(d.index) }),
+  'farm.water': d => run({ type: 'farm.water', index: n(d.index) }),
+  'farm.tend': d => run({ type: 'farm.tend', index: n(d.index) }),
+  'farm.harvest': d => run({ type: 'farm.harvest', index: n(d.index), cropInstanceId: d.id }),
+  'farm.careAll': () => run({ type: 'farm.careAll' }),
+  'farm.expand': () => run({ type: 'farm.expand' }),
+  'farm.greenhouse': () => run({ type: 'farm.greenhouse' }),
   // 화면 전용
   'sheet.open': d => { ui.sheet = { kind: d.sheet, tab: d.tab }; },
   'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; },
@@ -277,6 +285,7 @@ function handleEvents(events) {
   for (const ev of events) {
     const p = ev.tableNo != null ? tableAt(ev.tableNo) : null;
     switch (ev.type) {
+      case 'farmAction': toast(ev.text, 'good'); break;
       case 'shiftStart': toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 30:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
       case 'served': floater(p.x, p.y - 10, `+${ev.price}G`, '#b07a12'); if (Math.random() < 0.25) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
       case 'nominationRequest': toast(`💌 ${ev.tableNo}번 손님이 ${personName(state, ev.nominee)} 지명 요청 — 테이블을 눌러 확인`, 'good', 3600); break;

@@ -13,6 +13,7 @@ import * as calendar from './calendar.js';
 import * as recipe from './recipe.js';
 import * as town from './town.js';
 import * as bonds from './bonds.js';
+import * as farm from './farm.js';
 import { autoStep } from './auto.js';
 
 // 일시정지 중에도 받는 명령
@@ -47,6 +48,13 @@ function route(state, cmd) {
     case 'fever.activate': return nom.activateFever(state);
 
     case 'shop.buy': return eco.buy(state, cmd.ingredientId, cmd.qty);
+    case 'farm.plant': return farm.plant(state, cmd.cropId, cmd.index);
+    case 'farm.water': return farm.care(state, cmd.index, 'water');
+    case 'farm.tend': return farm.care(state, cmd.index, 'tend');
+    case 'farm.careAll': return farm.careAll(state);
+    case 'farm.harvest': return farm.harvest(state, cmd.index, cmd.cropInstanceId);
+    case 'farm.expand': return farm.expansion(state);
+    case 'farm.greenhouse': return farm.expansion(state, true);
     case 'debt.repay': return eco.repay(state, cmd.amount, cmd.requestId);
     case 'quest.claim': return eco.claimQuest(state, cmd.questId);
     case 'recruit.complete': return eco.completeRecruit(state, cmd.id);

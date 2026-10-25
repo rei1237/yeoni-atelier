@@ -6,6 +6,7 @@ import { TEMP } from '../config/balance.temp.js';
 import { PDF } from '../config/balance.pdf.js';
 import { emit } from './state.js';
 import { BOND_IDS, bondTier, bondFx } from '../data/bonds.js';
+import { advanceFarm } from './farm.js';
 
 const C = TEMP.CALENDAR;
 export const PARTS = Object.freeze(['상순', '중순', '하순']);
@@ -75,6 +76,7 @@ export function decideEnding(state) {
 
 // 결산을 닫고 다음 순으로 넘어갈 때(shift.closeSettlement 에서 부른다)
 export function advanceTurn(state) {
+  advanceFarm(state);
   const fx = bondFx(state.affinity);
   state.ap = { left: C.AP_PER_TURN + fx.ap, talked: {}, gifted: {}, shopped: false };
   // 모카 ♥3: 순마다 밤이슬

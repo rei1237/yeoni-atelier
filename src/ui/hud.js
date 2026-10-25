@@ -144,6 +144,7 @@ function prepPanel(state) {
       ${btn({ action: 'hunt.start', disabled: !hc.ok, title: hc.ok ? '영냥이 월정석 사냥 (약 3분) · 월정석은 루나의 저울에서 골드로' : hc.reasons.join(' / '), label: '🌙 월정석 사냥 (3분 · 행동력 1)' })}
       ${btn({ action: 'sheet.open', args: { sheet: 'town' }, cls: 'primary', title: '마을 지도 · 동료와 대화·선물 · 식재료점 · 장비 좌판 · 루나의 저울 · 증축 게시판 · 사냥터', label: '🏘 마을 나가기' })}
       ${btn({ action: 'interior.begin', label: '🪑 인테리어' })}
+      ${btn({ action: 'sheet.open', args: { sheet: 'farm' }, label: '🌱 연이의 농장' })}
       ${btn({ action: 'kitchen.toggle', cls: state.autoKitchen ? 'on' : '', title: '영업 중 주문 조리·서빙을 자동으로', label: `🍳 주방 자동 ${state.autoKitchen ? '켜짐' : '꺼짐'}` })}
     </div>
     <div class="debtline"><span>💳 빚 ${won(state.debt)}</span><span>상환 단계: ${esc(ds.label)} ${ds.need ? `${won(ds.paid)} / ${won(ds.need)}` : ''}</span></div>

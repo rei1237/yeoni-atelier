@@ -1,4 +1,5 @@
 import { HELP_SCENES } from '../data/help.js';
+import { farmSheet } from './farm.js';
 // 바텀시트(테이블·주방·재료·마을·퀘스트·기타·부채·동료·의상)와 전면 오버레이(타이틀·확인·일시정지·결산·사냥 결과·만남 이벤트).
 // 상태를 읽기만 하고, 버튼은 data-action 으로 명령을 요청한다.
 
@@ -46,6 +47,7 @@ export function sheetHtml(state, ui) {
     case 'debt': return debtSheet(state);
     case 'companions': return companionSheet(state);
     case 'outfits': return outfitSheet(state);
+    case 'farm': return farmSheet(state, ui);
     default: return '';
   }
 }
@@ -205,7 +207,7 @@ function kitchenSheet(state, ui) {
     const m = MENUS[id];
     const ings = Object.entries(m.ingredients).map(([i, n]) => `${INGREDIENTS[i].name} ${state.stock[i] || 0}/${n}`).join(' · ');
     if (!state.learned[id]) {
-      const how = m.combo ? `조합대에서 발견 · 재료 ${Object.values(m.ingredients).reduce((a, b) => a + b, 0)}가지 · ${STATION_NAMES[m.station]}` : m.special ? '퀘스트 보상 또는 조합대에서 발견' : '퀘스트로 레시피를 배워야 합니다';
+      const how = m.farm ? '연이의 농장에서 해당 작물을 수확하면 배워요' : m.combo ? `조합대에서 발견 · 재료 ${Object.values(m.ingredients).reduce((a, b) => a + b, 0)}가지 · ${STATION_NAMES[m.station]}` : m.special ? '퀘스트 보상 또는 조합대에서 발견' : '퀘스트로 레시피를 배워야 합니다';
       return `<div class="item"><i class="swatch" style="background:#bbb"></i><div class="meta grow"><b>❓ ${m.combo ? '???' : esc(m.name)}</b><span>${how}</span></div></div>`;
     }
     const sc = stockCheck(state, id);
