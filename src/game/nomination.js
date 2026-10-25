@@ -46,7 +46,7 @@ export function personBusyReason(state, personId) {
 export function acceptCheck(state, tableNo) {
   const reasons = [];
   if (state.mode !== 'shift' || !state.shift) return { ok: false, reasons: ['정규 영업 중이 아닙니다'] };
-  if (!state.hostbar.open) reasons.push('호스트 바 개시 전입니다 · 5월 이야기를 먼저 확인해 주세요');
+  if (!state.hostbar.open) reasons.push('호스트 카페 개장 전입니다 · 5월 이야기를 먼저 확인해 주세요');
   if (state.paused) reasons.push('일시정지 중입니다');
   const visit = visitAt(state, tableNo);
   const c = customerAt(state, tableNo);

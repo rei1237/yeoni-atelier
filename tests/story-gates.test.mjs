@@ -6,6 +6,28 @@ import { pendingStory } from '../src/game/calendar.js';
 import { spawnCustomer } from '../src/game/cafe.js';
 import { serialize, deserialize } from '../src/core/save.js';
 import { RULES } from '../src/config/rules.js';
+import { topbarHtml, panelHtml } from '../src/ui/hud.js';
+import { sheetHtml, overlayHtml } from '../src/ui/sheets.js';
+import { MONTH_STORIES } from '../src/story/months.js';
+
+test('개장 전 HUD·결산은 일반 카페이며 5월 이벤트 뒤 지명 조작을 공개한다', () => {
+  const s = createGame(), ui = { dev:false, speed:1 };
+  dispatch(s, { type:'shift.start' });
+  const closed = topbarHtml(s,ui) + panelHtml(s,ui);
+  assert.doesNotMatch(closed, /지명|피버|스트레스|fever.activate|hostcard/);
+  assert.match(closed, /tray.tap/);
+  assert.match(sheetHtml(s,{sheet:{kind:'companions'}}), /손님맞이 담당/);
+  tick(s,RULES.SHIFT_MS);
+  assert.doesNotMatch(overlayHtml(s,ui), /지명|피버|스트레스/);
+  dispatch(s,{type:'settlement.close'});s.day=7;
+  assert.equal(s.hostbar.open,false);
+  dispatch(s,{type:'story.seen',id:'m2'});
+  dispatch(s,{type:'shift.start'});
+  assert.match(topbarHtml(s,ui), /스트레스/);
+  assert.match(panelHtml(s,ui), /fever.activate/);
+  assert.match(MONTH_STORIES[2].map(b=>JSON.stringify(b)).join(' '), /오늘부터 호스트 카페!/);
+  assert.doesNotMatch(MONTH_STORIES[2].map(b=>JSON.stringify(b)).join(' '), /호스트.?바/);
+});
 
 test('새 게임 이야기 순서 m0 → ev:hunt, 사냥 잠금·변신·복귀', () => {
   const s = createGame();

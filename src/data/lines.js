@@ -1,8 +1,8 @@
 // 짧은 대사. 기획서 p.21의 개그 대사를 쓴다. 대사는 규칙과 능력치를 바꾸지 않는다.
 
 export const GAG_HOSTBAR = Object.freeze([
-  { who: '손님', text: '여기 호스트바 아니에요?' },
-  { who: '연이', text: '카페 겸… 그런 거예요. 일단 커피부터 드릴게요.' },
+  { who: '손님', text: '여기가 소문난 호스트 카페예요?' },
+  { who: '연이', text: '맞아요! 커피는 잔에, 이야기는 마음에 담아 드려요.' },
 ]);
 
 export const GAG_NEO_FUN = Object.freeze([

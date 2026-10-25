@@ -19,7 +19,7 @@ export function dressroomSheet(state, ui) {
   return `<h2>달빛 드레스룸${btn({ action: 'sheet.close', cls: 'close ghost', label: '✕', title: '닫기' })}</h2>
     <div class="btns">${['neo', 'yeoni'].map(id => btn({ action: 'dress.who', args: { who: id }, cls: who === id ? 'on' : '', label: id === 'neo' ? '네오' : '연이' })).join('')}</div>
     <div class="dress-stage" style="${assetStyle('backgrounds/dressroom')}"><canvas id="dress-actor" width="192" height="192" aria-label="의상 입어 보기"></canvas><div class="dress-speech"><canvas data-talking-portrait="${who}${preview && slot === 'outfit' ? `@${preview}` : ''}" data-expression="${stage === 'calm' ? 'smile' : 'serious'}" width="96" height="96" aria-hidden="true"></canvas><p>${esc(line)}</p></div></div>
-    <div class="btns">${[['down','앞'],['left','왼쪽'],['right','오른쪽'],['up','뒤']].map(([dir,label]) => btn({ action: 'dress.direction', args: { dir }, cls: (ui.dressDirection || 'down') === dir ? 'on' : '', label })).join('')}${btn({ action: 'dress.pose', label: ui.dressPose === 'host' ? '대기 모습 보기' : '접대 모습 보기' })}</div>
+    <div class="btns">${[['down','앞'],['left','왼쪽'],['right','오른쪽'],['up','뒤']].map(([dir,label]) => btn({ action: 'dress.direction', args: { dir }, cls: (ui.dressDirection || 'down') === dir ? 'on' : '', label })).join('')}${btn({ action: 'dress.pose', label: ui.dressPose === 'host' ? '대기 모습 보기' : '인사 모습 보기' })}</div>
     ${!prep ? '<p role="status">지금은 입어 보기만 가능해요. 영업 준비 중에 갈아입어 주세요.</p>' : ''}
     <div class="btns">${[['outfit','의상'],['acc1','액세서리 1'],['acc2','액세서리 2']].map(([id,label]) => btn({ action: 'dress.slot', args: { slot: id }, cls: slot === id ? 'on' : '', label })).join('')}</div>
     <div class="dress-catalog">${items.map(item => {

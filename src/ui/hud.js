@@ -27,17 +27,16 @@ const won = n => `${Math.floor(n).toLocaleString('ko-KR')}G`;
 export function topbarHtml(state, ui) {
   const dev = ui.dev ? '<span class="tag dev">DEV</span>' : '';
   if (!state) return `<div class="tb-col"><span class="clock">연이의 아틀리에</span></div>${dev}`;
-  const stress = `<span class="stress-chip ${stressStage(state)}" aria-label="네오 스트레스 ${state.neoStress}/100">${assetIcon(`ui/stress-${stressStage(state)}`)}네오 · ${stressLabel(state)}<meter min="0" max="100" value="${state.neoStress}">${state.neoStress}</meter></span>`;
+  const stress = state.hostbar.open ? `<span class="stress-chip ${stressStage(state)}" aria-label="네오 스트레스 ${state.neoStress}/100">${assetIcon(`ui/stress-${stressStage(state)}`)}네오 · ${stressLabel(state)}<meter min="0" max="100" value="${state.neoStress}">${state.neoStress}</meter></span>` : '';
   const gold = `<span class="gold" aria-label="골드">🪙 <span data-count-to="${Math.floor(state.gold)}" data-count-suffix="G">${won(state.gold)}</span></span>`;
   if (state.mode === 'shift') {
     const sh = state.shift;
     const st = [];
-    if (!state.hostbar.open) st.push('지명은 5월 이야기 후 열려요');
     if (state.paused) st.push('⏸ 일시정지');
     if (state.fever.activeUntil != null) st.push(`🔥 피버 ${fmtTime(state.fever.activeUntil - sh.elapsedMs)}`);
     if (state.auto) st.push('🤖 자동 운영');
     else if (state.autoKitchen) st.push('🍳 주방 자동');
-    if (sh.elapsedMs > lastAcceptAt(state)) st.push('지명 수락 마감');
+    if (state.hostbar.open && sh.elapsedMs > lastAcceptAt(state)) st.push('지명 수락 마감');
     if (!st.length) st.push(`${dateLabel(state)} 영업 중`);
     if (ui.dev && ui.speed !== 1) st.push(`×${ui.speed}`);
     return `<div class="tb-col"><span class="clock" aria-label="남은 영업 시간">⏱ ${fmtTime(remainingShift(state))}</span><span class="small muted">경과 ${fmtTime(sh.elapsedMs)} / ${fmtTime(shiftDuration(state))}</span></div>
@@ -126,11 +125,11 @@ function shiftPanel(state, ui) {
   const fever = btn({ action: 'fever.activate', cls: fcls, disabled: !chk.ok, title: chk.ok ? '피버 발동 (20초, 대상 팁 2배)' : chk.reason,
     label: `<span>${flabel}</span><span class="gauge" aria-hidden="true"><i style="width:${active ? 100 : fv.gauge}%"></i></span>` });
   const kitchen = btn({ action: 'kitchen.toggle', cls: `autobtn${state.autoKitchen ? ' on' : ''}`, title: '주방 자동(루나 언니 굽기·루나 서빙) 켜기/끄기', label: `<span>🍳 주방</span><span>${state.autoKitchen ? '자동' : '수동'}</span>` });
-  const auto = btn({ action: 'auto.toggle', cls: `autobtn${state.auto ? ' on' : ''}`, title: '전체 자동(지명 수락·도움 응답·피버까지) 켜기/끄기', label: `<span>🤖 전체</span><span>${state.auto ? '켜짐' : '꺼짐'}</span>` });
+  const auto = btn({ action: 'auto.toggle', cls: `autobtn${state.auto ? ' on' : ''}`, title: state.hostbar.open ? '전체 자동(지명 수락·도움 응답·피버까지) 켜기/끄기' : '조리·서빙·정리를 자동으로 돕기', label: `<span>🤖 전체</span><span>${state.auto ? '켜짐' : '꺼짐'}</span>` });
 
   return `<div class="tray" role="group" aria-label="완성 트레이 3칸">${slots}</div>
     ${held.length ? `<div class="small warn">${esc(held.join(' / '))}</div>` : ''}${hint}
-    <div class="hostrow">${hostCell}${fever}${kitchen}${auto}</div>
+    <div class="hostrow${state.hostbar.open ? '' : ' cafe-only'}">${state.hostbar.open ? hostCell + fever : ''}${kitchen}${auto}</div>
     ${navRow([['kitchen', '🧪 주방'], ['shop', '🛵 긴급 배달'], ['quests', '📜 퀘스트'], ['more', '☰ 기타']])}`;
 }
 

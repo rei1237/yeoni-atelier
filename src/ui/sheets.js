@@ -73,8 +73,8 @@ function tableSheet(state, no, ui) {
   const foods = visit.foodScores;
   const foodText = foods.length ? `${Math.round(foods.reduce((a, b) => a + b, 0) / foods.length)}점 (${foods.length}회)` : '아직 없음';
   if (visit.kind === 'regular') {
-    parts.push(`<div class="card"><div class="kv"><span>손님 유형</span><b>일반 손님</b><span>접대 만족도</span><b>해당 없음</b><span>음식 점수</span><b>${foodText}</b></div>
-      <p class="small muted">일반 손님은 접대 없이 식사만 하고 떠납니다.</p></div>`);
+    parts.push(`<div class="card"><div class="kv"><span>손님 유형</span><b>일반 손님</b><span>음식 점수</span><b>${foodText}</b></div>
+      <p class="small muted">주문한 음식을 만들어 테이블로 가져다주세요.</p></div>`);
   } else {
     parts.push(nominationCard(state, visit, c, now, foodText, ui));
   }
@@ -375,7 +375,7 @@ function moreSheet(state, ui) {
   const off = estimateOfflineIncome(state, Date.now());
   const inShift = state.mode === 'shift' || state.mode === 'hunt';
   const dev = ui.dev ? `<div class="card"><b><span class="tag dev">DEV</span> 개발 기능</b>
-      <p class="small muted">별도 저장 키를 씁니다. 배속은 저장하지 않으며 일반 플레이에는 없습니다. 정규 영업 길이(30:00)는 그대로입니다.</p>
+      <p class="small muted">별도 저장 키를 씁니다. 배속은 저장하지 않으며 일반 플레이에는 없습니다. 정규 영업 길이(10:00)는 그대로입니다.</p>
       <div class="btns">${[1, 10, 60].map(sp => btn({ action: 'dev.speed', args: { speed: sp }, cls: ui.speed === sp ? 'on' : '', label: `×${sp}` })).join('')}
       ${btn({ action: 'dev.skip', disabled: !inShift || state.paused, label: '+60초 진행' })}</div></div>` : '';
   return `${head('☰ 기타')}
@@ -409,8 +409,8 @@ function companionSheet(state) {
   const neoStats = STAT_KEYS.map(k => `${STAT_LABELS[k]} ${PEOPLE.neo.stats[k]}`).join(' · ');
   const neoStatus = personBusyReason(state, 'neo') || (state.mode === 'shift' ? staffStatusText(state, 'neo') : state.people.neo.activity === 'hunting' ? '영냥이 모습으로 월정석 사냥 중' : '대기');
   const rows = [
-    `<div class="item"><span class="swatch" style="background:${PEOPLE.yeoni.color}"></span><div class="meta grow"><b>연이 · 사장</b><span>계산·농장 담당 (가게 조리·서빙·접대는 동료와 함께)${state.mode === 'shift' ? ` · ${esc(staffStatusText(state, 'yeoni'))}` : ''}</span></div></div>`,
-    `<div class="item"><span class="swatch" style="background:${PEOPLE.neo.color}"></span><div class="meta grow"><b>네오 · 접대 담당</b><span>${neoStats}</span><span>${esc(PEOPLE.neo.profile)}</span><span>${esc(PEOPLE.neo.specialty)}</span><span>상태: ${esc(neoStatus)} · 고양이 모습일 때 이름은 영냥이(같은 사람)</span></div></div>`,
+    `<div class="item"><span class="swatch" style="background:${PEOPLE.yeoni.color}"></span><div class="meta grow"><b>연이 · 사장</b><span>계산·농장 담당 · 동료들과 함께 가게를 꾸려요${state.mode === 'shift' ? ` · ${esc(staffStatusText(state, 'yeoni'))}` : ''}</span></div></div>`,
+    `<div class="item"><span class="swatch" style="background:${PEOPLE.neo.color}"></span><div class="meta grow"><b>네오 · ${state.hostbar.open ? '대화 담당' : '손님맞이 담당'}</b>${state.hostbar.open ? `<span>${neoStats}</span>` : ''}<span>${esc(PEOPLE.neo.profile)}</span><span>${esc(PEOPLE.neo.specialty)}</span><span>상태: ${esc(neoStatus)} · 고양이 모습일 때 이름은 영냥이(같은 사람)</span></div></div>`,
     ...STAFF_CREW.map(id => `<div class="item"><span class="swatch" style="background:${PEOPLE[id].color}"></span><div class="meta grow"><b>${PEOPLE[id].name} · ${PEOPLE[id].work === 'baker' ? '굽기 담당' : '서빙·정리 담당'}</b><span>빚을 갚을 때까지 처음부터 일을 돕는다${state.mode === 'shift' ? ` · ${esc(staffStatusText(state, id))}` : ''}</span></div></div>`),
   ];
   for (const r of recruitView(state)) {
@@ -419,7 +419,7 @@ function companionSheet(state) {
     let right, sub;
     if (r.status === 'recruited') {
       const usable = isUsableHost(state, r.id);
-      sub = usable ? '접대 가능' : `${dateLabel(state, r.usableFrom)} 영업부터 접대 가능`;
+      sub = !state.hostbar.open ? '가게에 새로운 친구가 생겼어요' : usable ? '대화 가능' : `${dateLabel(state, r.usableFrom)} 영업부터 대화 가능`;
       right = '<span class="small ok">✅ 함께함</span>';
     } else if (r.status === 'available') {
       sub = '만남 조건 충족';
@@ -440,7 +440,7 @@ function companionSheet(state) {
     return `<div class="item"><div class="meta grow"><b>${esc(b.name)} <span class="hearts">${hearts(t)}</span> <small>${v}</small></b><span>${esc(open)}</span></div>${go}</div>`;
   }).join('');
   for (let i = 0; i < LOCKED_SLOT_COUNT; i++) rows.push('<div class="item"><span class="swatch" style="background:#ddd"></span><div class="meta grow"><b>🔒 새로운 인연</b><span>퀘스트로 영입 (아직 정해진 동료 없음)</span></div></div>');
-  return `${head('👥 동료')}<div class="list">${rows.join('')}</div><h3>💗 인연</h3><p class="small muted">대화·선물·함께 일하기로 친밀도가 오르고, 하트가 찰 때마다 새 능력과 인연 이야기가 열려요.</p><div class="list">${bondRows}</div><p class="small muted">새 게임의 접대 담당은 네오 한 명입니다. 다른 동료는 퀘스트·이벤트로 영입한 뒤 다음 영업부터 쓸 수 있습니다.</p>`;
+  return `${head('👥 동료')}<div class="list">${rows.join('')}</div><h3>💗 인연</h3><p class="small muted">대화·선물·함께 일하기로 친밀도가 오르고, 하트가 찰 때마다 새 능력과 인연 이야기가 열려요.</p><div class="list">${bondRows}</div><p class="small muted">${state.hostbar.open ? '호스트 카페의 동료는 만남 이벤트로 영입하면 다음 영업부터 함께합니다.' : '계절마다 새로운 친구가 찾아와요. 만남 이벤트와 각자의 이야기를 만나 보세요.'}</p>`;
 }
 
 // ── 오버레이(우선순위: 확인 > 타이틀 > 사냥 결과 > 결산 > 일시정지 > 레벨업 > 만남 이벤트)
@@ -494,13 +494,12 @@ function settlementDialog(state) {
     : '<p class="small muted">이번 영업의 지명 접대 없음</p>';
   return `<div class="dialog" role="dialog" aria-modal="true"><h2>📒 ${esc(dateLabel(state, s.day))} 결산</h2>
     <div class="kv"><span>판매 금액(서빙 완료분)</span><b>${won(s.sales)}</b><span>재료비</span><b>−${won(s.ingredientCost)}</b>
-      <span>기본 팁</span><b>${won(s.baseTips)}</b><span>피버 추가 팁</span><b>${won(s.feverTips)}</b>
+      <span>기본 팁</span><b>${won(s.baseTips)}</b>${state.hostbar.open ? `<span>피버 추가 팁</span><b>${won(s.feverTips)}</b>` : ''}
       <span class="sum">영업 결과</span><b class="sum">${s.result >= 0 ? '' : '−'}${won(Math.abs(s.result))}</b>
       ${interestRows(s.interest)}
       <span>보유 골드</span><b>${won(s.gold)}</b><span>남은 빚</span><b>${won(s.debt)}</b></div>
-    <p class="small muted">서빙 ${s.servedCount}건 · 일반 ${s.regularVisits} · 지명 ${s.nominationVisits} · 놓친 주문 ${s.lostOrders} · 폐기 ${s.wasted}</p>
-    <p>네오 스트레스 ${s.stressStart ?? 0} → ${s.stressEnd ?? 0} · 결산을 닫으면 ${Math.abs(TEMP.NEO_STRESS.settle)} 회복해요.</p>
-    <h3>지명 접대</h3>${hostings}
+    <p class="small muted">서빙 ${s.servedCount}건 · 일반 ${s.regularVisits}${state.hostbar.open ? ` · 지명 ${s.nominationVisits}` : ''} · 놓친 주문 ${s.lostOrders} · 폐기 ${s.wasted}</p>
+    ${state.hostbar.open ? `<p>네오 스트레스 ${s.stressStart ?? 0} → ${s.stressEnd ?? 0} · 결산을 닫으면 ${Math.abs(TEMP.NEO_STRESS.settle)} 회복해요.</p><h3>지명 대화</h3>${hostings}` : ''}
     <div class="stack">${btn({ action: 'settlement.close', cls: 'primary', label: s.day === TEMP.CALENDAR.TOTAL_TURNS && !isEnded(state) ? '📜 마지막 결산 닫고 결말 보기' : '다음 순 준비로' })}</div></div>`;
 }
 
@@ -566,6 +565,6 @@ function recruitDialog(state, id) {
   if (!r) return '';
   return `<div class="dialog" role="dialog" aria-modal="true"><h2>${r.devOnly ? '<span class="tag dev">DEV</span> ' : ''}${esc(r.meetEvent.title)}</h2>
     ${r.meetEvent.lines.map(l => `<p class="line">${esc(l)}</p>`).join('')}
-    <p class="small muted">보상(1회): ${esc(rewardText(r.reward || {}))} · 완료하면 다음 영업(${esc(dateLabel(state))})부터 접대 가능</p>
+    <p class="small muted">보상(1회): ${esc(rewardText(r.reward || {}))} · ${state.hostbar.open ? '완료하면 다음 영업부터 함께 대화할 수 있어요' : '카페에 새로운 인연이 생겨요'}</p>
     <div class="stack">${btn({ action: 'recruit.complete', args: { id }, cls: 'primary', label: '이벤트 완료' })}${btn({ action: 'recruit.close', label: '나중에' })}</div></div>`;
 }
