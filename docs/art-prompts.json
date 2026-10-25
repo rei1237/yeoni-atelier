@@ -331,9 +331,9 @@
   {
     "id": "ui/town-node-expand",
     "tool": "image_gen built-in",
-    "sourceFile": "exec-10fe29d4-ddb9-42d2-8ba2-35e7f9624d09.png",
-    "prompt": "Premium hand-painted fantasy mobile cafe game illustration: smooth antialiased contours, subtle gouache shading, elegant cream rose-gold and indigo palette, polished commercial art, NOT pixel art, no mosaic or dithering, no text, no watermark. wooden construction notice board and hammer. TRANSPARENT background outside object. One isolated centered clear silhouette with margin.",
-    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
+    "sourceFile": "D:/yeoni-qa/gen/town-node-expand-museong.png (2026-10-26, 무성의 가구·꽃 상점으로 교체; 스타일 참조 ui/town-node-moka)",
+    "prompt": "Mobile game town map node icon, single isolated object on a plain flat pure white background, identical style to the reference (premium painterly miniature market stall in 3/4 view, navy-and-cream striped awning, warm honey wood, small gold trim, soft hanging lantern). Subject: a quiet furniture and flower shop stall: potted lotus and leafy green plants, small flower bouquets in buckets, a tiny wooden chair and a round cafe table in front, a rolled patterned carpet leaning on one side, a small closed black music score book on the counter. No people, no animals, no text, no letters, no writing anywhere. Centered, the whole object visible with generous margin.",
+    "normalization": "가장자리 흰 배경만 flood-fill로 투명화 → 알파 1px 침식·블러 → 모카 노드와 같은 채움 비율로 정사각 패딩 → 128px Lanczos, WebP q90"
   },
   {
     "id": "ui/town-node-moka",

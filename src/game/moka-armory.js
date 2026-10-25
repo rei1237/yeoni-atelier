@@ -19,10 +19,11 @@ export function armory(state) { return state.armory || { upgrades:{}, supplies:{
 export function upgradeLevel(state, who, id) { return armory(state).upgrades?.[who]?.[id] || 0; }
 export function upgradeCost(state, who, id) { const d=UPGRADES[id], n=upgradeLevel(state,who,id); return d ? Math.ceil(d.base+d.step*n+Math.pow(n,1.18)) : Infinity; }
 export function enhancementBonus(state,who) { return { dmg:upgradeLevel(state,who,'power')*.045, hp:upgradeLevel(state,who,'vitality')*7, magnet:upgradeLevel(state,who,'magnet')*.035 }; }
-function check(state) { return state.mode==='prep' && !state.interior.draft ? {ok:true} : {ok:false,reason:'영업 준비 중에 모카 상점을 이용해 주세요'}; }
+// 강화는 윤달의 무기 공방, 소모품은 모카 식재료점 소관이다(저장 키 armory는 호환을 위해 유지).
+function check(state,where) { return state.mode==='prep' && !state.interior.draft ? {ok:true} : {ok:false,reason:`영업 준비 중에 ${where}을 이용해 주세요`}; }
 function ensure(state) { state.armory ||= {upgrades:{},supplies:{}}; state.armory.upgrades ||= {}; state.armory.supplies ||= {}; return state.armory; }
 export function enhance(state,who,id) {
-  const chk=check(state); if(!chk.ok)return chk;
+  const chk=check(state,'윤달의 무기 공방'); if(!chk.ok)return chk;
   if(!HUNTERS.includes(who) || !state.roster[who] || !UPGRADES[id])return {ok:false,reason:'함께하는 사냥꾼과 강화 항목을 골라 주세요'};
   const cost=upgradeCost(state,who,id); if(!Number.isSafeInteger(cost)||state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
   const a=ensure(state), n=upgradeLevel(state,who,id); if(!Number.isSafeInteger(n+1))return {ok:false,reason:'저장할 수 있는 수치 범위를 넘었습니다'};
@@ -30,7 +31,7 @@ export function enhance(state,who,id) {
   recordYunTrade(state,0,cost); emit('armoryUpgrade',{who,id,level:n+1,cost}); return {ok:true,cost,level:n+1};
 }
 export function buySupply(state,id) {
-  const chk=check(state);if(!chk.ok)return chk;const item=SUPPLIES[id];
+  const chk=check(state,'모카 식재료점');if(!chk.ok)return chk;const item=SUPPLIES[id];
   if(!item || bondTier(state.affinity.moka||0)<item.tier)return {ok:false,reason:'모카와 인연을 쌓으면 새 물품이 열려요'};
   if(state.moonstone<item.cost)return {ok:false,reason:`월정석 ${item.cost}개가 필요해요`};
   const a=ensure(state);state.moonstone-=item.cost;a.supplies[id]=(a.supplies[id]||0)+1;workShop(state);emit('supplyBought',{id});return {ok:true};

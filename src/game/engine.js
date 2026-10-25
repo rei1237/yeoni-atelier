@@ -93,6 +93,7 @@ function execute(state, cmd) {
     case 'finance.borrow': return finance.borrow(state,cmd.amount,cmd.requestId);
     case 'finance.repay': return finance.repayFinance(state,cmd.target,cmd.amount,cmd.currency);
     case 'moonstone.exchange': return town.exchange(state, cmd.qty);
+    case 'town.visit': return town.markVisit(state, cmd.place);
     case 'gear.buy': return town.buyGear(state, cmd.id);
     case 'gear.equip': return town.equipGear(state, cmd.slot, cmd.id ?? null);
     case 'expand.table': return town.buyExpansion(state);

@@ -7,7 +7,8 @@ import { createGame } from '../src/game/state.js';
 import { dispatch } from '../src/game/engine.js';
 import { questView } from '../src/game/economy.js';
 import { validateLayout } from '../src/game/space.js';
-import { tablePrice, areaPrice } from '../src/game/town.js';
+import { tablePrice, areaPrice, VISIT_PLACES } from '../src/game/town.js';
+import { VISIT_STORIES } from '../src/story/visits.js';
 import { AREAS } from '../src/data/layout.js';
 import { DECOR_CATALOG } from '../src/data/decor-catalog.js';
 import { serialize, deserialize } from '../src/core/save.js';
@@ -138,4 +139,32 @@ test('네 테마의 새 장식 16종은 정해진 가격으로 보관함에 오�
   const back=deserialize(serialize(s)).state;
   for(const d of DECOR_CATALOG)assert.ok(back.interior.furniture.some(f=>f.defId===d.id&&f.x===null));
   assert.equal(new Set(DECOR_CATALOG.map(d=>d.theme)).size,4);
+});
+
+test('가게 첫 방문 이야기는 준비 중에 한 번만 기록되고, 행동력·골드를 쓰지 않는다', () => {
+  const s = createGame(); const ap = s.ap.left, gold = s.gold;
+  assert.deepEqual(Object.keys(VISIT_STORIES).sort(), [...VISIT_PLACES].sort());
+  for (const beats of Object.values(VISIT_STORIES)) assert.ok(beats.some(b => b.s === 'sys'), '가게가 하는 일을 알린다');
+  assert.equal(dispatch(s, { type: 'town.visit', place: 'hunt' }).ok, false);
+  assert.ok(dispatch(s, { type: 'town.visit', place: 'expand' }).ok);
+  assert.equal(s.ledger.story['visit:expand'], true);
+  assert.ok(dispatch(s, { type: 'town.visit', place: 'expand' }).duplicate);
+  assert.equal(s.ap.left, ap); assert.equal(s.gold, gold);
+  assert.equal(deserialize(serialize(s)).state.ledger.story['visit:expand'], true);
+  const sh = quietShift();
+  assert.equal(dispatch(sh, { type: 'town.visit', place: 'moka' }).ok, false, '영업 중에는 마을에 없다');
+});
+
+test('마을 구매·강화·환전은 행동력을 쓰지 않고, 강화는 윤달의 공방 소관이다', () => {
+  const s = createGame(); s.gold = 100000; s.moonstone = 500;
+  const ap = s.ap.left;
+  assert.ok(dispatch(s, { type: 'gear.buy', id: Object.keys(GEAR).find(id => GEAR[id].cost.gold) }).ok);
+  assert.ok(dispatch(s, { type: 'expand.decor', defId: 'lotus_pot' }).ok);
+  assert.ok(dispatch(s, { type: 'moonstone.exchange', qty: 1 }).ok);
+  assert.ok(dispatch(s, { type: 'armory.enhance', who: 'neo', id: 'power' }).ok);
+  assert.ok(dispatch(s, { type: 'armory.buy', id: 'tonic' }).ok);
+  assert.equal(s.ap.left, ap);
+  const sh = quietShift(); sh.moonstone = 500;
+  assert.match(dispatch(sh, { type: 'armory.enhance', who: 'neo', id: 'power' }).reason, /윤달/);
+  assert.match(dispatch(sh, { type: 'armory.buy', id: 'tonic' }).reason, /모카/);
 });

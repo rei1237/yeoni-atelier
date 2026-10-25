@@ -647,7 +647,7 @@ export function finishHunt(state) {
 export function useSupply(state,id) {
  const hs=state.hunt, d=SUPPLIES[id];
  if(state.mode!=='hunt'||!hs||hs.status!=='running'||hs.picks.length)return {ok:false,reason:'사냥 중에 사용할 수 있어요'};
- if(!d || !(state.armory?.supplies?.[id]>0))return {ok:false,reason:'먼저 모카 상점에서 준비해 주세요'};
+ if(!d || !(state.armory?.supplies?.[id]>0))return {ok:false,reason:'먼저 모카 식재료점에서 준비해 주세요'};
  if(id==='tonic' && hs.hp>=hs.maxHp)return {ok:false,reason:'이미 체력이 가득해요'};
  const w=getHuntWorld(state);state.armory.supplies[id]-=1;
  if(id==='tonic')hs.hp=Math.min(hs.maxHp,hs.hp+Math.ceil(hs.maxHp*.35));

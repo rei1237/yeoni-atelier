@@ -1,6 +1,6 @@
-// 마을 나가기(영업 준비 중에만): 청토끼 금융 센터(월정석 환전) · 모카의 무기 공방(영냥이 장비) · 가게 확장(테이블·장식 들이기).
+// 마을 나가기(영업 준비 중에만): 청토끼 금융 센터(월정석 환전) · 윤달의 무기 공방(영냥이 장비) · 무성의 가구·꽃 상점(테이블·구역·장식).
 // 모카 식재료점 구매는 economy.buy 를 그대로 쓴다. 가격·환율은 모두 임시값(balance.temp.js, data/gear.js).
-// 장소 이름과 역할(청토끼 금융 센터, 모카 무기 공방)은 게임 오리지널 설정이다.
+// 장소 이름과 역할(청토끼 금융 센터, 윤달 무기 공방, 무성 가구·꽃 상점)은 게임 오리지널 설정이다.
 
 import {recordYunTrade} from './yun-quest.js';
 import { TEMP } from '../config/balance.temp.js';
@@ -15,6 +15,18 @@ export function townCheck(state) {
   if (state.mode === 'shift') return { ok: false, reason: '영업 중에는 가게를 비울 수 없습니다 (재료는 모카 긴급 배달로 살 수 있어요)' };
   if (state.mode === 'hunt') return { ok: false, reason: '사냥을 마친 뒤 마을에 나갈 수 있습니다' };
   if (state.mode !== 'prep') return { ok: false, reason: '영업 준비 중에만 마을에 나갈 수 있습니다' };
+  return { ok: true };
+}
+
+// 가게를 처음 찾은 기록(첫 방문 이야기 한 번). 지급하는 보상은 없고 행동력도 쓰지 않는다.
+export const VISIT_PLACES = Object.freeze(['moka', 'luna', 'finance', 'gear', 'expand']);
+export function markVisit(state, place) {
+  const chk = townCheck(state);
+  if (!chk.ok) return chk;
+  if (!VISIT_PLACES.includes(place)) return { ok: false, reason: '없는 장소입니다' };
+  const key = `visit:${place}`;
+  if (state.ledger.story[key]) return { ok: true, duplicate: true };
+  state.ledger.story[key] = true;
   return { ok: true };
 }
 
@@ -34,7 +46,7 @@ export function exchange(state, qty) {
   return { ok: true, gold };
 }
 
-// ── 모카의 무기 공방
+// ── 윤달의 무기 공방
 export function buyGear(state, id) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;

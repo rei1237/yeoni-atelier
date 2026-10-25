@@ -263,7 +263,7 @@ function shopSheet(state) {
 // 장소 이름·위치·역할은 게임 오리지널 임시 설정(docs/WORLD.md). 지도 그림은 나중에 이미지로 바꾼다(docs/ASSETS.md §10).
 const TOWN_PLACES = [
   { id: 'atelier', icon: '🏠', name: '연이의 아틀리에', x: 50, y: 84 },
-  { id: 'expand', icon: '📋', name: '증축 게시판', x: 52, y: 52 },
+  { id: 'expand', icon: '🌸', name: '무성의 가구·꽃 상점', x: 52, y: 52 },
   { id: 'moka', icon: '🦦', name: '모카 식재료점', x: 17, y: 66 },
   { id: 'luna', icon: '🐰', name: '루나의 쉼터', x: 84, y: 78 },
   { id: 'finance', icon: '🌙', name: '청토끼 금융 센터', x: 83, y: 48 },
@@ -372,7 +372,8 @@ function expandShop(state) {
   const areaRows = AREAS.map(a => open.includes(a.id)
     ? `<div class="item"><div class="meta grow"><b>🔓 ${esc(a.name)}</b><span>연 구역 · 인테리어에서 가구를 놓을 수 있어요</span></div></div>`
     : `<div class="item"><div class="meta grow"><b>🔒 ${esc(a.name)}</b><span>증축할수록 다음 구역이 비싸져요</span></div>${btn({ action: 'expand.area', args: { id: a.id }, disabled: cost == null || state.gold < cost, label: won(cost) })}</div>`).join('');
-  return `<div class="list">${tableRow}</div><h3>구역 증축</h3><div class="list">${areaRows}</div><h3>장식 들이기</h3><div class="list">${decor}</div>`;
+  const host = `<div class="finance-host">${assetIcon('portraits/museong')}<div><h3>무성의 가구·꽃 상점</h3><p>테이블 · 구역 증축 · 꽃과 식물 · 장식</p></div></div><p class="small">무성: "손님이 오래 머무는 자리는 넓이보다 빛과 초록이 정한다. 골라라."</p>`;
+  return `${host}<div class="list">${tableRow}</div><h3>구역 증축</h3><div class="list">${areaRows}</div><h3>장식 들이기</h3><div class="list">${decor}</div>`;
 }
 
 // ── 퀘스트
@@ -487,6 +488,8 @@ function companionSheet(state) {
     }
     const stats = def?.stats ? STAT_KEYS.map(k => `${STAT_LABELS[k]} ${def.stats[k]}`).join(' · ') : '';
     const followup = r.status === 'recruited' && def?.followup ? btn({ action: 'cast.read', args: { id: r.id }, disabled: state.mode !== 'prep' || state.day <= state.recruitment[r.id].at, title: '함께 영업한 뒤 영업 준비 중에 열려요', label: state.ledger.story[`cast:${r.id}`] ? '이야기 다시 보기' : '함께한 이야기' }) : '';
+    // 미영입 동료는 검은 실루엣과 합류 힌트만. 마을 지도에 가게가 있는 윤달·무성만 이름을 보인다.
+    if (r.status !== 'recruited') { rows.push(`<article class="card locked-cast"><div class="row">${companionPortrait(r.id).replace('companion-portrait', 'companion-portrait silhouette')}<b class="grow">${tag}${['yun', 'museong'].includes(r.id) ? esc(r.name) : '???'}</b>${right}</div><p class="small muted">${esc(sub)}</p></article>`); continue; }
     rows.push(`<article class="card"><div class="row">${companionPortrait(r.id)}<b class="grow">${tag}${esc(r.name)}</b>${right}</div><p>${esc(def?.profile || '')}</p><p class="small">${esc(def?.specialty || '')}<br>${stats}</p><p class="small muted">${esc(sub)}</p>${followup}</article>`);
   }
   // 인연: 단계·열린 능력, 누르면 마을의 그 장소로

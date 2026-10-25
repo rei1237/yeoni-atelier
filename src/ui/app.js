@@ -40,6 +40,7 @@ import { applyAssetTheme } from './asset-html.js';
 import { pixelFx } from './pixel-fx.js';
 import { playNovel, novelActive } from './novel.js';
 import { EVENT_STORIES } from '../story/events.js';
+import { VISIT_STORIES } from '../story/visits.js';
 import { PROLOGUE } from '../story/prologue.js';
 import { MONTH_STORIES, ENDINGS } from '../story/months.js';
 import { careerMonthStory, castBondStory } from '../story/career.js';
@@ -145,6 +146,14 @@ function maybeStory() {
   playNovel(beats, { onEnd: done, onCancel: done, onChoose });
 }
 
+// 마을 가게를 처음 찾으면 그 가게 이야기를 한 번 튼다. 끝내든 건너뛰든 town.visit 으로만 기록한다.
+function maybeVisit(place) {
+  const beats = VISIT_STORIES[place];
+  if (!beats || !state || state.mode !== 'prep' || state.ledger.story[`visit:${place}`] || novelActive()) return;
+  const done = () => { run({ type: 'town.visit', place }, { keepQuiet: true }); render(true); };
+  playNovel(beats, { onEnd: done, onCancel: done });
+}
+
 function replayStory() {
   if (!state) return;
   const id = isEnded(state) ? `ending:${state.calendar.endingId}` : `m${calendarOf(state.day).monthIdx}`;
@@ -184,8 +193,8 @@ const ACTIONS = {
   'farm.expand': () => run({ type: 'farm.expand' }),
   'farm.greenhouse': () => run({ type: 'farm.greenhouse' }),
   // 화면 전용
-  'sheet.open': d => { ui.sheet = { kind: d.sheet, tab: d.tab }; },
-  'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; },
+  'sheet.open': d => { ui.sheet = { kind: d.sheet, tab: d.tab }; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
+  'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; maybeVisit(d.tab); },
   'sheet.close': () => { if(ui.sheet?.kind==='tutorial')finishGuide();else ui.sheet = null; },
   'overlay.settlement': () => {},
   'overlay.hunt': () => {},
@@ -402,7 +411,7 @@ function handleEvents(events) {
       case 'huntObjectBroken': sound('gem');break;
       case 'guestChatter': showCafeLine(ev.line,ev.kind==='takeaway'?'포장 손님':ev.tableNo?`${ev.tableNo}번 손님`:'손님','customer'); break;
       case 'paidAtCounter': sound('moon'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;
-      case 'cafeLevelUp': sound('bond'); toast(`카페 Lv.${ev.level}! 더 많은 손님과 새로운 취향이 찾아와요`,'good');break;
+      case 'cafeLevelUp': sound('bond'); toast(`카페 Lv.${ev.level}! ${ev.apGain>0?`다음 순부터 마을 행동력 +${ev.apGain}`:'더 많은 손님과 새로운 취향이 찾아와요'}`,'good');break;
       case 'takeawayDone': toast('포장 완료 · 손님이 계산대에서 받아 갔어요','good');break;
       case 'farmAction': ui.farmFeedback=ev.text;ui.farmMotion={kind:ev.kind,index:ev.index,cropId:ev.cropId,at:performance.now()};ui.farmAnimUntil=performance.now()+1800;toast(ev.text,'good');break;
       case 'shiftStart': toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 10:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
