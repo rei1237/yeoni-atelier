@@ -8,6 +8,7 @@ import { OUTFITS, OUTFIT_SLOTS, OUTFIT_WEARERS } from '../data/outfits.js';
 import { emit, recruitables } from './state.js';
 import { bondFx } from '../data/bonds.js';
 import { workShop } from './bonds.js';
+import { calendarOf } from './calendar.js';
 
 // ── 재료 구매: 마을 모카 식재료점(기본 재료 + 밤이슬). 사냥 화면에서는 살 수 없다.
 // 영업 중에는 가게를 비울 수 없으니 「모카 긴급 배달」로만 산다: 재료값 + 배달비(TEMP.DELIVERY_FEE_RATE).
@@ -100,7 +101,9 @@ export function recruitView(state) {
   return recruitables(state).map(c => {
     const r = state.recruitment[c.id] || { status: 'locked' };
     const cond = c.condition;
-    const met = state.stats.shiftsCompleted >= cond.shiftsCompleted && state.stats.repayCount >= cond.repaidAtLeast;
+    const month = calendarOf(state.day).month;
+    // 해당 월에 등장, 놓친 경우 다음 해 같은 달에 다시 만난다. 영입 후에는 계속 함께한다.
+    const met = state.stats.shiftsCompleted >= cond.shiftsCompleted && state.stats.repayCount >= cond.repaidAtLeast && (!cond.month || cond.month === month);
     const status = r.status === 'recruited' ? 'recruited' : met ? 'available' : 'locked';
     return { id: c.id, name: c.name, devOnly: !!c.devOnly, status, condition: cond, meetEvent: c.meetEvent, reward: c.reward, usableFrom: state.roster[c.id]?.usableFrom ?? null };
   });
@@ -110,7 +113,7 @@ export function completeRecruit(state, id) {
   const v = recruitView(state).find(x => x.id === id);
   if (!v) return { ok: false, reason: '영입 대상이 아닙니다' };
   if (v.status === 'recruited') return { ok: false, reason: '이미 함께하는 동료입니다' };
-  if (v.status !== 'available') return { ok: false, reason: `조건 미충족: 정규 영업 ${v.condition.shiftsCompleted}회 + 상환 ${v.condition.repaidAtLeast}회` };
+  if (v.status !== 'available') return { ok: false, reason: v.condition.month ? `${v.condition.month}월에 만날 수 있어요. 놓쳤다면 다음 해에 다시 찾아와요` : `조건 미충족: 정규 영업 ${v.condition.shiftsCompleted}회 + 상환 ${v.condition.repaidAtLeast}회` };
   if (state.mode !== 'prep') return { ok: false, reason: '만남 이벤트는 영업 준비 중에만 진행할 수 있습니다' };
   state.recruitment[id] = { status: 'recruited', at: state.day };
   // 영업 준비 중의 day 는 "다음 영업 번호"이므로 다음 영업부터 접대에 쓸 수 있다
@@ -119,6 +122,15 @@ export function completeRecruit(state, id) {
   state.stats.recruited += 1;
   grant(state, `recruit:${id}`, v.reward || {});
   emit('recruited', { id, name: v.name });
+  return { ok: true };
+}
+
+export function castStory(state, id) {
+  const c = recruitables(state).find(x => x.id === id);
+  if (!c?.followup || !state.roster[id]) return { ok: false, reason: '먼저 만남 이벤트로 영입해 주세요' };
+  if (state.mode !== 'prep') return { ok: false, reason: '영업을 마친 뒤 이야기를 나눠요' };
+  if (state.day <= state.recruitment[id].at) return { ok: false, reason: '함께 영업한 뒤 이야기가 열려요' };
+  state.ledger.story[`cast:${id}`] = true;
   return { ok: true };
 }
 

@@ -6,6 +6,7 @@
 // work: cashier(계산만) / baker(굽기, 운반 안 함) / runner(서빙·정리). 접대(canHost)는 하지 않는다.
 
 import { NEO_STATS } from '../config/rules.js';
+import { MONTHLY_CAST } from './monthly-cast.js';
 
 export const PEOPLE = Object.freeze({
   yeoni: { id: 'yeoni', name: '연이', role: 'owner', work: 'cashier', color: '#f2a1b3', canServe: false, canHost: false },
@@ -23,7 +24,7 @@ export const STAFF_CREW = Object.freeze(['luna_sis', 'luna']);
 
 // 공식 영입 대상 목록(현재 비어 있음). 항목 형식:
 // { id, name, stats:{empathy,talk,fun,looks}, color, condition:{shiftsCompleted, repaidAtLeast}, meetEvent:{title, lines[]}, reward:{gold?, items?} }
-export const RECRUITABLE = Object.freeze([]);
+export const RECRUITABLE = MONTHLY_CAST;
 
 // 컬렉션 화면에 보일 잠금 칸 수(내용 없음)
 export const LOCKED_SLOT_COUNT = 1;

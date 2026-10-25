@@ -15,7 +15,7 @@ import { startCheck } from '../game/shift.js';
 import { huntCheck } from '../game/hunt.js';
 import { calendarOf, dateLabel, turnsLeft, isEnded, PARTS } from '../game/calendar.js';
 import { WEAPONS, PASSIVES } from '../data/hunt-kit.js';
-import { debtStage } from '../game/economy.js';
+import { debtStage, recruitView } from '../game/economy.js';
 import { preview as interiorPreview } from '../game/interior.js';
 import { cellToPx } from '../render/cafe-view.js';
 import { btn, esc } from './dom.js';
@@ -140,6 +140,7 @@ function prepPanel(state) {
   return `<div class="prep">
     ${btn({ action: 'shift.start', cls: 'primary big', disabled: !sc.ok, title: sc.ok ? '정규 영업 10분 시작' : sc.reasons.join(' / '), label: `☕ ${shortDate(state)} 영업 시작 (10:00)` })}
     ${calendarStrip(state)}
+    ${recruitView(state).filter(c => c.status === 'available').map(c => btn({ action: 'recruit.event', args: { id: c.id }, cls: 'primary', label: `${c.condition.month || '이번'}월의 만남 · ${c.name}` })).join('')}
     <div class="grid2">
       ${btn({ action: 'hunt.start', disabled: !hc.ok, title: hc.ok ? '영냥이 월정석 사냥 (약 3분) · 월정석은 루나의 저울에서 골드로' : hc.reasons.join(' / '), label: '🌙 월정석 사냥 (3분 · 행동력 1)' })}
       ${btn({ action: 'sheet.open', args: { sheet: 'town' }, cls: 'primary', title: '마을 지도 · 동료와 대화·선물 · 식재료점 · 장비 좌판 · 루나의 저울 · 증축 게시판 · 사냥터', label: '🏘 마을 나가기' })}

@@ -2,7 +2,7 @@
 // 상태 변경은 모두 dispatch(명령)·tick(활성 시간)으로만 하고, 이 파일은 골드·지명 시간·영입 상태를 직접 바꾸지 않는다.
 
 import { TEMP } from '../config/balance.temp.js';
-import { createGame, personName } from '../game/state.js';
+import { createGame, personName, personDef } from '../game/state.js';
 import { dispatch, tick } from '../game/engine.js';
 import { findServeTarget } from '../game/cafe.js';
 import { getHuntWorld } from '../game/hunt.js';
@@ -148,6 +148,12 @@ const ACTIONS = {
   'confirm.yes': () => { const cf = ui.confirm; ui.confirm = null; cf?.onYes(); },
   'confirm.no': () => { ui.confirm = null; },
   'recruit.event': d => { ui.recruitEvent = d.id; ui.sheet = null; },
+  'cast.read': d => {
+    const story = personDef(state, d.id)?.followup;
+    if (!story || !state.roster[d.id] || state.mode !== 'prep' || state.day <= state.recruitment[d.id].at) { toast('함께 영업한 뒤 준비 시간에 이야기를 나눠요'); return; }
+    ui.sheet = null;
+    playNovel([{ chapter: ['인연', story.title], bg: 'atelier_lit' }, ...story.lines.map(t => ({ s: 'nar', t }))], { onEnd: () => run({ type: 'cast.story', id: d.id }) });
+  },
   'recruit.close': () => { ui.recruitEvent = null; },
   // 조합대 선택은 화면 상태다. 섞기만 엔진 명령(recipe.try)으로 보낸다.
   'combo.add': d => { if (ui.combo.length < 3) ui.combo.push(d.id); },

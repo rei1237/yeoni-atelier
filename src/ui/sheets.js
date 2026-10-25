@@ -424,10 +424,12 @@ function companionSheet(state) {
       sub = '만남 조건 충족';
       right = btn({ action: 'recruit.event', args: { id: r.id }, cls: 'primary', disabled: state.mode !== 'prep', title: state.mode === 'prep' ? '만남 이벤트 보기' : '영업 준비 중에만 진행할 수 있습니다', label: '만남 이벤트 보기' });
     } else {
-      sub = `조건: 정규 영업 ${Math.min(state.stats.shiftsCompleted, r.condition.shiftsCompleted)}/${r.condition.shiftsCompleted}회 · 상환 ${Math.min(state.stats.repayCount, r.condition.repaidAtLeast)}/${r.condition.repaidAtLeast}회`;
+      sub = r.condition.month ? `${r.condition.month}월 만남 · 매년 다시 찾아와요` : `조건: 정규 영업 ${Math.min(state.stats.shiftsCompleted, r.condition.shiftsCompleted)}/${r.condition.shiftsCompleted}회 · 상환 ${Math.min(state.stats.repayCount, r.condition.repaidAtLeast)}/${r.condition.repaidAtLeast}회`;
       right = '<span class="small muted">🔒 잠김</span>';
     }
-    rows.push(`<div class="item"><span class="swatch" style="background:${def?.color || '#999'}"></span><div class="meta grow"><b>${tag}${esc(r.name)}</b><span>${esc(sub)}</span></div>${right}</div>`);
+    const stats = def?.stats ? STAT_KEYS.map(k => `${STAT_LABELS[k]} ${def.stats[k]}`).join(' · ') : '';
+    const followup = r.status === 'recruited' && def?.followup ? btn({ action: 'cast.read', args: { id: r.id }, disabled: state.mode !== 'prep' || state.day <= state.recruitment[r.id].at, title: '함께 영업한 뒤 영업 준비 중에 열려요', label: state.ledger.story[`cast:${r.id}`] ? '이야기 다시 보기' : '함께한 이야기' }) : '';
+    rows.push(`<article class="card"><div class="row"><b class="grow">${tag}${esc(r.name)}</b>${right}</div><p>${esc(def?.profile || '')}</p><p class="small">${esc(def?.specialty || '')}<br>${stats}</p><p class="small muted">${esc(sub)}</p>${followup}</article>`);
   }
   // 인연: 단계·열린 능력, 누르면 마을의 그 장소로
   const bondRows = BOND_IDS.map(id => {

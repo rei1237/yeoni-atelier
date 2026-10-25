@@ -59,6 +59,7 @@ function route(state, cmd) {
     case 'debt.repay': return eco.repay(state, cmd.amount, cmd.requestId);
     case 'quest.claim': return eco.claimQuest(state, cmd.questId);
     case 'recruit.complete': return eco.completeRecruit(state, cmd.id);
+    case 'cast.story': return eco.castStory(state, cmd.id);
     case 'moonstone.exchange': return town.exchange(state, cmd.qty);
     case 'gear.buy': return town.buyGear(state, cmd.id);
     case 'gear.equip': return town.equipGear(state, cmd.slot, cmd.id ?? null);

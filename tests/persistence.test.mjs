@@ -232,14 +232,14 @@ test('인테리어: 취소하면 원래 배치로, 적용한 배치는 통로가
 });
 
 test('영입: 조건 전에는 사용 불가 → 이벤트 완료 → 보상 1회 → 다음 영업부터 접대 → 저장 유지', () => {
-  // 일반 게임에는 영입 후보 자체가 없다(공식 자료 없음)
-  assert.deepEqual(recruitView(createGame()), []);
+  // 일반 게임에는 확인된 월별 인물만 있으며 개발용 동료는 없다.
+  assert.ok(recruitView(createGame()).every(c => !c.devOnly));
 
   const s = createGame({ dev: true });
   s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   // 개발용 임시 동료(정식 멤버 아님)
   const id = 'dev_temp_01';
-  assert.equal(recruitView(s)[0].status, 'locked');
+  assert.equal(recruitView(s).find(c => c.id === id).status, 'locked');
   assert.equal(dispatch(s, { type: 'recruit.complete', id }).ok, false);
   assert.equal(isUsableHost(s, id), false);
 
@@ -254,11 +254,11 @@ test('영입: 조건 전에는 사용 불가 → 이벤트 완료 → 보상 1�
   tickTo(s, RULES.SHIFT_MS);
   dispatch(s, { type: 'settlement.close' });
   assert.ok(dispatch(s, { type: 'debt.repay', amount: 100, requestId: 'r1' }).ok);
-  assert.equal(recruitView(s)[0].status, 'locked', '영업 1회로는 부족');
+  assert.equal(recruitView(s).find(c => c.id === id).status, 'locked', '영업 1회로는 부족');
   assert.ok(dispatch(s, { type: 'shift.start' }).ok);
   tickTo(s, RULES.SHIFT_MS);
   dispatch(s, { type: 'settlement.close' });
-  assert.equal(recruitView(s)[0].status, 'available');
+  assert.equal(recruitView(s).find(c => c.id === id).status, 'available');
   assert.equal(isUsableHost(s, id), false, '이벤트 전에는 여전히 사용 불가');
 
   const gold = s.gold;
