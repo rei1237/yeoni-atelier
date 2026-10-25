@@ -99,7 +99,19 @@ export const TEMP = Object.freeze({
     TOTAL_TURNS: 36,
     INTEREST_RATE: 0.02,      // 하순 마감 때 남은 빚 × 2% (올림)
     AP_PER_TURN: 2,           // 사냥 1 · 대화 1
-    ENDING_BOND_BEST: 400,    // 빚을 다 갚고 친밀도 합이 이 이상이면 최고 결말
+    ENDING_BOND_BEST: 520,    // 빚을 다 갚고 친밀도 합이 이 이상이면 최고 결말(일만으로는 ~320, 대화·선물이 더 필요)
+  }),
+
+  // ── 친밀도(임시). 단계 문턱을 넘을 때마다 능력이 열린다(data/bonds.js).
+  BONDS: Object.freeze({
+    TIERS: Object.freeze([40, 100, 180, 280]),
+    MAX: 300,
+    TALK: 6, TALK_RAND: 2,    // 대화 1회 +6~8 (행동력 1, 순마다 한 사람 한 번)
+    GIFT_LIKED: 14,           // 좋아하는 선물 (순마다 한 사람 한 번)
+    GIFT_COMMON: 6,           // 달빵
+    WORK_SHIFT: 2,            // 영업 마감: 루나·루나 언니
+    WORK_HUNT: 3, WORK_HUNT_DOWN: 1, // 사냥 마침(3분 버팀/쓰러짐·후퇴): 네오
+    WORK_SHOP: 2,             // 준비 중 모카 식재료점 구매(순마다 한 번): 모카
   }),
 
   // ── 자동 운영

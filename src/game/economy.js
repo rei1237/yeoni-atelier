@@ -6,6 +6,8 @@ import { INGREDIENTS, MENUS } from '../data/menus.js';
 import { QUESTS } from '../data/quests.js';
 import { OUTFITS, OUTFIT_SLOTS, OUTFIT_WEARERS } from '../data/outfits.js';
 import { emit, recruitables } from './state.js';
+import { bondFx } from '../data/bonds.js';
+import { workShop } from './bonds.js';
 
 // ── 재료 구매: 마을 모카 식재료점(기본 재료 + 밤이슬). 사냥 화면에서는 살 수 없다.
 // 영업 중에는 가게를 비울 수 없으니 「모카 긴급 배달」로만 산다: 재료값 + 배달비(TEMP.DELIVERY_FEE_RATE).
@@ -15,13 +17,16 @@ export function buy(state, ingredientId, qty) {
   if (!ing || !(ing.basic || ing.shop)) return { ok: false, reason: '모카 식재료점에서 팔지 않는 재료입니다' };
   const n = Math.floor(qty);
   if (!(n > 0 && n <= 99)) return { ok: false, reason: '수량은 1~99 사이여야 합니다' };
-  const base = ing.price * n;
-  const fee = state.mode === 'shift' ? Math.ceil(base * TEMP.DELIVERY_FEE_RATE) : 0;
+  // 모카 친밀도 능력: 단골 할인·배달비 할인
+  const fx = bondFx(state.affinity);
+  const base = Math.ceil(ing.price * n * (1 - fx.discount));
+  const fee = state.mode === 'shift' ? Math.ceil(base * TEMP.DELIVERY_FEE_RATE * (1 - fx.feeCut)) : 0;
   const cost = base + fee;
   if (state.gold < cost) return { ok: false, reason: `골드가 부족합니다 (${cost} 필요, 보유 ${state.gold})` };
   state.gold -= cost;
   state.stock[ingredientId] = (state.stock[ingredientId] || 0) + n;
   if (ingredientId === 'night_dew') state.stats.nightDewObtained += n;
+  workShop(state);
   emit('bought', { ingredientId, qty: n, cost, fee, delivery: fee > 0 });
   return { ok: true, cost, fee };
 }

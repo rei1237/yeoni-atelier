@@ -12,6 +12,7 @@ import * as hunt from './hunt.js';
 import * as calendar from './calendar.js';
 import * as recipe from './recipe.js';
 import * as town from './town.js';
+import * as bonds from './bonds.js';
 import { autoStep } from './auto.js';
 
 // 일시정지 중에도 받는 명령
@@ -67,6 +68,8 @@ function route(state, cmd) {
     case 'interior.cancel': return interior.cancel(state);
     case 'interior.apply': return interior.apply(state);
 
+    case 'bond.talk': return bonds.talk(state, cmd.id);
+    case 'bond.gift': return bonds.gift(state, cmd.id, cmd.giftId);
     case 'story.seen': return calendar.markStory(state, cmd.id);
     case 'hunt.start': return hunt.startHunt(state);
     case 'hunt.retreat': return hunt.retreat(state);

@@ -208,3 +208,15 @@ STYLE 에 `top-down 3/4 view furniture, fits exactly WxH pixels` 를 붙인다.
 - drink: 은색·하늘색 에스프레소 머신 / oven: 둥근 벽돌 오븐 / pass: 나무 서빙대와 벨 / counter: 세로로 긴 나무 카운터와 계산대
 - table: 둥근 나무 2인 테이블 / chair: 나무 의자 / plant: 토분 화초 / bookshelf: 낮은 책장 / lamp: 별 모양 스탠드 조명 / rug: 분홍 꽃무늬 러그 / pot: 구리 조합 냄비
 - cafe_floor: 따뜻한 베이지 나무 바닥(이음새 없는 반복) / cafe_wall: 크림색 벽과 나무 몰딩 / town_street: 따뜻한 돌길과 작은 가게 차양(반복 가능) / river_field: 밤의 강가 풀밭, #0b1220·#665087·#e5c58e 팔레트, 반복 가능
+
+## 10. 마을 지도 (town map)
+
+마을 나가기 화면의 월드 맵. 지금은 CSS 그라데이션과 이모지 아이콘으로 대신하고 있다([styles.css](../styles.css) `.town-map`).
+
+- 배경: `assets/ui/town-map-spring.png` · `-summer` · `-autumn` · `-winter` 네 장. 달력의 달로 고른다(3–5월 봄, 6–8월 여름, 9–11월 가을, 12–2월 겨울).
+  - 크기 **720×600** (가로:세로 6:5, 화면에서는 폭에 맞춰 줄어든다). 픽셀 아트라면 240×200 으로 그리고 3배로 키운다.
+  - 오른쪽 위에서 왼쪽 아래로 흐르는 강, 강 건너 오른쪽 위가 달그늘 사냥터(밤 팔레트). 나머지는 낮의 마을 돌길.
+  - 장소 자리(가로 %, 세로 %): 아틀리에 (50, 84) · 증축 게시판 (52, 52) · 모카 식재료점 (17, 66) · 루나의 저울 (83, 68) · 무인 장비 좌판 (20, 24) · 사냥터 (80, 20). 길 점선은 코드가 그리므로 배경에 길을 굽지 않아도 된다.
+- 장소 아이콘: `assets/ui/town-node-<id>.png`, **48×48**, 투명 배경. id = atelier · expand · moka · luna · gear · hunt.
+- 연이 표시: 지도 위 `yeoni_pig` idle 1프레임(32×32)을 2배로 쓴다. 따로 그릴 필요 없다.
+- 인연 하트: `assets/ui/heart-full.png` · `heart-empty.png`, 16×16.

@@ -5,6 +5,7 @@
 import { TEMP } from '../config/balance.temp.js';
 import { PDF } from '../config/balance.pdf.js';
 import { emit } from './state.js';
+import { BOND_IDS, bondTier, bondFx } from '../data/bonds.js';
 
 const C = TEMP.CALENDAR;
 export const PARTS = Object.freeze(['상순', '중순', '하순']);
@@ -51,7 +52,8 @@ export function chargeInterest(state, sh) {
   if (c.part !== C.TURNS_PER_MONTH - 1) return null;
   const key = `m${c.monthIdx}`;
   if (state.ledger.interest[key]) return state.ledger.interest[key];
-  const due = state.debt > 0 ? Math.ceil(state.debt * C.INTEREST_RATE) : 0;
+  // 루나의 검산(친밀도 능력)만큼 이자가 줄어든다
+  const due = state.debt > 0 ? Math.ceil(state.debt * C.INTEREST_RATE * (1 - bondFx(state.affinity).interestCut)) : 0;
   const paid = Math.min(due, Math.max(0, state.gold));
   const added = due - paid;
   state.gold -= paid;
@@ -73,7 +75,13 @@ export function decideEnding(state) {
 
 // 결산을 닫고 다음 순으로 넘어갈 때(shift.closeSettlement 에서 부른다)
 export function advanceTurn(state) {
-  state.ap = { ...state.ap, left: C.AP_PER_TURN, talked: {}, gifted: {} };
+  const fx = bondFx(state.affinity);
+  state.ap = { left: C.AP_PER_TURN + fx.ap, talked: {}, gifted: {}, shopped: false };
+  // 모카 ♥3: 순마다 밤이슬
+  if (fx.dailyDew > 0) {
+    state.stock.night_dew = (state.stock.night_dew || 0) + fx.dailyDew;
+    state.stats.nightDewObtained += fx.dailyDew;
+  }
   if (!isEnded(state) && state.day > C.TOTAL_TURNS) {
     const endingId = decideEnding(state);
     state.calendar = { ...state.calendar, ended: true, endingId, endedDebt: state.debt };
@@ -84,10 +92,20 @@ export function advanceTurn(state) {
 // 이번 순에 아직 안 본 달 이야기(매달 상순 준비 때 한 번). id 는 UI 가 story.seen 으로 기록한다.
 export function pendingStory(state) {
   if (state.mode !== 'prep') return null;
-  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : null;
+  // 후일담: 결말을 본 뒤에도 인연 이야기는 이어진다
+  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : pendingBondStory(state);
   const c = calendarOf(state.day);
   const id = `m${c.monthIdx}`;
-  return state.ledger.story[id] ? null : id;
+  return state.ledger.story[id] ? pendingBondStory(state) : id;
+}
+
+// 아직 안 본 인연 이야기 id(낮은 단계부터). 달 이야기를 본 뒤에 나온다.
+export function pendingBondStory(state) {
+  for (const id of BOND_IDS) {
+    const t = bondTier(state.affinity?.[id] || 0);
+    for (let k = 1; k <= t; k++) if (!state.ledger.story[`bond:${id}:${k}`]) return `bond:${id}:${k}`;
+  }
+  return null;
 }
 
 export function markStory(state, id) {

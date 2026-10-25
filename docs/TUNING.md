@@ -76,7 +76,12 @@
 | 달력 | `CALENDAR.START_MONTH`, `TURNS_PER_MONTH`, `TOTAL_TURNS` | 3월 시작, 한 달 3순, 36순(2년차 2월 하순) 뒤 결말 |
 | | `CALENDAR.INTEREST_RATE` | 하순 결산마다 남은 빚 × 2%(올림) |
 | | `CALENDAR.AP_PER_TURN` | 순마다 행동력 2 (사냥 1) |
-| | `CALENDAR.ENDING_BOND_BEST` | 빚 완납 + 친밀도 합 400 이상이면 최고 결말 |
+| | `CALENDAR.ENDING_BOND_BEST` | 빚 완납 + 친밀도 합 520 이상이면 최고 결말 (함께 일하기만으로는 36순에 약 320) |
+| 친밀도 | `BONDS.TIERS`, `MAX` | 하트 문턱 40 / 100 / 180 / 280, 동료마다 최대 300 |
+| | `BONDS.TALK`, `TALK_RAND` | 대화(행동력 1, 순마다 동료 한 명에 한 번) +6~8 |
+| | `BONDS.GIFT_LIKED`, `GIFT_COMMON` | 좋아하는 선물 +14, 달빵 +6 (순마다 동료 한 명에 한 번) · 선물 가격 120–260G |
+| | `BONDS.WORK_*` | 영업 마감 루나·루나 언니 +2, 사냥 마침 네오 +3(쓰러지면 +1), 준비 중 첫 재료 구매 모카 +2 |
+| | 단계 능력 | [data/bonds.js](../src/data/bonds.js) (전부 임시) |
 | 퀘스트 보상 | | [quests.js](../src/data/quests.js) |
 | 의상 목록 | | [outfits.js](../src/data/outfits.js) (능력치 효과 없음) |
 

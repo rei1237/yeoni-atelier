@@ -8,6 +8,7 @@ import { setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, cust
 import { settleDue, settleHosting, hostingVisits, stepHosting, onRequesting } from './nomination.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
 import { chargeInterest, advanceTurn } from './calendar.js';
+import { workShift } from './bonds.js';
 
 // 첫 영업의 손님 순서(온보딩): 일반 손님 → 외모 중심 지명 → 재미 중심 지명
 const FIRST_SHIFT_SCRIPT = [
@@ -107,6 +108,7 @@ export function closeShift(state) {
     settlement.gold = state.gold; settlement.debt = state.debt;
     state.ledger.settlements[sh.id] = settlement;
     state.stats.shiftsCompleted += 1;
+    workShift(state);
   }
   state.lastSettlement = state.ledger.settlements[sh.id];
   state.mode = 'settlement';

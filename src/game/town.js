@@ -7,6 +7,7 @@ import { GEAR } from '../data/gear.js';
 import { FURNITURE, GRID, AREAS } from '../data/layout.js';
 import { validateLayout } from './space.js';
 import { emit, nextId } from './state.js';
+import { bondFx } from '../data/bonds.js';
 
 export function townCheck(state) {
   if (state.mode === 'shift') return { ok: false, reason: '영업 중에는 가게를 비울 수 없습니다 (재료는 모카 긴급 배달로 살 수 있어요)' };
@@ -22,7 +23,8 @@ export function exchange(state, qty) {
   const n = Math.floor(qty);
   if (!(n > 0)) return { ok: false, reason: '환전할 개수를 골라 주세요' };
   if ((state.moonstone || 0) < n) return { ok: false, reason: `월정석이 부족합니다 (보유 ${state.moonstone || 0}개)` };
-  const gold = n * TEMP.MOONSTONE_GOLD;
+  // 루나 언니 ♥3: 저울 손질로 환전 우대
+  const gold = Math.floor(n * TEMP.MOONSTONE_GOLD * (1 + bondFx(state.affinity).moonRate));
   state.moonstone -= n;
   state.gold += gold;
   state.stats.moonstonesExchanged += n;

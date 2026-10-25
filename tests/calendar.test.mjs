@@ -70,11 +70,14 @@ test('결말: 마지막 순 결산을 닫으면 한 번 정해지고, 이후는 
   quietTurn(s);
   assert.equal(s.calendar.endingId, 'extend');
   assert.equal(Object.keys(s.ledger.interest).length, 1);
+  // 후일담에도 인연 이야기는 열린다
+  s.affinity.neo = TEMP.BONDS.TIERS[0]; // 테스트 준비
+  assert.equal(pendingStory(s), 'bond:neo:1');
 
   const t = createGame();
   t.debt = 0;
   assert.equal(decideEnding(t), 'clear');
-  t.affinity = { neo: 200, luna: 100, luna_sis: 60, moka: 40 };
+  t.affinity = { neo: 200, luna: 160, luna_sis: 100, moka: 60 };
   assert.equal(decideEnding(t), 'grand');
 });
 

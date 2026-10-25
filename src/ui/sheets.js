@@ -16,10 +16,12 @@ import { acceptCheck, hostingPreview, personBusyReason } from '../game/nominatio
 import { gradeOf } from '../game/satisfaction.js';
 import { debtStage, questView, recruitView } from '../game/economy.js';
 import { estimateOfflineIncome } from '../game/offline.js';
-import { describeOption } from '../game/hunt.js';
+import { describeOption, huntCheck } from '../game/hunt.js';
+import { BONDS, BOND_IDS, COMMON_GIFT, bondTier } from '../data/bonds.js';
+import { SPEAKERS } from '../story/prologue.js';
 import { townCheck, nextExpansion, areaPrice } from '../game/town.js';
 import { COMBO_MAX } from '../game/recipe.js';
-import { dateLabel, isEnded } from '../game/calendar.js';
+import { dateLabel, isEnded, calendarOf } from '../game/calendar.js';
 import { ENDINGS } from '../story/months.js';
 import { btn, esc } from './dom.js';
 import { won } from './hud.js';
@@ -232,14 +234,70 @@ function shopSheet(state) {
   return `${head('🛵 모카 긴급 배달')}<p class="small">보유 ${won(state.gold)} · 영업 중에는 가게를 비울 수 없어 배달비 ${Math.round(TEMP.DELIVERY_FEE_RATE * 100)}%가 붙어요 (괄호 안이 낼 돈)</p><div class="list">${ingredientRows(state, true)}</div>`;
 }
 
-// ── 마을 나가기(영업 준비 중에만). 장소 이름과 역할은 게임 오리지널 임시 설정(docs/WORLD.md).
-const TOWN_TABS = [['moka', '🦦 식재료점'], ['gear', '🗡 장비 좌판'], ['luna', '⚖ 루나의 저울'], ['expand', '🪑 가게 확장']];
-function townSheet(state, tab = 'moka') {
-  const tabs = `<div class="tabs">${TOWN_TABS.map(([id, label]) => btn({ action: 'town.tab', args: { tab: id }, cls: id === tab ? 'on' : '', label })).join('')}</div>`;
+// ── 마을 나가기(영업 준비 중에만): 월드 맵. 장소를 누르면 연이가 그곳으로 가고, 그 장소의 동료·가게가 아래에 열린다.
+// 장소 이름·위치·역할은 게임 오리지널 임시 설정(docs/WORLD.md). 지도 그림은 나중에 이미지로 바꾼다(docs/ASSETS.md §10).
+const TOWN_PLACES = [
+  { id: 'atelier', icon: '🏠', name: '연이의 아틀리에', x: 50, y: 84 },
+  { id: 'expand', icon: '📋', name: '증축 게시판', x: 52, y: 52 },
+  { id: 'moka', icon: '🦦', name: '모카 식재료점', x: 17, y: 66 },
+  { id: 'luna', icon: '⚖', name: '루나의 저울', x: 83, y: 68 },
+  { id: 'gear', icon: '🗡', name: '무인 장비 좌판', x: 20, y: 24 },
+  { id: 'hunt', icon: '🌙', name: '달그늘 사냥터', x: 80, y: 20 },
+];
+const TOWN_PATHS = [['atelier', 'expand'], ['atelier', 'moka'], ['atelier', 'luna'], ['expand', 'moka'], ['expand', 'luna'], ['moka', 'gear'], ['expand', 'gear'], ['luna', 'hunt'], ['expand', 'hunt']];
+const SEASON = m => (m >= 3 && m <= 5 ? 'spring' : m >= 6 && m <= 8 ? 'summer' : m >= 9 && m <= 11 ? 'autumn' : 'winter');
+const placeOf = id => TOWN_PLACES.find(p => p.id === id) || TOWN_PLACES[0];
+const bondAt = place => BOND_IDS.find(id => BONDS[id].place === place);
+const hearts = t => '♥'.repeat(t) + '♡'.repeat(TEMP.BONDS.TIERS.length - t);
+
+function townSheet(state, tab = 'atelier') {
+  const here = placeOf(tab);
   const chk = townCheck(state);
+  const pos = Object.fromEntries(TOWN_PLACES.map(p => [p.id, p]));
+  const paths = TOWN_PATHS.map(([a, b]) => `<line x1="${pos[a].x}" y1="${pos[a].y}" x2="${pos[b].x}" y2="${pos[b].y}" />`).join('');
+  const nodes = TOWN_PLACES.map(p => {
+    const bid = bondAt(p.id);
+    const canTalk = bid && !state.ap.talked[bid] && state.ap.left > 0;
+    const badge = bid ? `<em class="tn-bond">${esc(BONDS[bid].name)} ♥${bondTier(state.affinity[bid] || 0)}${canTalk ? ' 💬' : ''}</em>` : '';
+    return `<button type="button" class="tn${p.id === here.id ? ' on' : ''}" data-action="town.tab" data-tab="${p.id}" style="left:${p.x}%;top:${p.y}%" aria-label="${esc(p.name)}"><i>${p.icon}</i><b>${esc(p.name)}</b>${badge}</button>`;
+  }).join('');
+  const map = `<div class="town-map ${SEASON(calendarOf(state.day).month)}" role="group" aria-label="마을 지도">
+    <svg class="tm-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${paths}</svg>
+    ${nodes}<span class="tm-me" style="left:${here.x}%;top:${here.y}%" aria-hidden="true">🐷</span></div>`;
+  const bid = bondAt(here.id);
   const body = !chk.ok ? `<p class="warn">${esc(chk.reason)}</p>`
-    : tab === 'gear' ? gearStall(state) : tab === 'luna' ? lunaScale(state) : tab === 'expand' ? expandShop(state) : mokaShop(state);
-  return `${head('🏘 마을')}<p class="small">보유 ${won(state.gold)} · 🌙 월정석 ${state.moonstone || 0}개</p>${tabs}${body}`;
+    : (bid ? bondCard(state, bid) : '') + placeBody(state, here.id);
+  return `${head('🏘 마을')}<p class="small">보유 ${won(state.gold)} · 🌙 월정석 ${state.moonstone || 0}개 · 행동력 ${state.ap.left}</p>${map}<h3>${here.icon} ${esc(here.name)}</h3>${body}`;
+}
+
+function placeBody(state, id) {
+  switch (id) {
+    case 'moka': return mokaShop(state);
+    case 'luna': return lunaScale(state);
+    case 'gear': return gearStall(state);
+    case 'expand': return expandShop(state);
+    case 'hunt': {
+      const hc = huntCheck(state);
+      return `<p class="small muted">강 건너 달그늘. 검은 손은 달이 갈수록 단단해진다. 정예·보스를 쓰러뜨리면 월정석이 많이 나온다.</p>
+        <div class="stack">${btn({ action: 'hunt.start', cls: 'primary', disabled: !hc.ok, title: hc.ok ? '영냥이 월정석 사냥 (3분)' : hc.reasons.join(' / '), label: '🐾 영냥이와 사냥 떠나기 (3분 · 행동력 1)' })}</div>`;
+    }
+    default: return `<p class="small muted">계산대는 연이 자리. 동료와 대화하면 행동력 1, 선물은 순마다 한 사람에게 한 번씩 줄 수 있어요.</p>`;
+  }
+}
+
+// 인연 카드: 하트 단계·다음 능력·대화(행동력 1)·선물
+function bondCard(state, id) {
+  const b = BONDS[id], v = state.affinity[id] || 0, t = bondTier(v), T = TEMP.BONDS.TIERS;
+  const lo = t ? T[t - 1] : 0, hi = T[t];
+  const next = t < T.length ? `다음 ♥${t + 1}: ${esc(b.perks[t].label)} (${v}/${hi})` : '인연 최고 단계 · 능력이 모두 열렸어요';
+  const talked = state.ap.talked[id], gifted = state.ap.gifted[id];
+  const talkBtn = btn({ action: 'bond.talk', args: { id }, cls: 'primary', disabled: talked || state.ap.left < 1, title: talked ? '이번 순에 이미 이야기했어요' : state.ap.left < 1 ? '행동력이 없어요 · 영업을 마치면 채워져요' : '', label: talked ? '💬 이야기함' : '💬 대화 (행동력 1)' });
+  const giftBtn = g => btn({ action: 'bond.gift', args: { id, gift: g.id }, disabled: gifted || state.gold < g.cost, title: gifted ? '이번 순에 이미 선물했어요' : state.gold < g.cost ? `골드가 부족합니다 (${g.cost}G)` : '', label: `🎁 ${esc(g.name)} ${won(g.cost)}` });
+  const sp = SPEAKERS[b.speaker]?.name || b.name;
+  const title = sp === b.name ? b.name : `${b.name} · ${sp}`;
+  return `<div class="bond-card"><div class="bc-top"><b>${esc(title)}</b><span class="hearts" aria-label="인연 ${t}단계">${hearts(t)}</span></div>
+    ${bar(t < T.length ? ((v - lo) / (hi - lo)) * 100 : 100, 'bond')}<span class="small">${next}</span>
+    <div class="row">${talkBtn}${giftBtn(b.gift)}${giftBtn(COMMON_GIFT)}</div></div>`;
 }
 
 function mokaShop(state) {
@@ -367,8 +425,15 @@ function companionSheet(state) {
     }
     rows.push(`<div class="item"><span class="swatch" style="background:${def?.color || '#999'}"></span><div class="meta grow"><b>${tag}${esc(r.name)}</b><span>${esc(sub)}</span></div>${right}</div>`);
   }
+  // 인연: 단계·열린 능력, 누르면 마을의 그 장소로
+  const bondRows = BOND_IDS.map(id => {
+    const b = BONDS[id], v = state.affinity[id] || 0, t = bondTier(v);
+    const open = b.perks.slice(0, t).map(p => p.label).join(' · ') || '아직 열린 능력 없음';
+    const go = btn({ action: 'sheet.open', args: { sheet: 'town', tab: b.place }, disabled: state.mode !== 'prep', title: state.mode === 'prep' ? `${placeOf(b.place).name}에서 만나기` : '영업 준비 중에만 마을에 나갈 수 있어요', label: '만나러 가기' });
+    return `<div class="item"><div class="meta grow"><b>${esc(b.name)} <span class="hearts">${hearts(t)}</span> <small>${v}</small></b><span>${esc(open)}</span></div>${go}</div>`;
+  }).join('');
   for (let i = 0; i < LOCKED_SLOT_COUNT; i++) rows.push('<div class="item"><span class="swatch" style="background:#ddd"></span><div class="meta grow"><b>🔒 새로운 인연</b><span>퀘스트로 영입 (아직 정해진 동료 없음)</span></div></div>');
-  return `${head('👥 동료')}<div class="list">${rows.join('')}</div><p class="small muted">새 게임의 접대 담당은 네오 한 명입니다. 다른 동료는 퀘스트·이벤트로 영입한 뒤 다음 영업부터 쓸 수 있습니다.</p>`;
+  return `${head('👥 동료')}<div class="list">${rows.join('')}</div><h3>💗 인연</h3><p class="small muted">대화·선물·함께 일하기로 친밀도가 오르고, 하트가 찰 때마다 새 능력과 인연 이야기가 열려요.</p><div class="list">${bondRows}</div><p class="small muted">새 게임의 접대 담당은 네오 한 명입니다. 다른 동료는 퀘스트·이벤트로 영입한 뒤 다음 영업부터 쓸 수 있습니다.</p>`;
 }
 
 // ── 의상

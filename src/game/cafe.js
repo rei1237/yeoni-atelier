@@ -10,6 +10,7 @@ import { PEOPLE, STAFF_CREW } from '../data/companions.js';
 import { emit, nextId, remainingShift, usableHosts } from './state.js';
 import { buildGrid, findPath, tableGeometry } from './space.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
+import { bondFx } from '../data/bonds.js';
 
 export const STATION_IDS = ['drink', 'oven'];
 export const STATION_NAMES = { drink: '음료 머신', oven: '오븐' };
@@ -129,7 +130,8 @@ export function cook(state, menuId) {
   const st = state.stations[m.station];
   const chk = stockCheck(state, menuId);
   if (!chk.ok) return { ok: false, reason: chk.reason };
-  const job = { id: nextId(state, 'job'), menuId, durationMs: m.cookMs };
+  // 루나 언니 친밀도 능력: 조리 시간 단축
+  const job = { id: nextId(state, 'job'), menuId, durationMs: Math.round(m.cookMs * (1 - bondFx(state.affinity).cookSpeed)) };
   if (!st.current && !st.held && !st.next) { startJob(state, m.station, job); return { ok: true, started: true }; }
   if (!st.next) { st.next = job; emit('cookQueued', { station: m.station, menuId }); return { ok: true, queued: true }; }
   return { ok: false, reason: `${STATION_NAMES[m.station]} 대기열이 가득 찼습니다 (현재 1 + 다음 1)` };
@@ -495,7 +497,7 @@ export function stepCustomers(state, dt, hooks) {
         break;
       case 'waiting_food': {
         const open = openOrdersOfVisit(state, visit);
-        if (open.length && now - open[0].placedAt >= TEMP.FOOD_PATIENCE_MS) customerLeave(state, c, '음식을 오래 기다려 떠남');
+        if (open.length && now - open[0].placedAt >= TEMP.FOOD_PATIENCE_MS * (1 + bondFx(state.affinity).patience)) customerLeave(state, c, '음식을 오래 기다려 떠남');
         break;
       }
       case 'eating':

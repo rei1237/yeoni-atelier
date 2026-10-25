@@ -1,0 +1,68 @@
+// 친밀도: 대화(행동력 1, 순마다 한 사람 한 번)·선물(골드, 순마다 한 사람 한 번)·함께 일하기로 오른다.
+// 단계가 열리면 능력(data/bonds.js)이 더해지고 인연 이야기가 한 번 나온다. 수치는 모두 임시값(TEMP.BONDS).
+
+import { TEMP } from '../config/balance.temp.js';
+import { BONDS, COMMON_GIFT, bondTier } from '../data/bonds.js';
+import { nextRandom } from '../core/rng.js';
+import { emit } from './state.js';
+import { apCheck, spendAp } from './calendar.js';
+import { townCheck } from './town.js';
+
+const B = TEMP.BONDS;
+
+function gain(state, id, v) {
+  const before = state.affinity[id] || 0;
+  const after = Math.min(B.MAX, before + v);
+  state.affinity[id] = after;
+  const t0 = bondTier(before), t1 = bondTier(after);
+  if (t1 > t0) emit('bondUp', { id, tier: t1, label: BONDS[id].perks[t1 - 1].label });
+  return after - before;
+}
+
+export function talk(state, id) {
+  const chk = townCheck(state);
+  if (!chk.ok) return chk;
+  const b = BONDS[id];
+  if (!b) return { ok: false, reason: '없는 동료입니다' };
+  if (state.ap.talked[id]) return { ok: false, reason: `${b.name}와(과)는 이번 순에 이미 이야기했어요` };
+  const ap = apCheck(state, 1);
+  if (!ap.ok) return ap;
+  spendAp(state, 1);
+  state.ap.talked = { ...state.ap.talked, [id]: true };
+  const v = gain(state, id, B.TALK + Math.floor(nextRandom(state.rng) * (B.TALK_RAND + 1)));
+  const [speaker, line] = b.talk[Math.floor(nextRandom(state.rng) * b.talk.length)];
+  emit('bondTalk', { id, speaker, line, gain: v });
+  return { ok: true, gain: v, speaker, line };
+}
+
+export function gift(state, id, giftId) {
+  const chk = townCheck(state);
+  if (!chk.ok) return chk;
+  const b = BONDS[id];
+  if (!b) return { ok: false, reason: '없는 동료입니다' };
+  const g = giftId === b.gift.id ? b.gift : giftId === COMMON_GIFT.id ? COMMON_GIFT : null;
+  if (!g) return { ok: false, reason: '없는 선물입니다' };
+  if (state.ap.gifted[id]) return { ok: false, reason: `${b.name}에게는 이번 순에 이미 선물했어요` };
+  if (state.gold < g.cost) return { ok: false, reason: `골드가 부족합니다 (${g.cost} 필요, 보유 ${state.gold})` };
+  state.gold -= g.cost;
+  state.ap.gifted = { ...state.ap.gifted, [id]: true };
+  const v = gain(state, id, g === b.gift ? B.GIFT_LIKED : B.GIFT_COMMON);
+  emit('bondGift', { id, giftId: g.id, gain: v, liked: g === b.gift });
+  return { ok: true, gain: v, liked: g === b.gift };
+}
+
+// 함께 일한 몫: 영업 마감(루나·루나 언니), 사냥 마침(네오), 준비 중 재료 구매(모카, 순마다 한 번)
+export function workShift(state) {
+  gain(state, 'luna', B.WORK_SHIFT);
+  gain(state, 'luna_sis', B.WORK_SHIFT);
+}
+
+export function workHunt(state, done) {
+  gain(state, 'neo', done ? B.WORK_HUNT : B.WORK_HUNT_DOWN);
+}
+
+export function workShop(state) {
+  if (state.mode !== 'prep' || state.ap.shopped) return;
+  state.ap.shopped = true;
+  gain(state, 'moka', B.WORK_SHOP);
+}

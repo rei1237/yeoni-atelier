@@ -18,6 +18,8 @@ import { nextRandom, randRange } from '../core/rng.js';
 import { emit, nextId } from './state.js';
 import { personBusyReason } from './nomination.js';
 import { apCheck, spendAp, calendarOf, totalMonths } from './calendar.js';
+import { bondFx } from '../data/bonds.js';
+import { workHunt } from './bonds.js';
 
 const H = TEMP.HUNT;
 const worlds = new WeakMap(); // state.hunt 객체 → 실행 중 전장(저장 안 함)
@@ -48,7 +50,12 @@ export function startHunt(state) {
   state.mode = 'hunt';
   state.paused = false;
   Object.assign(state.people.neo, { activity: 'hunting', form: 'cat', visitId: null, tableNo: null, endAt: null });
+  // 장비 + 네오 친밀도 능력(시작 HP·무기 피해·보스 월정석)
+  const fx = bondFx(state.affinity);
   const gear = gearBonus(state.gear?.equipped);
+  gear.hp += fx.huntHp;
+  gear.dmg += fx.huntDmg;
+  gear.bossMoon = fx.bossMoon;
   const hp = H.PLAYER_HP + gear.hp;
   state.hunt = normalizeHunt({
     id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: PDF.HUNT_MS, hp, maxHp: hp, gear,
@@ -300,7 +307,7 @@ function dropFrom(state, w, e) {
   const def = ENEMIES[e.type];
   addDrop(w, 'gem', '', def.xp, e.x, e.y);
   if (def.chest) {
-    addDrop(w, 'moon', 'moonstone', def.boss ? H.MOON_DROP.boss : H.MOON_DROP.elite, e.x - 14, e.y);
+    addDrop(w, 'moon', 'moonstone', def.boss ? Math.round(H.MOON_DROP.boss * (1 + (state.hunt?.gear?.bossMoon || 0))) : H.MOON_DROP.elite, e.x - 14, e.y);
     addDrop(w, 'chest', 'chest', 0, e.x + 14, e.y);
     return;
   }
@@ -603,6 +610,7 @@ export function finishHunt(state) {
     }
     state.stats.nightDewObtained += hs.bag.night_dew || 0;
     state.stats.huntsCompleted += 1;
+    workHunt(state, hs.status === 'done');
   }
   state.lastHunt = { id: hs.id, status: hs.status, bag: { ...hs.bag }, kills: hs.kills, elapsedMs: hs.elapsedMs, level: hs.level ?? 1, bossDown: !!hs.bossDown };
   worlds.delete(hs);
