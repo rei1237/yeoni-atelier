@@ -8,7 +8,7 @@ import {serialize,deserialize} from '../src/core/save.js';
 import {nearbyProps,hitFieldProp,fieldTheme} from '../src/game/hunt-field.js';
 import {withinMeleeArc} from '../src/game/melee.js';
 import {damageHunter} from '../src/game/enemy-behaviors.js';
-import {newCraft,addCraftIngredient,stirCraft,craftHeat} from '../src/ui/crafting.js';
+import {newCraft,mixCraft,craftHeat} from '../src/ui/crafting.js';
 import {wealthWeights} from '../src/game/cafe-growth.js';
 import {FURNITURE} from '../src/data/layout.js';
 import {reviewVisit,waitingSatisfaction} from '../src/game/reputation.js';
@@ -49,11 +49,9 @@ test('초반 대부호 차단: 레벨과 분위기 두 조건을 모두 만족�
  s.interior.furniture.push(...Array.from({length:20},(_,i)=>({uid:'test'+i,defId:rich.id,x:i,y:4})));
  assert.ok(wealthWeights(s).tycoon>0);s.stats.served=0;assert.equal(wealthWeights(s).tycoon,0);
 });
-test('수동 조리 준비는 재고를 건드리지 않고 필요한 재료·젓기·타이밍 단계를 따른다',()=>{
+test('수동 조리 준비는 재고를 건드리지 않고 담아 젓기·타이밍 두 단계를 따른다',()=>{
  const s=createGame(),stock=structuredClone(s.stock),c=newCraft('fortune_latte');
- assert.equal(addCraftIngredient(c,'flour'),false);assert.ok(addCraftIngredient(c,'bean'));assert.equal(addCraftIngredient(c,'bean'),false);
- assert.ok(addCraftIngredient(c,'milk'));assert.equal(c.step,1);
- for(let i=0;i<6;i++)assert.ok(stirCraft(c));assert.equal(c.step,2);assert.equal(stirCraft(c),false);
+ assert.equal(c.step,0);assert.ok(mixCraft(c));assert.equal(c.step,1);assert.equal(mixCraft(c),false);
  assert.equal(craftHeat(c,c.heatAt),0);assert.ok(craftHeat(c,c.heatAt+2513)>95);assert.deepEqual(s.stock,stock);
 });
 test('사망 정산 후 기술 구성·단계는 유지하고 영구 강화와 보급품은 별도 적용',()=>{

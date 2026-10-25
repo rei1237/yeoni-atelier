@@ -88,8 +88,8 @@ function calendarStrip(state) {
 // ── 하단 패널
 export function panelHtml(state, ui) {
   if (!state) return '';
-  if (state.mode === 'shift') return stationDock(state)+chatterRibbon(ui)+shiftPanel(state, ui);
-  if (state.mode === 'hunt') return chatterRibbon(ui)+huntPanel(state);
+  if (state.mode === 'shift') return stationDock(state)+shiftPanel(state, ui);
+  if (state.mode === 'hunt') return huntPanel(state);
   if (state.mode === 'settlement') return `<div class="prep">${btn({ action: 'overlay.settlement', label: '📒 결산 보기', cls: 'primary big' })}</div>`;
   if (state.interior.draft) return interiorPanel(state);
   return prepPanel(state);
@@ -177,8 +177,8 @@ function interiorPanel(state) {
 
 function huntPanel(state){const h=state.hunt;return `<div class="hunt-dock"><div class="row"><b class="grow">${h.hunterId==='seohanbi'?'서한비':'영냥이'} · 성장 Lv.${h.careerLevel} · ${h.depth}/100단계</b><span>처치 ${h.kills}</span>${btn({action:h.status==='running'?'hunt.retreat':'overlay.hunt',label:h.status==='running'?'귀환':'결과'})}</div><div class="hunt-kit">${h.weapons.map(w=>`<span class="hunt-skill" title="${esc(WEAPONS[w.id].name)}">${assetIcon(`skills/${w.id}`)}<small>${esc(WEAPONS[w.id].name)} ${w.evo?'★':'Lv.'+w.level}</small></span>`).join('')}${Object.entries(h.passives).map(([id,lv])=>`<span class="hunt-skill" title="${esc(PASSIVES[id].name)}">${assetIcon(`skills/${id}`)}<small>${esc(PASSIVES[id].name)} Lv.${lv}</small></span>`).join('')}</div><div class="hunt-supplies">${Object.entries(SUPPLIES).filter(([id])=>state.armory?.supplies?.[id]>0).map(([id,d])=>btn({action:'hunt.supply',args:{id},label:`${assetIcon(`skills/${d.icon}`)}${d.name} ${state.armory.supplies[id]}`})).join('')}</div><small>드래그로 이동 · 가까운 적 자동 공격 · 위험 표시 밖으로 피하세요</small></div>`;}
 
-// ── 테이블 말풍선(캔버스 위 DOM). v: 캔버스 뷰(cafe-view computeView)
-export function bubblesHtml(){return '';}
+// ── 무대 위 DOM 층. 동료 수다는 하단 패널 높이를 먹지 않도록 무대 왼쪽 아래에 띄운다(주문 카드가 밀려 잘리지 않게).
+export function bubblesHtml(ui){return chatterRibbon(ui);}
 
 function bubbleOf(state, t, now) {
   const c = t.customerId ? state.customers[t.customerId] : null;
@@ -230,7 +230,12 @@ export function hitsHtml(state, v, ui) {
 export { won };
 
 function customerOrders(state){
- const rows=Object.values(state.customers).map(c=>{
+ // 떠난 자리 정리 카드는 앞에 둔다(가로 목록 끝에 숨으면 놓치기 쉽다). 수동 영업에서는 눌러야 정리한다.
+ const tidy=state.tables.filter(t=>!t.customerId&&(t.state==='dirty'||t.state==='cleaning')).map(t=>{
+  const busy=t.state==='cleaning'||t.cleanQueued;
+  return btn({action:'clean',args:{no:t.no},disabled:busy,cls:'customer-order tidy',label:`<span class="order-thinking" aria-hidden="true">🧽</span><span class="order-content"><b>${t.no}번 · 정리</b><small>${t.state==='cleaning'?'닦는 중':t.cleanQueued?'정리하러 가는 중':'눌러서 정리하기'}</small></span>`});
+ }).join('');
+ const rows=tidy+Object.values(state.customers).map(c=>{
   const v=state.visits[c.visitId];if(!v||c.state==='leaving')return '';
   const pending=v.orderIds.map(id=>state.orders[id]).filter(o=>o&&['waiting','assigned'].includes(o.status));
   const order=pending.find(o=>o.status==='waiting')||pending[0], menu=MENUS[order?.menuId];

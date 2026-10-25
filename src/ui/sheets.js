@@ -55,7 +55,7 @@ function sheetBody(state, ui) {
   switch (s.kind) {
     case 'manage': return manageSheet(state);
     case 'table': return tableSheet(state, s.no, ui);
-    case 'craft': return craftingSheet(ui);
+    case 'craft': return craftingSheet(state, ui);
     case 'kitchen': return kitchenSheet(state, ui);
     case 'shop': return shopSheet(state);
     case 'town': return townSheet(state, s.tab);

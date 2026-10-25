@@ -1,6 +1,6 @@
 import { bondQuestion } from '../data/bond-dialogues.js';
 import {CAFE_LINES,selectLine} from '../data/cafe-dialogue.js';
-import {newCraft,addCraftIngredient,stirCraft,craftHeat} from './crafting.js';
+import {newCraft,mixCraft,craftHeat,craftQuality,craftShortage,deliverable} from './crafting.js';
 import {findRecipe} from '../game/recipe.js';
 import {TEMP as GAME_TEMP} from '../config/balance.temp.js';
 // 연이의 아틀리에 진입점. 화면 ↔ 엔진 연결만 한다.
@@ -250,6 +250,9 @@ const ACTIONS = {
       if (r.ok) ui.selectedSlot = null;
       return;
     }
+    // 손님이 떠난 테이블은 한 번 눌러 바로 정리를 맡긴다.
+    const t = state.tables.find(x => x.no === no);
+    if (t?.state === 'dirty' && !t.cleanQueued) { run({ type: 'clean', tableNo: no }); return; }
     ui.sheet = { kind: 'table', no };
   },
   'tray.tap': d => {
@@ -272,10 +275,10 @@ const ACTIONS = {
   'cook': d => beginCraft(d.menu),
   'order.quick': d => {const o=state.orders[d.id];if(!o)return;if(state.tray.some(it=>it?.menuId===o.menuId&&!it.reservedFor))run({type:'order.quick',orderId:d.id});else beginCraft(o.menuId,d.id);},
   'craft.cancel':()=>{ui.craft=null;ui.sheet={kind:'kitchen'};},
-  'craft.add':d=>{if(ui.craft&&addCraftIngredient(ui.craft,d.id))sound('cook');},
-  'craft.stir':()=>{if(ui.craft&&stirCraft(ui.craft))sound('cook');},
-  'craft.heat':()=>{const c=ui.craft;if(!c||c.step!==2||c.ready)return;const value=craftHeat(c);c.ready=true;c.quality=value>=35&&value<=65?'향이 딱 알맞게 어우러졌어요!':'따뜻하게 준비됐어요. 다음엔 가운데에서 맞춰 봐요.';sound('cook');},
-  'craft.finish':()=>{const c=ui.craft;if(!c?.ready)return;const r=run(c.orderId?{type:'order.quick',orderId:c.orderId}:{type:'cook',menuId:c.menuId});if(r.ok){ui.craft=null;ui.sheet=null;toast('조리를 시작했어요. 완성되면 서빙대에서 만나요.','good');}},
+  'craft.mix':()=>{const c=ui.craft;if(c&&!Object.keys(craftShortage(state,c.menuId)).length&&mixCraft(c))sound('cook');},
+  // 부족한 만큼만 모카 긴급 배달(영업 중 배달비 포함). 구매는 재료마다 엔진 명령 한 번.
+  'craft.restock':()=>{const c=ui.craft;if(!c)return;for(const [id,qty] of Object.entries(craftShortage(state,c.menuId)))if(deliverable(id)&&!run({type:'shop.buy',ingredientId:id,qty}).ok)break;},
+  'craft.heat':()=>{const c=ui.craft;if(!c||c.step!==1)return;const quality=craftQuality(craftHeat(c));const r=run(c.orderId?{type:'order.quick',orderId:c.orderId}:{type:'cook',menuId:c.menuId});if(r.ok){sound('cook');ui.craft=null;ui.sheet=null;toast(`${quality} 완성되면 서빙대에서 만나요.`,'good');}},
 
   'cook.cancelNext': d => run({ type: 'cook.cancelNext', station: d.station }),
   'shop.buy': d => run({ type: 'shop.buy', ingredientId: d.id, qty: n(d.qty) }),
@@ -442,7 +445,7 @@ function render(force = false) {
   if (ui.sheet?.kind === 'table' && state?.mode !== 'shift') ui.sheet = null;
   morph(el.topbar, topbarHtml(state, ui));
   morph(el.panel, panelHtml(state, ui));
-  morph(el.bubbles, state?.mode === 'shift' && view ? bubblesHtml(state, view) : '');
+  morph(el.bubbles, state?.mode === 'shift' || state?.mode === 'hunt' ? bubblesHtml(ui) : '');
   morph(el.hits, hitsHtml(state, view, ui));
   document.getElementById('camera-controls').hidden=!state||state.mode==='hunt';
   const hunting=state?.mode==='hunt', h=state?.hunt;
@@ -537,7 +540,3 @@ function showCafeLine(line,speaker,portrait='customer'){
 }
 document.addEventListener('change',e=>{if(e.target.id==='guide-selector'){ui.guideId=e.target.value;ui.guideStep=0;render(true);}});
 
-let stirring=null;
-document.addEventListener('pointerdown',e=>{const bowl=e.target.closest('#mix-bowl');if(!bowl||ui.craft?.step!==1)return;const r=bowl.getBoundingClientRect();stirring={x:r.x+r.width/2,y:r.y+r.height/2,angle:Math.atan2(e.clientY-r.y-r.height/2,e.clientX-r.x-r.width/2),travel:0};bowl.setPointerCapture(e.pointerId);});
-document.addEventListener('pointermove',e=>{if(!stirring||ui.craft?.step!==1)return;const a=Math.atan2(e.clientY-stirring.y,e.clientX-stirring.x),diff=Math.atan2(Math.sin(a-stirring.angle),Math.cos(a-stirring.angle));stirring.angle=a;if(Math.hypot(e.clientX-stirring.x,e.clientY-stirring.y)<25)return;stirring.travel+=Math.abs(diff);if(stirring.travel>=Math.PI/2){stirring.travel=0;stirCraft(ui.craft);sound('cook');render(true);}});
-for(const ev of ['pointerup','pointercancel'])document.addEventListener(ev,()=>stirring=null);
