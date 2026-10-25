@@ -1,7 +1,7 @@
 // 인테리어 편집: 영업 전·마감 후에만. 초안(draft)에서 이동·회전·보관·배치 → 미리보기 검증 → 적용 / 취소(원상 복구).
 // 초안은 저장하지 않는다. 적용할 때만 실제 배치(state.interior.furniture)가 바뀐다.
 
-import { FURNITURE } from '../data/layout.js';
+import { FURNITURE, GRID } from '../data/layout.js';
 import { inBounds, validateLayout } from './space.js';
 
 export function editCheck(state) {
@@ -70,18 +70,18 @@ export function place(state, uid, x, y) {
   if (f.x != null) return { ok: false, reason: '이미 배치된 가구입니다' };
   const tryAt = (px, py) => {
     f.x = px; f.y = py;
-    if (validateLayout(state.interior.draft.furniture).ok) return true;
+    if (validateLayout(state.interior.draft.furniture, state.interior.areas).ok) return true;
     f.x = null; f.y = null;
     return false;
   };
   if (x != null && y != null) { f.x = x; f.y = y; return { ok: true }; }
-  for (let py = 2; py < 11; py++) for (let px = 0; px < 9; px++) if (tryAt(px, py)) return { ok: true };
+  for (let py = 2; py < GRID.rows; py++) for (let px = 0; px < GRID.cols; px++) if (tryAt(px, py)) return { ok: true };
   return { ok: false, reason: '놓을 수 있는 빈 자리가 없습니다' };
 }
 
 export function preview(state) {
   const list = state.interior.draft ? state.interior.draft.furniture : state.interior.furniture;
-  return validateLayout(list);
+  return validateLayout(list, state.interior.areas);
 }
 
 export function cancel(state) {
@@ -94,7 +94,7 @@ export function apply(state) {
   if (!state.interior.draft) return { ok: false, reason: '편집 모드가 아닙니다' };
   const chk = editCheck(state);
   if (!chk.ok) return chk;
-  const v = validateLayout(state.interior.draft.furniture);
+  const v = validateLayout(state.interior.draft.furniture, state.interior.areas);
   if (!v.ok) return { ok: false, reason: v.problems[0].msg, reasons: v.problems.map(p => p.msg) };
   state.interior.furniture = state.interior.draft.furniture.map(f => ({ ...f }));
   state.interior.draft = null;

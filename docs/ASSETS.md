@@ -52,8 +52,8 @@
 | `neo` | assets/sprites/actors/neo.png | 네오 | 접대 |
 | `neo_cat` | assets/sprites/actors/neo_cat.png | 영냥이 | 네오의 고양이 모습. 같은 인물 id `neo` 를 쓰고 렌더링 키만 다르다. 사냥 주인공 |
 | `customer` | assets/sprites/actors/customer.png | 손님 | 몸 색은 코드가 손님마다 바꾸지 않는다(그림이 있으면 그림 색 그대로) |
-| `luna` | assets/sprites/actors/luna.png | 루나 | 원작 그림 기준 흰 아기 토끼. NPC 상태(idle·walk·react)만 |
-| `luna_sis` | assets/sprites/actors/luna_sis.png | 루나 언니 | 원작 소개: 분홍 앞치마·토끼 귀 머리띠의 빵집 언니. 종족 표현은 원작 그림을 따른다. NPC 상태만 |
+| `luna` | assets/sprites/actors/luna.png | 루나 | 원작 그림 기준 흰 아기 토끼. idle·walk·serve·react (가게 서빙·정리 담당) |
+| `luna_sis` | assets/sprites/actors/luna_sis.png | 루나 언니 | 원작 소개: 분홍 앞치마·토끼 귀 머리띠의 빵집 언니. 종족 표현은 원작 그림을 따른다. idle·walk·cook·react (가게 굽기 담당) |
 | `cheongtokki` | assets/sprites/actors/cheongtokki.png | 청토끼 | 원작: 조끼 입은 파란 토끼, 청토끼 금융 주인. NPC 상태만 |
 | `moka` | assets/sprites/actors/moka.png | 모카 | 원작: 헤드폰·마이크·앞치마의 랩하는 수달 요리사(식상의 섬). 마을 식재료점은 게임 설정. NPC 상태만 |
 | `dev_temp_01` | assets/sprites/actors/dev_temp_01.png | DEV 임시 동료 01 | **개발 전용. 정식 에셋을 만들지 않는다** |

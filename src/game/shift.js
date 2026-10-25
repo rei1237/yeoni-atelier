@@ -59,7 +59,9 @@ function stepSpawn(state) {
   if (sh.elapsedMs < sh.nextSpawnAt || sh.elapsedMs >= TEMP.LAST_SEATING_ELAPSED_MS) return;
   if (!state.tables.some(t => t.state === 'empty')) { sh.nextSpawnAt = sh.elapsedMs + 2000; return; }
   spawnCustomer(state, nextSpec(state));
-  sh.nextSpawnAt = sh.elapsedMs + Math.round(randRange(state.rng, ...TEMP.SPAWN_INTERVAL_MS));
+  // 테이블이 늘면 손님 간격이 그만큼 짧아진다(임시)
+  const scale = TEMP.SPAWN_TABLE_BASE / Math.max(TEMP.SPAWN_TABLE_BASE, state.tables.length);
+  sh.nextSpawnAt = sh.elapsedMs + Math.round(randRange(state.rng, ...TEMP.SPAWN_INTERVAL_MS) * scale);
 }
 
 // 한 시뮬레이션 단계(dt ≤ SIM_STEP_MS). 순서:

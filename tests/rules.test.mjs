@@ -9,7 +9,7 @@ import { dispatch } from '../src/game/engine.js';
 
 const prefs = id => PDF.PROFILES.find(p => p.id === id).prefs;
 
-test('새 게임: 접대 가능한 동료는 네오 한 명', () => {
+test('새 게임: 접대 가능한 동료는 네오 한 명, 토끼 자매는 처음부터 직원', () => {
   for (const dev of [false, true]) {
     const s = createGame({ dev });
     assert.deepEqual(Object.keys(s.roster), ['neo']);
@@ -17,7 +17,8 @@ test('새 게임: 접대 가능한 동료는 네오 한 명', () => {
     assert.equal(s.people.neo.activity, 'idle');
     assert.equal(s.people.neo.form, 'human');
     assert.ok(dispatch(s, { type: 'shift.start' }).ok);
-    assert.deepEqual(Object.keys(s.staff).sort(), ['neo', 'yeoni']);
+    assert.deepEqual(Object.keys(s.staff).sort(), ['luna', 'luna_sis', 'neo', 'yeoni']);
+    assert.ok(!usableHosts(s).includes('luna'), '토끼 자매는 접대하지 않는다');
   }
   // 개발용 임시 동료는 일반 게임의 영입 후보에도 없다
   const normal = createGame();

@@ -1,7 +1,9 @@
 // 카페 화면 그리기(Canvas 2D). 상태를 읽기만 한다. 모든 시각 상태는 실제 게임 상태에서 나온다.
 // 좌표: 상태의 x, y 는 타일 단위(칸 중심 = +0.5). view 가 타일 → 픽셀 변환을 맡는다.
 
-import { GRID, FIXTURES, FURNITURE, SPOTS, RESERVED } from '../data/layout.js';
+import { GRID, FIXTURES, FURNITURE, SPOTS, RESERVED, AREAS, areaCells } from '../data/layout.js';
+import { PDF } from '../config/balance.pdf.js';
+import { PEOPLE, STAFF_CREW } from '../data/companions.js';
 import { MENUS } from '../data/menus.js';
 import { OUTFITS } from '../data/outfits.js';
 import { ASSETS } from './assets.js';
@@ -49,6 +51,22 @@ export function drawCafe(ctx, state, v, opts = {}) {
     if (drawObjectImage(ctx, 'tiles', y === 0 ? 'cafe_wall' : 'cafe_floor', p.x, p.y, T, T)) continue;
     ctx.fillStyle = y === 0 ? '#e9dccb' : (x + y) % 2 ? '#f6ead9' : '#f1e2cd';
     ctx.fillRect(p.x, p.y, T + 0.5, T + 0.5);
+  }
+  // 아직 열지 않은 구역(공방 증축 전): 빗금과 자물쇠
+  const open = state.interior.areas || [];
+  for (const a of AREAS) {
+    if (open.includes(a.id)) continue;
+    ctx.fillStyle = 'rgba(92,60,82,0.28)';
+    for (const [x, y] of areaCells(a)) {
+      const p = P(x, y);
+      ctx.fillRect(p.x, p.y, T + 0.5, T + 0.5);
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y + T); ctx.lineTo(p.x + T, p.y); ctx.stroke();
+    }
+    const [x0, y0, x1, y1] = a.rect;
+    const c = P((x0 + x1 + 1) / 2, (y0 + y1 + 1) / 2);
+    label(ctx, '🔒', c.x, c.y - T * 0.2, T * 0.5);
+    label(ctx, a.name, c.x, c.y + T * 0.4, T * 0.28, '#fff');
   }
   // 입구 매트
   const ent = P(SPOTS.entrance.x, SPOTS.entrance.y);
@@ -113,15 +131,18 @@ export function drawCafe(ctx, state, v, opts = {}) {
       const st = c.action === 'walk' ? 'walk' : c.action === 'react' ? 'react' : 'idle';
       actors.push({ key: 'customer', x: c.x, y: c.y, o: { state: st, facing: c.facing, hue: c.hue } });
     }
-    const cooking = Object.values(state.stations).some(s => s.current);
     for (const s of Object.values(state.staff)) {
       const map = { walk: 'walk', serve: 'serve', clean: 'serve', host: 'host', react: 'react' };
       let st = map[s.action] || 'idle';
-      if (s.id === 'yeoni' && st === 'idle' && cooking) st = 'cook';
+      if (s.action === 'cook') st = 'cook'; // 루나 언니가 굽는 중
       actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color } : null, ...outfitLook(state, s.id) } });
     }
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
     actors.push({ key: 'yeoni', x: SPOTS.yeoniHome.x + 0.5, y: SPOTS.yeoniHome.y + 0.5, o: { state: 'idle', facing: 'down', name: '연이', ...outfitLook(state, 'yeoni') } });
+    for (const id of STAFF_CREW) {
+      const home = id === 'luna' ? SPOTS.lunaHome : SPOTS.sisHome;
+      actors.push({ key: id, x: home.x + 0.5, y: home.y + 0.5, o: { state: 'idle', facing: 'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
+    }
     if (state.people.neo?.activity === 'idle') actors.push({ key: 'neo', x: SPOTS.neoHome.x + 0.5, y: SPOTS.neoHome.y + 0.5, o: { state: 'idle', facing: 'down', name: '네오', ...outfitLook(state, 'neo') } });
   }
   actors.sort((a, b) => a.y - b.y);
@@ -147,7 +168,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
 
 function staffName(state, id) {
   if (id === 'yeoni') return '연이';
-  if (id === 'neo') return '네오';
+  if (PEOPLE[id]) return PEOPLE[id].name;
   return id.startsWith('dev_') ? 'DEV' : id;
 }
 
@@ -167,7 +188,7 @@ function drawTable(ctx, state, p, T, f, tb, t) {
     for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.arc(p.x + T * (0.25 + (i * 37 % 50) / 100), p.y + T * (0.35 + (i * 23 % 35) / 100), T * 0.04, 0, Math.PI * 2); ctx.fill(); }
   }
   if (tb?.state === 'cleaning' && tb.cleanEndAt != null) {
-    const k = 1 - Math.max(0, tb.cleanEndAt - state.shift.elapsedMs) / 8000;
+    const k = 1 - Math.max(0, tb.cleanEndAt - state.shift.elapsedMs) / (tb.cleanMs || PDF.CLEAN_MS);
     ctx.strokeStyle = '#4fa3d9'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(p.x + T / 2, p.y + T / 2, T * 0.42, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, k)); ctx.stroke();
   }

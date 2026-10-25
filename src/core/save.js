@@ -32,6 +32,7 @@ function migrate(data) {
   const base = createGame({ dev: !!data.meta?.devData });
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
   for (const k of ['ledger', 'stats', 'seq', 'quests', 'outfits', 'fever', 'offline', 'gear']) data[k] = { ...base[k], ...data[k] };
+  data.interior.areas ||= []; // 증축 구역 이전 저장
   return data;
 }
 

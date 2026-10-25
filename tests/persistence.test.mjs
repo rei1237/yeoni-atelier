@@ -203,9 +203,9 @@ test('인테리어: 취소하면 원래 배치로, 적용한 배치는 통로가
   assert.deepEqual(s.interior.furniture, original);
   assert.equal(s.interior.draft, null);
 
-  // 입구 앞에 놓으면 적용 거절, 실제 배치는 그대로
+  // 입구 앞(통로)에 놓으면 적용 거절, 실제 배치는 그대로
   dispatch(s, { type: 'interior.begin' });
-  dispatch(s, { type: 'interior.move', uid: 'plant1', x: 4, y: 10 });
+  dispatch(s, { type: 'interior.move', uid: 'plant1', x: 5, y: 14 });
   const bad = dispatch(s, { type: 'interior.apply' });
   assert.equal(bad.ok, false);
   assert.deepEqual(s.interior.furniture, original);

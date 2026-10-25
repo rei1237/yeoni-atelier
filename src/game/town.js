@@ -4,7 +4,7 @@
 
 import { TEMP } from '../config/balance.temp.js';
 import { GEAR } from '../data/gear.js';
-import { FURNITURE } from '../data/layout.js';
+import { FURNITURE, GRID, AREAS } from '../data/layout.js';
 import { validateLayout } from './space.js';
 import { emit, nextId } from './state.js';
 
@@ -59,10 +59,23 @@ export function equipGear(state, slot, id) {
   return { ok: true };
 }
 
-// ── 가게 확장
+// ── 가게 확장(공방): 테이블 세트는 들일수록 비싸지고, 자리가 모자라면 잠긴 구역을 증축한다. 가격은 모두 임시.
+export const tableCount = state => state.interior.furniture.filter(f => FURNITURE[f.defId].table).length;
+
+export function tablePrice(count) {
+  return Math.round(TEMP.TABLE_PRICE_BASE * TEMP.TABLE_PRICE_GROWTH ** Math.max(0, count - 3) / 100) * 100;
+}
+
 export function nextExpansion(state) {
-  const have = new Set(state.interior.furniture.map(f => f.uid));
-  return TEMP.EXPANSION.find(e => !have.has(e.id)) || null;
+  const n = tableCount(state);
+  if (n >= TEMP.MAX_TABLES) return null;
+  const tableNo = Math.max(0, ...state.interior.furniture.filter(f => FURNITURE[f.defId].table).map(f => f.tableNo)) + 1;
+  return { id: `table${tableNo}`, tableNo, label: `${tableNo}번 테이블 세트`, cost: tablePrice(n) };
+}
+
+// 다음 증축 가격: 연 구역 수에 따라 오른다
+export function areaPrice(state) {
+  return TEMP.AREA_COSTS[(state.interior.areas || []).length] ?? null;
 }
 
 function expandCheck(state) {
@@ -76,26 +89,44 @@ export function buyExpansion(state) {
   const chk = expandCheck(state);
   if (!chk.ok) return chk;
   const ex = nextExpansion(state);
-  if (!ex) return { ok: false, reason: '지금 들일 수 있는 테이블을 모두 들였습니다' };
+  if (!ex) return { ok: false, reason: `테이블은 ${TEMP.MAX_TABLES}개까지 들일 수 있습니다` };
   if (state.gold < ex.cost) return { ok: false, reason: `골드가 부족합니다 (${ex.cost}G 필요)` };
   const furniture = state.interior.furniture;
-  const tableNo = Math.max(0, ...furniture.filter(f => FURNITURE[f.defId].table).map(f => f.tableNo)) + 1;
-  const piece = { uid: ex.id, defId: 'table_set', x: null, y: null, rot: 0, tableNo };
+  const areas = state.interior.areas || [];
+  const piece = { uid: ex.id, defId: 'table_set', x: null, y: null, rot: 0, tableNo: ex.tableNo };
   const list = [...furniture, piece];
   // 테이블은 보관할 수 없으니 문제없는 첫 빈자리에 바로 놓는다. 자리가 없으면 돈을 받지 않는다.
   let spot = null;
-  for (let y = 2; y <= 10 && !spot; y++) {
-    for (let x = 0; x <= 8 && !spot; x++) {
+  for (let y = 2; y < GRID.rows - 1 && !spot; y++) {
+    for (let x = 0; x < GRID.cols && !spot; x++) {
       piece.x = x; piece.y = y;
-      if (validateLayout(list).ok) spot = { x, y };
+      if (validateLayout(list, areas).ok) spot = { x, y };
     }
   }
-  if (!spot) return { ok: false, reason: '테이블을 놓을 빈자리가 없습니다. 인테리어에서 장식을 보관해 자리를 만들어 주세요' };
+  if (!spot) return { ok: false, reason: '테이블을 놓을 빈자리가 없습니다. 공방에서 구역을 증축하거나 장식을 보관해 주세요' };
   state.gold -= ex.cost;
   furniture.push({ ...piece, ...spot });
   state.stats.expansions += 1;
-  emit('expanded', { tableNo, label: ex.label });
-  return { ok: true, tableNo };
+  emit('expanded', { tableNo: ex.tableNo, label: ex.label });
+  return { ok: true, tableNo: ex.tableNo };
+}
+
+// 공방 증축: 잠긴 구역을 연다(가구는 인테리어·테이블 들이기로 채운다)
+export function buyArea(state, id) {
+  const chk = expandCheck(state);
+  if (!chk.ok) return chk;
+  const area = AREAS.find(a => a.id === id);
+  if (!area) return { ok: false, reason: '없는 구역입니다' };
+  const areas = state.interior.areas || (state.interior.areas = []);
+  if (areas.includes(id)) return { ok: false, reason: '이미 연 구역입니다' };
+  const cost = areaPrice(state);
+  if (cost == null) return { ok: false, reason: '더 넓힐 구역이 없습니다' };
+  if (state.gold < cost) return { ok: false, reason: `골드가 부족합니다 (${cost}G 필요)` };
+  state.gold -= cost;
+  areas.push(id);
+  state.stats.areasOpened = (state.stats.areasOpened || 0) + 1;
+  emit('areaOpened', { id, name: area.name, cost });
+  return { ok: true, cost };
 }
 
 // 장식 들이기: 보관함으로 들어온다(인테리어에서 놓으면 분위기 보너스)

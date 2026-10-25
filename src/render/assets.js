@@ -50,8 +50,8 @@ export const ASSETS = Object.freeze({
     // 원작 인물(원작 소개 기준: 흰 아기 토끼 루나 / 분홍 앞치마·토끼 귀 머리띠의 빵집 언니 루나 언니 / 조끼 입은 파란 토끼 청토끼(청토끼 금융) /
     // 헤드폰·마이크·앞치마의 수달 요리사 모카(원작은 식상의 섬)). 그 밖의 색(모카 털·모자 등)은 도형 대체용 임시 구분이고 원작 색이 아니다.
     // 가게·마을 NPC 라 요리·공격 상태는 쓰지 않는다. 마을에서 맡은 역할은 게임 오리지널 외전 설정(docs/WORLD.md).
-    luna: actor('luna', '루나', { shape: 'rabbit', body: '#fbf8f2', accent: '#f4b8c8', scale: 0.8 }, NPC_STATES),
-    luna_sis: actor('luna_sis', '루나 언니', { shape: 'rabbit', body: '#f6f1e8', accent: '#f0b0c0', apron: '#f3b6c6' }, NPC_STATES),
+    luna: actor('luna', '루나', { shape: 'rabbit', body: '#fbf8f2', accent: '#f4b8c8', scale: 0.8 }, { cook: null, host: null, attack: null, hurt: null }), // 서빙·정리 담당이라 serve 사용
+    luna_sis: actor('luna_sis', '루나 언니', { shape: 'rabbit', body: '#f6f1e8', accent: '#f0b0c0', apron: '#f3b6c6' }, { serve: null, host: null, attack: null, hurt: null }), // 굽기 담당이라 cook 사용
     cheongtokki: actor('cheongtokki', '청토끼', { shape: 'rabbit', body: '#9db6ef', accent: '#f4b8c8', vest: '#3d6fd1' }, NPC_STATES),
     moka: actor('moka', '모카', { shape: 'otter', body: '#8a5a3c', muzzle: '#f3e2c4', hat: '#7b4fb8', apron: '#f3e9d2', phones: '#2b2b33' }, NPC_STATES),
     dev_temp_01: actor('dev_temp_01', 'DEV 임시 동료 01', { shape: 'person', body: '#9a9a9a', hair: '#666', skin: '#eee' }),

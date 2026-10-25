@@ -53,6 +53,7 @@ function route(state, cmd) {
     case 'gear.equip': return town.equipGear(state, cmd.slot, cmd.id ?? null);
     case 'expand.table': return town.buyExpansion(state);
     case 'expand.decor': return town.buyDecor(state, cmd.defId);
+    case 'expand.area': return town.buyArea(state, cmd.id);
     case 'outfit.equip': return eco.equip(state, cmd.who, cmd.slot, cmd.itemId);
 
     case 'interior.begin': return interior.begin(state);

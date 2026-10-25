@@ -85,7 +85,7 @@ function startNew() {
   ui.sheet = null; ui.selectedSlot = null; ui.recruitEvent = null;
   save();
   // 새 게임은 프롤로그부터. 영업 준비 화면이라 그동안 시간은 흐르지 않는다.
-  playNovel(PROLOGUE, { onEnd: () => { toast('새 게임 · 접대 담당은 네오 한 명으로 시작합니다', 'good', 3200); render(true); } });
+  playNovel(PROLOGUE, { onEnd: () => { toast('새 게임 · 토끼 자매가 처음부터 일을 돕고, 접대는 네오가 맡아요', 'good', 3200); render(true); } });
 }
 
 function goTitle() {
@@ -186,7 +186,8 @@ const ACTIONS = {
   'gear.buy': d => run({ type: 'gear.buy', id: d.id }),
   'gear.equip': d => run({ type: 'gear.equip', slot: d.slot, id: d.id || null }),
   'expand.decor': d => run({ type: 'expand.decor', defId: d.def }),
-  'kitchen.toggle': () => { const r = run({ type: 'kitchen.toggle' }); if (r.ok) toast(r.autoKitchen ? '🍳 주방 자동 켬 · 주문이 들어오면 연이가 만들고 네오가 서빙해요' : '주방 자동 끔 · 주방에서 직접 만들고 트레이로 서빙해요'); },
+  'expand.area': d => run({ type: 'expand.area', id: d.id }),
+  'kitchen.toggle': () => { const r = run({ type: 'kitchen.toggle' }); if (r.ok) toast(r.autoKitchen ? '🍳 주방 자동 켬 · 루나 언니가 굽고 루나와 네오가 서빙해요' : '주방 자동 끔 · 주방에서 직접 만들고 트레이로 서빙해요'); },
   'auto.toggle': () => { const r = run({ type: 'auto.toggle' }); if (r.ok) toast(r.auto ? '🤖 자동 운영 켬 (플레이어와 같은 명령만 사용)' : '자동 운영 끔'); },
 };
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
@@ -267,6 +268,7 @@ function handleEvents(events) {
       case 'exchanged': toast(`⚖ 월정석 ${ev.qty}개 → ${ev.gold}G`, 'good'); gagOnce('luna', pickLine(GAG_LUNA_EXCHANGE), 8000); break;
       case 'gearBought': toast(`🗡 ${ev.name} 구입 · 상자에 돈을 넣었다`, 'good'); gagOnce('stall', pickLine(GAG_GEAR_STALL), 8000); break;
       case 'expanded': toast(`🪑 ${ev.tableNo}번 테이블을 들였어요 · 다음 영업부터 손님 자리가 늘어요`, 'good', 3600); break;
+      case 'areaOpened': toast(`🔓 ${ev.name} 증축 완료 · 인테리어에서 테이블과 장식을 놓아 보세요`, 'good', 3600); break;
       case 'decorBought': toast(`📦 ${ev.name} 보관함에 도착 · 인테리어에서 놓아 주세요`, 'good'); break;
       case 'huntFinished': if ((ev.bag?.moonstone || 0) > 0) gagOnce('hunt', pickLine(GAG_HUNT_RETURN), 0); break;
       case 'huntStart': toast('🐾 네오가 영냥이 모습으로 사냥을 떠났어요 (3:00)', 'good'); break;

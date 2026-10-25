@@ -44,6 +44,24 @@ test('주방 자동(기본 켜짐)은 조리·서빙만 하고 지명 수락은 
   assert.equal(s.autoKitchen, false);
 });
 
+test('연이는 계산만 한다: 서빙은 루나·네오, 굽기는 루나 언니가 오븐 앞에서', () => {
+  const s = quietShift({ kitchen: true });
+  const reg = seat(s, { kind: 'regular' });
+  const deliverers = new Set();
+  let yeoniJob = false, sisCooked = false;
+  for (let i = 0; i < 1800 && s.customers[reg.cid]; i++) {
+    tick(s, 100);
+    for (const st of Object.values(s.staff)) if (st.job?.kind === 'deliver') deliverers.add(st.id);
+    if (s.staff.yeoni.job) yeoniJob = true;
+    if (s.staff.luna_sis.action === 'cook') sisCooked = true;
+  }
+  assert.ok(s.visits[reg.vid].servedTotal > 0);
+  assert.equal(yeoniJob, false, '연이는 일감을 받지 않는다');
+  assert.ok(!deliverers.has('yeoni') && !deliverers.has('luna_sis'));
+  assert.ok(deliverers.size > 0);
+  assert.ok(sisCooked, '루나 언니가 조리대 앞에서 굽는다');
+});
+
 test('지명 요청만으로는 300초가 시작되지 않고, 수락 시점부터 시작된다', () => {
   const s = quietShift();
   const { cid, vid, tableNo } = seat(s);

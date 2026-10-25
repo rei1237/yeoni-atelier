@@ -101,7 +101,7 @@ function shiftPanel(state, ui) {
   const flabel = active ? `🔥 피버 ${fmtTime(fv.activeUntil - state.shift.elapsedMs)}` : fv.gauge >= RULES.FEVER_GAUGE_MAX ? '🔥 피버!' : `피버 ${fv.gauge}/100`;
   const fever = btn({ action: 'fever.activate', cls: fcls, disabled: !chk.ok, title: chk.ok ? '피버 발동 (20초, 대상 팁 2배)' : chk.reason,
     label: `<span>${flabel}</span><span class="gauge" aria-hidden="true"><i style="width:${active ? 100 : fv.gauge}%"></i></span>` });
-  const kitchen = btn({ action: 'kitchen.toggle', cls: `autobtn${state.autoKitchen ? ' on' : ''}`, title: '주방 자동(주문 조리·서빙) 켜기/끄기', label: `<span>🍳 주방</span><span>${state.autoKitchen ? '자동' : '수동'}</span>` });
+  const kitchen = btn({ action: 'kitchen.toggle', cls: `autobtn${state.autoKitchen ? ' on' : ''}`, title: '주방 자동(루나 언니 굽기·루나 서빙) 켜기/끄기', label: `<span>🍳 주방</span><span>${state.autoKitchen ? '자동' : '수동'}</span>` });
   const auto = btn({ action: 'auto.toggle', cls: `autobtn${state.auto ? ' on' : ''}`, title: '전체 자동(지명 수락·도움 응답·피버까지) 켜기/끄기', label: `<span>🤖 전체</span><span>${state.auto ? '켜짐' : '꺼짐'}</span>` });
 
   return `<div class="tray" role="group" aria-label="완성 트레이 3칸">${slots}</div>
@@ -118,7 +118,7 @@ function prepPanel(state) {
     ${btn({ action: 'shift.start', cls: 'primary big', disabled: !sc.ok, title: sc.ok ? '정규 영업 30분 시작' : sc.reasons.join(' / '), label: `☕ Day ${state.day} 영업 시작 (30:00)` })}
     <div class="grid2">
       ${btn({ action: 'hunt.start', disabled: !hc.ok, title: hc.ok ? '영냥이 월정석 사냥 (약 3분) · 월정석은 루나의 저울에서 골드로' : hc.reasons.join(' / '), label: '🌙 월정석 사냥 (3분)' })}
-      ${btn({ action: 'sheet.open', args: { sheet: 'town' }, cls: 'primary', title: '모카 식재료점 · 무인 장비 좌판 · 루나의 저울 · 가게 확장', label: '🏘 마을 나가기' })}
+      ${btn({ action: 'sheet.open', args: { sheet: 'town' }, cls: 'primary', title: '모카 식재료점 · 무인 장비 좌판 · 루나의 저울 · 공방(테이블·증축)', label: '🏘 마을 나가기' })}
       ${btn({ action: 'interior.begin', label: '🪑 인테리어' })}
       ${btn({ action: 'kitchen.toggle', cls: state.autoKitchen ? 'on' : '', title: '영업 중 주문 조리·서빙을 자동으로', label: `🍳 주방 자동 ${state.autoKitchen ? '켜짐' : '꺼짐'}` })}
     </div>
