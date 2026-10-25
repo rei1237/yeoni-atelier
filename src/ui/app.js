@@ -139,7 +139,10 @@ function maybeStory() {
   const beats = storyBeats(id);
   if (!beats) { run({ type: 'story.seen', id }, { keepQuiet: true }); return; }
   ui.sheet = null;
-  playNovel(beats, { onEnd: () => { run({ type: 'story.seen', id }); if (id.startsWith('ending:')) ui.ending = id.slice(7); render(true); } });
+  const done = () => { run({ type: 'story.seen', id }); if (id.startsWith('ending:')) ui.ending = id.slice(7); render(true); };
+  // 이야기 속 선택지는 분위기용: 상태를 바꾸지 않고 고른 답의 박자만 잇는다. 건너뛰어도 본 것으로 친다.
+  const onChoose = (cid, beat) => ({ ok: true, beats: beat?.choices?.find(c => c.id === cid)?.beats || [] });
+  playNovel(beats, { onEnd: done, onCancel: done, onChoose });
 }
 
 function replayStory() {

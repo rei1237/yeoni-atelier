@@ -10,6 +10,7 @@ import { CROPS } from '../src/data/farm.js';
 import { automationStatus } from '../src/game/auto.js';
 import { talkCheck } from '../src/game/bonds.js';
 import { bondQuestion } from '../src/data/bond-dialogues.js';
+import { BOND_STORIES } from '../src/story/bonds.js';
 import { quietShift, seat, tickTo, unlockAutomation, enableAutomation } from './helpers.mjs';
 
 const cmd = (s, type, args = {}) => dispatch(s, { type, ...args });
@@ -139,4 +140,16 @@ test('인연 대화는 답을 고를 때만 행동력을 쓰고, 답 순서는 �
   assert.ok(cmd(s, 'bond.talk', { id: 'luna', choiceId: q1.answers[0].id, token: q1.token }).ok);
   assert.equal(s.ap.left, ap - 1);
   assert.equal(talkCheck(s, 'luna').ok, false);
+});
+
+test('자동화를 여는 인연 이야기는 그 해금을 알리고, 이야기 속 선택지마다 이어지는 대답이 있다', () => {
+  for (const a of Object.values(TEMP.AUTOMATION)) {
+    const beats = BOND_STORIES[a.id][a.tier - 1];
+    assert.ok(beats.some(b => b.s === 'sys' && b.t.includes('해금')), `${a.id} ♥${a.tier} 해금 고지`);
+  }
+  for (const id of ['neo', 'luna', 'luna_sis']) for (const beats of BOND_STORIES[id]) {
+    const picks = beats.filter(b => b.choices);
+    assert.equal(picks.length, 1, `${id} 단계마다 선택 한 번`);
+    assert.ok(picks[0].choices.length >= 2 && picks[0].choices.every(c => c.beats.length > 0));
+  }
 });

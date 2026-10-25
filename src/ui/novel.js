@@ -43,7 +43,7 @@ export function playNovel(input,{onEnd,onChoose,onGuideSeen,onCancel}={}){
  function choices(){
   const b=beats[idx];if(!b.choices||choiceLocked)return;
   mode=false;q('[data-nv="auto"]').classList.remove('on');panel.hidden=false;root.classList.add('choosing');next.classList.remove('on');
-  q('[data-nv="end"]').textContent='나중에 이야기하기';
+  q('[data-nv="end"]').textContent=b.skipText||'나중에 이야기하기';
   if(b.guide&&!guideDone){
    const art=ASSETS.guides?.bonds?.path;
    panel.innerHTML='<div class="nv-choice-guide">'+(art?'<img src="'+art+'" alt="마음을 헤아리는 답을 고르는 인연 대화">':'')+'<h3>어떤 마음으로 답할까요?</h3><p>상대의 성격과 지금의 고민을 떠올려 보세요. 답에 따라 인연이 다르게 오르고, 대화를 마치면 행동력 1을 써요.</p><button class="primary" data-nv="guide">마음을 담아 답하기</button></div>';
