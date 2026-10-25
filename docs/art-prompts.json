@@ -3160,5 +3160,221 @@
     "sourceFile": "exec-a37c4011-aa34-4240-a10a-32629ba73528.png",
     "prompt": "Edit target image 1 only, character reference image 2 is the authoritative Yeongnyangi model sheet. Preserve the entire cafe, pig Yeoni, key, journal, table, lighting and framing unchanged. Redraw ONLY the white cat at the right to match reference 2 exactly: fluffy white kitten, angular slightly narrowed confident half-lidded eyes with purple upper iris fading to golden lower iris; small closed mouth and mildly sardonic knowing expression, not open-mouth cheerful baby. Dark navy soft drooping wizard cap embroidered fine GOLD CONSTELLATION LINES and prominent gold CRESCENT MOON with tassel; navy cape with fine golden constellation linework and gold trim; ornate round purple-blue gemstone pendant with small gold dangling ornament at neck. Keep cat seated at same location and scale, looking toward viewer. Match reference character's distinctive brows, cheek fluff, pale pink inner ears, elegant cool personality. No brown round eyes, no generic big star badge clasp. No other changes. No text.",
     "processing": "Source crop, alpha retained, WebP export."
+  },
+  {
+    "id": "badges/bambi",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/bambi 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/bambi.png",
+    "sourceSha256": "913949f0b7d94283a147281a9a2868f4c01b0af453b9da7a6f65ce50af1deac4"
+  },
+  {
+    "id": "badges/cheongtokki",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/cheongtokki 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/cheongtokki.png",
+    "sourceSha256": "33ee1ad85744fc69b09fab44c4a8b0a539e2e0aec22a8c79d5e7dd9fe39175b5"
+  },
+  {
+    "id": "badges/luna",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/luna 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/luna.png",
+    "sourceSha256": "ee601ba7ddfa64cbd125e07e7cdd5bab9f9094dd014e89ddd5acc64cc64f5c76"
+  },
+  {
+    "id": "badges/luna_sis",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/luna_sis 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/luna_sis.png",
+    "sourceSha256": "b683d427d8e0959e4cacddbde70766dc0a924264b57660e18da3327c9786c462"
+  },
+  {
+    "id": "badges/lune",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/lune 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/lune.png",
+    "sourceSha256": "b1416a6d6b441887ea6de51f144324d3df3d8c711987408c04c727e9f7d59ae7"
+  },
+  {
+    "id": "badges/moka",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/moka 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/moka.png",
+    "sourceSha256": "002885f5e077aef66fa8399751f55d5d4225e65a9f8a876f60c1790393e7133d"
+  },
+  {
+    "id": "badges/museong",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/museong 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/museong.png",
+    "sourceSha256": "8cf89390425adfc9e80d07ab49119c628713ceaa78d1ab0d6d46f876434c0171"
+  },
+  {
+    "id": "badges/neo",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/neo 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/neo.png",
+    "sourceSha256": "d9aed637c1ab7d5f326ebb7184256558337a716894ebf74774c8618897795bd9"
+  },
+  {
+    "id": "badges/neo_cat",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/neo_cat 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/neo_cat.png",
+    "sourceSha256": "a4d336e321a70430d3208a1d0113aa131c5b665d24cf0b7b1f40c1bbe33e1828"
+  },
+  {
+    "id": "badges/neo_stage",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/neo_stage 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/neo_stage.png",
+    "sourceSha256": "2e70247bc2ead39c4dada39f9e9aeda7a92988f45beb005c480c5dc067aa74c8"
+  },
+  {
+    "id": "badges/raven",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/raven 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/raven.png",
+    "sourceSha256": "f3ba3371d7ac0d353c26361bac1e8a2ceb47bc7b4a6f139261ff8a6c7956eec8"
+  },
+  {
+    "id": "badges/seohanbi",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/seohanbi 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/seohanbi.png",
+    "sourceSha256": "396fb7948fe67e928ed6353f5e82683d2796fd4ff912ff7096a2a3af53be70c3"
+  },
+  {
+    "id": "badges/solv",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/solv 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/solv.png",
+    "sourceSha256": "13d39fb0bc659c52790eb00b3a916abc78c3cd9e40ded331afe9052388fdb120"
+  },
+  {
+    "id": "badges/yeoni",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/yeoni 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/yeoni.png",
+    "sourceSha256": "6b44ba834e06f2c45ee9579975b92ed8bb8509817a62f16c0888e4ed203ee6f4"
+  },
+  {
+    "id": "badges/yeoni_pig",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/yeoni_pig 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/yeoni_pig.png",
+    "sourceSha256": "876fadcae31614170247f1d5d8659742de900e30ac2a3f2b45e080697a0dede0"
+  },
+  {
+    "id": "badges/yun",
+    "tool": "handoff-2026-10-26",
+    "prompt": "대화 시트 talking/yun 프레임0(입 닫힘)에서 얼굴 중심으로 자른 192² 작은 대사용 얼굴 배지. 새 생성 아님.",
+    "source": "outputs/claude-handoff/assets/badges/yun.png",
+    "sourceSha256": "96584df03384a9ac2fed9fd005addf8cd51c2d9d200dbf314d034d20227dc98f"
+  },
+  {
+    "id": "service/cloth-down",
+    "tool": "imagegen",
+    "prompt": "손·팔·의상 없이 소품만 그린 방향별 정리 천. 투명 배경, 256×192, 기준점 128,112.",
+    "source": "outputs/claude-handoff/assets/service/cloth-down.webp",
+    "sourceSha256": "388442d084c7bf15e71669fbb2f126b137372153db9a4e2616fe69264e7ddea8",
+    "sourceCell": [
+      0,
+      444,
+      444,
+      887
+    ]
+  },
+  {
+    "id": "service/cloth-left",
+    "tool": "imagegen",
+    "prompt": "손·팔·의상 없이 소품만 그린 방향별 정리 천. 투명 배경, 256×192, 기준점 128,112.",
+    "source": "outputs/claude-handoff/assets/service/cloth-left.webp",
+    "sourceSha256": "6845be1b9719670e4be1b17a1a28d04b26cd39d4fd0339140fa131b828a0a7e0",
+    "sourceCell": [
+      444,
+      444,
+      887,
+      887
+    ]
+  },
+  {
+    "id": "service/cloth-right",
+    "tool": "imagegen",
+    "prompt": "손·팔·의상 없이 소품만 그린 방향별 정리 천. 투명 배경, 256×192, 기준점 128,112.",
+    "source": "outputs/claude-handoff/assets/service/cloth-right.webp",
+    "sourceSha256": "eb663f0e36b07fd5b720676d732a638071bb21fc7e395686e4080de81d5537d0",
+    "sourceCell": [
+      887,
+      444,
+      1330,
+      887
+    ]
+  },
+  {
+    "id": "service/cloth-up",
+    "tool": "imagegen",
+    "prompt": "손·팔·의상 없이 소품만 그린 방향별 정리 천. 투명 배경, 256×192, 기준점 128,112.",
+    "source": "outputs/claude-handoff/assets/service/cloth-up.webp",
+    "sourceSha256": "869033c168f36a131e8ba37efc149ba74123d3fdcbb9b171009eb555f38d4e6c",
+    "sourceCell": [
+      1330,
+      444,
+      1774,
+      887
+    ]
+  },
+  {
+    "id": "service/tray-down",
+    "tool": "imagegen",
+    "prompt": "손·팔·의상 없이 소품만 그린 방향별 빈 쟁반. 투명 배경, 256×192, 기준점 128,112.",
+    "source": "outputs/claude-handoff/assets/service/tray-down.webp",
+    "sourceSha256": "346a985729124a4ba7c171f46d594b3bfc406bb6e29705acb3efb2adc329b64f",
+    "sourceCell": [
+      0,
+      0,
+      444,
+      444
+    ]
+  },
+  {
+    "id": "service/tray-left",
+    "tool": "imagegen",
+    "prompt": "손·팔·의상 없이 소품만 그린 방향별 빈 쟁반. 투명 배경, 256×192, 기준점 128,112.",
+    "source": "outputs/claude-handoff/assets/service/tray-left.webp",
+    "sourceSha256": "fdad615a22f3f011a0f637385bff315fb2ffce017b0dc78a6ef10991230dbbbe",
+    "sourceCell": [
+      444,
+      0,
+      887,
+      444
+    ]
+  },
+  {
+    "id": "service/tray-right",
+    "tool": "imagegen",
+    "prompt": "손·팔·의상 없이 소품만 그린 방향별 빈 쟁반. 투명 배경, 256×192, 기준점 128,112.",
+    "source": "outputs/claude-handoff/assets/service/tray-right.webp",
+    "sourceSha256": "238e61367f99c6b00468409cfb8d5c270edcaeff65df26810d36bd49cf8ac557",
+    "sourceCell": [
+      887,
+      0,
+      1330,
+      444
+    ]
+  },
+  {
+    "id": "service/tray-up",
+    "tool": "imagegen",
+    "prompt": "손·팔·의상 없이 소품만 그린 방향별 빈 쟁반. 투명 배경, 256×192, 기준점 128,112.",
+    "source": "outputs/claude-handoff/assets/service/tray-up.webp",
+    "sourceSha256": "f258c9335830bbb8bb678df0c7214a29fa9e70330bff7914447afe7f729bbdf6",
+    "sourceCell": [
+      1330,
+      0,
+      1774,
+      444
+    ]
   }
 ]

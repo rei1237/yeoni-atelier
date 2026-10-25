@@ -21,7 +21,8 @@ import { recordWallClock } from '../game/offline.js';
 import { SAVE_KEYS, memoryStorage, browserStorage, saveGame, loadGame, hasSave, resetSave } from '../core/save.js';
 import { createFrameLoop } from '../core/frame-loop.js';
 import { createJoystick } from '../core/joystick.js';
-import { loadAssetImages } from '../render/assets.js';
+import { loadAssetImages, ASSETS } from '../render/assets.js';
+import { talkingKey } from '../render/sprite-renderer.js';
 import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe } from '../render/cafe-view.js';
 import { drawHunt } from '../render/hunt-view.js';
 import { $, morph, toast, floater, shake } from './dom.js';
@@ -344,9 +345,11 @@ function gagLines(lines) {
   (lines || []).forEach((l, i) => setTimeout(() => {
     const node = toast(`${l.who}: ${l.text}`, 'gag', 3000);
     const key = Object.values(SPEAKERS).find(s => s.name === l.who)?.portrait;
-    if (node && key) {
-      const cv = document.createElement('canvas'); cv.width = cv.height = 96;
-      cv.dataset.talkingPortrait = key; cv.setAttribute('aria-hidden', 'true'); node.prepend(cv);
+    // 작은 대사는 흉상을 줄이지 않고, 대화 시트에서 얼굴만 자른 192² 배지를 원형으로 보인다.
+    const badge = key && ASSETS.badges?.[talkingKey(key)];
+    if (node && badge) {
+      const img = document.createElement('img'); img.className = 'toast-badge'; img.src = badge.path;
+      img.alt = ''; img.setAttribute('aria-hidden', 'true'); node.prepend(img);
     }
   }, i * 1100));
 }
@@ -512,6 +515,7 @@ installDialogFocus();
 
 // 개발 모드에서만 콘솔 확인용 핸들 노출(일반 플레이에는 없음)
 if (DEV) window.__yeoni = { get state() { return state; }, ui, audioStatus };
+if (DEV && new URLSearchParams(location.search).get('qa') === 'actors') import('./qa-actors.js').then(m => m.mountActorQA());
 
 document.addEventListener('change',e=>{if(e.target.id==='hunt-stage'){ui.huntStage=Number(e.target.value);render(true);}});
 

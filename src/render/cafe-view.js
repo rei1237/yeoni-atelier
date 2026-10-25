@@ -11,7 +11,7 @@ import { CUSTOMER_WEALTH } from '../data/customer-wealth.js';
 import {personName,usableHosts} from '../game/state.js';
 import { ASSETS,imageFor } from './assets.js';
 import { furnitureCells } from '../game/space.js';
-import { drawActor, roundRect, drawObjectImage, drawIcon } from './sprite-renderer.js';
+import { drawActor, roundRect, drawObjectImage, drawFood, nameTag } from './sprite-renderer.js';
 
 export function cafeBounds(state){const a=state?.interior?.areas||[];return {cols:a.includes('east_wing')||a.includes('garden_wing')?20:12,rows:a.includes('garden_wing')?24:16};}
 export function computeView(w, h, camera={}) {
@@ -27,6 +27,22 @@ const isFloorDef = def => def.cells.every(c => c.kind === 'floor');
 function cellsBox(cells) {
   const xs = cells.map(c => c[0]), ys = cells.map(c => c[1]);
   return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs) + 1, h: Math.max(...ys) - Math.min(...ys) + 1 };
+}
+
+// 이름표는 모든 배우를 그린 뒤 한 번에 놓는다. 겹치면 앞(아래쪽) 이름표를 한 줄씩 아래로 민다.
+function drawNameTags(ctx, tags, size) {
+  const fs = Math.max(9, Math.min(11, Math.round(size * 0.17))), h = fs + 6, placed = [];
+  ctx.font = `600 ${fs}px system-ui, sans-serif`;
+  for (const g of tags.sort((a, b) => a.y - b.y)) {
+    const w = ctx.measureText(g.text).width + 10;
+    let y = g.y;
+    for (let moved = true, n = 0; moved && n < 6; n++) {
+      moved = false;
+      for (const r of placed) if (Math.abs(r.x - g.x) < (r.w + w) / 2 && y < r.y + h && y + h > r.y) { y = r.y + h; moved = true; }
+    }
+    placed.push({ x: g.x, y, w });
+    nameTag(ctx, g.text, g.x, y, size, g.color);
+  }
 }
 
 function label(ctx, text, x, y, size, color = '#3b2f2f', align = 'center') {
@@ -162,10 +178,13 @@ export function drawCafe(ctx, state, v, opts = {}) {
     usableHosts(state).filter(id=>id!=='neo'&&!STAFF_CREW.includes(id)).forEach((id,i)=>actors.push({key:id,x:2.5+(i%4)*2,y:10.5+Math.floor(i/4)*2,o:{state:'idle',facing:'down',name:personName(state,id),...outfitLook(state,id)}}));
   }
   actors.sort((a, b) => a.y - b.y);
+  const tags = [];
   for (const a of actors) {
-    const p = P(a.x, a.y);
-    drawActor(ctx, a.key, { ...a.o, x: p.x, y: p.y + T * 0.32, size: T * 1.8, nameOffsetY:a.o.state==='host'?Math.max(20,T*.65):0, idleMotion:!editing&&!state.paused, reducedMotion:opts.reducedMotion, t });
+    const p = P(a.x, a.y), foot = p.y + T * 0.32;
+    drawActor(ctx, a.key, { ...a.o, name: null, x: p.x, y: foot, size: T * 1.8, idleMotion:!editing&&!state.paused, reducedMotion:opts.reducedMotion, t });
+    if (a.o.name) tags.push({ text: a.o.name, x: p.x, y: foot + 4 + (a.o.state === 'host' ? Math.max(20, T * .65) : 0), color: a.o.tagColor });
   }
+  drawNameTags(ctx, tags, T * 1.8);
 
   // 편집 표시: 선택 가구와 문제 가구
   if (editing) {
@@ -214,7 +233,7 @@ function drawTable(ctx, state, p, T, f, tb, t) {
     served.forEach((o, i) => {
       const cx = p.x + T * (served.length === 1 ? 0.5 : 0.33 + i * 0.34), cy = p.y + T * 0.55;
       ctx.fillStyle = '#fffaf2'; ctx.beginPath(); ctx.arc(cx, cy, T * 0.15, 0, Math.PI * 2); ctx.fill();
-      drawIcon(ctx,o.menuId,cx,cy,16);
+      drawFood(ctx, o.menuId, cx, cy + T * 0.07, T * (served.length === 1 ? 0.5 : 0.4));
     });
   }
   // 테이블 번호(색만이 아니라 숫자로)
@@ -270,6 +289,6 @@ function drawStations(ctx, state, v) {
   state.tray.forEach((it, i) => {
     const cx = pp.x + T * (0.4 + i * 0.6), cy = pp.y + T * 0.72;
     ctx.fillStyle = it ? '#fffaf2' : 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.arc(cx, cy, T * 0.18, 0, Math.PI * 2); ctx.fill();
-    if (it) drawIcon(ctx,it.menuId,cx,cy,16);
+    if (it) drawFood(ctx, it.menuId, cx, cy + T * 0.08, T * 0.5);
   });
 }

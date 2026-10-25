@@ -4,6 +4,7 @@ import { SPEAKERS } from '../story/prologue.js';
 import { imageFor, loadAssetImages, ASSETS } from '../render/assets.js';
 import { setStoryAudio, sound } from './audio.js';
 import { playTransformation } from './transformation.js';
+import { talkingKey } from '../render/sprite-renderer.js';
 const TYPE_MS=32, reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let active=null;
@@ -104,6 +105,6 @@ export function playNovel(input,{onEnd,onChoose,onGuideSeen,onCancel}={}){
  function key(e){if(e.target.closest?.('button'))return;if(e.key==='Enter'||e.key===' '){e.preventDefault();tap();}else if(e.key==='Escape'&&!q('.nv-log').hidden)q('.nv-log').hidden=true;}
  root.addEventListener('click',click);window.addEventListener('keydown',key,true);active={close};raf=requestAnimationFrame(paint);
  // Load only the cast/backdrops for this story, never the whole portrait catalogue.
- const keys=new Set();for(const b of beats){if(b.bg)keys.add('backgrounds/'+b.bg);for(const k of ['l','c','r'])if(b[k])keys.add('talking/'+b[k].split(':')[0].split('@')[0]);}
+ const keys=new Set();for(const b of beats){if(b.bg)keys.add('backgrounds/'+b.bg);for(const k of ['l','c','r'])if(b[k])keys.add('talking/'+talkingKey(b[k]));}
  loadAssetImages(undefined,{keys:[...keys]});box.focus({preventScroll:true});advance();
 }

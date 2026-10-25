@@ -305,7 +305,7 @@ button.on { background: #2f6e4a; color: #fff; box-shadow: none; }
 .pixel-icon { width:32px; height:32px; object-fit:contain; image-rendering:auto; }
 .title-art[style*="url"] { min-height:160px; font-size:0; border-radius:12px; margin-bottom:16px; }
 .toast.gag { display:flex; align-items:center; gap:8px; }
-.toast canvas { width:48px; height:48px; flex:none; image-rendering:auto; }
+.toast-badge { width:44px; height:44px; flex:none; border-radius:50%; object-fit:cover; background:#f6eee4; box-shadow:0 0 0 2px var(--accent); }
 .town-map[style*="url"]::after { display:none; }
 @media(max-height:700px) { .panel { max-height:48dvh; overflow-y:auto; } }
 :root { --frame-panel:none; --frame-button:none; --frame-tab:none; --frame-card:none; }

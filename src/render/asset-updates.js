@@ -9530,5 +9530,325 @@ export const ASSET_UPDATES = {
         384
       ]
     }
+  },
+  "badges": {
+    "bambi": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/bambi.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "cheongtokki": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/cheongtokki.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "luna": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/luna.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "luna_sis": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/luna_sis.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "lune": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/lune.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "moka": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/moka.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "museong": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/museong.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "neo": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/neo.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "neo_cat": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/neo_cat.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "neo_stage": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/neo_stage.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "raven": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/raven.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "seohanbi": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/seohanbi.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "solv": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/solv.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "yeoni": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/yeoni.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "yeoni_pig": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/yeoni_pig.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    },
+    "yun": {
+      "kind": "badge",
+      "px": 192,
+      "path": "assets/illustrated/badges/yun.webp",
+      "dimensions": [
+        192,
+        192
+      ]
+    }
+  },
+  "service": {
+    "cloth-down": {
+      "kind": "prop",
+      "path": "assets/illustrated/service/cloth-down.webp",
+      "dimensions": [
+        256,
+        192
+      ],
+      "anchor": [
+        128,
+        112
+      ],
+      "itemSocket": [
+        128,
+        99
+      ],
+      "handSockets": []
+    },
+    "cloth-left": {
+      "kind": "prop",
+      "path": "assets/illustrated/service/cloth-left.webp",
+      "dimensions": [
+        256,
+        192
+      ],
+      "anchor": [
+        128,
+        112
+      ],
+      "itemSocket": [
+        128,
+        99
+      ],
+      "handSockets": []
+    },
+    "cloth-right": {
+      "kind": "prop",
+      "path": "assets/illustrated/service/cloth-right.webp",
+      "dimensions": [
+        256,
+        192
+      ],
+      "anchor": [
+        128,
+        112
+      ],
+      "itemSocket": [
+        128,
+        99
+      ],
+      "handSockets": []
+    },
+    "cloth-up": {
+      "kind": "prop",
+      "path": "assets/illustrated/service/cloth-up.webp",
+      "dimensions": [
+        256,
+        192
+      ],
+      "anchor": [
+        128,
+        112
+      ],
+      "itemSocket": [
+        128,
+        99
+      ],
+      "handSockets": []
+    },
+    "tray-down": {
+      "kind": "prop",
+      "path": "assets/illustrated/service/tray-down.webp",
+      "dimensions": [
+        256,
+        192
+      ],
+      "anchor": [
+        128,
+        112
+      ],
+      "itemSocket": [
+        128,
+        99
+      ],
+      "handSockets": [
+        [
+          42,
+          114
+        ],
+        [
+          214,
+          114
+        ]
+      ]
+    },
+    "tray-left": {
+      "kind": "prop",
+      "path": "assets/illustrated/service/tray-left.webp",
+      "dimensions": [
+        256,
+        192
+      ],
+      "anchor": [
+        128,
+        112
+      ],
+      "itemSocket": [
+        128,
+        99
+      ],
+      "handSockets": [
+        [
+          42,
+          114
+        ],
+        [
+          214,
+          114
+        ]
+      ]
+    },
+    "tray-right": {
+      "kind": "prop",
+      "path": "assets/illustrated/service/tray-right.webp",
+      "dimensions": [
+        256,
+        192
+      ],
+      "anchor": [
+        128,
+        112
+      ],
+      "itemSocket": [
+        128,
+        99
+      ],
+      "handSockets": [
+        [
+          42,
+          114
+        ],
+        [
+          214,
+          114
+        ]
+      ]
+    },
+    "tray-up": {
+      "kind": "prop",
+      "path": "assets/illustrated/service/tray-up.webp",
+      "dimensions": [
+        256,
+        192
+      ],
+      "anchor": [
+        128,
+        112
+      ],
+      "itemSocket": [
+        128,
+        99
+      ],
+      "handSockets": [
+        [
+          42,
+          114
+        ],
+        [
+          214,
+          114
+        ]
+      ]
+    }
   }
 };

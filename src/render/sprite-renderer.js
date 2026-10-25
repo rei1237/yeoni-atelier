@@ -2,6 +2,7 @@
 // 같은 입력(상태·방향·시간)을 받으므로 시트를 넣어도 호출하는 쪽은 바뀌지 않는다.
 
 import { ASSETS, imageFor, resolveState, actorDef } from './assets.js';
+import { actorSocket } from '../data/actor-sockets.js';
 
 // 카페의 대기 동작. 발 기준점은 이동하지 않고 호흡·작은 몸 기울임만 표현한다.
 export function cafeIdlePose(key, o) {
@@ -14,12 +15,14 @@ export function cafeIdlePose(key, o) {
 export function drawActor(ctx, key, o) {
   const gesture=key==='yeoni'&&o.gesture;
   if(gesture && imageFor('yeoni_idle')){key='yeoni_idle';o={...o,state:gesture.kind,facing:'down',animationFrame:Math.min(3,Math.floor(gesture.age/260)),idleMotion:false,outfitId:null};}
-  else if((o.state||'idle')==='idle'&&!o.outfitId&&imageFor(key+'_idle')){key=key+'_idle';o={...o,idleMotion:false};}
+  // 쟁반·천을 든 동안에는 손 위치가 정해진 기본 시트를 쓴다(대기 전용 시트는 손에 다른 물건이 있다).
+  else if((o.state||'idle')==='idle'&&!o.outfitId&&!o.carry&&!o.cleaning&&imageFor(key+'_idle')){key=key+'_idle';o={...o,idleMotion:false};}
   const dressed = o.outfitId ? `${key}@${o.outfitId}` : key;
   key = imageFor(dressed) ? dressed : key.split('@')[0];
   const def = actorDef(key) || ASSETS.actors.customer;
   const st = resolveState(def, o.state || 'idle');
   const img = imageFor(key);
+  o={...o,actorKey:key};
   const pose=cafeIdlePose(key,o);
   if (pose) {
     ctx.save();ctx.translate(o.x,o.y);ctx.rotate(pose.angle);ctx.scale(pose.scaleX,pose.scaleY);
@@ -39,6 +42,8 @@ function drawFromSheet(ctx, def, img, st, o) {
   const frame = (s.frameOffset || 0) + (o.animationFrame==null?Math.floor((o.t / 1000) * s.fps) % s.frames:Math.max(0,Math.min(s.frames-1,o.animationFrame)));
   // 고해상도 원본을 실제 화면 크기에 맞춰 축소한다.
   const scale = o.size / def.frame.h;
+  const sock = o.carry || o.cleaning ? actorSocket(o.actorKey || '', o.facing || 'down') : null;
+  if (sock?.layer === 'back') drawWorkProps(ctx, o, sock, scale, frame);
   const prev = ctx.imageSmoothingEnabled;
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   if(o.flipX){ctx.save();ctx.translate(o.x,0);ctx.scale(-1,1);ctx.translate(-o.x,0);}
@@ -48,20 +53,34 @@ function drawFromSheet(ctx, def, img, st, o) {
   ctx.filter = 'none';
   if(o.flipX)ctx.restore();
   ctx.imageSmoothingEnabled = prev;
-  drawWorkProps(ctx, o);
+  if (sock && sock.layer !== 'back') drawWorkProps(ctx, o, sock, scale, frame);
   if (o.name) nameTag(ctx, o.name, o.x, o.y + 4 + (o.nameOffsetY || 0), o.size, o.tagColor);
 }
 
-// 공통 투명 소품을 현재 의상 위에 합성한다. 주문 ID가 가리키는 실제 메뉴를 운반한다.
-function drawWorkProps(ctx, o) {
-  if (!o.carry && !o.cleaning) return;
-  const facing = o.facing || 'down', side = facing === 'left' ? -1 : facing === 'right' ? 1 : 0;
-  const size = o.size * .58;
-  const motion = o.cleaning ? Math.sin(o.t / 110) * o.size * .045 : 0;
-  const x = o.x + side * o.size * .17 + motion, y = o.y - o.size * .32;
-  const prop = imageFor(`interactions/${o.cleaning ? 'cloth' : 'tray'}-${facing}`);
-  if (prop) ctx.drawImage(prop, x - size / 2, y - size / 2, size, size);
-  if (o.carry?.menuId) drawIcon(ctx, o.carry.menuId, x, y - size * .12, o.size * .32);
+// 손이 없는 서빙 소품을 배우별 손 위치(actor-sockets.js)에 맞춰 붙인다. 위를 보면 몸 뒤, 그 외에는 몸 앞에 그린다.
+// 쟁반과 음식은 한 번의 이동으로 함께 움직이고, 음식은 주문 ID가 가리키는 실제 메뉴 그림을 쟁반 면에 세운다.
+function drawWorkProps(ctx, o, sock, scale, frame) {
+  const id = `${o.cleaning ? 'cloth' : 'tray'}-${o.facing || 'down'}`, def = ASSETS.service?.[id], prop = def && imageFor(`service/${id}`);
+  if (!prop) return;
+  // 천은 한 손으로 쥐어 손잡이 기준점이 없다. 그때는 쟁반 손잡이 간격(172)으로 크기를 맞춘다.
+  const hs = def.handSockets || [], [ax, ay] = def.anchor, span = hs.length > 1 ? hs[1][0] - hs[0][0] : 172;
+  const k = sock.w * scale / span * (o.cleaning ? .8 : 1);
+  const sx = o.flipX ? 128 - sock.x : sock.x;
+  const bob = o.state === 'walk' && !o.reducedMotion ? -(frame % 2) * scale : 0;
+  const wipe = o.cleaning && !o.reducedMotion ? Math.sin(o.t / 140) * sock.w * .22 * scale : 0;
+  ctx.save();
+  ctx.translate(o.x + (sx - 64) * scale + wipe, o.y + (sock.y - 122) * scale + bob);
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(prop, -ax * k, -ay * k, def.dimensions[0] * k, def.dimensions[1] * k);
+  if (o.carry?.menuId && !o.cleaning) drawFood(ctx, o.carry.menuId, (def.itemSocket[0] - ax) * k, (def.itemSocket[1] - ay) * k, 104 * k);
+  ctx.restore();
+}
+
+// 메뉴 그림의 바닥(투명 여백 제외)을 주어진 점에 맞춘다. 그림이 없으면 아이콘 대체.
+export function drawFood(ctx, menuId, x, bottom, px) {
+  const img = imageFor(`icons/${menuId}`);
+  if (!img) return drawIcon(ctx, menuId, x, bottom - px / 2, px);
+  ctx.drawImage(img, x - px / 2, bottom - px * .88, px, px);
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -319,11 +338,18 @@ export function drawIcon(ctx, key, x, y, px) {
   ctx.beginPath(); ctx.moveTo(x, y - r); ctx.lineTo(x + r * 0.78, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r * 0.78, y); ctx.closePath(); ctx.fill(); ctx.stroke();
 }
 
+// 대화 시트 키: 무대 정장(검정·금색)일 때만 neo_stage, 그 밖의 의상은 각 인물의 기본 시트.
+const STAGE_SUITS = new Set(['host_first', 'crescent_tailcoat']);
+export function talkingKey(key) {
+  const [who, outfit] = key.split(':')[0].split('@');
+  return who === 'neo' && STAGE_SUITS.has(outfit) ? 'neo_stage' : who;
+}
+
 // 대화 초상화(소설 화면): 초상화 시트가 있으면 표정 칸을, 없으면 캐릭터 도형을 크게 그린다
 export function drawPortrait(ctx, key, expr, w, h, { frame = 0, talkingSheet = false } = {}) {
   ctx.clearRect(0, 0, w, h);
   if(talkingSheet){
-    const talkKey=key.startsWith('neo@')?'neo_stage':key.split('@')[0];
+    const talkKey=talkingKey(key);
     const sheet=imageFor(`talking/${talkKey}`), d=ASSETS.talking?.[talkKey];
     if(sheet&&d){const fw=d.frame.w,fh=d.frame.h,k=Math.min(w/fw,h/fh);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(sheet,Math.max(0,Math.min(3,frame))*fw,0,fw,fh,(w-fw*k)/2,h-fh*k,fw*k,fh*k);return;}
   }

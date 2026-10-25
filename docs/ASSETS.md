@@ -454,6 +454,30 @@
 | talking/museong | assets/illustrated/talking/museong.webp | 1280×384 | 완료 |
 | talking/neo_stage | assets/illustrated/talking/neo_stage.webp | 1280×384 | 완료 |
 | talking/cheongtokki | assets/illustrated/talking/cheongtokki.webp | 1280×384 | 완료 |
+| badges/bambi | assets/illustrated/badges/bambi.webp | 192×192 | 완료 |
+| badges/cheongtokki | assets/illustrated/badges/cheongtokki.webp | 192×192 | 완료 |
+| badges/luna | assets/illustrated/badges/luna.webp | 192×192 | 완료 |
+| badges/luna_sis | assets/illustrated/badges/luna_sis.webp | 192×192 | 완료 |
+| badges/lune | assets/illustrated/badges/lune.webp | 192×192 | 완료 |
+| badges/moka | assets/illustrated/badges/moka.webp | 192×192 | 완료 |
+| badges/museong | assets/illustrated/badges/museong.webp | 192×192 | 완료 |
+| badges/neo | assets/illustrated/badges/neo.webp | 192×192 | 완료 |
+| badges/neo_cat | assets/illustrated/badges/neo_cat.webp | 192×192 | 완료 |
+| badges/neo_stage | assets/illustrated/badges/neo_stage.webp | 192×192 | 완료 |
+| badges/raven | assets/illustrated/badges/raven.webp | 192×192 | 완료 |
+| badges/seohanbi | assets/illustrated/badges/seohanbi.webp | 192×192 | 완료 |
+| badges/solv | assets/illustrated/badges/solv.webp | 192×192 | 완료 |
+| badges/yeoni | assets/illustrated/badges/yeoni.webp | 192×192 | 완료 |
+| badges/yeoni_pig | assets/illustrated/badges/yeoni_pig.webp | 192×192 | 완료 |
+| badges/yun | assets/illustrated/badges/yun.webp | 192×192 | 완료 |
+| service/cloth-down | assets/illustrated/service/cloth-down.webp | 256×192 | 완료 |
+| service/cloth-left | assets/illustrated/service/cloth-left.webp | 256×192 | 완료 |
+| service/cloth-right | assets/illustrated/service/cloth-right.webp | 256×192 | 완료 |
+| service/cloth-up | assets/illustrated/service/cloth-up.webp | 256×192 | 완료 |
+| service/tray-down | assets/illustrated/service/tray-down.webp | 256×192 | 완료 |
+| service/tray-left | assets/illustrated/service/tray-left.webp | 256×192 | 완료 |
+| service/tray-right | assets/illustrated/service/tray-right.webp | 256×192 | 완료 |
+| service/tray-up | assets/illustrated/service/tray-up.webp | 256×192 | 완료 |
 
 
 ## 정밀 스프라이트 재배치 (2026-10-26)
