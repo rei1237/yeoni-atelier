@@ -17,6 +17,7 @@ import { Pool } from '../core/pool.js';
 import { nextRandom, randRange } from '../core/rng.js';
 import { emit, nextId } from './state.js';
 import { personBusyReason } from './nomination.js';
+import { apCheck, spendAp } from './calendar.js';
 
 const H = TEMP.HUNT;
 const worlds = new WeakMap(); // state.hunt 객체 → 실행 중 전장(저장 안 함)
@@ -34,12 +35,14 @@ export function huntCheck(state) {
   else if (state.mode === 'settlement') reasons.push('결산을 닫은 뒤 떠날 수 있습니다');
   else if (state.mode === 'hunt') reasons.push('이미 사냥 중입니다');
   if (state.interior.draft) reasons.push('인테리어 편집을 먼저 마쳐 주세요');
+  if (state.mode === 'prep') { const ap = apCheck(state, 1); if (!ap.ok) reasons.push(ap.reason); } // 사냥 = 행동력 1
   return { ok: reasons.length === 0, reasons };
 }
 
 export function startHunt(state) {
   const chk = huntCheck(state);
   if (!chk.ok) return { ok: false, reason: chk.reasons[0], reasons: chk.reasons };
+  spendAp(state, 1);
   state.mode = 'hunt';
   state.paused = false;
   Object.assign(state.people.neo, { activity: 'hunting', form: 'cat', visitId: null, tableNo: null, endAt: null });

@@ -7,6 +7,7 @@ import { emit, usableHosts, emptyStations } from './state.js';
 import { setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave } from './cafe.js';
 import { settleDue, settleHosting, hostingVisits, stepHosting, onRequesting } from './nomination.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
+import { chargeInterest, advanceTurn } from './calendar.js';
 
 // 첫 영업의 손님 순서(온보딩): 일반 손님 → 외모 중심 지명 → 재미 중심 지명
 const FIRST_SHIFT_SCRIPT = [
@@ -101,6 +102,9 @@ export function closeShift(state) {
     regularVisits: sh.regularVisits, nominationVisits: sh.nominationVisits, hostings: sh.hostings,
   };
   if (!state.ledger.settlements[sh.id]) {
+    // 하순이면 이달 이자가 나간다(한 번만)
+    settlement.interest = chargeInterest(state, sh);
+    settlement.gold = state.gold; settlement.debt = state.debt;
     state.ledger.settlements[sh.id] = settlement;
     state.stats.shiftsCompleted += 1;
   }
@@ -118,6 +122,7 @@ export function closeSettlement(state) {
   state.mode = 'prep';
   state.shift = null;
   state.day += 1;
+  advanceTurn(state);
   return { ok: true };
 }
 

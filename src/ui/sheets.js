@@ -19,6 +19,8 @@ import { estimateOfflineIncome } from '../game/offline.js';
 import { describeOption } from '../game/hunt.js';
 import { townCheck, nextExpansion, areaPrice } from '../game/town.js';
 import { COMBO_MAX } from '../game/recipe.js';
+import { dateLabel, isEnded } from '../game/calendar.js';
+import { ENDINGS } from '../story/months.js';
 import { btn, esc } from './dom.js';
 import { won } from './hud.js';
 
@@ -318,6 +320,7 @@ function moreSheet(state, ui) {
       ${btn({ action: 'sheet.open', args: { sheet: 'debt' }, label: `💳 빚 상환 (남은 빚 ${won(state.debt)})` })}
       ${btn({ action: 'sheet.open', args: { sheet: 'companions' }, label: '👥 동료' })}
       ${btn({ action: 'sheet.open', args: { sheet: 'outfits' }, label: '👗 의상' })}
+      ${btn({ action: 'story.replay', disabled: inShift, label: isEnded(state) ? '📖 결말 다시 보기' : '📖 이번 달 이야기 다시 보기' })}
       ${btn({ action: 'game.save', label: '💾 지금 저장' })}
       ${btn({ action: 'game.title', label: '🏠 저장하고 타이틀로' })}
     </div>
@@ -353,7 +356,7 @@ function companionSheet(state) {
     let right, sub;
     if (r.status === 'recruited') {
       const usable = isUsableHost(state, r.id);
-      sub = usable ? '접대 가능' : `Day ${r.usableFrom} 영업부터 접대 가능`;
+      sub = usable ? '접대 가능' : `${dateLabel(state, r.usableFrom)} 영업부터 접대 가능`;
       right = '<span class="small ok">✅ 함께함</span>';
     } else if (r.status === 'available') {
       sub = '만남 조건 충족';
@@ -394,6 +397,7 @@ export function overlayHtml(state, ui) {
   if (state.mode === 'hunt' && state.hunt?.status === 'running' && state.hunt.picks?.length) return levelUpDialog(state);
   if (ui.discovery && MENUS[ui.discovery]) return discoveryDialog(ui.discovery);
   if (ui.recruitEvent) return recruitDialog(state, ui.recruitEvent);
+  if (ui.ending && ENDINGS[ui.ending]) return endingDialog(state, ui.ending);
   return '';
 }
 
@@ -432,14 +436,38 @@ function settlementDialog(state) {
   const hostings = s.hostings.length
     ? `<div class="list">${s.hostings.map(h => `<div class="item"><div class="meta grow"><b>${h.tableNo}번 · ${esc(personName(state, h.nominee))} · ${h.H.toFixed(1)} ${esc(h.grade)}${h.capped ? ' (상한)' : ''}</b><span>주문 ${won(h.servedTotal)} · 팁 ${won(h.tip)}${h.feverExtra ? ` (피버 +${h.feverExtra})` : ''} · 음식 ${h.food ?? '-'}점</span></div></div>`).join('')}</div>`
     : '<p class="small muted">이번 영업의 지명 접대 없음</p>';
-  return `<div class="dialog" role="dialog" aria-modal="true"><h2>📒 Day ${s.day} 결산</h2>
+  return `<div class="dialog" role="dialog" aria-modal="true"><h2>📒 ${esc(dateLabel(state, s.day))} 결산</h2>
     <div class="kv"><span>판매 금액(서빙 완료분)</span><b>${won(s.sales)}</b><span>재료비</span><b>−${won(s.ingredientCost)}</b>
       <span>기본 팁</span><b>${won(s.baseTips)}</b><span>피버 추가 팁</span><b>${won(s.feverTips)}</b>
       <span class="sum">영업 결과</span><b class="sum">${s.result >= 0 ? '' : '−'}${won(Math.abs(s.result))}</b>
+      ${interestRows(s.interest)}
       <span>보유 골드</span><b>${won(s.gold)}</b><span>남은 빚</span><b>${won(s.debt)}</b></div>
     <p class="small muted">서빙 ${s.servedCount}건 · 일반 ${s.regularVisits} · 지명 ${s.nominationVisits} · 놓친 주문 ${s.lostOrders} · 폐기 ${s.wasted}</p>
     <h3>지명 접대</h3>${hostings}
-    <div class="stack">${btn({ action: 'settlement.close', cls: 'primary', label: '다음 날 준비로' })}</div></div>`;
+    <div class="stack">${btn({ action: 'settlement.close', cls: 'primary', label: s.day === TEMP.CALENDAR.TOTAL_TURNS && !isEnded(state) ? '📜 마지막 결산 닫고 결말 보기' : '다음 순 준비로' })}</div></div>`;
+}
+
+// 하순 결산의 청토끼 금융 이자 줄(낸 만큼 −, 못 낸 만큼 빚에 +)
+function interestRows(it) {
+  if (!it || !it.due) return '';
+  return `<span>💸 ${it.month}월 이자(청토끼 금융)</span><b>−${won(it.paid)}</b>${it.added ? `<span class="bad">골드 부족 · 빚에 붙은 이자</span><b class="bad">+${won(it.added)}</b>` : ''}`;
+}
+
+// ── 결말(게임 오리지널 외전). 닫으면 후일담 자유 영업으로 이어진다.
+const BOND_NAMES = { neo: '네오', luna: '루나', luna_sis: '루나 언니', moka: '모카' };
+const ENDING_HINT = {
+  grand: '빚도 갚고, 모두와 깊은 인연을 맺었습니다. 최고의 결말이에요!',
+  clear: `빚을 다 갚았습니다. 동료 친밀도 합계가 ${TEMP.CALENDAR.ENDING_BOND_BEST} 이상이면 또 다른 결말이 기다려요(임시 기준).`,
+  close: '빚을 60% 넘게 갚았습니다. 남은 빚을 모두 갚으면 다른 결말이 열려요.',
+  extend: '빚이 많이 남았습니다. 가게 확장·사냥·동료 친밀도로 다음 회차를 노려 보세요.',
+};
+function endingDialog(state, id) {
+  const e = ENDINGS[id];
+  const bonds = Object.entries(state.affinity || {}).map(([k, v]) => `${BOND_NAMES[k] || k} ${v}`).join(' · ');
+  return `<div class="dialog ending" role="dialog" aria-modal="true"><p class="small muted">꿀꿀 운세 외전 · 게임 오리지널 결말</p><h2>📜 ${esc(e.title)}</h2>
+    <div class="kv"><span>마지막 결산 남은 빚</span><b>${won(state.calendar.endedDebt ?? state.debt)}</b><span>갚은 총액</span><b>${won(state.repaidTotal)}</b><span>동료 친밀도</span><b>${esc(bonds)}</b></div>
+    <p class="small">${esc(ENDING_HINT[id] || '')}</p>
+    <div class="stack">${btn({ action: 'ending.close', cls: 'primary', label: '☕ 후일담 영업 계속하기' })}${btn({ action: 'story.replay', label: '📖 결말 다시 보기' })}${btn({ action: 'game.new', label: '🌱 새 게임' })}</div></div>`;
 }
 
 // 레벨업 카드 3장. 고르는 동안 사냥 시간이 멈춘다(엔진이 멈춤, UI는 고른 번호만 보낸다).
@@ -481,6 +509,6 @@ function recruitDialog(state, id) {
   if (!r) return '';
   return `<div class="dialog" role="dialog" aria-modal="true"><h2>${r.devOnly ? '<span class="tag dev">DEV</span> ' : ''}${esc(r.meetEvent.title)}</h2>
     ${r.meetEvent.lines.map(l => `<p class="line">${esc(l)}</p>`).join('')}
-    <p class="small muted">보상(1회): ${esc(rewardText(r.reward || {}))} · 완료하면 다음 영업(Day ${state.day})부터 접대 가능</p>
+    <p class="small muted">보상(1회): ${esc(rewardText(r.reward || {}))} · 완료하면 다음 영업(${esc(dateLabel(state))})부터 접대 가능</p>
     <div class="stack">${btn({ action: 'recruit.complete', args: { id }, cls: 'primary', label: '이벤트 완료' })}${btn({ action: 'recruit.close', label: '나중에' })}</div></div>`;
 }

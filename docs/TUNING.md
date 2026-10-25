@@ -65,10 +65,16 @@
 | 조합 메뉴 | 달빛 밀크티 160G·15초, 별가루 카스텔라 200G·24초, 꿀꿀 크림 라테 170G·16초 | [menus.js](../src/data/menus.js) (임시) |
 | 마을 | `MOONSTONE_GOLD` | 루나의 저울 환율: 월정석 1개 = 35G |
 | | `DELIVERY_FEE_RATE` | 영업 중 모카 긴급 배달비 = 재료값의 25%(올림) |
-| | `EXPANSION` | 4번 테이블 세트 3,000G → 5번 테이블 세트 8,000G |
+| | `TABLE_PRICE_BASE`, `TABLE_PRICE_GROWTH`, `MAX_TABLES` | 4번 테이블 2,500G, 한 개마다 ×1.6, 최대 10개 |
+| | `AREA_COSTS` | 공방 증축(잠긴 구역) 6,000 → 18,000 → 40,000G, 여는 순서대로 |
+| | `SPAWN_TABLE_BASE` | 테이블이 3개보다 많으면 손님 간격이 그만큼 짧아짐 |
 | | `DECOR_PRICES` | 화분 400 · 별 조명 700 · 책장 1,200 · 러그 1,500 |
 | | 영냥이 장비 6종 | [gear.js](../src/data/gear.js) (전부 임시: 골드 600–900 또는 월정석 30–40) |
 | | 밤이슬 가격 | 90G, [menus.js](../src/data/menus.js) |
+| 달력 | `CALENDAR.START_MONTH`, `TURNS_PER_MONTH`, `TOTAL_TURNS` | 3월 시작, 한 달 3순, 36순(2년차 2월 하순) 뒤 결말 |
+| | `CALENDAR.INTEREST_RATE` | 하순 결산마다 남은 빚 × 2%(올림) |
+| | `CALENDAR.AP_PER_TURN` | 순마다 행동력 2 (사냥 1) |
+| | `CALENDAR.ENDING_BOND_BEST` | 빚 완납 + 친밀도 합 400 이상이면 최고 결말 |
 | 퀘스트 보상 | | [quests.js](../src/data/quests.js) |
 | 의상 목록 | | [outfits.js](../src/data/outfits.js) (능력치 효과 없음) |
 

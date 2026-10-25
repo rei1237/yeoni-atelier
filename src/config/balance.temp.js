@@ -89,6 +89,16 @@ export const TEMP = Object.freeze({
   SPAWN_TABLE_BASE: 3,        // 테이블이 이보다 많으면 손님 간격이 테이블 수에 비례해 짧아진다
   DECOR_PRICES: Object.freeze({ plant: 400, lamp: 700, bookshelf: 1200, rug: 1500 }),
 
+  // ── 달력·이자·행동력(임시). 영업 1회 = 한 순, 3순 = 한 달. 3월부터 12달(36순) 뒤 결말.
+  CALENDAR: Object.freeze({
+    START_MONTH: 3,
+    TURNS_PER_MONTH: 3,
+    TOTAL_TURNS: 36,
+    INTEREST_RATE: 0.02,      // 하순 마감 때 남은 빚 × 2% (올림)
+    AP_PER_TURN: 2,           // 사냥 1 · 대화 1
+    ENDING_BOND_BEST: 400,    // 빚을 다 갚고 친밀도 합이 이 이상이면 최고 결말
+  }),
+
   // ── 자동 운영
   AUTO_DECIDE_MS: 600,
 });

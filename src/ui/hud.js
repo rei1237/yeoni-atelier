@@ -12,6 +12,7 @@ import { STATION_NAMES, findServeTarget, openOrdersOfVisit, staffStatusText } fr
 import { feverCheck, personBusyReason } from '../game/nomination.js';
 import { startCheck } from '../game/shift.js';
 import { huntCheck } from '../game/hunt.js';
+import { calendarOf, dateLabel, turnsLeft, isEnded, PARTS } from '../game/calendar.js';
 import { WEAPONS, PASSIVES } from '../data/hunt-kit.js';
 import { debtStage } from '../game/economy.js';
 import { preview as interiorPreview } from '../game/interior.js';
@@ -33,7 +34,7 @@ export function topbarHtml(state, ui) {
     if (state.auto) st.push('🤖 자동 운영');
     else if (state.autoKitchen) st.push('🍳 주방 자동');
     if (sh.elapsedMs > RULES.LAST_ACCEPT_ELAPSED_MS) st.push('지명 수락 마감');
-    if (!st.length) st.push(`Day ${state.day} 영업 중`);
+    if (!st.length) st.push(`${dateLabel(state)} 영업 중`);
     if (ui.dev && ui.speed !== 1) st.push(`×${ui.speed}`);
     return `<div class="tb-col"><span class="clock" aria-label="남은 영업 시간">⏱ ${fmtTime(remainingShift(state))}</span><span class="small muted">경과 ${fmtTime(sh.elapsedMs)} / 30:00</span></div>
       ${gold}<span class="status">${esc(st.join(' · '))}</span>${dev}
@@ -50,9 +51,28 @@ export function topbarHtml(state, ui) {
       ${btn({ action: 'pause', label: state.paused ? '▶' : '⏸', title: state.paused ? '계속하기' : '일시정지', cls: 'ghost' })}`;
   }
   const label = state.mode === 'settlement' ? '결산' : state.interior.draft ? '인테리어 편집' : '영업 준비';
-  return `<div class="tb-col"><span class="clock">Day ${state.day}</span><span class="small muted">${label}</span></div>
+  return `<div class="tb-col"><span class="clock">${esc(shortDate(state))}</span><span class="small muted">${label}</span></div>
     ${gold}<span class="status">🌙 ${state.moonstone || 0} · 빚 ${won(state.debt)}</span>${dev}
     ${btn({ action: 'sheet.open', args: { sheet: 'more' }, label: '☰', title: '기타 메뉴', cls: 'ghost' })}`;
+}
+
+// 상단 바용 짧은 날짜: '3월 상순' / '후일담 2일째'
+function shortDate(state) {
+  if (isEnded(state)) return dateLabel(state);
+  const c = calendarOf(state.day);
+  return `${c.month}월 ${PARTS[c.part]}`;
+}
+
+// 달력 띠: 연차·남은 순·이번 달 이자 예고·행동력(글자와 점으로 함께 보인다)
+function calendarStrip(state) {
+  const apMax = TEMP.CALENDAR.AP_PER_TURN;
+  const left = state.ap?.left ?? 0;
+  const pips = `<span class="pips" role="img" aria-label="행동력 ${left}/${apMax}">${'●'.repeat(left)}${'○'.repeat(Math.max(0, apMax - left))}</span>`;
+  if (isEnded(state)) return `<div class="calstrip"><span>📅 ${esc(dateLabel(state))} · 자유 영업</span><span>행동력 ${pips}</span></div>`;
+  const c = calendarOf(state.day);
+  const due = Math.ceil(Math.max(0, state.debt) * TEMP.CALENDAR.INTEREST_RATE);
+  const when = c.part === 2 ? '이번 영업 뒤' : `${PARTS[2]} 영업 뒤`;
+  return `<div class="calstrip"><span>📅 ${esc(dateLabel(state))} · 남은 ${turnsLeft(state)}순</span><span title="하순 영업을 마치면 이자가 나갑니다">💸 ${when} 이자 약 ${won(due)}</span><span>행동력 ${pips}</span></div>`;
 }
 
 // ── 하단 패널
@@ -115,9 +135,10 @@ function prepPanel(state) {
   const hc = huntCheck(state);
   const ds = debtStage(state);
   return `<div class="prep">
-    ${btn({ action: 'shift.start', cls: 'primary big', disabled: !sc.ok, title: sc.ok ? '정규 영업 30분 시작' : sc.reasons.join(' / '), label: `☕ Day ${state.day} 영업 시작 (30:00)` })}
+    ${btn({ action: 'shift.start', cls: 'primary big', disabled: !sc.ok, title: sc.ok ? '정규 영업 30분 시작' : sc.reasons.join(' / '), label: `☕ ${shortDate(state)} 영업 시작 (30:00)` })}
+    ${calendarStrip(state)}
     <div class="grid2">
-      ${btn({ action: 'hunt.start', disabled: !hc.ok, title: hc.ok ? '영냥이 월정석 사냥 (약 3분) · 월정석은 루나의 저울에서 골드로' : hc.reasons.join(' / '), label: '🌙 월정석 사냥 (3분)' })}
+      ${btn({ action: 'hunt.start', disabled: !hc.ok, title: hc.ok ? '영냥이 월정석 사냥 (약 3분) · 월정석은 루나의 저울에서 골드로' : hc.reasons.join(' / '), label: '🌙 월정석 사냥 (3분 · 행동력 1)' })}
       ${btn({ action: 'sheet.open', args: { sheet: 'town' }, cls: 'primary', title: '모카 식재료점 · 무인 장비 좌판 · 루나의 저울 · 공방(테이블·증축)', label: '🏘 마을 나가기' })}
       ${btn({ action: 'interior.begin', label: '🪑 인테리어' })}
       ${btn({ action: 'kitchen.toggle', cls: state.autoKitchen ? 'on' : '', title: '영업 중 주문 조리·서빙을 자동으로', label: `🍳 주방 자동 ${state.autoKitchen ? '켜짐' : '꺼짐'}` })}

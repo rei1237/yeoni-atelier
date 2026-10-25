@@ -9,6 +9,7 @@ import * as shift from './shift.js';
 import * as eco from './economy.js';
 import * as interior from './interior.js';
 import * as hunt from './hunt.js';
+import * as calendar from './calendar.js';
 import * as recipe from './recipe.js';
 import * as town from './town.js';
 import { autoStep } from './auto.js';
@@ -66,6 +67,7 @@ function route(state, cmd) {
     case 'interior.cancel': return interior.cancel(state);
     case 'interior.apply': return interior.apply(state);
 
+    case 'story.seen': return calendar.markStory(state, cmd.id);
     case 'hunt.start': return hunt.startHunt(state);
     case 'hunt.retreat': return hunt.retreat(state);
     case 'hunt.finish': return hunt.finishHunt(state);
