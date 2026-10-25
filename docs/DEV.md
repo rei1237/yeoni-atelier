@@ -9,8 +9,8 @@ src/config/
   balance.pdf.js              기획서 v2.0 제안 수치(쪽수 표기)
   balance.temp.js             이번 프로토타입이 정한 임시값
 src/core/                     프레임 루프·풀(이식), 조이스틱(변형 이식), 시드 난수, 저장
-src/data/                     동료·개발용 임시 동료·배치·대사·메뉴/재료·의상·퀘스트·사냥 무기/적(hunt-kit)·영냥이 장비(gear)·개그 대사(lines)
-src/story/                    프롤로그 대본(prologue.js)
+src/data/                     동료·개발용 임시 동료·배치·대사·메뉴/재료·의상·퀘스트·사냥 무기/적(hunt-kit)·영냥이 장비(gear)·개그 대사(lines)·친밀도 능력(bonds)
+src/story/                    프롤로그(prologue.js)·달 이야기와 결말(months.js)·인연 이야기(bonds.js)
 src/game/                     게임 규칙(순수 JS, DOM 없음)
   engine.js                   dispatch(명령) / tick(시간 진행)
   state.js                    createGame, 명단·인물 잠금 도우미, 이벤트
@@ -21,7 +21,9 @@ src/game/                     게임 규칙(순수 JS, DOM 없음)
   auto.js                     자동 운영(플레이어와 같은 명령 사용)
   economy.js                  구매(모카 식재료점/긴급 배달)·상환·퀘스트·영입·의상
   hunt.js                     영냥이 월정석 사냥(뱀서식: 자동 공격·레벨업 카드·진화·사건·보스)
-  town.js                     마을: 루나의 저울 환전·무인 장비 좌판·가게 확장(테이블·장식)
+  town.js                     마을: 루나의 저울 환전·무인 장비 좌판·가게 확장(테이블·장식·구역 증축)
+  calendar.js                 달력(순·달)·월 이자·행동력·결말·볼 이야기 순서(달 → 인연)
+  bonds.js                    친밀도: 대화·선물·함께 일하기, 단계가 열리면 능력
   recipe.js                   조합대(재료 조합 → 레시피 발견 / 영업 중 조리 / 힌트)
   interior.js, space.js       인테리어 편집, 겹침·입구·경로 검사
   offline.js                  오프라인 수익 인터페이스(지급 없음)
@@ -75,12 +77,17 @@ tools/serve.mjs               정적 서버
 | 사냥 | `state.hunt` (레벨·경험치·무기·보조 능력·대기 중인 레벨업 카드 `picks` 포함) | [hunt.js](../src/game/hunt.js) |
 | 레시피 | `state.learned` (조합대 발견도 여기에 기록) | [recipe.js](../src/game/recipe.js) |
 | 월정석·장비 | `state.moonstone`, `state.gear = { owned, equipped: { weapon, armor, charm } }` | [town.js](../src/game/town.js) |
+| 달력·결말 | `state.day`(순 번호), `state.calendar = { ended, endingId, endedDebt }`, `state.ledger.interest`, `state.ledger.story` | [calendar.js](../src/game/calendar.js) |
+| 행동력 | `state.ap = { left, talked, gifted, shopped }` (결산을 닫으면 다시 채움) | [calendar.js](../src/game/calendar.js) |
+| 친밀도 | `state.affinity` (능력은 저장하지 않고 `bondFx(affinity)` 로 계산) | [bonds.js](../src/game/bonds.js), [data/bonds.js](../src/data/bonds.js) |
 | 주방 자동 | `state.autoKitchen` (기본 켬: 조리·서빙·정리) / `state.auto` (전체 자동) | [auto.js](../src/game/auto.js) |
 
 사냥 전장(적·탄 위치)은 WeakMap 에만 두고 저장하지 않는다.
 
 - `hunt.pick {index}`: 레벨업 카드 고르기. 고를 카드가 남아 있는 동안 사냥 시간이 흐르지 않는다.
-- `moonstone.exchange {qty}`, `gear.buy {id}`, `expand.table`, `expand.decor {defId}`: 마을 명령. 영업 준비 중에만.
+- `moonstone.exchange {qty}`, `gear.buy {id}`, `expand.table`, `expand.decor {defId}`, `expand.area {id}`: 마을 명령. 영업 준비 중에만.
+- `bond.talk {id}`, `bond.gift {id, giftId}`: 친밀도. 영업 준비 중에만, 대화는 행동력 1, 둘 다 순마다 동료 한 명에 한 번.
+- `story.seen {id}`: 달 이야기·인연 이야기·결말을 본 기록(`m<달>`, `bond:<동료>:<단계>`, `ending:<id>`). 화면은 `pendingStory()` 가 고른 것만 튼다.
 - `gear.equip {slot, id|null}`: 사냥 중에는 못 바꾼다(출발할 때 효과를 고정).
 - `kitchen.toggle {on?}`: 주방 자동 켜기/끄기. 일시정지 중에도 쓸 수 있다.
 - `shop.buy {ingredientId, qty}`: 영업 준비 중엔 재료값만, 영업 중엔 긴급 배달비가 붙는다.
