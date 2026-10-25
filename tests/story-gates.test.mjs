@@ -15,7 +15,7 @@ test('개장 전 HUD·결산은 일반 카페이며 5월 이벤트 뒤 지명 �
   dispatch(s, { type:'shift.start' });
   const closed = topbarHtml(s,ui) + panelHtml(s,ui);
   assert.doesNotMatch(closed, /지명|피버|스트레스|fever.activate|hostcard/);
-  assert.match(closed, /tray.tap/);
+  assert.match(closed, /손님 주문 현황/);
   assert.match(sheetHtml(s,{sheet:{kind:'companions'}}), /손님맞이 담당/);
   tick(s,RULES.SHIFT_MS);
   assert.doesNotMatch(overlayHtml(s,ui), /지명|피버|스트레스/);

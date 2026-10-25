@@ -1,3 +1,4 @@
+import {TEMP} from '../config/balance.temp.js';
 // 프롤로그: 게임 오리지널 외전. 아틀리에·카페 인수 사기·빚·골드는 이 게임의 설정이고 원작(code-destiny) 사실이 아니다.
 // 원작에서 빌린 것은 인물과 말투뿐이다: 루나·루나 언니(재성의 섬 언덕 빵집 토끼 자매), 청토끼(청토끼 금융), 모카(수달 래퍼 셰프).
 // 인물 말투는 원작 기준: 연이 = 가벼운 반말·별점 개그·괄호 속마음, 영냥이 = 무표정 해라체, 네오(사람) = 부드러운 반말,
@@ -18,7 +19,7 @@ export const SPEAKERS = Object.freeze({
 });
 
 export const PROLOGUE = Object.freeze([
-  { chapter: ['PROLOGUE', '토끼 자매와 십이만 골드'], bg: 'river_night', l: null, c: null, r: null },
+  { chapter: ['PROLOGUE', '토끼 자매와 작은 글씨의 계약서'], bg: 'river_night', l: null, c: null, r: null },
   { s: 'sys', t: '[ 이 이야기는 「연이의 아틀리에」 게임 오리지널 외전입니다 ]' },
   { s: 'nar', t: '재성의 섬에서 배로 한 정거장, 사주의 강가. 시간 대신 골드가 도는 이 동네에 문 닫은 카페가 하나 있었다.' },
   { s: 'nar', t: '그리고 그 카페 문 앞에서, 하얀 아기 토끼 한 마리가 엉엉 울고 있었다.', c: 'luna:cry' },
@@ -32,8 +33,8 @@ export const PROLOGUE = Object.freeze([
   { s: 'rab', t: '안녕하세요~ 청토끼 금융입니다! 어머~ 새 사장님들, 벌써 손님까지 모셨네요?', c: 'cheongtokki:smile' },
   { s: 'luna', t: '사기꾼이다! 손님 열 배 된다며! 가게 넘겨받으면 빵이 저절로 팔린다며!', c: 'luna:surprised' },
   { s: 'rab', t: '어머, 사기라뇨~ 손님이 열 배 늘 \'수도\' 있다고 했죠. 0 곱하기 10도 엄연히 계산이랍니다~', c: 'cheongtokki:smug' },
-  { s: 'sys', t: '[ 인수 조건: 전 주인이 남긴 빚 120,000G 를 함께 승계한다 ]' },
-  { s: 'impact', t: '십이만 골드으으으?!', l: 'yeoni:surprised', fx: 'shake' },
+  { s: 'sys', t: `[ 인수 조건: 전 주인이 남긴 빚 ${TEMP.INITIAL_DEBT.toLocaleString('ko-KR')}G를 함께 승계한다 ]` },
+  { s: 'impact', t: '일억에서 딱 일 골드가 모자란다고오오?!', l: 'yeoni:surprised', fx: 'shake' },
   { s: 'yeoni', t: '이 조항 글씨 개미보다 작아! 이건 돋보기 없으면 못 읽어!', l: 'yeoni:sulky' },
   { s: 'rab', t: '작은 글씨는 원래 작게 읽는 거예요~ 이자는 아주아주 조금! 그럼 첫 상환일에 뵐게요~ 총총!', c: 'cheongtokki:smile' },
   { s: 'nar', t: '비행선은 들어올 때보다 두 배 빠르게 떠났다.', c: 'luna_sis:tired' },
@@ -56,7 +57,7 @@ export const PROLOGUE = Object.freeze([
   { s: 'luna', t: '응! 나 접시 백 개도 나를 수 있어! 아니, 많다 개!', c: 'luna:smile' },
   { s: 'yeoni', t: '그럼 나는 계산대! 돈 세는 건 꽃돼지 전문이야, 꿀악!', l: 'yeoni:determined' },
   { s: 'neo', t: '연이는 계산이랑 가게 키우는 것만 고민해. 손은 우리가 보탤게.', r: 'neo:smile' },
-  { s: 'yeoni', t: '빚 12만, 손님 0명, 재료 0개… 현재 평점 별 반 개.', l: 'yeoni:sulky' },
+  { s: 'yeoni', t: '빚은 거의 일억, 손님은 아직 한 명도… 청토끼, 계약서 글씨를 왜 그렇게 작게 쓴 거야!', l: 'yeoni:sulky' },
   { s: 'luna_sis', t: '…고마워요. 그럼 별을 하나씩 채워 볼게요. 순서 지켜서요.', c: 'luna_sis:smile' },
   { s: 'impact', t: '연이의 아틀리에, 영업 시작!', bg: 'atelier_lit', l: 'yeoni:determined', c: 'luna:smile', r: 'neo:smile' },
   { s: 'sys', t: '[ 주문을 눌러 조리하고, 완성 음식을 눌러 서빙하세요. 루나 언니가 굽고 루나가 운반하며, 연이는 계산대에서 지시합니다 ]' },

@@ -1,3 +1,4 @@
+import * as finance from './finance.js';
 // 엔진 진입점. 화면(UI)·자동 운영·테스트는 모두 dispatch(명령)와 tick(활성 시간 진행)만 쓴다.
 // UI 는 골드·지명 시간·영입 상태를 직접 바꾸지 않는다.
 
@@ -13,6 +14,7 @@ import * as calendar from './calendar.js';
 import * as recipe from './recipe.js';
 import * as town from './town.js';
 import * as bonds from './bonds.js';
+import * as armory from './moka-armory.js';
 import * as farm from './farm.js';
 import { unlockOutfit } from './outfits.js';
 import { autoStep } from './auto.js';
@@ -33,8 +35,8 @@ function route(state, cmd) {
       if (state.mode !== 'shift' && state.mode !== 'hunt') return { ok: false, reason: '진행 중인 영업·사냥이 없습니다' };
       state.paused = true; return { ok: true };
     case 'resume': state.paused = false; return { ok: true };
-    case 'auto.toggle': state.auto = cmd.on ?? !state.auto; return { ok: true, auto: state.auto };
-    case 'kitchen.toggle': state.autoKitchen = cmd.on ?? !state.autoKitchen; return { ok: true, autoKitchen: state.autoKitchen };
+    case 'auto.toggle': state.auto = cmd.on ?? !state.auto; state.autoKitchen=state.auto; return { ok: true, auto: state.auto };
+    case 'kitchen.toggle': state.autoKitchen = cmd.on ?? !state.autoKitchen; state.auto=false; return { ok: true, autoKitchen: state.autoKitchen };
 
     case 'cook': return cafe.cook(state, cmd.menuId);
     case 'order.quick': return cafe.quickOrder(state, cmd.orderId);
@@ -61,6 +63,8 @@ function route(state, cmd) {
     case 'quest.claim': return eco.claimQuest(state, cmd.questId);
     case 'recruit.complete': return eco.completeRecruit(state, cmd.id);
     case 'cast.story': return eco.castStory(state, cmd.id);
+    case 'finance.borrow': return finance.borrow(state,cmd.amount,cmd.requestId);
+    case 'finance.repay': return finance.repayFinance(state,cmd.target,cmd.amount,cmd.currency);
     case 'moonstone.exchange': return town.exchange(state, cmd.qty);
     case 'gear.buy': return town.buyGear(state, cmd.id);
     case 'gear.equip': return town.equipGear(state, cmd.slot, cmd.id ?? null);
@@ -80,10 +84,13 @@ function route(state, cmd) {
     case 'interior.cancel': return interior.cancel(state);
     case 'interior.apply': return interior.apply(state);
 
-    case 'bond.talk': return bonds.talk(state, cmd.id);
+    case 'bond.talk': return bonds.talk(state, cmd.id, cmd.choiceId, cmd.token);
+    case 'armory.enhance': return armory.enhance(state,cmd.who,cmd.id);
+    case 'armory.buy': return armory.buySupply(state,cmd.id);
+    case 'hunt.supply': return hunt.useSupply(state,cmd.id);
     case 'bond.gift': return bonds.gift(state, cmd.id, cmd.giftId);
     case 'story.seen': return calendar.markStory(state, cmd.id);
-    case 'hunt.start': return hunt.startHunt(state, cmd.depth);
+    case 'hunt.start': return hunt.startHunt(state, cmd.depth, cmd.hunterId);
     case 'hunt.retreat': return hunt.retreat(state);
     case 'hunt.finish': return hunt.finishHunt(state);
     case 'hunt.pick': return hunt.pick(state, cmd.index);

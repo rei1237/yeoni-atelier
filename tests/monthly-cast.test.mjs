@@ -13,7 +13,7 @@ test('윤달·모카·서한비·무성의 지정 월 이벤트는 1회 영입, 
     let s = createGame();
     assert.equal(dispatch(s, { type: 'recruit.complete', id: c.id }).ok, false);
     const day = 1 + ((c.month + 9) % 12) * 3;
-    s.day = day;
+    s.day = day + 36*((c.condition.year||1)-1); unlock(s);
     assert.equal(recruitView(s).find(v => v.id === c.id).status, 'available');
     assert.ok(dispatch(s, { type: 'recruit.complete', id: c.id }).ok);
     const stock = structuredClone(s.stock);
@@ -24,17 +24,17 @@ test('윤달·모카·서한비·무성의 지정 월 이벤트는 1회 영입, 
     assert.ok(dispatch(s, { type: 'cast.story', id: c.id }).ok);
     s = deserialize(serialize(s)).state;
     assert.ok(s.roster[c.id]); assert.ok(s.ledger.story[`cast:${c.id}`]);
-    const nextYear = createGame(); nextYear.day = day + 36;
+    const nextYear = createGame(); nextYear.day = day + 36*(c.condition.year||1);unlock(nextYear);
     assert.equal(recruitView(nextYear).find(v => v.id === c.id).status, 'available');
   }
 });
 test('아홉 접대 동료가 모두 영입되어도 가게 안의 통로에서 출근한다', () => {
   const s = createGame();
   for (const c of [...MONTHLY_CAST, ...DEST1NOVA_CAST]) {
-    s.day = 1 + ((c.month + 9) % 12) * 3;
+    s.day = 1 + ((c.month + 9) % 12) * 3 + 36*((c.condition.year||1)-1);unlock(s);
     assert.ok(dispatch(s, { type: 'recruit.complete', id: c.id }).ok);
   }
-  s.day = 36; s.hostbar.open = true;
+  s.day = 180; s.hostbar.open = true;
   assert.ok(dispatch(s, { type: 'shift.start' }).ok);
   assert.ok(validateLayout(s.interior.furniture, []).ok);
   for (const id of Object.keys(s.roster)) {
@@ -47,3 +47,5 @@ test('개별 능력치·이야기가 다르고 새 게임의 활동 명단은 �
   assert.equal(new Set(MONTHLY_CAST.map(c => JSON.stringify(c.stats))).size, 4);
   for (const c of MONTHLY_CAST) { assert.ok(c.profile && c.meetEvent.lines.length && c.followup.lines.length); }
 });
+
+function unlock(s){s.affinity.neo=500;s.farm.xp=9999;s.stats.longestHuntMs=300000;s.stats.huntBosses=3;}

@@ -1,10 +1,13 @@
+import {chargeLoanInterest} from './finance.js';
+import {accruePayroll} from './payroll.js';
 // 정규 영업: 시작 → 활성 시간 1,800초 동안 진행 → 30:00 마지막 접대 정산 → 마감 → 결산.
 // 한 시뮬레이션 단계 안의 처리 순서(동시 사건 순서)는 stepShift 에 고정되어 있다.
 
+import {arrivalMultiplier,takeawayChance} from './cafe-growth.js';
 import { RULES } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
 import { emit, usableHosts, emptyStations, shiftDuration, lastAcceptAt } from './state.js';
-import { setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave } from './cafe.js';
+import { checkout, setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave } from './cafe.js';
 import { settleDue, settleHosting, hostingVisits, stepHosting, onRequesting } from './nomination.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
 import { chargeInterest, advanceTurn } from './calendar.js';
@@ -46,6 +49,7 @@ export function startShift(state) {
 
 function nextSpec(state) {
   const sh = state.shift;
+  if(sh.spawnCount>=2 && nextRandom(state.rng)<takeawayChance(state))return {kind:'takeaway'};
   if (!state.hostbar.open) return { kind: 'regular' };
   if (sh.scriptIndex < FIRST_SHIFT_SCRIPT.length) {
     const spec = { ...FIRST_SHIFT_SCRIPT[sh.scriptIndex++] };
@@ -62,11 +66,12 @@ function nextSpec(state) {
 function stepSpawn(state) {
   const sh = state.shift;
   if (sh.elapsedMs < sh.nextSpawnAt || sh.elapsedMs >= shiftDuration(state) - 80000) return;
-  if (!state.tables.some(t => t.state === 'empty')) { sh.nextSpawnAt = sh.elapsedMs + 2000; return; }
-  spawnCustomer(state, nextSpec(state));
+  const spec=nextSpec(state);
+  if (!state.tables.some(t => t.state === 'empty') && spec.kind!=='takeaway') { sh.nextSpawnAt = sh.elapsedMs + 2000; return; }
+  spawnCustomer(state, spec);
   // 테이블이 늘면 손님 간격이 그만큼 짧아진다(임시)
   const scale = TEMP.SPAWN_TABLE_BASE / Math.max(TEMP.SPAWN_TABLE_BASE, state.tables.length);
-  sh.nextSpawnAt = sh.elapsedMs + Math.round(randRange(state.rng, ...TEMP.SPAWN_INTERVAL_MS) * scale);
+  sh.nextSpawnAt = sh.elapsedMs + Math.round(randRange(state.rng, ...TEMP.SPAWN_INTERVAL_MS) * scale / arrivalMultiplier(state));
 }
 
 // 한 시뮬레이션 단계(dt ≤ SIM_STEP_MS). 순서:
@@ -93,6 +98,7 @@ export function closeShift(state) {
   settleDue(state); // 30:00 에 끝나는 마지막 접대를 먼저 정산
   for (const v of hostingVisits(state)) settleHosting(state, v); // (규칙상 남을 수 없지만 안전장치: 300초 미달 → 팁 없음)
   for (const c of Object.values(state.customers)) if (c.state !== 'leaving') customerLeave(state, c, '영업 종료');
+  for(const visit of Object.values(state.visits))checkout(state,visit); // 마감 직전 계산대 대기도 같은 원장으로 정산
   let wasted = state.tray.filter(Boolean).length;
   for (const st of Object.values(state.stations)) wasted += (st.current ? 1 : 0) + (st.held ? 1 : 0);
   for (const s of Object.values(state.staff)) if (s.carry) wasted += 1;
@@ -108,6 +114,8 @@ export function closeShift(state) {
   };
   if (!state.ledger.settlements[sh.id]) {
     // 하순이면 이달 이자가 나간다(한 번만)
+    settlement.payroll = structuredClone(accruePayroll(state,sh));
+    settlement.loanInterest=chargeLoanInterest(state,sh);
     settlement.interest = chargeInterest(state, sh);
     settlement.gold = state.gold; settlement.debt = state.debt;
     state.ledger.settlements[sh.id] = settlement;

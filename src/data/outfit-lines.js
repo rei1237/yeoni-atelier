@@ -13,7 +13,7 @@ export const OUTFIT_LINES = Object.freeze({
   garden_apron: '(흙 묻어도 괜찮은 옷! 농장 출근 준비 별 다섯.)',
 });
 export function outfitLine(who, id, stage = 'calm', action = 'wear') {
-  const base = OUTFIT_LINES[id] || (who === 'neo' ? '작은 장식도 분위기를 바꾸네.' : '(작은 포인트, 별 넷.)');
+  const base = OUTFIT_LINES[id] || (who === 'neo' ? '작은 장식도 분위기를 바꾸네.' : '이 옷으로 오늘도 함께할게. 움직이기 편해서 좋네.');
   if (who !== 'neo') return base;
   if (action === 'preview') return '잠깐 입어 볼게. 이쪽 모습은 어때?';
   if (action === 'unlock') return `새 옷이네. ${base}`;

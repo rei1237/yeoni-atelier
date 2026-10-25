@@ -3,7 +3,7 @@
 // 연이는 입구 옆 계산대에서 계산만 한다. 루나 언니는 주방(굽기), 루나는 홀(서빙·정리)을 맡는다(게임 오리지널).
 
 import { DECOR_CATALOG } from './decor-catalog.js';
-export const GRID = Object.freeze({ cols: 12, rows: 16 });
+export const GRID = Object.freeze({ cols: 20, rows: 24 });
 
 export const SPOTS = Object.freeze({
   entrance: { x: 5, y: 15 },
@@ -33,6 +33,8 @@ export const RESERVED = Object.freeze([
 
 // 잠긴 구역(공방 증축으로 연다). rect: [x0, y0, x1, y1] 포함 범위. 이름은 게임 오리지널, 가격은 TEMP.AREA_COSTS.
 export const AREAS = Object.freeze([
+  {id:'east_wing',name:'동쪽 음악당',rect:[12,0,19,15]},
+  {id:'garden_wing',name:'남쪽 정원 홀',rect:[0,16,19,23]},
   { id: 'window', name: '창가석', rect: [9, 2, 11, 9] },
   { id: 'salon', name: '별빛 살롱', rect: [0, 11, 2, 15] },
   { id: 'terrace', name: '꽃길 테라스', rect: [9, 10, 11, 15] },

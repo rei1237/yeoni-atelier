@@ -3,6 +3,12 @@
 
 import { DECOR_CATALOG } from '../data/decor-catalog.js';
 export const TEMP = Object.freeze({
+  INITIAL_DEBT: 99_999_999, // 사용자 결정 2026-10-26: 새 게임 원금
+  CAFE_PRICE_GROWTH: 1.45, // 레벨별 메뉴 가격 배율(임시, 5년 시뮬레이션 기준)
+  LOAN_RATE: .08, // 청토끼 신규 운영 대출: 월 8%, 미납 이자는 원금에 가산
+  PAYROLL_BASE: 1000, // 월 정액, 근무 순 비례
+  PAYROLL_SHARE: .015, // 새 동료 1인 월 매출의 1.5%
+
   // ── 시뮬레이션
   SIM_STEP_MS: 100,           // 한 틱의 최대 시뮬레이션 간격
   FRAME_DT_CAP_MS: 250,       // 프레임 끊김 시 한 번에 진행할 최대 실제 시간
@@ -46,7 +52,7 @@ export const TEMP = Object.freeze({
   // ── 영입(임시 조건: 정규 영업 2회 완료 + 첫 상환)
   RECRUIT_CONDITION: Object.freeze({ shiftsCompleted: 2, repaidAtLeast: 1 }),
 
-  // ── 월정석 사냥(영냥이). 사냥은 재료가 아니라 월정석을 떨어뜨리고, 재료는 마을 모카 식재료점에서 산다.
+  // ── 월정석 사냥(영냥이). 필드 월정석과 생존 보상 재료를 얻는다. 일반 재료는 모카 상점·농장, 희귀 차 재료는 깊은 사냥.
   HUNT: Object.freeze({
     // 무기·보조 능력·적 수치는 src/data/hunt-kit.js (모두 임시)
     PLAYER_SPEED: 165,        // px/s (필드 좌표)
@@ -62,14 +68,14 @@ export const TEMP = Object.freeze({
     MONTH_HP: 0.08,           // 달이 지날 때마다 적 HP +8% (3월 0, 다음 해 2월 +88%)
     MONTH_DMG: 0.04,          // 달마다 접촉 피해 +4%
     SPAWN_DIST: Object.freeze([380, 470]),
-    XP_BASE: 5,               // 다음 레벨 필요 경험치 = XP_BASE + (L-1)×XP_STEP + (L-1)²×XP_CURVE (반올림)
-    XP_STEP: 3,
-    XP_CURVE: 0.6,
+    XP_BASE: 18,               // 다음 레벨 필요 경험치 = XP_BASE + (L-1)×XP_STEP + (L-1)²×XP_CURVE (반올림)
+    XP_STEP: 10,
+    XP_CURVE: 1.8,
     CRIT_BASE: 0.05,
     CRIT_MULT: 2,
     KNOCKBACK: 140,
-    MAGNET_RADIUS: 95,
-    PICKUP_RADIUS: 26,
+    MAGNET_RADIUS: 150,
+    PICKUP_RADIUS: 42,
     GEM_CAP: 140,             // 넘으면 새 별조각을 기존 별조각에 합친다
     HEAL_FISH: 30,
     BOMB_RADIUS: 280,
@@ -79,26 +85,26 @@ export const TEMP = Object.freeze({
       { id: 'magnet', chance: 0.005 },
       { id: 'bomb', chance: 0.005 },
     ]),
-    MOON_DROP: Object.freeze({ chance: 0.06, elite: 10, boss: 60 }), // 일반 적 확률 1개, 정예·보스는 고정 개수(임시)
+    MOON_DROP: Object.freeze({ chance: 0.16, elite: 14, boss: 75 }), // 일반 적 확률 1개, 정예·보스는 고정 개수(임시)
     FIELD_W: 1400,
     FIELD_H: 1800,
   }),
 
   // ── 마을(임시). 월정석 환전·모카 긴급 배달·가게 확장
-  MOONSTONE_GOLD: 35,         // 루나의 저울: 월정석 1개 = 35G
+  MOONSTONE_GOLD: 1200,         // 청토끼 금융 센터 기본 환율
   DELIVERY_FEE_RATE: 0.25,    // 영업 중 모카 긴급 배달 = 재료값 +25%
   TABLE_PRICE_BASE: 2500,     // 6번 테이블 값. 한 개 들일 때마다 ×1.6 (2,500 → 4,000 → 6,400 …)
   TABLE_PRICE_GROWTH: 1.6,
-  MAX_TABLES: 10,
-  AREA_COSTS: Object.freeze([6000, 18000, 40000]), // 공방 증축: 연 구역 수에 따라 오른다
+  MAX_TABLES: 24,
+  AREA_COSTS: Object.freeze([6000, 18000, 40000, 85000, 160000]), // 공방 증축: 연 구역 수에 따라 오른다
   SPAWN_TABLE_BASE: 5,        // 시작 5테이블은 기본 입장 간격. 증축 이후에만 비례 단축(임시)
   DECOR_PRICES: Object.freeze({ plant: 400, lamp: 700, bookshelf: 1200, rug: 1500, ...Object.fromEntries(DECOR_CATALOG.map(d => [d.id, d.price])) }),
 
-  // ── 달력·이자·행동력(임시). 영업 1회 = 한 순, 3순 = 한 달. 3월부터 12달(36순) 뒤 결말.
+  // ── 달력·이자·행동력(임시). 영업 1회 = 한 순, 3순 = 한 달. 3월부터 60개월(180순), 5년 운영 뒤 결말.
   CALENDAR: Object.freeze({
     START_MONTH: 3,
     TURNS_PER_MONTH: 3,
-    TOTAL_TURNS: 36,
+    TOTAL_TURNS: 180,
     INTEREST_RATE: 0.02,      // 하순 마감 때 남은 빚 × 2% (올림)
     AP_PER_TURN: 2,           // 사냥 1 · 대화 1
     ENDING_BOND_BEST: 520,    // 빚을 다 갚고 친밀도 합이 이 이상이면 최고 결말(일만으로는 ~320, 대화·선물이 더 필요)
@@ -108,7 +114,7 @@ export const TEMP = Object.freeze({
   BONDS: Object.freeze({
     TIERS: Object.freeze([40, 100, 180, 280]),
     MAX: 300,
-    TALK: 6, TALK_RAND: 2,    // 대화 1회 +6~8 (행동력 1, 순마다 한 사람 한 번)
+    TALK: 6, TALK_RAND: 2,    // 기존 저장 호환 상수. 현재 선택지 대화는 bond-dialogues.js의 +12/+6/+2
     GIFT_LIKED: 14,           // 좋아하는 선물 (순마다 한 사람 한 번)
     GIFT_COMMON: 6,           // 달빵
     WORK_SHIFT: 2,            // 영업 마감: 루나·루나 언니
@@ -118,5 +124,5 @@ export const TEMP = Object.freeze({
 
   // ── 자동 운영
   AUTO_DECIDE_MS: 600,
-  HUNT_CAREER: Object.freeze({ xpBase: 500, xpStep: 150, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.5, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100 }),
+  HUNT_CAREER: Object.freeze({ xpBase: 1100, xpStep: 350, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.5, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100 }),
 });

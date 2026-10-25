@@ -44,6 +44,7 @@ export function autoStep(state, run) {
   // 정리는 수동 조작에서도 보조한다. 조리·서빙은 자동 모드에서만 명령한다.
   for (const t of state.tables) if (t.state === 'dirty' && !t.cleanQueued) run({ type: 'clean', tableNo: t.no });
   if (!state.auto && !state.autoKitchen) return;
+  for(const o of Object.values(state.orders))if(o.status==='waiting'&&state.visits[o.visitId]?.kind==='takeaway')run({type:'order.quick',orderId:o.id});
   // 4) 서빙
   for (const it of state.tray) {
     if (!it || it.reservedFor) continue;
@@ -60,6 +61,6 @@ export function autoStep(state, run) {
     if (supply[o.menuId] > 0) { supply[o.menuId] -= 1; continue; }
     const st = state.stations[MENUS[o.menuId].station];
     if (st.next || !stockCheck(state, o.menuId).ok) continue;
-    run({ type: 'cook', menuId: o.menuId }); // 이 작업이 이 주문을 덮는다
+    run({ type: 'order.quick', orderId: o.id }); // 이 작업이 이 주문을 덮는다
   }
 }

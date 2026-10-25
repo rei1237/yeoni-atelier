@@ -1,3 +1,5 @@
+import {changePopularity} from './reputation.js';
+import {patronTipMultiplier,hostRevenueMultiplier} from '../data/customer-wealth.js';
 // 지명 접대: 요청 → (수락 검사) → 수락 순간부터 해당 영업의 접대 시간 → 정산 1회 → 동료 해제.
 // 요청과 수락은 다른 상태다. 요청만으로는 동료를 예약하지 않고 타이머도 시작하지 않는다.
 
@@ -9,7 +11,7 @@ import { emit, fmtTime, hostStats, isUsableHost, personName, remainingShift, nom
 import { hostingScore, gradeOf, tipFor, feverGainFor } from './satisfaction.js';
 import { visitAt, customerAt, chooseMenu, placeOrder, customerLeave, sendHostToTable, sendHome, openOrdersOfVisit } from './cafe.js';
 import { nextRandom } from '../core/rng.js';
-import { HELP_SCENES, helpQuality, HELP_REACTIONS } from '../data/help.js';
+import { HELP_SCENES, helpQuality, bestHelpChoice, HELP_REACTIONS } from '../data/help.js';
 import { changeStress } from './stress.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -91,7 +93,7 @@ export function accept(state, tableNo) {
   Object.assign(state.people[pid], { activity: 'hosting', visitId: visit.id, tableNo, endAt: visit.endAt });
   c.state = 'hosted';
   sendHostToTable(state, pid, tableNo);
-  const menuId = chooseMenu(state, orderLimit(state, visit));
+  const menuId = chooseMenu(state, orderLimit(state, visit),visit);
   if (menuId) placeOrder(state, visit, menuId);
   if (c && nextRandom(state.rng) < 0.25) visit.gag = 'hostbar';
   emit('nominationAccepted', { tableNo, nominee: pid, endAt: visit.endAt, gag: visit.gag ? GAG_HOSTBAR : null });
@@ -145,9 +147,10 @@ export function respondHelp(state, visitId, index, choice) {
     addFever(state, RULES.FEVER_GAIN_SPECIAL, '특별 요청');
   }
   visit.talkBonus = clamp(visit.talkBonus + gain, RULES.TALK_BONUS_MIN, RULES.TALK_BONUS_MAX);
+  changePopularity(state,quality==='good'?1:quality==='wrong'?-.8:0);
   h.status = 'done';
   h.result = quality;
-  emit('helpDone', { tableNo: visit.tableNo, kind: h.kind, gain, gag, nominee: visit.nominee, reaction: HELP_REACTIONS[quality] });
+  emit('helpDone', { tableNo: visit.tableNo, kind: h.kind, gain, quality, hint: HELP_SCENES[h.kind].choices.find(([id])=>id===bestHelpChoice(h.kind,visit.prefs))?.[1], gag, nominee: visit.nominee, reaction: HELP_REACTIONS[quality] });
   return { ok: true, gain };
 }
 
@@ -196,16 +199,25 @@ export function settleHosting(state, visit) {
   const pid = visit.nominee;
   const score = hostingScore({ stats: hostStats(state, pid), prefs: visit.prefs, talkBonus: visit.talkBonus, waitPenalty: visit.waitPenalty });
   const completedFull = now >= visit.endAt;
-  const tip = tipFor({ servedTotal: visit.servedTotal, H: score.H, completedFull, fevered: visit.fevered });
+  const tip = tipFor({ servedTotal: visit.servedTotal, H: score.H, completedFull, fevered: visit.fevered, multiplier: patronTipMultiplier(visit.wealthId)*hostRevenueMultiplier(pid) });
   visit.settled = true;
   visit.finalH = score.H;
   visit.finalScore = score;
   visit.tip = tip;
   if (state.ledger.tips[visit.id] == null) {
     state.ledger.tips[visit.id] = tip.total;
-    state.gold += tip.total;
+    visit.bill=(visit.bill||0)+tip.total;
+    changePopularity(state,score.H>=80?2:score.H<40?-1:0);
     state.shift.baseTips += tip.base;
     state.shift.feverTips += tip.feverExtra;
+    if (visit.wealthId==='tycoon' && completedFull && score.H>=80 && tip.total>=100) {
+      addFever(state, RULES.FEVER_GAUGE_MAX, '대부호의 앙코르 팁');
+      const candidates=feverCandidates(state);
+      state.fever.gauge=0;
+      state.fever.activeUntil=now+RULES.FEVER_DURATION_MS;
+      for(const {v} of candidates)v.fevered=true;
+      emit('feverOn',{tables:candidates.map(x=>x.v.tableNo),tycoon:true,tip:tip.total});
+    }
   }
   const grade = gradeOf(score.H);
   const foodAvg = visit.foodScores.length ? Math.round(visit.foodScores.reduce((a, b) => a + b, 0) / visit.foodScores.length) : null;
@@ -244,10 +256,11 @@ export function stepHosting(state) {
       v.evalH = H;
       const g = feverGainFor(H);
       if (g) addFever(state, g, `${v.tableNo}번 접대 평가`);
+      if(state.fever.activeUntil>now && H>=RULES.TIP_MIN_H && hostingVisits(state).filter(x=>x.fevered).length<RULES.FEVER_MAX_TABLES)v.fevered=true;
     }
     if (!v.extraOrderDone && now >= v.acceptAt + TEMP.EXTRA_ORDER_AT_MS) {
       v.extraOrderDone = true;
-      const menuId = openOrdersOfVisit(state, v).length < 2 ? chooseMenu(state, orderLimit(state, v)) : null;
+      const menuId = openOrdersOfVisit(state, v).length < 2 ? chooseMenu(state, orderLimit(state, v),v) : null;
       if (menuId) placeOrder(state, v, menuId);
     }
   }

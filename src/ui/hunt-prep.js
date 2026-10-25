@@ -1,14 +1,14 @@
-import { hunterProgress, maxHuntDepth, depthScale } from '../game/hunt-growth.js';
-import { huntCheck, monthScale } from '../game/hunt.js';
+import { hunterProgress,maxHuntDepth,depthScale,stageName } from '../game/hunt-growth.js';
+import { huntCheck,monthScale } from '../game/hunt.js';
 import { calendarOf } from '../game/calendar.js';
-import { btn, esc } from './dom.js';
-export function huntPrepSheet(state) {
-  const progress = hunterProgress(state.hunter.xp), max = maxHuntDepth(state), chk = huntCheck(state);
-  // 높은 레벨에서도 버튼 수가 무한히 늘지 않도록 초입과 최근 깊이를 보여 준다.
-  const depths = [...new Set([1, Math.max(1, max - 2), Math.max(1, max - 1), max])];
-  return `<h2>달그늘 사냥터${btn({ action: 'sheet.close', cls: 'close ghost', label: '✕', title: '닫기' })}</h2>
-    <div class="card"><b>영냥이 Lv.${progress.level}</b><p>성장 경험치 ${progress.xp} / ${progress.xpNext} · 누적 처치 ${state.hunter.kills}</p><progress value="${progress.xp}" max="${progress.xpNext}" aria-label="영냥이 성장 경험치"></progress><p>처치 경험치는 돌아올 때 남아요. 성장 레벨은 다음 사냥에도 이어지고, 무기와 별조각 레벨은 매 사냥 새로 시작해요.</p></div>
-    <p>네오가 영냥이로 변신해 떠나요. 3분 · 행동력 1</p>${!chk.ok ? `<p role="status">${esc(chk.reasons.join(' · '))}</p>` : ''}
-    <div class="list">${depths.map(depth => { const scale = depthScale(depth, monthScale(state.day), calendarOf(state.day).monthIdx); return `<div class="card"><h3>${depth === 1 ? '달그늘 초입' : `달그늘 깊이 ${depth}`}</h3><p>적 체력 ×${scale.hp.toFixed(2)} · 공격 ×${scale.dmg.toFixed(2)}<br>월정석 · 성장 경험치 ×${scale.reward.toFixed(2)}</p>${btn({ action: 'hunt.depart', args: { depth }, cls: 'primary', disabled: !chk.ok, label: `${depth}단계로 떠나기` })}</div>`; }).join('')}</div>
-    <p class="small muted">영냥이 5레벨마다 더 깊은 곳이 열려요. 익숙한 초입에서도 계속 성장할 수 있어요.</p>`;
+import { btn,esc } from './dom.js';
+export function huntPrepSheet(state,ui) {
+ const hunterId=ui.hunterId==='seohanbi'&&state.roster.seohanbi?'seohanbi':'neo',p=hunterProgress(state.hunter.xp),max=maxHuntDepth(state),chk=huntCheck(state,hunterId);
+ const selected=Math.min(max,Math.max(1,Number(ui.huntStage)||max)),scale=depthScale(selected,monthScale(state.day),calendarOf(state.day).monthIdx);
+ return `<h2>달그늘 사냥터${btn({action:'sheet.close',cls:'close ghost',label:'✕',title:'닫기'})}</h2><div class="hunter-select">${['neo',...(state.roster.seohanbi?['seohanbi']:[])].map(id=>btn({action:'hunt.hunter',args:{id},cls:id===hunterId?'on':'',label:`<canvas data-talking-portrait="${id==='neo'?'neo_cat':'seohanbi_tiger'}" width="96" height="144" aria-hidden="true"></canvas><b>${id==='neo'?'영냥이':'서한비 · 검은 호랑이'}</b>`})).join('')}</div>
+ <div class="card"><b>탐사 성장 Lv.${p.level}</b><progress value="${p.xp}" max="${p.xpNext}" aria-label="지속 성장 경험치"></progress><p>경험치 ${p.xp}/${p.xpNext} · 무기 선택 레벨은 매 사냥 새로 시작해요. 탐사 경험치는 두 동료가 함께 쌓아요.</p></div>
+ <p>행동력 1 · 쓰러질 때까지 생존 · 언제든 돌아오기</p><h3>${selected}/100단계 · ${stageName(selected)}</h3><p class="small">적 체력 ×${scale.hp.toFixed(1)} · 피해 ×${scale.dmg.toFixed(1)} · 월정석 ×${scale.reward.toFixed(1)}</p>
+ <div class="stage-picker"><label for="hunt-stage">도전할 단계</label><input id="hunt-stage" type="range" min="1" max="${max}" value="${selected}" aria-label="사냥 단계"><output>${selected} / 열린 ${max}</output></div><div class="btns">${[...new Set([1,Math.max(1,selected-1),Math.min(max,selected+1),max])].map(depth=>btn({action:'hunt.stage',args:{depth},cls:depth===selected?'on':'',label:`${depth}단계`})).join('')}</div>
+ <p class="small">35단계 청토끼 · 55단계 변이 청토끼 · 85단계부터 매우 강한 흑월의 파편</p>${hunterId==='seohanbi'?'<p class="ok">검은 호랑이: 기본 체력 +120 · 피해 +80%p · 이동과 수집 강화</p>':''}
+ ${!chk.ok?`<p role="status">${esc(chk.reasons.join(' · '))}</p>`:''}<div class="stack">${btn({action:'hunt.depart',args:{depth:selected},cls:'primary big',disabled:!chk.ok,label:`${selected}단계로 출발`})}${btn({action:'sheet.open',args:{sheet:'armory'},label:'모카의 무기 공방 · 강화와 회복'})}</div><p class="small muted">3분을 버티고 정산하면 다음 단계가 열려요. 이후에도 계속 버틸 수 있고, 생존 시간에 따라 추가 월정석과 요리 재료를 받아요.</p>`;
 }

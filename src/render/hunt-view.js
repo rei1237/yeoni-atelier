@@ -13,13 +13,14 @@ const fieldPatterns = new WeakMap();
 
 export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const t = opts.t || 0;
+  const fx=(key,x,y,size)=>{const img=imageFor(`effects/${key}`);if(!img)return false;const frame=Math.floor(t/90)%4;ctx.drawImage(img,frame*128,0,128,128,x-size/2,y-size/2,size,size);return true;};
   const hs = state.hunt;
   const scale = Math.min(w / 420, h / 600);
   const vw = w / scale, vh = h / scale;
   const p = world.player;
   const now = hs.elapsedMs;
-  let camX = Math.max(0, Math.min(H.FIELD_W - vw, p.x - vw / 2));
-  let camY = Math.max(0, Math.min(H.FIELD_H - vh, p.y - vh / 2));
+  let camX = Math.max(-80, Math.min(H.FIELD_W - vw + 80, p.x - vw / 2));
+  let camY = Math.max(-80, Math.min(H.FIELD_H - vh + 80, p.y - vh / 2));
   if (now < world.shakeUntil && !state.paused) { camX += (Math.random() - 0.5) * 8; camY += (Math.random() - 0.5) * 8; }
 
   ctx.fillStyle = '#141a2b'; ctx.fillRect(0, 0, w, h);
@@ -48,6 +49,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   for (const wp of hs.weapons) {
     if (wp.id !== 'aura') continue;
     const s = weaponStats(wp, m);
+    fx('aura',p.x,p.y,s.radius*2);
     ctx.fillStyle = wp.evo ? 'rgba(200,190,255,0.20)' : 'rgba(232,213,163,0.14)';
     ctx.strokeStyle = wp.evo ? 'rgba(200,190,255,0.55)' : 'rgba(232,213,163,0.4)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(p.x, p.y, s.radius + Math.sin(t / 300) * 2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -56,6 +58,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   // 타로 낙하: 경고 원 → 터짐
   for (let i = 0; i < world.strikes.count; i++) {
     const st = world.strikes.items[i];
+    if(st.boomUntil && fx('tarot',st.x,st.y,st.r*2.2))continue;
     if (st.boomUntil) {
       const k = 1 - (st.boomUntil - now) / 260;
       ctx.strokeStyle = `rgba(255,214,120,${1 - k})`; ctx.lineWidth = 6;
@@ -96,6 +99,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   // 탄: 사주성광(별빛), 초승달 부메랑
   for (let i = 0; i < world.shots.count; i++) {
     const s = world.shots.items[i];
+    if(fx(s.kind==='crescent'?'crescent':'bolt',s.x,s.y,s.kind==='crescent'?44:30))continue;
     if (s.kind === 'crescent') {
       ctx.save(); ctx.translate(s.x, s.y); ctx.rotate(t / 60);
       ctx.fillStyle = '#ffe6a8'; ctx.beginPath(); ctx.arc(0, 0, 13, 0.3, Math.PI * 2 - 0.3); ctx.arc(5, 0, 10, Math.PI * 2 - 0.5, 0.5, true); ctx.fill();
@@ -110,7 +114,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const hurt = now < p.hurtUntil;
   const st = p.action !== 'idle' ? p.action : p.moving ? 'walk' : 'idle';
   if (hurt && Math.floor(t / 80) % 2) ctx.globalAlpha = 0.5;
-  drawActor(ctx, 'neo_cat', { x: p.x, y: p.y + 16, size: 48, state: st, facing: p.facing, t, name: '영냥이' });
+  drawActor(ctx, hs.hunterId==='seohanbi'?'seohanbi_tiger':'neo_cat', { x: p.x, y: p.y + 20, size: hs.hunterId==='seohanbi'?76:64, state: p.moving?'walk':st, facing: p.facing, t, name: hs.hunterId==='seohanbi'?'서한비':'영냥이' });
   ctx.globalAlpha = 1;
 
   // 별자리 궤도(플레이어 위에 그림)
@@ -119,6 +123,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
     const s = weaponStats(wp, m);
     for (let k = 0; k < s.count; k++) {
       const a = world.orbitAngle + (k / s.count) * Math.PI * 2;
+      if(fx('orbit',p.x+Math.cos(a)*s.radius,p.y+Math.sin(a)*s.radius,36))continue;
       star(ctx, p.x + Math.cos(a) * s.radius, p.y + Math.sin(a) * s.radius, wp.evo ? 10 : 8, wp.evo ? '#cfc4ff' : '#ffe58a');
     }
   }

@@ -4,12 +4,14 @@
 
 import { TEMP } from '../config/balance.temp.js';
 
-export const BOND_IDS = Object.freeze(['neo', 'luna', 'luna_sis', 'moka']);
+import { CAST_BONDS } from './cast-bonds.js';
+export const BOND_IDS = Object.freeze(['neo', 'luna', 'luna_sis', 'moka', ...Object.keys(CAST_BONDS)]);
 
 // fx 키: huntHp(사냥 HP+) huntDmg(무기 피해+) bossMoon(보스 월정석 +비율) ap(순마다 행동력+)
 //        patience(음식 기다림 +비율) interestCut(이자 −비율) cookSpeed(조리 시간 −비율)
 //        moonRate(환전 +비율) discount(재료값 −비율) feeCut(배달비 −비율) dailyDew(순마다 밤이슬)
 export const BONDS = Object.freeze({
+  ...CAST_BONDS,
   neo: {
     name: '네오', place: 'hunt', speaker: 'neo_cat',
     gift: { id: 'tuna_churu', name: '참치 츄르', cost: 180 },
@@ -92,5 +94,6 @@ export function bondFx(affinity = {}) {
     const t = bondTier(affinity[id] || 0);
     for (const p of BONDS[id].perks.slice(0, t)) for (const [k, v] of Object.entries(p.fx)) fx[k] += v;
   }
+  for (const [key, cap] of Object.entries({cookSpeed:.5,discount:.4,feeCut:.75,interestCut:.5,patience:.6})) fx[key] = Math.min(cap, fx[key]);
   return fx;
 }

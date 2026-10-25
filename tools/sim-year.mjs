@@ -3,6 +3,7 @@ import { createGame } from '../src/game/state.js';
 import { dispatch, tick } from '../src/game/engine.js';
 import { pendingStory } from '../src/game/calendar.js';
 import { recruitView, questView } from '../src/game/economy.js';
+import {bondQuestion} from '../src/data/bond-dialogues.js';
 import { INGREDIENTS } from '../src/data/menus.js';
 import { CROPS, farmLevel, farmSeason } from '../src/data/farm.js';
 import { botHunt } from './sim-hunt.mjs';
@@ -10,10 +11,11 @@ import { maxHuntDepth } from '../src/game/hunt-growth.js';
 const withHunt=process.argv.includes('--with-hunt');
 const rows = [];
 for (const seed of [7,42,20261025]) {
- const s = createGame({seed}); let purchases=0, sales=0, tips=0, hostings=0, interest=0;
- for(let turn=1;turn<=36;turn++) {
+ const s = createGame({seed}); let purchases=0, sales=0, tips=0, hostings=0, interest=0,payroll=0,huntGold=0,clearedDay=null;
+ for(let turn=1;turn<=180;turn++) {
   for(let id;(id=pendingStory(s));) dispatch(s,{type:'story.seen',id});
-  if(withHunt && turn%3===1){botHunt(s,maxHuntDepth(s));if(s.moonstone)dispatch(s,{type:'moonstone.exchange',qty:s.moonstone});}
+  if(withHunt && turn%3===1){botHunt(s,maxHuntDepth(s));if(s.moonstone){const ex=dispatch(s,{type:'moonstone.exchange',qty:s.moonstone});huntGold+=ex.gold||0;}}
+  if(s.ap.left>0){const q=bondQuestion(s,'neo');dispatch(s,{type:'bond.talk',id:'neo',choiceId:q.answers.find(a=>a.gain===12).id,token:q.token});}
   for(const c of recruitView(s).filter(c=>c.status==='available')) dispatch(s,{type:'recruit.complete',id:c.id});
   for(const [index,p] of s.farm.plots.entries()) {
    if(p && p.growth>=CROPS[p.cropId].turns) dispatch(s,{type:'farm.harvest',index,cropInstanceId:p.id});
@@ -36,12 +38,13 @@ for (const seed of [7,42,20261025]) {
    }
    tick(s,1000);
   }
-  const st=s.lastSettlement;sales+=st.sales;tips+=st.baseTips+st.feverTips;hostings+=st.hostings.length;interest+=st.interest?.due||0;
+  const st=s.lastSettlement;sales+=st.sales;tips+=st.baseTips+st.feverTips;hostings+=st.hostings.length;interest+=st.interest?.due||0;payroll+=st.payroll?.closed?st.payroll.paid:0;
   if(turn<=6 && st.hostings.length) throw Error('3·4월 지명 발생');
   for(const q of questView(s)) if(q.claimable)dispatch(s,{type:'quest.claim',questId:q.id});
   if(s.gold>1600)dispatch(s,{type:'debt.repay',amount:s.gold-1600,requestId:`bot:${seed}:${turn}`});
+  if(s.debt<=0&&clearedDay==null)clearedDay=turn;
   dispatch(s,{type:'settlement.close'});
  }
- rows.push({seed,turns:s.stats.shiftsCompleted,sales,tips,purchases,hostings,interest,repaid:s.repaidTotal,debt:s.debt,gold:s.gold,ending:s.calendar.endingId,farmXP:s.farm.xp});
+ rows.push({seed,turns:s.stats.shiftsCompleted,sales,tips,purchases,hostings,interest,payroll,huntGold,clearedDay,repaid:s.repaidTotal,debt:s.debt,gold:s.gold,ending:s.calendar.endingId,farmXP:s.farm.xp});
 }
-console.log(JSON.stringify({method:`36순 자동 시계 봇 / 인간 플레이테스트 아님 / ${withHunt?'매달 사냥 1회+':'사냥 없이 '}경영+농사 / 5테이블`,rows},null,2));
+console.log(JSON.stringify({method:`180순 자동 시계 봇 / 인간 플레이테스트 아님 / ${withHunt?'매달 사냥 1회+':'사냥 없이 '}경영+농사 / 5테이블`,rows},null,2));

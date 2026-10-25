@@ -24,7 +24,7 @@ export function playNovel(beats, { onEnd } = {}) {
   root.innerHTML = `
     <div class="nv-bg"><div class="nv-bg-layer a"></div><div class="nv-bg-layer b"></div><div class="nv-stars"></div></div>
     <div class="nv-fx"></div>
-    <div class="nv-portraits">${['l', 'c', 'r'].map(k => `<canvas class="nv-pt ${k}" width="192" height="192" aria-hidden="true"></canvas>`).join('')}</div>
+    <div class="nv-portraits">${['l', 'c', 'r'].map(k => `<canvas class="nv-pt ${k}" width="384" height="576" aria-hidden="true"></canvas>`).join('')}</div>
     <div class="nv-chapter" hidden><small></small><b></b><i></i></div>
     <div class="nv-box" role="button" tabindex="0" aria-label="다음 대사">
       <div class="nv-name"></div><p class="nv-text" aria-live="polite"></p><span class="nv-next">다음 ▾</span>
@@ -67,7 +67,7 @@ export function playNovel(beats, { onEnd } = {}) {
       const [key, expr] = v.split(':');
       if (cv.dataset.expression !== v) {
         cv.dataset.expression = v;
-        if (!reduced()) cv.animate([{translate:'0 4px'},{translate:'0 -3px'},{translate:'0 0'}],{duration:220});
+        // 표정 변경 때 인물 전체를 움직이지 않는다.
       }
       paintTalkingPortrait(cv, { key, expression: expr || 'normal', talking: typing && key === speakerKey, reduced: reduced(), pauseUntil });
       cv.classList.toggle('dim', !!speakerKey && key !== speakerKey);

@@ -6,11 +6,11 @@ import { serialize, deserialize } from '../src/core/save.js';
 import { portraitFrame } from '../src/ui/talking-portrait.js';
 import { OUTFITS } from '../src/data/outfits.js';
 test('의상은 월정석 정확히 1회 해금하고 준비 중만 올바른 인물이 입는다', () => {
-  const s = createGame(); s.moonstone = 100;
+  const s = createGame(); s.moonstone = 1000;
   const stats = structuredClone(hostStats(s, 'neo'));
   const item = 'crescent_tailcoat';
   assert.ok(dispatch(s, { type: 'outfit.unlock', id: item }).ok);
-  assert.equal(s.moonstone, 100 - OUTFITS[item].unlock.cost);
+  assert.equal(s.moonstone, 1000 - OUTFITS[item].unlock.cost);
   assert.equal(dispatch(s, { type: 'outfit.unlock', id: item }).ok, false);
   assert.equal(dispatch(s, { type: 'outfit.unlock', id: 'winter_coat' }).ok, false);
   assert.equal(dispatch(s, { type: 'outfit.equip', who: 'yeoni', slot: 'outfit', itemId: item }).ok, false);

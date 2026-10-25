@@ -8,8 +8,9 @@ export function hunterProgress(totalXP = 0) {
   const spent = a * completed * completed + b * completed;
   return { level: completed + 1, totalXP: total, xp: total - spent, xpNext: C.xpBase + C.xpStep * completed };
 }
-export const maxHuntDepth = state => 1 + Math.floor((hunterProgress(state.hunter.xp).level - 1) / C.levelsPerDepth);
+export const maxHuntDepth = state => Math.min(100, Math.max(state.hunter.maxStage || 1, 1 + Math.floor((hunterProgress(state.hunter.xp).level - 1) / C.levelsPerDepth)));
+export const stageName = depth => depth >= 85 ? '흑월의 균열' : depth >= 55 ? '변이 청토끼의 회랑' : depth >= 35 ? '청토끼의 밤길' : '달그늘';
 export function depthScale(depth, calendarScale, monthIdx) {
-  return { hp: calendarScale.hp * (1 + C.depthHp * (depth - 1)), dmg: calendarScale.dmg * (1 + C.depthDamage * (depth - 1)), reward: 1 + C.depthReward * (depth - 1) + C.monthReward * Math.min(11, monthIdx) };
+  return { hp: calendarScale.hp * (1 + .08 * (depth - 1) + .0015 * (depth - 1) ** 2), dmg: calendarScale.dmg * (1 + .025 * (depth - 1)), reward: 1 + C.depthReward * (depth - 1) + C.monthReward * Math.min(11, monthIdx) };
 }
 export const huntMoonReward = (base, scale) => Math.max(base, Math.ceil(base * (scale?.reward ?? 1)));

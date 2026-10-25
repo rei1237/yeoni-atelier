@@ -7,7 +7,7 @@ const STORIES = {
 };
 export const DEST1NOVA_CAST = Object.freeze(DEST1NOVA_MEMBERS.filter(p => p.id !== 'neo').map(p => ({
   ...p, profile: p.personality, specialty: `${p.position} · ${p.charm}`, role: 'host', canHost: true, canServe: false, temp: true,
-  condition: { shiftsCompleted: 0, repaidAtLeast: 0, month: p.month },
-  meetEvent: { title: STORIES[p.id].title, lines: STORIES[p.id].lines },
+  condition: { shiftsCompleted: 0, repaidAtLeast: 0, month: p.month, year: ({solv:2,bambi:3,lune:4,raven:5})[p.id], neoAffinity:({solv:40,bambi:100,lune:180,raven:280})[p.id] },
+  meetEvent: { title: STORIES[p.id].title, lines: [`네오: ${p.name}, 내가 함께 일하는 가게야. 무대 밖에서도 서로의 이야기를 들어 주는 곳이지.`, `${p.name}: 네오가 그렇게 말하니까 직접 와 보고 싶었어. 오늘은 나도 함께할게.`, ...STORIES[p.id].lines] },
   followup: { title: `${p.name} · 무대 다음 날`, lines: STORIES[p.id].follow }, reward: {},
 })));

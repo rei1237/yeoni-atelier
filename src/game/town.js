@@ -1,6 +1,6 @@
-// 마을 나가기(영업 준비 중에만): 루나의 저울(월정석 환전) · 무인 장비 좌판(영냥이 장비) · 가게 확장(테이블·장식 들이기).
+// 마을 나가기(영업 준비 중에만): 청토끼 금융 센터(월정석 환전) · 모카의 무기 공방(영냥이 장비) · 가게 확장(테이블·장식 들이기).
 // 모카 식재료점 구매는 economy.buy 를 그대로 쓴다. 가격·환율은 모두 임시값(balance.temp.js, data/gear.js).
-// 장소 이름과 역할(루나의 저울, 무인 좌판)은 게임 오리지널 설정이다.
+// 장소 이름과 역할(청토끼 금융 센터, 모카 무기 공방)은 게임 오리지널 설정이다.
 
 import { TEMP } from '../config/balance.temp.js';
 import { RULES } from '../config/rules.js';
@@ -17,7 +17,7 @@ export function townCheck(state) {
   return { ok: true };
 }
 
-// ── 루나의 저울: 월정석 → 골드
+// ── 청토끼 금융 센터: 월정석 → 골드
 export function exchange(state, qty) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;
@@ -33,7 +33,7 @@ export function exchange(state, qty) {
   return { ok: true, gold };
 }
 
-// ── 무인 장비 좌판
+// ── 모카의 무기 공방
 export function buyGear(state, id) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;

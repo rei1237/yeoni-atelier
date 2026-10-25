@@ -3,7 +3,7 @@
 
 import { TEMP } from '../config/balance.temp.js';
 import { BONDS, COMMON_GIFT, bondTier } from '../data/bonds.js';
-import { nextRandom } from '../core/rng.js';
+import { bondQuestion } from '../data/bond-dialogues.js';
 import { emit } from './state.js';
 import { apCheck, spendAp } from './calendar.js';
 import { townCheck } from './town.js';
@@ -20,19 +20,22 @@ function gain(state, id, v) {
   return after - before;
 }
 
-export function talk(state, id) {
+export function talk(state, id, choiceId, token) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;
   const b = BONDS[id];
   if (!b) return { ok: false, reason: '없는 동료입니다' };
+  if (b.requiresRecruit && !state.roster[id]) return { ok: false, reason: '먼저 만남 이벤트로 영입해 주세요' };
   if (state.ap.talked[id]) return { ok: false, reason: `${b.name}와(과)는 이번 순에 이미 이야기했어요` };
   const ap = apCheck(state, 1);
   if (!ap.ok) return ap;
+  const question=bondQuestion(state,id), answer=question?.answers.find(a=>a.id===choiceId);
+  if(!answer || token!==question.token)return {ok:false,reason:'대화에서 답을 골라 주세요'};
   spendAp(state, 1);
   if (id === 'neo') changeStress(state, 'talk');
   state.ap.talked = { ...state.ap.talked, [id]: true };
-  const v = gain(state, id, B.TALK + Math.floor(nextRandom(state.rng) * (B.TALK_RAND + 1)));
-  const [speaker, line] = b.talk[Math.floor(nextRandom(state.rng) * b.talk.length)];
+  const v = gain(state, id, answer.gain);
+  const speaker=id, line=answer.response;
   emit('bondTalk', { id, speaker, line, gain: v });
   return { ok: true, gain: v, speaker, line };
 }
@@ -42,6 +45,7 @@ export function gift(state, id, giftId) {
   if (!chk.ok) return chk;
   const b = BONDS[id];
   if (!b) return { ok: false, reason: '없는 동료입니다' };
+  if (b.requiresRecruit && !state.roster[id]) return { ok: false, reason: '먼저 만남 이벤트로 영입해 주세요' };
   const g = giftId === b.gift.id ? b.gift : giftId === COMMON_GIFT.id ? COMMON_GIFT : null;
   if (!g) return { ok: false, reason: '없는 선물입니다' };
   if (state.ap.gifted[id]) return { ok: false, reason: `${b.name}에게는 이번 순에 이미 선물했어요` };
@@ -57,10 +61,11 @@ export function gift(state, id, giftId) {
 export function workShift(state) {
   gain(state, 'luna', B.WORK_SHIFT);
   gain(state, 'luna_sis', B.WORK_SHIFT);
+  for (const id of Object.keys(state.roster)) if (BONDS[id]?.requiresRecruit && state.roster[id].usableFrom <= state.day) gain(state, id, B.WORK_SHIFT);
 }
 
-export function workHunt(state, done) {
-  gain(state, 'neo', done ? B.WORK_HUNT : B.WORK_HUNT_DOWN);
+export function workHunt(state, done, who='neo') {
+  gain(state, who, done ? B.WORK_HUNT : B.WORK_HUNT_DOWN);
 }
 
 export function workShop(state) {

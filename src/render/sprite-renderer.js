@@ -3,12 +3,29 @@
 
 import { ASSETS, imageFor, resolveState, actorDef } from './assets.js';
 
+// 카페의 대기 동작. 발 기준점은 이동하지 않고 호흡·작은 몸 기울임만 표현한다.
+export function cafeIdlePose(key, o) {
+  if (!o.idleMotion || o.reducedMotion || !['idle','host','cook','serve'].includes(o.state || 'idle')) return null;
+  const seed=Array.from(key).reduce((n,c)=>n+c.charCodeAt(0),0)+(o.x||0)*.37+(o.y||0)*.19;
+  const phase=(o.t||0)/1000, breath=Math.sin(phase*(1.65+(seed%7)*.06)+seed);
+  return {scaleX:1-breath*.006,scaleY:1+breath*.022,angle:Math.sin(phase*.85+seed*.7)*.014};
+}
+
 export function drawActor(ctx, key, o) {
   const dressed = o.outfitId ? `${key}@${o.outfitId}` : key;
   key = imageFor(dressed) ? dressed : key.split('@')[0];
   const def = actorDef(key) || ASSETS.actors.customer;
   const st = resolveState(def, o.state || 'idle');
   const img = imageFor(key);
+  const pose=cafeIdlePose(key,o);
+  if (pose) {
+    ctx.save();ctx.translate(o.x,o.y);ctx.rotate(pose.angle);ctx.scale(pose.scaleX,pose.scaleY);
+    const body={...o,x:0,y:0,name:null};
+    if(img)drawFromSheet(ctx,def,img,st,body);else drawFallback(ctx,def,st,body);
+    ctx.restore();
+    if(o.name)nameTag(ctx,o.name,o.x,o.y+4+(o.nameOffsetY||0),o.size,o.tagColor);
+    return;
+  }
   if (img) return drawFromSheet(ctx, def, img, st, o);
   drawFallback(ctx, def, st, o);
 }
@@ -16,7 +33,7 @@ export function drawActor(ctx, key, o) {
 function drawFromSheet(ctx, def, img, st, o) {
   const s = def.states[st];
   const row = def.stateRows[st] + Math.max(0, def.directions.indexOf(o.facing || 'down')) * def.directionRows;
-  const frame = Math.floor((o.t / 1000) * s.fps) % s.frames;
+  const frame = (s.frameOffset || 0) + Math.floor((o.t / 1000) * s.fps) % s.frames;
   // 고해상도 원본을 실제 화면 크기에 맞춰 축소한다.
   const scale = o.size / def.frame.h;
   const prev = ctx.imageSmoothingEnabled;
@@ -26,7 +43,20 @@ function drawFromSheet(ctx, def, img, st, o) {
     Math.round(o.x - def.anchor.x * scale), Math.round(o.y - def.anchor.y * scale), def.frame.w * scale, def.frame.h * scale);
   ctx.filter = 'none';
   ctx.imageSmoothingEnabled = prev;
-  if (o.name) nameTag(ctx, o.name, o.x, o.y + 4, o.size, o.tagColor);
+  drawWorkProps(ctx, o);
+  if (o.name) nameTag(ctx, o.name, o.x, o.y + 4 + (o.nameOffsetY || 0), o.size, o.tagColor);
+}
+
+// 공통 투명 소품을 현재 의상 위에 합성한다. 주문 ID가 가리키는 실제 메뉴를 운반한다.
+function drawWorkProps(ctx, o) {
+  if (!o.carry && !o.cleaning) return;
+  const facing = o.facing || 'down', side = facing === 'left' ? -1 : facing === 'right' ? 1 : 0;
+  const size = o.size * .58;
+  const motion = o.cleaning ? Math.sin(o.t / 110) * o.size * .045 : 0;
+  const x = o.x + side * o.size * .17 + motion, y = o.y - o.size * .32;
+  const prop = imageFor(`interactions/${o.cleaning ? 'cloth' : 'tray'}-${facing}`);
+  if (prop) ctx.drawImage(prop, x - size / 2, y - size / 2, size, size);
+  if (o.carry?.menuId) drawIcon(ctx, o.carry.menuId, x, y - size * .12, o.size * .32);
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -87,7 +117,7 @@ function drawFallback(ctx, def, st, o) {
   if (st === 'host') hostMark(ctx, x + s * 0.32, y - s * 1.0, s, t);
   if (st === 'react') { ctx.fillStyle = '#e8574a'; ctx.font = `800 ${Math.round(s * 0.34)}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText('!', x + s * 0.3, y - s * 0.95); }
   if (st === 'attack') { ctx.strokeStyle = 'rgba(255,240,150,0.9)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y - s * 0.4, s * 0.5, -0.6, 0.6); ctx.stroke(); }
-  if (o.name) nameTag(ctx, o.name, o.x, o.y + 3, s, o.tagColor);
+  if (o.name) nameTag(ctx, o.name, o.x, o.y + 3 + (o.nameOffsetY || 0), s, o.tagColor);
 }
 
 function drawPerson(ctx, x, y, s, fb, o, t, st) {
@@ -290,6 +320,12 @@ export function drawPortrait(ctx, key, expr, w, h, { frame = 0 } = {}) {
   const actualKey = imageFor(`portraits/${key}`) ? key : key.split('@')[0];
   const def = ASSETS.portraits[actualKey];
   const img = imageFor(`portraits/${actualKey}`);
+  if (def?.static && img) {
+    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    const sh = w >= h ? Math.min(img.height,img.width*1.05) : img.height;
+    const scale=Math.min(w/img.width,h/sh);
+    ctx.drawImage(img,0,0,img.width,sh,(w-img.width*scale)/2,h-sh*scale,img.width*scale,sh*scale);return;
+  }
   if (def && img) {
     const i = Math.max(0, def.expressions.indexOf(expr));
     const k = Math.min(w, h) / def.px;
@@ -310,11 +346,11 @@ export { roundRect };
 // 회전으로 비율이 바뀌었거나 그림이 없으면 false → 호출한 쪽이 도형으로 그린다.
 export function drawObjectImage(ctx, group, key, x, y, w, h) {
   const img = imageFor(`${group}/${key}`);
-  if (!img || Math.abs(img.width / img.height - w / h) > 0.01) return false;
+  if (!img) return false;
   const prev = ctx.imageSmoothingEnabled;
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   if (group === 'tiles') ctx.drawImage(img,2,2,img.width-4,img.height-4,x,y,w+.5,h+.5);
-  else ctx.drawImage(img, Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  else {const k=Math.min(w/img.width,h/img.height);ctx.drawImage(img,x+(w-img.width*k)/2,y+h-img.height*k,img.width*k,img.height*k);}
   ctx.imageSmoothingEnabled = prev;
   return true;
 }

@@ -5,7 +5,7 @@
 import { TEMP } from '../config/balance.temp.js';
 import { PDF } from '../config/balance.pdf.js';
 import { emit } from './state.js';
-import { BOND_IDS, bondTier, bondFx } from '../data/bonds.js';
+import { BONDS, BOND_IDS, bondTier, bondFx } from '../data/bonds.js';
 import { advanceFarm } from './farm.js';
 import { grantEventOutfits } from './outfits.js';
 
@@ -29,7 +29,7 @@ export const isEnded = state => !!state.calendar?.ended;
 export function dateLabel(state, day = state.day) {
   if (isEnded(state)) return `후일담 ${day - C.TOTAL_TURNS}일째`;
   const c = calendarOf(day);
-  return `${c.year}년차 ${c.month}월(${BRANCH[c.month]}월) ${PARTS[c.part]}`;
+  return `운영 ${1 + Math.floor(c.monthIdx / 12)}년차 ${c.month}월(${BRANCH[c.month]}월) ${PARTS[c.part]}`;
 }
 
 export function monthName(monthIdx) {
@@ -68,9 +68,9 @@ export function chargeInterest(state, sh) {
 
 // ── 결말: 남은 빚과 동료 친밀도로 고른다. 청토끼·서한비·윤달의 결말은 쓰지 않는다(원작 방침).
 export function decideEnding(state) {
-  const start = PDF.INITIAL_DEBT;
+  const start = state.startingDebt || PDF.INITIAL_DEBT;
   const bonds = Object.values(state.affinity || {}).reduce((a, b) => a + b, 0);
-  if (state.debt <= 0) return bonds >= C.ENDING_BOND_BEST ? 'grand' : 'clear';
+  if (state.debt <= 0 && !(state.payroll?.arrears>0) && !(state.finance?.balance>0)) return bonds >= C.ENDING_BOND_BEST ? 'grand' : 'clear';
   if (state.debt <= start * 0.4) return 'close';
   return 'extend';
 }
@@ -107,6 +107,7 @@ export function pendingStory(state) {
 // 아직 안 본 인연 이야기 id(낮은 단계부터). 달 이야기를 본 뒤에 나온다.
 export function pendingBondStory(state) {
   for (const id of BOND_IDS) {
+    if (BONDS[id].requiresRecruit && !state.roster[id]) continue;
     const t = bondTier(state.affinity?.[id] || 0);
     for (let k = 1; k <= t; k++) if (!state.ledger.story[`bond:${id}:${k}`]) return `bond:${id}:${k}`;
   }

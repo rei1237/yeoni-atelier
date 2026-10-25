@@ -1,5 +1,6 @@
 // 게임 오리지널 인테리어. 가격·분위기 효과는 임시(TEMP), 전부 확정 구매.
-const decor = (id, name, theme, width, height, floor, color, price, ambience) => ({ id, name, theme, width, height, color, price, ambience,
+const decor = (id, name, theme, width, height, floor, color, price, ambience) => ({ id, name, theme, width, height, color, price, ambience:ambience*(price>=1600?4:price>=900?2:1),
+  grade:price>=1600?'명품':price>=900?'고급':'기본',
   cells: Array.from({ length: width * height }, (_, i) => ({ dx: i % width, dy: Math.floor(i / width), kind: floor ? 'floor' : 'block' })) });
 export const DECOR_CATALOG = Object.freeze([
   decor('lotus_pot', '연꽃 수반', '연꽃 정원', 1, 1, false, '#bf7188', 480, 2),

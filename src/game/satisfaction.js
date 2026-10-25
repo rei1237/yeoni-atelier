@@ -40,9 +40,9 @@ export function gradeOf(H, grade = PDF.GRADE) {
 }
 
 // 기본 팁 = floor(서빙된 주문 합계 × 0.4 × (H - 50) / 50). 최종 H ≥ 60 이고 300초를 모두 채웠을 때만.
-export function tipFor({ servedTotal, H, completedFull, fevered }) {
+export function tipFor({ servedTotal, H, completedFull, fevered, multiplier = 1 }) {
   if (!completedFull || H < RULES.TIP_MIN_H) return { base: 0, feverExtra: 0, total: 0 };
-  const base = Math.floor(servedTotal * RULES.TIP_RATE * (H - RULES.TIP_PIVOT) / RULES.TIP_PIVOT);
+  const base = Math.floor(servedTotal * multiplier * RULES.TIP_RATE * (H - RULES.TIP_PIVOT) / RULES.TIP_PIVOT);
   const feverExtra = fevered ? base * (RULES.FEVER_TIP_MULTIPLIER - 1) : 0;
   return { base, feverExtra, total: base + feverExtra };
 }

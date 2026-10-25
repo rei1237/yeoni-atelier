@@ -129,3 +129,10 @@
 .who-neo_cat .nv-name { background:#d7c6ed; color:#30203f; }
 .who-luna .nv-name,.who-luna_sis .nv-name { background:#f3d5bb; color:#3c2821; }
 .who-moka .nv-name { background:#ddc4a2; color:#36291f; }
+
+/* 원작 라이트 노벨 입상: 구도와 발 기준 고정, 대사마다 흔들지 않는다. */
+.nv-portraits {bottom:172px;height:55%;}
+.nv-pt {width:48%;transform:none;transition:opacity .2s,filter .2s;}
+.nv-pt.l{left:-5%;}.nv-pt.c{left:26%;}.nv-pt.r{right:-5%;transform:none;}
+.nv-pt.r.show{transform:none;}.nv-bg-layer.on{animation:none;}
+.nv-pt.dim{filter:brightness(.6) saturate(.85);}

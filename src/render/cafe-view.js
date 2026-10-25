@@ -6,13 +6,18 @@ import { PDF } from '../config/balance.pdf.js';
 import { PEOPLE, STAFF_CREW } from '../data/companions.js';
 import { MENUS } from '../data/menus.js';
 import { OUTFITS } from '../data/outfits.js';
-import { ASSETS } from './assets.js';
+import {atmosphere} from '../game/cafe-growth.js';
+import { CUSTOMER_WEALTH } from '../data/customer-wealth.js';
+import {personName,usableHosts} from '../game/state.js';
+import { ASSETS,imageFor } from './assets.js';
 import { furnitureCells } from '../game/space.js';
 import { drawActor, roundRect, drawObjectImage, drawIcon } from './sprite-renderer.js';
 
-export function computeView(w, h) {
-  const tile = Math.max(8, Math.floor(Math.min(w / GRID.cols, h / GRID.rows) * 100) / 100);
-  return { tile, ox: Math.round((w - tile * GRID.cols) / 2), oy: Math.round((h - tile * GRID.rows) / 2), w, h };
+export function cafeBounds(state){const a=state?.interior?.areas||[];return {cols:a.includes('east_wing')||a.includes('garden_wing')?20:12,rows:a.includes('garden_wing')?24:16};}
+export function computeView(w, h, camera={}) {
+  const cols=camera.cols||12,rows=camera.rows||16;
+  const tile = Math.max(8, Math.floor(Math.min(w / cols, h / (rows + 1.5)) * 100) / 100) * (camera.zoom || 1);
+  return { tile, ox: Math.round((w - tile * cols) / 2)+Math.max(-Math.max(0,tile*cols-w)/2,Math.min(Math.max(0,tile*cols-w)/2,camera.x||0)), oy: Math.round((h - tile * rows) / 2)+Math.max(-Math.max(0,tile*rows-h)/2,Math.min(Math.max(0,tile*rows-h)/2,camera.y||0)), w, h, cols, rows };
 }
 export const cellToPx = (v, x, y) => ({ x: v.ox + x * v.tile, y: v.oy + y * v.tile });
 export const pxToCell = (v, px, py) => ({ x: Math.floor((px - v.ox) / v.tile), y: Math.floor((py - v.oy) / v.tile) });
@@ -46,8 +51,12 @@ export function drawCafe(ctx, state, v, opts = {}) {
   const P = (x, y) => cellToPx(v, x, y);
   ctx.fillStyle = '#eadbc8'; ctx.fillRect(0, 0, v.w, v.h);
 
+  const luxurious=atmosphere(state)>=20;
+  const backdrop=luxurious?imageFor('backgrounds/atelier_lit'):null;
+  if(backdrop)ctx.drawImage(backdrop,v.ox,v.oy,T*v.cols,T*v.rows);
   // 바닥
-  for (let y = 0; y < GRID.rows; y++) for (let x = 0; x < GRID.cols; x++) {
+  for (let y = 0; y < v.rows; y++) for (let x = 0; x < v.cols; x++) {
+    if(backdrop && !state.interior.draft)continue;
     const p = P(x, y);
     ctx.fillStyle = y === 0 ? '#e8dbc8' : '#f3e8d9';
     ctx.fillRect(p.x,p.y,T+.5,T+.5);
@@ -61,7 +70,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   // 아직 열지 않은 구역(공방 증축 전): 빗금과 자물쇠
   const open = state.interior.areas || [];
   for (const a of AREAS) {
-    if (open.includes(a.id)) continue;
+    if (open.includes(a.id) || a.rect[0]>=v.cols || a.rect[1]>=v.rows) continue;
     ctx.fillStyle = 'rgba(92,60,82,0.28)';
     for (const [x, y] of areaCells(a)) {
       const p = P(x, y);
@@ -106,7 +115,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   for (const fx of FIXTURES) {
     if (fx.wall) continue;
     const b = cellsBox(fx.cells), p = P(b.x, b.y);
-    if (!drawObjectImage(ctx, 'objects', fx.id, p.x, p.y, b.w * T, b.h * T)) {
+    if (!drawObjectImage(ctx, 'objects', !luxurious && ASSETS.objects[`basic_${fx.id}`] ? `basic_${fx.id}` : fx.id, p.x, p.y, b.w * T, b.h * T)) {
       ctx.fillStyle = fx.color;
       roundRect(ctx, p.x + 2, p.y + 2, b.w * T - 4, b.h * T - 4, T * 0.15); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(p.x + 4, p.y + 4, b.w * T - 8, T * 0.18);
@@ -123,7 +132,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
     for (const c of furnitureCells(f)) {
       const p = P(c.x, c.y);
       if (c.kind === 'table') drawTable(ctx, state, p, T, f, tablesByUid.get(f.uid), t);
-      else if (c.kind === 'chair') { if (drawObjectImage(ctx, 'objects', 'chair', p.x, p.y, T, T)) continue; ctx.fillStyle = '#a8774c'; roundRect(ctx, p.x + T * 0.22, p.y + T * 0.3, T * 0.56, T * 0.5, T * 0.12); ctx.fill(); }
+      else if (c.kind === 'chair') { if (drawObjectImage(ctx, 'objects', luxurious?'chair':'basic_chair', p.x-T*.13, p.y-T*.16, T*1.26, T*1.26)) continue; ctx.fillStyle = '#a8774c'; roundRect(ctx, p.x + T * 0.22, p.y + T * 0.3, T * 0.56, T * 0.5, T * 0.12); ctx.fill(); }
       else drawDecor(ctx, f.defId, def, p, T);
     }
   }
@@ -135,13 +144,13 @@ export function drawCafe(ctx, state, v, opts = {}) {
   if (state.mode === 'shift') {
     for (const c of Object.values(state.customers)) {
       const st = c.action === 'walk' ? 'walk' : c.action === 'react' ? 'react' : 'idle';
-      actors.push({ key: 'customer', x: c.x, y: c.y, o: { state: st, facing: c.facing, hue: c.hue } });
+      actors.push({ key: 'customer', x: c.x, y: c.y, o: { state: st, facing: c.facing, hue: c.hue, name:CUSTOMER_WEALTH[c.wealthId]?.name, tagColor:CUSTOMER_WEALTH[c.wealthId]?.color } });
     }
     for (const s of Object.values(state.staff)) {
-      const map = { walk: 'walk', serve: 'serve', clean: 'serve', host: 'host', react: 'react' };
+      const map = { walk: 'walk', serve: 'serve', clean: 'clean', host: 'host', react: 'react' };
       let st = map[s.action] || 'idle';
       if (s.action === 'cook') st = 'cook'; // 루나 언니가 굽는 중
-      actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color } : null, ...outfitLook(state, s.id) } });
+      actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, ...outfitLook(state, s.id) } });
     }
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
     actors.push({ key: 'yeoni', x: SPOTS.yeoniHome.x + 0.5, y: SPOTS.yeoniHome.y + 0.5, o: { state: 'idle', facing: 'down', name: '연이', ...outfitLook(state, 'yeoni') } });
@@ -150,11 +159,12 @@ export function drawCafe(ctx, state, v, opts = {}) {
       actors.push({ key: id, x: home.x + 0.5, y: home.y + 0.5, o: { state: 'idle', facing: 'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
     }
     if (state.people.neo?.activity === 'idle') actors.push({ key: 'neo', x: SPOTS.neoHome.x + 0.5, y: SPOTS.neoHome.y + 0.5, o: { state: 'idle', facing: 'down', name: '네오', ...outfitLook(state, 'neo') } });
+    usableHosts(state).filter(id=>id!=='neo'&&!STAFF_CREW.includes(id)).forEach((id,i)=>actors.push({key:id,x:2.5+(i%4)*2,y:10.5+Math.floor(i/4)*2,o:{state:'idle',facing:'down',name:personName(state,id),...outfitLook(state,id)}}));
   }
   actors.sort((a, b) => a.y - b.y);
   for (const a of actors) {
     const p = P(a.x, a.y);
-    drawActor(ctx, a.key, { ...a.o, x: p.x, y: p.y + T * 0.32, size: T * 1.45, t });
+    drawActor(ctx, a.key, { ...a.o, x: p.x, y: p.y + T * 0.32, size: T * 1.8, nameOffsetY:a.o.state==='host'?Math.max(20,T*.65):0, idleMotion:!editing&&!state.paused, reducedMotion:opts.reducedMotion, t });
   }
 
   // 편집 표시: 선택 가구와 문제 가구
@@ -175,7 +185,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
 function staffName(state, id) {
   if (id === 'yeoni') return '연이';
   if (PEOPLE[id]) return PEOPLE[id].name;
-  return id.startsWith('dev_') ? 'DEV' : id;
+  return id.startsWith('dev_') ? 'DEV' : personName(state,id);
 }
 
 function drawTable(ctx, state, p, T, f, tb, t) {
@@ -184,7 +194,7 @@ function drawTable(ctx, state, p, T, f, tb, t) {
     ctx.fillStyle = `rgba(255,200,60,${0.35 + Math.sin(t / 150) * 0.15})`;
     ctx.beginPath(); ctx.arc(p.x + T / 2, p.y + T / 2, T * 0.72, 0, Math.PI * 2); ctx.fill();
   }
-  if (!drawObjectImage(ctx, 'objects', 'table', p.x, p.y, T, T)) {
+  if (!drawObjectImage(ctx, 'objects', atmosphere(state)>=20?'table':'basic_table', p.x-T*.18, p.y-T*.16, T*1.36, T*1.36)) {
     ctx.fillStyle = '#c79a6b';
     roundRect(ctx, p.x + T * 0.08, p.y + T * 0.12, T * 0.84, T * 0.76, T * 0.18); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(p.x + T * 0.14, p.y + T * 0.16, T * 0.72, T * 0.12);

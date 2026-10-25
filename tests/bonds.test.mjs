@@ -7,15 +7,17 @@ import { dispatch } from '../src/game/engine.js';
 import { pendingStory } from '../src/game/calendar.js';
 import { BONDS, bondFx } from '../src/data/bonds.js';
 
+import {bondQuestion} from '../src/data/bond-dialogues.js';
 const B = TEMP.BONDS;
 
 test('대화: 행동력 1, 같은 순 같은 동료는 한 번 · 선물은 골드가 들고 순마다 한 번', () => {
   const s = createGame();
   s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   const ap0 = s.ap.left;
-  const r = dispatch(s, { type: 'bond.talk', id: 'luna' });
+  const q=bondQuestion(s,'luna'),answer=q.answers.find(a=>a.gain===12);
+  const r = dispatch(s, { type: 'bond.talk', id: 'luna', choiceId:answer.id, token:q.token });
   assert.ok(r.ok, r.reason);
-  assert.ok(r.gain >= B.TALK && r.gain <= B.TALK + B.TALK_RAND);
+  assert.equal(r.gain,12);
   assert.equal(s.ap.left, ap0 - 1);
   assert.equal(s.affinity.luna, r.gain);
   assert.match(dispatch(s, { type: 'bond.talk', id: 'luna' }).reason, /이미/);

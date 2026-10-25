@@ -4,7 +4,9 @@ import { PDF } from '../config/balance.pdf.js';
 import { TEMP } from '../config/balance.temp.js';
 import { INGREDIENTS, MENUS } from '../data/menus.js';
 import { QUESTS } from '../data/quests.js';
+import { grantEventOutfits } from './outfits.js';
 import { OUTFITS, OUTFIT_SLOTS, OUTFIT_WEARERS } from '../data/outfits.js';
+import { hiddenGuestQuest } from './hidden-guest.js';
 import { emit, recruitables } from './state.js';
 import { bondFx } from '../data/bonds.js';
 import { workShop } from './bonds.js';
@@ -56,8 +58,9 @@ export function debtStage(state) {
   let acc = 0;
   for (let i = 0; i < PDF.DEBT_STAGES.length; i++) {
     const st = PDF.DEBT_STAGES[i];
-    if (state.repaidTotal < acc + st.amount) return { index: i, label: st.label, paid: state.repaidTotal - acc, need: st.amount };
-    acc += st.amount;
+    const amount=Math.round(st.amount/PDF.INITIAL_DEBT*(state.startingDebt||PDF.INITIAL_DEBT));
+      if (state.repaidTotal < acc + amount) return { index: i, label: st.label, paid: state.repaidTotal - acc, need: amount };
+    acc += amount;
   }
   return { index: PDF.DEBT_STAGES.length, label: '완납', paid: 0, need: 0 };
 }
@@ -103,7 +106,7 @@ export function recruitView(state) {
     const cond = c.condition;
     const month = calendarOf(state.day).month;
     // 해당 월에 등장, 놓친 경우 다음 해 같은 달에 다시 만난다. 영입 후에는 계속 함께한다.
-    const met = state.stats.shiftsCompleted >= cond.shiftsCompleted && state.stats.repayCount >= cond.repaidAtLeast && (!cond.month || cond.month === month);
+    const met = (!cond.debtFree || state.debt <= 0) && state.gold >= (cond.wealth || 0) && (state.affinity?.neo || 0) >= (cond.neoAffinity || 0) && (c.id !== 'seohanbi' || hiddenGuestQuest(state).ready) && state.stats.shiftsCompleted >= cond.shiftsCompleted && state.stats.repayCount >= cond.repaidAtLeast && (c.id === 'seohanbi' || !cond.month || cond.month === month) && (1 + Math.floor(calendarOf(state.day).monthIdx / 12) >= (cond.year || 1));
     const status = r.status === 'recruited' ? 'recruited' : met ? 'available' : 'locked';
     return { id: c.id, name: c.name, devOnly: !!c.devOnly, status, condition: cond, meetEvent: c.meetEvent, reward: c.reward, usableFrom: state.roster[c.id]?.usableFrom ?? null };
   });
@@ -120,6 +123,8 @@ export function completeRecruit(state, id) {
   state.roster[id] = { usableFrom: state.day };
   state.people[id] = { activity: 'idle', form: 'human', visitId: null, tableNo: null, endAt: null };
   state.stats.recruited += 1;
+  grantEventOutfits(state,`recruit:${id}`);
+  if(OUTFITS[`${id}_formal`]){ state.outfits.equipped[id] ||= {outfit:null,acc1:null,acc2:null}; state.outfits.equipped[id].outfit=`${id}_formal`; }
   grant(state, `recruit:${id}`, v.reward || {});
   emit('recruited', { id, name: v.name });
   return { ok: true };
@@ -137,8 +142,10 @@ export function castStory(state, id) {
 // ── 의상(능력치 효과 없음)
 export function equip(state, who, slot, itemId) {
   if (state.mode !== 'prep') return { ok: false, reason: '영업 준비 중에 갈아입을 수 있어요' };
+  if (who === 'yeoni') return { ok:false, reason:'호스트 카페 드레스룸은 남성 동료 전용이에요' };
   if (!OUTFIT_WEARERS.includes(who)) return { ok: false, reason: '의상을 입을 수 없는 대상입니다' };
   if (!OUTFIT_SLOTS.includes(slot)) return { ok: false, reason: '없는 칸입니다' };
+  if(who!=='neo' && !state.roster[who])return {ok:false,reason:'먼저 동료를 영입해 주세요'};
   const eq = state.outfits.equipped[who];
   if (itemId == null) { eq[slot] = null; return { ok: true }; }
   const item = OUTFITS[itemId];

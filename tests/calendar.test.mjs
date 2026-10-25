@@ -21,10 +21,10 @@ function quietTurn(s) {
   assert.ok(dispatch(s, { type: 'settlement.close' }).ok);
 }
 
-test('달력: 3순이 한 달, 3월 상순에서 시작해 다음 해 2월 하순이 마지막 순', () => {
+test('달력: 3순이 한 달, 3월 상순에서 시작해 5년 뒤 2월 하순이 마지막 순', () => {
   assert.deepEqual(calendarOf(1), { turn: 0, monthIdx: 0, part: 0, month: 3, year: 1 });
-  assert.deepEqual(calendarOf(C.TOTAL_TURNS), { turn: 35, monthIdx: 11, part: 2, month: 2, year: 2 });
-  assert.equal(dateLabel(createGame()), '1년차 3월(묘월) 상순');
+  assert.deepEqual(calendarOf(C.TOTAL_TURNS), { turn: 179, monthIdx: 59, part: 2, month: 2, year: 6 });
+  assert.equal(dateLabel(createGame()), '운영 1년차 3월(묘월) 상순');
 });
 
 test('이자: 하순 영업을 마칠 때 한 번만, 남은 빚 × 이자율(올림)이 골드에서 나간다', () => {
@@ -34,7 +34,7 @@ test('이자: 하순 영업을 마칠 때 한 번만, 남은 빚 × 이자율(�
   quietTurn(s);
   assert.deepEqual(s.ledger.interest, {}, '상순·중순에는 이자가 없다');
   const debt0 = s.debt;
-  s.gold = 100000; // 테스트 준비
+  s.gold = 10000000; // 테스트 준비
   quietTurn(s);
   const rec = s.ledger.interest.m0;
   assert.equal(rec.due, Math.ceil(debt0 * C.INTEREST_RATE));

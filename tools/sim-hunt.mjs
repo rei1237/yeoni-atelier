@@ -18,7 +18,7 @@ export function botHunt(s, depth=1, idle=false) {
   }
   tick(s,100,{input:{x,y}});
  }
- if(s.hunt.status==='running')throw Error('봇 시간 제한');
+ if(s.hunt.status==='running')dispatch(s,{type:'hunt.retreat'}); // 봇만 20분 뒤 귀환; 게임 제한 없음
  dispatch(s,{type:'hunt.finish'});return s.lastHunt;
 }
 if(process.argv[1]?.endsWith('sim-hunt.mjs')){

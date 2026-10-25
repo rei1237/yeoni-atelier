@@ -1,6 +1,12 @@
+import {findRecipe} from '../game/recipe.js';
+import {TEMP as GAME_TEMP} from '../config/balance.temp.js';
 // 연이의 아틀리에 진입점. 화면 ↔ 엔진 연결만 한다.
 // 상태 변경은 모두 dispatch(명령)·tick(활성 시간)으로만 하고, 이 파일은 골드·지명 시간·영입 상태를 직접 바꾸지 않는다.
 
+import {showHelpFeedback} from './help-feedback.js';
+import { unlockAudio,setAudioScene,audioAction,sound } from './audio.js';
+import { GUIDES } from './tutorials.js';
+import { btn } from './dom.js';
 import { TEMP } from '../config/balance.temp.js';
 import { createGame, personName, personDef } from '../game/state.js';
 import { dispatch, tick } from '../game/engine.js';
@@ -13,7 +19,7 @@ import { SAVE_KEYS, memoryStorage, browserStorage, saveGame, loadGame, hasSave, 
 import { createFrameLoop } from '../core/frame-loop.js';
 import { createJoystick } from '../core/joystick.js';
 import { loadAssetImages } from '../render/assets.js';
-import { computeView, cellToPx, pxToCell, drawCafe } from '../render/cafe-view.js';
+import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe } from '../render/cafe-view.js';
 import { drawHunt } from '../render/hunt-view.js';
 import { $, morph, toast, floater, shake } from './dom.js';
 import { topbarHtml, panelHtml, bubblesHtml, hitsHtml } from './hud.js';
@@ -30,6 +36,7 @@ import { playNovel, novelActive } from './novel.js';
 import { EVENT_STORIES } from '../story/events.js';
 import { PROLOGUE } from '../story/prologue.js';
 import { MONTH_STORIES, ENDINGS } from '../story/months.js';
+import { careerMonthStory, castBondStory } from '../story/career.js';
 import { BOND_STORIES } from '../story/bonds.js';
 import { BONDS } from '../data/bonds.js';
 import { SPEAKERS } from '../story/prologue.js';
@@ -44,7 +51,7 @@ const storageOk = !!storage;
 if (!storage) storage = memoryStorage();
 
 let state = null;
-const ui = { dev: DEV, speed: 1, sheet: null, confirm: null, selectedSlot: null, recruitEvent: null, combo: [], discovery: null, ending: null, storageOk, hasSave: hasSave(storage, SAVE_KEY) };
+const ui = { playSpeed:1, camera:{zoom:1,x:0,y:0}, dev: DEV, speed: 1, sheet: null, confirm: null, selectedSlot: null, recruitEvent: null, combo: [], discovery: null, ending: null, storageOk, hasSave: hasSave(storage, SAVE_KEY) };
 if (DEV) document.documentElement.classList.add('dev');
 
 const el = { topbar: $('#topbar'), panel: $('#panel'), stage: $('#stage'), canvas: $('#view'), hits: $('#hits'), bubbles: $('#bubbles'),
@@ -60,7 +67,7 @@ function resize() {
   cssW = Math.max(1, Math.round(r.width)); cssH = Math.max(1, Math.round(r.height));
   el.canvas.width = Math.round(cssW * dpr); el.canvas.height = Math.round(cssH * dpr);
   el.canvas.style.width = `${cssW}px`; el.canvas.style.height = `${cssH}px`;
-  view = computeView(cssW, cssH);
+  view = computeView(cssW, cssH,{...ui.camera,...cafeBounds(state)});
   lastUi = 0;
 }
 new ResizeObserver(resize).observe(el.stage);
@@ -83,6 +90,7 @@ function run(cmd, { keepQuiet = false } = {}) {
   if (!state) return { ok: false };
   const r = dispatch(state, cmd);
   handleEvents(r.events);
+  sound(r.ok ? cmd.type.startsWith('farm.')?'farm':cmd.type.startsWith('bond.')?'bond':'good' : 'bad');
   if (!r.ok) {
     if (!keepQuiet) toast((r.reasons?.length ? r.reasons : [r.reason || '할 수 없습니다']).join(' / '), 'bad');
   } else {
@@ -111,9 +119,9 @@ function goTitle() {
 // 달 이야기·결말: id → 박자
 function storyBeats(id) {
   if (id.startsWith('ending:')) return ENDINGS[id.slice(7)]?.beats || null;
-  if (id.startsWith('bond:')) { const [, who, k] = id.split(':'); return BOND_STORIES[who]?.[Number(k) - 1] || null; }
+  if (id.startsWith('bond:')) { const [, who, k] = id.split(':'); return BOND_STORIES[who]?.[Number(k) - 1] || castBondStory(who,Number(k)); }
   if (id.startsWith('ev:')) return EVENT_STORIES[id] || null;
-  return MONTH_STORIES[Number(id.slice(1))] || null;
+  return careerMonthStory(Number(id.slice(1)), state);
 }
 
 // 영업 준비 화면에서 아직 안 본 이야기가 있으면 한 번 튼다. 본 기록은 엔진 명령(story.seen)으로만 남긴다.
@@ -143,8 +151,15 @@ const ACTIONS = {
   'dress.pose': () => { ui.dressPose = ui.dressPose === 'host' ? 'idle' : 'host'; },
   'dress.preview': d => { ui.dressPreview = d.id; ui.dressLine = outfitLine(ui.dressWho || 'neo', d.id, stressStage(state), 'preview'); },
   'outfit.unlock': d => { if (run({ type: 'outfit.unlock', id: d.id }).ok) ui.dressLine = outfitLine(ui.dressWho || 'neo', d.id, stressStage(state), 'unlock'); },
+  'hunt.hunter': d => {ui.hunterId=d.id;},
+  'hunt.stage': d => {ui.huntStage=n(d.depth);},
+  'armory.enhance': d => run({type:'armory.enhance',who:d.who,id:d.id}),
+  'armory.buy': d => run({type:'armory.buy',id:d.id}),
+  'hunt.supply': d => run({type:'hunt.supply',id:d.id}),
+  'audio.change': d => audioAction(d.key,d.value),
+  'guide.select': d => {ui.guideId=d.id;ui.sheet={kind:'tutorial'};},
   'hunt.start': () => { ui.sheet = { kind: 'hunt' }; },
-  'hunt.depart': d => { if (run({ type: 'hunt.start', depth: n(d.depth) }).ok) ui.sheet = null; },
+  'hunt.depart': d => { if (run({ type: 'hunt.start', depth: n(d.depth), hunterId:ui.hunterId||'neo' }).ok) ui.sheet = null; },
   'farm.select': d => { ui.farmCrop = d.id; },
   'farm.plant': d => run({ type: 'farm.plant', cropId: d.id, index: n(d.index) }),
   'farm.water': d => run({ type: 'farm.water', index: n(d.index) }),
@@ -161,7 +176,11 @@ const ACTIONS = {
   'overlay.hunt': () => {},
   'confirm.yes': () => { const cf = ui.confirm; ui.confirm = null; cf?.onYes(); },
   'confirm.no': () => { ui.confirm = null; },
-  'recruit.event': d => { ui.recruitEvent = d.id; ui.sheet = null; },
+  'recruit.event': d => {
+    const story=personDef(state,d.id)?.meetEvent;if(!story)return;ui.sheet=null;ui.recruitEvent=d.id;
+    const whoByName=Object.fromEntries(Object.entries(SPEAKERS).map(([id,s])=>[s.name,id]));
+    playNovel([{chapter:['새로운 인연',story.title],bg:'atelier_lit',l:'yeoni:normal',c:'neo:normal',r:`${d.id}:normal`},...story.lines.map(line=>{const i=line.indexOf(':');return {s:whoByName[line.slice(0,i)]||'nar',t:line.slice(i+1).trim()};})],{onEnd:()=>{run({type:'recruit.complete',id:d.id});ui.recruitEvent=null;render(true);}});
+  },
   'cast.read': d => {
     const story = personDef(state, d.id)?.followup;
     if (!story || !state.roster[d.id] || state.mode !== 'prep' || state.day <= state.recruitment[d.id].at) { toast('함께 영업한 뒤 준비 시간에 이야기를 나눠요'); return; }
@@ -178,6 +197,8 @@ const ACTIONS = {
   'combo.remove': d => { ui.combo.splice(n(d.index), 1); },
   'combo.clear': () => { ui.combo = []; },
   'combo.mix': () => {
+    const known=findRecipe(ui.combo);
+    if(state.mode==='shift'&&!state.autoKitchen&&!state.auto&&known&&state.learned[known]){ui.combo=[];beginCraft(known);return;}
     const r = run({ type: 'recipe.try', ingredients: ui.combo.slice() });
     if (!r.ok) return;
     if (r.match === false) { shake(document.getElementById('combo-bench')); return; }
@@ -238,10 +259,15 @@ const ACTIONS = {
   'nomination.decline': d => run({ type: 'nomination.decline', tableNo: n(d.no) }),
   'nomination.propose': d => run({ type: 'nomination.propose', tableNo: n(d.no), personId: d.person }),
   'help.respond': d => run({ type: 'help.respond', visitId: d.visit, index: n(d.index), choice: d.choice }),
-  'cook': d => run({ type: 'cook', menuId: d.menu }),
-  'order.quick': d => run({ type: 'order.quick', orderId: d.id }),
+  'cook': d => beginCraft(d.menu),
+  'order.quick': d => {const o=state.orders[d.id];if(!o)return;if(state.tray.some(it=>it?.menuId===o.menuId&&!it.reservedFor))run({type:'order.quick',orderId:d.id});else beginCraft(o.menuId,d.id);},
+  'craft.cancel':()=>{ui.craft=null;ui.sheet={kind:'kitchen'};},
+  'craft.step':()=>{if(!ui.craft)return;sound('cook');if(ui.craft.step<2){ui.craft.step++;return;}const c=ui.craft;const r=run(c.orderId?{type:'order.quick',orderId:c.orderId}:{type:'cook',menuId:c.menuId});if(r.ok){ui.craft=null;ui.sheet=null;toast('재료가 어우러지고 있어요. 곧 완성돼요.','good');}},
   'cook.cancelNext': d => run({ type: 'cook.cancelNext', station: d.station }),
   'shop.buy': d => run({ type: 'shop.buy', ingredientId: d.id, qty: n(d.qty) }),
+  'play.speed': d => {ui.playSpeed=[1,2,3].includes(n(d.speed))?n(d.speed):1;},
+  'finance.borrow': d => {const amount=n(d.amount);ui.confirm={title:`${amount.toLocaleString('ko-KR')}G를 빌릴까요?`,text:`월 이자 ${GAME_TEMP.LOAN_RATE*100}% · 다음 하순 이자 ${Math.ceil(amount*GAME_TEMP.LOAN_RATE).toLocaleString('ko-KR')}G가 추가됩니다. 미납 이자는 대출 원금에 더해져요.`,yesLabel:'조건 확인하고 빌리기',onYes:()=>run({type:'finance.borrow',amount,requestId:`loan-${Date.now()}-${++repaySeq}`})};},
+  'finance.repay': d => run({type:'finance.repay',target:d.target,amount:n(d.amount),currency:d.currency}),
   'debt.repay': d => run({ type: 'debt.repay', amount: n(d.amount), requestId: `repay-${Date.now()}-${++repaySeq}` }),
   'quest.claim': d => run({ type: 'quest.claim', questId: d.id }),
   'recruit.complete': d => { if (run({ type: 'recruit.complete', id: d.id }).ok) ui.recruitEvent = null; },
@@ -261,10 +287,14 @@ const ACTIONS = {
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
   'hunt.retreat', 'hunt.finish', 'expand.table']) ACTIONS[t] = () => run({ type: t });
 ACTIONS['hunt.pick'] = d => run({ type: 'hunt.pick', index: n(d.index) });
-ACTIONS['bond.talk'] = d => run({ type: 'bond.talk', id: d.id });
+ACTIONS['bond.talk'] = d => {ui.sheet={kind:'bond-choice',id:d.id};};
+ACTIONS['bond.answer'] = d => {if(run({type:'bond.talk',id:d.id,choiceId:d.choice,token:d.token}).ok)ui.sheet={kind:'companions'};};
 ACTIONS['bond.gift'] = d => run({ type: 'bond.gift', id: d.id, giftId: d.gift });
 
 document.addEventListener('click', e => {
+  const cam=e.target.closest('[data-action^="camera."]');
+  if(cam){if(cam.dataset.action==='camera.fit')ui.camera={zoom:1,x:0,y:0};else ui.camera.zoom=Math.max(1,Math.min(2.4,ui.camera.zoom+Number(cam.dataset.step)));resize();render(true);return;}
+
   const b = e.target.closest('[data-action]');
   if (!b) return;
   const action = b.dataset.action;
@@ -275,6 +305,7 @@ document.addEventListener('click', e => {
   const fn = ACTIONS[action];
   if (!fn) { console.warn('unknown action', action); return; }
   if (!state && !action.startsWith('game.') && !action.startsWith('confirm.')) return;
+  unlockAudio(); sound('tap');
   fn(b.dataset);
   render(true);
 });
@@ -316,24 +347,32 @@ function gagOnce(kind, lines, gapMs = 15000) {
 function handleEvents(events) {
   if (!events?.length) return;
   for (const ev of events) {
+    if(['served','cooked','takeawayDone'].includes(ev.type))sound('cook');
+    if(['huntPickup','huntLevelUp','feverOn'].includes(ev.type))sound('moon');
+    if(ev.type==='huntHurt'||ev.type==='huntHit')sound('hit');
     const p = ev.tableNo != null ? tableAt(ev.tableNo) : null;
     switch (ev.type) {
+      case 'guestChatter': gagOnce('guest',{who:'손님',text:ev.line},14000);break;
+      case 'paidAtCounter': sound('moon'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;
+      case 'cafeLevelUp': sound('bond'); toast(`카페 Lv.${ev.level}! 더 많은 손님과 새로운 취향이 찾아와요`,'good');break;
+      case 'takeawayDone': toast('포장 완료 · 손님이 계산대에서 받아 갔어요','good');break;
       case 'farmAction': toast(ev.text, 'good'); break;
       case 'shiftStart': toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 10:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
-      case 'served': floater(p.x, p.y - 10, `+${ev.price}G`, '#b07a12'); if (Math.random() < 0.25) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
+      case 'served': floater(p?.x??cssW/2, (p?.y??cssH*.75) - 10, '주문 완료', '#b07a12'); if (Math.random() < 0.25) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
       case 'nominationRequest': toast(`💌 ${ev.tableNo}번 손님이 ${personName(state, ev.nominee)} 지명 요청 — 테이블을 눌러 확인`, 'good', 3600); break;
       case 'nominationAccepted': toast(`🫖 ${ev.tableNo}번 접대 시작 · 60초 전담`, 'good'); gagLines(ev.gag); break;
       case 'nominationConverted': toast(`${ev.tableNo}번: ${ev.why}`); break;
       case 'nominationProposed': toast(`${ev.tableNo}번에 ${personName(state, ev.personId)} 추천`); break;
-      case 'helpOpen': navigator.vibrate?.([70, 40, 70]); toast(`❗ ${ev.tableNo}번: ${ev.label} — 테이블을 눌러 응답`, '', 3200); break;
-      case 'helpDone': floater(p.x, p.y - 20, ev.gain > 0 ? `대화 +${ev.gain}` : '대화 ±0', '#3f74c9'); gagLines(ev.gag); if (ev.reaction) gagLines([{ who: personName(state, ev.nominee), text: ev.reaction[0] }, { who: '손님', text: ev.reaction[1] }]); break;
-      case 'helpMissed': toast(`${ev.tableNo}번 도움 요청을 놓쳤어요 (대화 −1)`, 'bad'); break;
-      case 'feverOn': toast(`🔥 피버! ${ev.tables.join('·')}번 테이블 정산 팁 2배`, 'good', 3200); shake(el.panel); break;
+      case 'helpOpen': ui.playSpeed=1; navigator.vibrate?.([70, 40, 70]); toast(`❗ ${ev.tableNo}번: ${ev.label} — 테이블을 눌러 응답`, '', 3200); break;
+      case 'helpDone': showHelpFeedback(ev); floater(p.x, p.y - 20, ev.gain > 0 ? `대화 +${ev.gain}` : `대화 ${ev.gain}`, '#3f74c9'); break;
+      case 'helpMissed': showHelpFeedback({...ev,quality:'missed',gain:-1}); break;
+      case 'feverOn': toast(ev.tycoon ? `대부호의 앙코르! 팁 ${ev.tip}G · 데스티노바 피버` : `🔥 피버! ${ev.tables.join('·')}번 테이블 정산 팁 2배`, 'good', 3200); shake(el.panel); break;
       case 'hostingSettled':
         toast(`${ev.tableNo}번 접대 정산 · 만족도 ${ev.H.toFixed(1)} ${ev.grade}${ev.capped ? ' (핵심 조건 상한)' : ''} · 팁 ${ev.tip}G`, ev.H >= 60 ? 'good' : '', 3600);
         if (ev.tip > 0) floater(p.x, p.y - 30, `팁 +${ev.tip}G`, '#c0392b');
         break;
       case 'trayFull': toast('트레이가 가득 찼어요 — 서빙해서 칸을 비워 주세요', 'bad'); break;
+      case 'cooked': pixelFx(el.stage,'effects/aura',{frames:4,size:130,duration:850});toast('한 접시 완성! 서빙대에서 손님에게 전해 주세요.','good');break;
       case 'cookCancelled': toast(`조리 취소: ${ev.reason}`, 'bad'); break;
       case 'leave': if (ev.reason === '음식을 오래 기다려 떠남' || ev.reason === '주문할 수 있는 메뉴가 없음') toast(`😣 ${ev.tableNo}번 손님: ${ev.reason}`, 'bad'); break;
       case 'learned': toast(`📖 새 레시피: ${ev.name}`, 'good'); break;
@@ -344,17 +383,18 @@ function handleEvents(events) {
       case 'repaid': toast(`💳 ${ev.amount}G 상환 · 남은 빚 ${ev.debt}G`, 'good'); gagOnce('repay', pickLine(GAG_CHEONGTOKKI_REPAY), 0); break;
       case 'bought': if (ev.delivery) { toast(`🛵 모카 긴급 배달 · 배달비 ${ev.fee}G 포함 ${ev.cost}G`); gagOnce('delivery', pickLine(GAG_MOKA_DELIVERY), 20000); } else gagOnce('moka', pickLine(GAG_MOKA_BUY), 12000); break;
       case 'exchanged': toast(`⚖ 월정석 ${ev.qty}개 → ${ev.gold}G`, 'good'); gagOnce('luna', pickLine(GAG_LUNA_EXCHANGE), 8000); break;
-      case 'gearBought': toast(`🗡 ${ev.name} 구입 · 상자에 돈을 넣었다`, 'good'); gagOnce('stall', pickLine(GAG_GEAR_STALL), 8000); break;
+      case 'gearBought': toast(`🗡 ${ev.name} 구입 · 모카의 무기 공방`, 'good'); gagOnce('stall', pickLine(GAG_GEAR_STALL), 8000); break;
       case 'expanded': toast(`🪑 ${ev.tableNo}번 테이블을 들였어요 · 다음 영업부터 손님 자리가 늘어요`, 'good', 3600); break;
-      case 'areaOpened': toast(`🔓 ${ev.name} 증축 완료 · 인테리어에서 테이블과 장식을 놓아 보세요`, 'good', 3600); break;
+      case 'areaOpened': resize(); toast(`🔓 ${ev.name} 증축 완료 · 인테리어에서 테이블과 장식을 놓아 보세요`, 'good', 3600); break;
       case 'decorBought': toast(`📦 ${ev.name} 보관함에 도착 · 인테리어에서 놓아 주세요`, 'good'); break;
       case 'huntFinished': pixelFx(el.stage,'transform',{frames:8}); if ((ev.bag?.moonstone || 0) > 0) gagOnce('hunt', pickLine(GAG_HUNT_RETURN), 0); break;
-      case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast('🐾 네오가 영냥이 모습으로 사냥을 떠났어요 (3:00)', 'good'); break;
+      case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast(state.hunt.hunterId==='seohanbi'?'검은 호랑이 서한비가 출발했어요':'영냥이가 출발했어요 · 오래 버틸수록 추가 보상', 'good'); break;
       case 'huntPickup': floater(cssW / 2, cssH * 0.4, `+${ev.name}`, '#7d86e8'); break;
       case 'huntHurt': shake(el.stage); break;
       case 'huntEvolve': toast(`🌟 진화! ${ev.name}`, 'good', 3200); break;
       case 'huntChest': toast(`🎁 상자: ${ev.label}`, 'good'); break;
       case 'huntPower': toast(ev.label, 'good', 1800); break;
+      case 'payrollPaid': toast(`동료 급여 ${ev.paid.toLocaleString('ko-KR')}G 지급${ev.arrears?` · 미지급 ${ev.arrears.toLocaleString('ko-KR')}G`:''}`);break;
       case 'interestCharged': toast(`💸 ${ev.month}월 이자 ${ev.due.toLocaleString('ko-KR')}G${ev.added ? ` · 골드가 모자라 ${ev.added.toLocaleString('ko-KR')}G는 빚에 붙었어요` : ' 납부'}`, ev.added ? 'bad' : '', 3600); break;
       case 'bondTalk': toast(`${SPEAKERS[ev.speaker]?.name || ''}: ${ev.line} (친밀도 +${ev.gain})`, 'gag', 3600); break;
       case 'bondGift': toast(`🎁 ${BONDS[ev.id].name} 친밀도 +${ev.gain}${ev.liked ? ' · 좋아하는 선물이에요!' : ''}`, 'good'); break;
@@ -378,7 +418,10 @@ function render(force = false) {
   morph(el.panel, panelHtml(state, ui));
   morph(el.bubbles, state?.mode === 'shift' && view ? bubblesHtml(state, view) : '');
   morph(el.hits, hitsHtml(state, view, ui));
-  const sh = sheetHtml(state, ui);
+  document.getElementById('camera-controls').hidden=!state||state.mode==='hunt';
+  setAudioScene(novelActive()?'story':state?.mode==='hunt'?'hunt':state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind|| (state?'cafe':'title'));
+  const guide=({kitchen:'cook',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',town:'interior'})[ui.sheet?.kind];
+  const sh = sheetHtml(state, ui)+(guide?`<div class="context-guide">${btn({action:'guide.select',args:{id:guide},label:'그림으로 보는 사용법 · '+GUIDES[guide].title})}</div>`:'');
   el.sheetWrap.hidden = !sh;
   morph(el.sheet, sh);
   const ov = overlayHtml(state, ui);
@@ -387,6 +430,7 @@ function render(force = false) {
   if (state?.mode === 'prep') maybeStory();
 }
 
+const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');
 function draw(t) {
   drawNumbers(t);
   if (state && ui.sheet?.kind === 'farm') drawFarm(state, t);
@@ -402,7 +446,7 @@ function draw(t) {
   const draft = state.interior.draft;
   let problemUids;
   if (draft) problemUids = new Set(interiorPreview(state).problems.map(p => p.uid).filter(Boolean));
-  drawCafe(ctx, state, view, { selectedUid: draft?.selected ?? null, problemUids, t });
+  drawCafe(ctx, state, view, { selectedUid: draft?.selected ?? null, problemUids, t, reducedMotion:motionPreference.matches });
   for (const tb of state.tables) tablePx[tb.no] = cellToPx(view, tb.table.x + 0.5, tb.table.y);
 }
 
@@ -424,7 +468,7 @@ const loop = createFrameLoop({
       if (!huntOn && joystick.state.enabled) joystick.disable();
       const running = !state.paused && (state.mode === 'shift' || state.mode === 'hunt');
       if (running && raw > 0) {
-        const dt = raw * (DEV ? ui.speed : 1);
+        const dt = raw * (DEV && ui.speed!==1 ? ui.speed : state.mode==='shift'?ui.playSpeed:1);
         handleEvents(tick(state, dt, { input: joystick.state.move }));
         autosaveAcc += raw;
         if (autosaveAcc >= TEMP.AUTOSAVE_MS) { autosaveAcc = 0; recordWallClock(state, Date.now()); save(); }
@@ -440,3 +484,16 @@ installDialogFocus();
 
 // 개발 모드에서만 콘솔 확인용 핸들 노출(일반 플레이에는 없음)
 if (DEV) window.__yeoni = { get state() { return state; }, ui };
+
+document.addEventListener('change',e=>{if(e.target.id==='hunt-stage'){ui.huntStage=Number(e.target.value);render(true);}});
+
+let cameraDrag=null;
+el.stage.addEventListener('pointerdown',e=>{if(state?.mode==='hunt'||state?.interior.draft||e.target.closest('button')||ui.camera.zoom<=1)return;cameraDrag={x:e.clientX,y:e.clientY,px:ui.camera.x,py:ui.camera.y};el.stage.setPointerCapture(e.pointerId);});
+el.stage.addEventListener('pointermove',e=>{if(!cameraDrag)return;ui.camera.x=cameraDrag.px+e.clientX-cameraDrag.x;ui.camera.y=cameraDrag.py+e.clientY-cameraDrag.y;view=computeView(cssW,cssH,{...ui.camera,...cafeBounds(state)});render(true);});
+el.stage.addEventListener('pointerup',()=>cameraDrag=null);el.stage.addEventListener('pointercancel',()=>cameraDrag=null);
+
+function beginCraft(menuId,orderId=null){
+ if(state.autoKitchen||state.auto){run(orderId?{type:'order.quick',orderId}:{type:'cook',menuId});return;}
+ const order=state.orders[orderId];if(order&&Object.values(state.stations).some(st=>[st.current,st.next].some(j=>j?.orderId===orderId))){toast('이 주문은 조리 중이에요.');return;}
+ ui.playSpeed=1;ui.craft={menuId,orderId,step:0};ui.sheet={kind:'craft'};
+}

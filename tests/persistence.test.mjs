@@ -132,7 +132,7 @@ test('월정석 사냥: 네오가 영냥이로 변하고, 모은 월정석은 �
   assert.equal(r2.stats.huntsCompleted, 1);
 });
 
-test('[자동 시계] 탐색 타이머: 쓰러지지 않으면 정확히 3분(180초)에 끝난다', () => {
+test('[자동 시계] 생존 사냥: 3분 이후에도 계속되고 퇴각하면 정산한다', () => {
   const s = createGame();
   s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   dispatch(s, { type: 'hunt.start' });
@@ -140,11 +140,12 @@ test('[자동 시계] 탐색 타이머: 쓰러지지 않으면 정확히 3분(18
   huntRun(s, 179900, { x: 0.3, y: -0.2 });
   assert.equal(s.hunt.status, 'running');
   huntRun(s, 100, { x: 0, y: 0 });
-  assert.equal(s.hunt.status, 'done');
+  assert.equal(s.hunt.status, 'running');
   assert.equal(s.hunt.elapsedMs, 180000);
   assert.ok(s.hunt.kills > 0, '자동 공격으로 적을 처치했다');
   assert.ok(s.hunt.level > 1, '별조각을 모아 레벨이 올랐다');
-  assert.ok(s.hunt.fired.includes('150'), '3분 안에 보스 사건까지 지나갔다');
+  assert.ok(s.hunt.fired.includes('0:150'), '3분 안에 보스 사건까지 지나갔다');
+  huntRun(s,30000,{x:1,y:0});assert.equal(s.hunt.status,'running');assert.equal(s.hunt.elapsedMs,210000);dispatch(s,{type:'hunt.retreat'});
   assert.ok(dispatch(s, { type: 'hunt.finish' }).ok);
   assert.equal(s.mode, 'prep');
 });

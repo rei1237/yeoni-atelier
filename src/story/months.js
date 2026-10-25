@@ -8,8 +8,8 @@ export const MONTH_STORIES = Object.freeze([
     { chapter: ['1년차 3월', '개업 첫 달, 작은 글씨'], bg: 'atelier_lit', l: 'yeoni:normal', c: 'cheongtokki:smile', r: null },
     { s: 'rab', t: '어머~ 개업 축하드려요! 축하 화환 대신 이자 안내문을 가져왔답니다~' },
     { s: 'sys', t: '[ 매달 하순 영업을 마치면 남은 빚의 2%(임시)가 이자로 나갑니다. 골드가 모자라면 빚에 붙습니다 ]' },
-    { s: 'rab', t: '만기는 내년 2월 하순 결산일이에요~ 그날 남은 빚을 보고 계약서를 다시 쓰죠.', c: 'cheongtokki:smug' },
-    { s: 'yeoni', t: '열두 달 안에 12만 골드? 계산해 보니 한 순에 삼천 골드 넘게 남겨야 해!', l: 'yeoni:surprised' },
+    { s: 'rab', t: '만기는 다섯 해를 운영한 뒤 2월 하순 결산일이에요~ 그날 남은 빚을 보고 계약서를 다시 쓰죠.', c: 'cheongtokki:smug' },
+    { s: 'yeoni', t: '다섯 해 안에 거의 일억 골드? 작은 카페에서 시작해도, 언젠가 온 동네가 찾아오는 가게로 만들어야겠어!', l: 'yeoni:surprised' },
     { s: 'luna', t: '연이 언니 계산 진짜 빠르다! 근데 그게 좋은 소식이야?', c: 'luna:surprised' },
     { s: 'yeoni', t: '(나쁜 소식을 빨리 아는 것도 실력이다. 계산 속도 별 다섯, 내용 별 하나.)', l: 'yeoni:sulky' },
     { s: 'yeoni', t: '좋아, 나는 계산대를 지킨다! 굽는 건 언니, 나르는 건 루나, 웃는 건 네오!', l: 'yeoni:determined' },
@@ -85,7 +85,7 @@ export const MONTH_STORIES = Object.freeze([
     { s: 'yeoni', t: '원가 계산은 잠깐 접어 둘게. 오늘 달빵은 값을 안 매긴다.', l: 'yeoni:smile' },
     { s: 'yeoni', t: '(값을 안 매긴 빵이 제일 맛있다. 이건 별점 바깥이다.)', l: 'yeoni:normal' },
   ],
-  // m7 · 10월: 루나의 저울
+  // m7 · 10월: 청토끼 금융 센터
   [
     { chapter: ['1년차 10월', '하나, 둘, 정확히'], bg: 'atelier_lit', l: 'yeoni:normal', c: 'luna:normal', r: null },
     { s: 'luna', t: '연이 언니! 나 이제 월정석 백 개까지 셀 수 있어! 많다 말고 백이라고!', c: 'luna:smile' },
@@ -108,26 +108,26 @@ export const MONTH_STORIES = Object.freeze([
     { chapter: ['1년차 12월', '한 해의 끝, 운세 라테'], bg: 'atelier_lit', l: 'yeoni:smile', c: null, r: 'neo:smile' },
     { s: 'nar', t: '연말이 되자 손님들은 한 해의 운을 묻는 것처럼 운세 라테를 주문했다.' },
     { s: 'neo', t: '오늘만 운세 라테가 마흔 잔째야. 다들 내년이 궁금한가 봐.', r: 'neo:smile' },
-    { s: 'yeoni', t: '내 내년 운세는 내가 알지. 2월 하순 결산일에 전부 판가름 난다.', l: 'yeoni:determined' },
+    { s: 'yeoni', t: '내 내년 운세는 내가 알지. 다섯 해를 함께 꾸려 본 뒤에 가게의 내일을 정할 거야.', l: 'yeoni:determined' },
     { s: 'neo', t: '그럼 그날까지는 내가 홀을 볼게. 연이는 계산대만 봐.', r: 'neo:normal' },
     { s: 'yeoni', t: '(올해 동료 평점, 별 다섯 개로도 모자라다. 계산 오류 아니다.)', l: 'yeoni:smile' },
   ],
   // m10 · 1월: 새해, 남은 두 달
   [
-    { chapter: ['2년차 1월', '남은 두 달'], bg: 'atelier_lit', l: 'yeoni:normal', c: 'cheongtokki:smile', r: null },
-    { s: 'rab', t: '새해 복 많이 받으세요~ 그리고 만기까지 딱 두 달 남았답니다~' },
+    { chapter: ['운영 1년차 1월', '다음 봄의 계획'], bg: 'atelier_lit', l: 'yeoni:normal', c: 'cheongtokki:smile', r: null },
+    { s: 'rab', t: '새해 복 많이 받으세요~ 그리고 첫 운영 해가 두 달 남았답니다~' },
     { s: 'yeoni', t: '새해 인사랑 독촉을 한 문장에 넣다니. 효율 별 다섯.', l: 'yeoni:sulky' },
-    { s: 'rab', t: '어머~ 칭찬 감사해요! 2월 하순 결산일에 뵐게요~ 총총!', c: 'cheongtokki:smug' },
-    { s: 'yeoni', t: '좋아, 남은 순은 여섯 번. 쓸데없는 지출 0, 미소 무제한!', l: 'yeoni:determined' },
+    { s: 'rab', t: '어머~ 칭찬 감사해요! 이번 달 결산 때 뵐게요~ 총총!', c: 'cheongtokki:smug' },
+    { s: 'yeoni', t: '좋아, 첫해의 남은 순은 여섯 번. 다음 봄엔 쉴 자리도 만들자!', l: 'yeoni:determined' },
   ],
   // m11 · 2월: 마지막 달
   [
-    { chapter: ['2년차 2월', '마지막 장부'], bg: 'atelier_lit', l: 'yeoni:determined', c: 'luna_sis:normal', r: 'luna:normal' },
-    { s: 'nar', t: '마지막 달. 카운터 위 장부는 처음보다 세 배는 두꺼워져 있었다.' },
+    { chapter: ['운영 1년차 2월', '첫 번째 장부'], bg: 'atelier_lit', l: 'yeoni:determined', c: 'luna_sis:normal', r: 'luna:normal' },
+    { s: 'nar', t: '첫 운영 해의 마지막 달. 카운터 위 장부는 처음보다 세 배는 두꺼워져 있었다.' },
     { s: 'luna_sis', t: '연이 씨, 고마워요. 결과가 어떻든… 이번엔 정말 괜찮을 것 같아요.', c: 'luna_sis:smile' },
     { s: 'luna', t: '언니가 처음으로 진짜 괜찮다고 했어! 연이 언니, 들었지?', r: 'luna:cry' },
-    { s: 'yeoni', t: '들었어. 그럼 마지막 세 순, 계산대는 내가 지킨다!', l: 'yeoni:determined' },
-    { s: 'sys', t: '[ 2월 하순 영업을 마치면 결말이 정해집니다. 그 뒤에도 후일담으로 계속 영업할 수 있습니다 ]' },
+    { s: 'yeoni', t: '들었어. 그럼 첫해 마지막 세 순, 계산대는 내가 지킨다!', l: 'yeoni:determined' },
+    { s: 'sys', t: '[ 아직 네 번의 봄이 남았습니다. 5년 운영을 마친 뒤 엔딩이 열립니다 ]' },
   ],
 ]);
 
@@ -147,7 +147,7 @@ export const ENDINGS = Object.freeze({
       { s: 'moka', t: '…별 다섯. 처음이자 마지막이야. 기념으로 랩도 한 소절 해 줄까.', c: 'moka:smug' },
       { s: 'luna', t: '모카가 별 다섯 줬어! 언니, 우리 카페 이제 진짜 우리 거야!', c: 'luna:cry' },
       { s: 'luna_sis', t: '괜찮아요. 아니, 오늘은 괜찮은 정도가 아니라… 행복해요.', c: 'luna_sis:smile' },
-      { s: 'neo', t: '연이, 일 년 동안 계산만 했는데 다들 웃고 있어. 신기하지.', r: 'neo:smile' },
+      { s: 'neo', t: '연이, 다섯 해 동안 가게를 함께 지켰는데 다들 웃고 있어. 신기하지.', r: 'neo:smile' },
       { s: 'yeoni', t: '계산대가 가게의 심장이거든! 꿀악, 오늘 평점은 별 다섯 개 만점!', l: 'yeoni:smile', fx: 'glow' },
       { s: 'yeoni', t: '(그리고 이 장부의 마지막 줄은, 값을 매기지 않기로 했다.)', l: 'yeoni:normal' },
       { s: 'impact', t: 'THE END · 그리고 아틀리에는 계속된다', bg: 'atelier_lit' },

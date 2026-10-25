@@ -8,6 +8,7 @@ import { dispatch, tick } from '../src/game/engine.js';
 import { acceptCheck, addFever, feverCandidates } from '../src/game/nomination.js';
 import { huntCheck } from '../src/game/hunt.js';
 import { autoAcceptDecision } from '../src/game/auto.js';
+import {CUSTOMER_WEALTH} from '../src/data/customer-wealth.js';
 import { tipFor } from '../src/game/satisfaction.js';
 import { quietShift, seat, tickTo } from './helpers.mjs';
 
@@ -156,7 +157,7 @@ test('10:00: 마지막 접대를 먼저 정산하고 영업을 닫는다', () =>
   const st = s.ledger.settlements[s.shift.id];
   const rec = st.hostings.filter(h => h.visitId === vid);
   assert.equal(rec.length, 1);
-  assert.equal(rec[0].tip, tipFor({ servedTotal: rec[0].servedTotal, H: rec[0].H, completedFull: true, fevered: false }).total);
+  assert.equal(rec[0].tip, tipFor({ servedTotal: rec[0].servedTotal, H: rec[0].H, completedFull: true, fevered: false, multiplier:CUSTOMER_WEALTH[v.wealthId].tip }).total);
   assert.ok(rec[0].tip > 0, '60초를 다 채운 정산이므로 팁이 나왔다');
   assert.equal(s.people.neo.activity, 'idle');
   assert.equal(s.stats.shiftsCompleted, 1);

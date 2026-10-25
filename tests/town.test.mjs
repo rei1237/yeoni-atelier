@@ -119,7 +119,7 @@ test('장식 들이기는 보관함으로 오고, 월정석·장비는 저장 �
   const s = createGame();
   s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 2000;
-  s.moonstone = 40;
+  s.moonstone = GEAR.crescent_wand.cost.moonstone;
   const n0 = s.interior.furniture.length;
   assert.ok(dispatch(s, { type: 'expand.decor', defId: 'lamp' }).ok);
   const added = s.interior.furniture[n0];

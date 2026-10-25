@@ -7,13 +7,14 @@
   <meta name="theme-color" content="#f3e6d6">
   <title>연이의 아틀리에 (프로토타입)</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="novel.css">
+  <link rel="stylesheet" href="novel.css"><link rel="stylesheet" href="game-ui.css">
 </head>
 <body>
   <div id="app">
     <header id="topbar" class="topbar" aria-live="off"></header>
     <main id="stage" class="stage">
       <canvas id="view" aria-label="카페 화면"></canvas>
+      <div class="camera-controls" id="camera-controls" aria-label="카페 보기"><button data-action="camera.zoom" data-step="-0.2" aria-label="카페 축소">−</button><button data-action="camera.fit" aria-label="카페 전체 보기">전체</button><button data-action="camera.zoom" data-step="0.2" aria-label="카페 확대">＋</button></div>
       <div id="hits" class="hits"></div>
       <div id="bubbles" class="bubbles" aria-live="polite"></div>
       <div id="floaters" class="floaters" aria-hidden="true"></div>

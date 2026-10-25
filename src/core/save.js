@@ -37,6 +37,7 @@ function migrate(data) {
     if (data.huntUnlocked) (data.ledger.story ||= {})['ev:hunt'] = true;
     if (data.shift) { data.shift.durationMs ??= 1800000; data.shift.nominationMs ??= 300000; }
   }
+  data.startingDebt ??= 120000; // 이전 저장의 원금과 상환 진척은 보존
   const base = createGame({ dev: !!data.meta?.devData });
   if (!data.farm) data.farm = { ...newFarm(data.rng?.seed), lastAdvancedDay: data.day };
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
@@ -46,6 +47,14 @@ function migrate(data) {
     data.ledger.rewards['outfit:host_first'] = true;
     if (!data.outfits.owned.includes('host_first')) data.outfits.owned.push('host_first');
   }
+  if (data.version < 3 && data.day <= 180 && data.calendar.ended) {
+    data.calendar.previousEnding = { id:data.calendar.endingId, debt:data.calendar.endedDebt };
+    data.calendar.ended = false; data.calendar.endingId = null; data.calendar.endedDebt = null;
+    // 예전 결말의 추억은 별도 보존하되 5년 결말은 새로 볼 수 있다.
+    for (const key of Object.keys(data.ledger.story)) if (key.startsWith('ending:')) { data.ledger.story['previous:'+key]=true; delete data.ledger.story[key]; }
+  }
+  data.outfits.equipped = {...base.outfits.equipped,...data.outfits.equipped};
+  for(const id of Object.keys(data.roster)) { const outfit=`${id}_formal`; if(['yun','museong','solv','bambi','lune','raven'].includes(id) && !data.outfits.owned.includes(outfit)){data.outfits.owned.push(outfit);data.ledger.rewards[`outfit:${outfit}`]=true;data.outfits.equipped[id].outfit=outfit;} }
   data.interior.areas ||= []; // 증축 구역 이전 저장
   return data;
 }

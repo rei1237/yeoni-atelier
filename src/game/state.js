@@ -10,7 +10,7 @@ import { DEV_RECRUITABLE } from '../data/dev-companions.js';
 import { START_OUTFITS, OUTFIT_WEARERS } from '../data/outfits.js';
 import { newFarm } from '../data/farm.js';
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 export function createGame({ dev = false, seed = 20261025 } = {}) {
   const learned = {};
@@ -33,13 +33,18 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     neoResting: false,
     shift: null,
     lastSettlement: null,
+    reputation:25,
     gold: TEMP.START_GOLD,
-    debt: PDF.INITIAL_DEBT,
+    debt: TEMP.INITIAL_DEBT,
+    startingDebt:TEMP.INITIAL_DEBT,
+    payroll:{months:{},arrears:0},
+    finance:{balance:0,requests:{},interest:{}},
     repaidTotal: 0,
     stock: { ...TEMP.START_STOCK, night_dew: 0 },
-    moonstone: 0,          // 월정석: 사냥에서 얻고 루나의 저울에서 골드로 바꾼다
+    moonstone: 0,          // 월정석: 사냥에서 얻고 청토끼 금융 센터에서 골드로 바꾼다
     farm: newFarm(seed),
-    hunter: { xp: 0, kills: 0 },
+    hunter: { xp: 0, kills: 0, maxStage:1 },
+    armory: {upgrades:{},supplies:{}},
     gear: { owned: [], equipped: { weapon: null, armor: null, charm: null } }, // 영냥이 장비(data/gear.js)
     learned,
     // 접대 가능한 명단: 새 게임은 네오 한 명
