@@ -80,7 +80,8 @@ function grant(state, rewardId, reward) {
 // ── 퀘스트
 export function questView(state) {
   const anyRecruitable = recruitables(state).length > 0;
-  return QUESTS.filter(q => !q.hiddenUntilRecruitable || anyRecruitable).map(q => {
+  const revealed = q => (!q.hiddenUntilRecruitable || anyRecruitable) && (!q.afterHunt || state.huntUnlocked) && (!q.requires || state.quests.claimed[q.requires] || state.quests.claimed[q.id]);
+  return QUESTS.filter(revealed).map(q => {
     const progress = Math.min(q.goal, state.stats[q.stat] || 0);
     const locked = q.requires && !state.quests.claimed[q.requires];
     const claimed = !!state.quests.claimed[q.id];
@@ -90,7 +91,7 @@ export function questView(state) {
 
 export function claimQuest(state, questId) {
   const q = questView(state).find(x => x.id === questId);
-  if (!q) return { ok: false, reason: '없는 퀘스트입니다' };
+  if (!q) return { ok: false, reason: QUESTS.some(x => x.id === questId) ? '아직 열리지 않은 부탁입니다' : '없는 퀘스트입니다' };
   if (q.claimed) return { ok: false, reason: '이미 받은 보상입니다' };
   if (q.locked) return { ok: false, reason: '먼저 앞 퀘스트를 완료해 주세요' };
   if (q.progress < q.goal) return { ok: false, reason: `진행 ${q.progress}/${q.goal}` };

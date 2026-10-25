@@ -278,7 +278,8 @@ function recordServe(state, order) {
   // 연이의 계산 동작은 실제 카운터 결제 때 실행한다.
   if(!openOrdersOfVisit(state,visit).length)guestChatter(state,visit,(state.shift.servedCount%7)/7,food>=70?'served':'late');
   emit('served', { tableNo: order.tableNo||null, menuId: order.menuId, price: revenue });
-  if(cafeProgress(state).level>levelBefore){const next=cafeProgress(state).level;state.ap.left+=Math.floor((next-1)/3)-Math.floor((levelBefore-1)/3);emit('cafeLevelUp',{level:next});};
+  // 마을 행동력은 순을 넘길 때 카페 Lv로 다시 채운다(calendar.maxActionPoints). 영업 중에는 쓸 곳이 없으니 여기서 더하지 않고 알리기만 한다.
+  if(cafeProgress(state).level>levelBefore){const next=cafeProgress(state).level;emit('cafeLevelUp',{level:next,apGain:Math.floor((next-1)/3)-Math.floor((levelBefore-1)/3)});};
   if(visit.kind==='takeaway' && c && !openOrdersOfVisit(state,visit).length){state.stats.takeaways=(state.stats.takeaways||0)+1;customerLeave(state,c,'포장 수령');}
 
 }
