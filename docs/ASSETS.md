@@ -65,7 +65,7 @@
 
 ## 2026-10-26 검증 가능한 실제 출고 규격
 
-새 일러스트는 원본을 보존하고 투명 여백 6px, 동일 배율, 128px 셀 발 위치 122px로 기계적으로 정규화했다. 이동은 아래·왼쪽·오른쪽·위 각 4프레임이며 대화 초상화는 정적인 384×576이다. 이동 외 동작은 고정 자세와 별도 상호작용 효과를 합성한다.
+새 일러스트는 원본을 보존하고 투명 여백 6px, 동일 배율, 128px 셀 발 위치 122px로 기계적으로 정규화했다. 이동은 아래·왼쪽·오른쪽·위 각 4프레임이며 대화 초상화는 정적인 384×576이다. 네오·루나·루나 언니의 대기와 연이의 대기·인사·결제, 영냥이 공격은 별도 프레임을 사용한다. 그 외 인물의 대기와 서빙·정리는 기존 자세에 몸·팔 움직임 및 주문 소품을 합성한다. 모든 동작이 개별 수작업 프레임인 것은 아니다.
 
 | 키 | 경로 | 크기 | 상태 |
 | --- | --- | --- | --- |
@@ -96,12 +96,12 @@
 | actors/luna_sis | assets/illustrated/actors/luna_sis.webp | 512×512 | 완료 |
 | actors/cheongtokki | assets/illustrated/actors/cheongtokki.webp | 512×512 | 완료 |
 | actors/moka | assets/illustrated/actors/moka.webp | 512×512 | 완료 |
-| enemies/shade_hand | assets/sprites/enemies/shade_hand.webp | 384×288 | 완료 |
-| enemies/shade_bat | assets/sprites/enemies/shade_bat.webp | 384×288 | 완료 |
-| enemies/shade_blob | assets/sprites/enemies/shade_blob.webp | 384×288 | 완료 |
-| enemies/shade_wisp | assets/sprites/enemies/shade_wisp.webp | 384×288 | 완료 |
-| enemies/elite_hand | assets/sprites/enemies/elite_hand.webp | 768×576 | 완료 |
-| enemies/boss_hand | assets/sprites/enemies/boss_hand.webp | 1152×864 | 완료 |
+| enemies/shade_hand | assets/illustrated/enemies/shade_hand.webp | 512×384 | 완료 |
+| enemies/shade_bat | assets/illustrated/enemies/shade_bat.webp | 512×384 | 완료 |
+| enemies/shade_blob | assets/illustrated/enemies/shade_blob.webp | 512×384 | 완료 |
+| enemies/shade_wisp | assets/illustrated/enemies/shade_wisp.webp | 512×384 | 완료 |
+| enemies/elite_hand | assets/illustrated/enemies/elite_hand.webp | 512×384 | 완료 |
+| enemies/boss_hand | assets/illustrated/enemies/boss_hand.webp | 512×384 | 완료 |
 | objects/lotus_pot | assets/illustrated/objects/lotus_pot.webp | 128×128 | 완료 |
 | objects/bamboo | assets/illustrated/objects/bamboo.webp | 128×128 | 완료 |
 | objects/garden_bench | assets/illustrated/objects/garden_bench.webp | 256×128 | 완료 |
@@ -172,24 +172,24 @@
 | portraits/bambi | assets/illustrated/portraits/bambi.webp | 384×576 | 완료 |
 | portraits/lune | assets/illustrated/portraits/lune.webp | 384×576 | 완료 |
 | portraits/raven | assets/illustrated/portraits/raven.webp | 384×576 | 완료 |
-| portraits/neo@crescent_tailcoat | assets/illustrated/portraits/neo.webp | 384×576 | 완료 |
-| portraits/neo@wood_suit | assets/illustrated/portraits/neo.webp | 384×576 | 완료 |
-| portraits/neo@blossom_haori | assets/illustrated/portraits/neo.webp | 384×576 | 완료 |
-| portraits/neo@rain_coat | assets/illustrated/portraits/neo.webp | 384×576 | 완료 |
-| portraits/neo@summer_linen | assets/illustrated/portraits/neo.webp | 384×576 | 완료 |
-| portraits/neo@moonstone_robe | assets/illustrated/portraits/neo.webp | 384×576 | 완료 |
-| portraits/neo@winter_coat | assets/illustrated/portraits/neo.webp | 384×576 | 완료 |
+| portraits/neo@crescent_tailcoat | assets/illustrated/portraits/neo@crescent_tailcoat.webp | 384×576 | 완료 |
+| portraits/neo@wood_suit | assets/illustrated/portraits/neo@wood_suit.webp | 384×576 | 완료 |
+| portraits/neo@blossom_haori | assets/illustrated/portraits/neo@blossom_haori.webp | 384×576 | 완료 |
+| portraits/neo@rain_coat | assets/illustrated/portraits/neo@rain_coat.webp | 384×576 | 완료 |
+| portraits/neo@summer_linen | assets/illustrated/portraits/neo@summer_linen.webp | 384×576 | 완료 |
+| portraits/neo@moonstone_robe | assets/illustrated/portraits/neo@moonstone_robe.webp | 384×576 | 완료 |
+| portraits/neo@winter_coat | assets/illustrated/portraits/neo@winter_coat.webp | 384×576 | 완료 |
 | portraits/yeoni@garden_apron | assets/illustrated/portraits/yeoni.webp | 384×576 | 완료 |
-| portraits/neo@host_first | assets/illustrated/portraits/neo.webp | 384×576 | 완료 |
+| portraits/neo@host_first | assets/illustrated/portraits/neo@host_first.webp | 384×576 | 완료 |
 | portraits/yeoni@apron_spring | assets/illustrated/portraits/yeoni.webp | 384×576 | 완료 |
-| portraits/neo@vest_night | assets/illustrated/portraits/neo.webp | 384×576 | 완료 |
+| portraits/neo@vest_night | assets/illustrated/portraits/neo@vest_night.webp | 384×576 | 완료 |
 | portraits/yeoni | assets/illustrated/portraits/yeoni.webp | 384×576 | 완료 |
 | portraits/yeoni_pig | assets/illustrated/portraits/yeoni_pig.webp | 384×576 | 완료 |
 | portraits/neo | assets/illustrated/portraits/neo.webp | 384×576 | 완료 |
 | portraits/neo_cat | assets/illustrated/portraits/neo_cat.webp | 384×576 | 완료 |
-| portraits/luna | assets/illustrated/portraits/luna.webp | 384×576 | 완료 |
-| portraits/luna_sis | assets/illustrated/portraits/luna_sis.webp | 384×576 | 완료 |
-| portraits/cheongtokki | assets/illustrated/portraits/cheongtokki.webp | 384×576 | 완료 |
+| portraits/luna | assets/illustrated/portraits/luna.webp | 320×384 | 완료 |
+| portraits/luna_sis | assets/illustrated/portraits/luna_sis.webp | 320×384 | 완료 |
+| portraits/cheongtokki | assets/illustrated/portraits/cheongtokki.webp | 320×384 | 완료 |
 | portraits/moka | assets/illustrated/portraits/moka.webp | 384×576 | 완료 |
 | tiles/cafe_floor | assets/tiles/cafe_floor.webp | 128×128 | 완료 |
 | tiles/cafe_wall | assets/tiles/cafe_wall.webp | 128×128 | 완료 |
@@ -254,32 +254,32 @@
 | enemies/blue_rabbit | assets/illustrated/enemies/blue_rabbit.webp | 512×384 | 완료 |
 | enemies/heukwol_fragment | assets/illustrated/enemies/heukwol_fragment.webp | 512×384 | 완료 |
 | enemies/blue_brute | assets/illustrated/enemies/blue_rabbit.webp | 512×384 | 완료 |
-| backgrounds/title | assets/illustrated/backgrounds/title.webp | 720×1080 | 완료 |
-| portraits/yun@yun_formal | assets/illustrated/portraits/yun.webp | 384×576 | 완료 |
-| portraits/yun@yun_moon | assets/illustrated/portraits/yun.webp | 384×576 | 완료 |
-| portraits/yun@yun_garden | assets/illustrated/portraits/yun.webp | 384×576 | 완료 |
+| backgrounds/title | assets/illustrated/backgrounds/title.webp | 768×1152 | 완료 |
+| portraits/yun@yun_formal | assets/illustrated/portraits/yun@yun_formal.webp | 384×576 | 완료 |
+| portraits/yun@yun_moon | assets/illustrated/portraits/yun@yun_moon.webp | 384×576 | 완료 |
+| portraits/yun@yun_garden | assets/illustrated/portraits/yun@yun_garden.webp | 384×576 | 완료 |
 | portraits/yun@yun_swim | assets/illustrated/portraits/yun.webp | 384×576 | 완료 |
-| portraits/museong@museong_formal | assets/illustrated/portraits/museong.webp | 384×576 | 완료 |
-| portraits/museong@museong_moon | assets/illustrated/portraits/museong.webp | 384×576 | 완료 |
-| portraits/museong@museong_garden | assets/illustrated/portraits/museong.webp | 384×576 | 완료 |
+| portraits/museong@museong_formal | assets/illustrated/portraits/museong@museong_formal.webp | 384×576 | 완료 |
+| portraits/museong@museong_moon | assets/illustrated/portraits/museong@museong_moon.webp | 384×576 | 완료 |
+| portraits/museong@museong_garden | assets/illustrated/portraits/museong@museong_garden.webp | 384×576 | 완료 |
 | portraits/museong@museong_swim | assets/illustrated/portraits/museong.webp | 384×576 | 완료 |
-| portraits/solv@solv_formal | assets/illustrated/portraits/solv.webp | 384×576 | 완료 |
-| portraits/solv@solv_moon | assets/illustrated/portraits/solv.webp | 384×576 | 완료 |
-| portraits/solv@solv_garden | assets/illustrated/portraits/solv.webp | 384×576 | 완료 |
-| portraits/solv@solv_swim | assets/illustrated/portraits/solv.webp | 384×576 | 완료 |
-| portraits/bambi@bambi_formal | assets/illustrated/portraits/bambi.webp | 384×576 | 완료 |
-| portraits/bambi@bambi_moon | assets/illustrated/portraits/bambi.webp | 384×576 | 완료 |
-| portraits/bambi@bambi_garden | assets/illustrated/portraits/bambi.webp | 384×576 | 완료 |
-| portraits/bambi@bambi_swim | assets/illustrated/portraits/bambi.webp | 384×576 | 완료 |
-| portraits/lune@lune_formal | assets/illustrated/portraits/lune.webp | 384×576 | 완료 |
-| portraits/lune@lune_moon | assets/illustrated/portraits/lune.webp | 384×576 | 완료 |
-| portraits/lune@lune_garden | assets/illustrated/portraits/lune.webp | 384×576 | 완료 |
-| portraits/lune@lune_swim | assets/illustrated/portraits/lune.webp | 384×576 | 완료 |
-| portraits/raven@raven_formal | assets/illustrated/portraits/raven.webp | 384×576 | 완료 |
-| portraits/raven@raven_moon | assets/illustrated/portraits/raven.webp | 384×576 | 완료 |
-| portraits/raven@raven_garden | assets/illustrated/portraits/raven.webp | 384×576 | 완료 |
-| portraits/raven@raven_swim | assets/illustrated/portraits/raven.webp | 384×576 | 완료 |
-| portraits/neo@neo_swim | assets/illustrated/portraits/neo.webp | 384×576 | 완료 |
+| portraits/solv@solv_formal | assets/illustrated/portraits/solv@solv_formal.webp | 384×576 | 완료 |
+| portraits/solv@solv_moon | assets/illustrated/portraits/solv@solv_moon.webp | 384×576 | 완료 |
+| portraits/solv@solv_garden | assets/illustrated/portraits/solv@solv_garden.webp | 384×576 | 완료 |
+| portraits/solv@solv_swim | assets/illustrated/portraits/solv@solv_swim.webp | 384×576 | 완료 |
+| portraits/bambi@bambi_formal | assets/illustrated/portraits/bambi@bambi_formal.webp | 384×576 | 완료 |
+| portraits/bambi@bambi_moon | assets/illustrated/portraits/bambi@bambi_moon.webp | 384×576 | 완료 |
+| portraits/bambi@bambi_garden | assets/illustrated/portraits/bambi@bambi_garden.webp | 384×576 | 완료 |
+| portraits/bambi@bambi_swim | assets/illustrated/portraits/bambi@bambi_swim.webp | 384×576 | 완료 |
+| portraits/lune@lune_formal | assets/illustrated/portraits/lune@lune_formal.webp | 384×576 | 완료 |
+| portraits/lune@lune_moon | assets/illustrated/portraits/lune@lune_moon.webp | 384×576 | 완료 |
+| portraits/lune@lune_garden | assets/illustrated/portraits/lune@lune_garden.webp | 384×576 | 완료 |
+| portraits/lune@lune_swim | assets/illustrated/portraits/lune@lune_swim.webp | 384×576 | 완료 |
+| portraits/raven@raven_formal | assets/illustrated/portraits/raven@raven_formal.webp | 384×576 | 완료 |
+| portraits/raven@raven_moon | assets/illustrated/portraits/raven@raven_moon.webp | 384×576 | 완료 |
+| portraits/raven@raven_garden | assets/illustrated/portraits/raven@raven_garden.webp | 384×576 | 완료 |
+| portraits/raven@raven_swim | assets/illustrated/portraits/raven@raven_swim.webp | 384×576 | 완료 |
+| portraits/neo@neo_swim | assets/illustrated/portraits/neo@neo_swim.webp | 384×576 | 완료 |
 | objects/flower_cart | assets/illustrated/objects/flower_cart.webp | 128×128 | 완료 |
 | skills/bolt | assets/illustrated/skills/bolt.webp | 160×160 | 완료 |
 | skills/orbit | assets/illustrated/skills/orbit.webp | 160×160 | 완료 |
@@ -329,15 +329,15 @@
 | crops/dew-0 | assets/illustrated/crops/dew-0.webp | 160×160 | 완료 |
 | crops/dew-1 | assets/illustrated/crops/dew-1.webp | 160×160 | 완료 |
 | crops/dew-2 | assets/illustrated/crops/dew-2.webp | 160×160 | 완료 |
-| guides/cook | assets/illustrated/guides/cook.webp | 480×320 | 완료 |
-| guides/serve | assets/illustrated/guides/serve.webp | 480×320 | 완료 |
-| guides/host | assets/illustrated/guides/host.webp | 480×320 | 완료 |
-| guides/farm | assets/illustrated/guides/farm.webp | 480×320 | 완료 |
-| guides/hunt | assets/illustrated/guides/hunt.webp | 480×320 | 완료 |
-| guides/armory | assets/illustrated/guides/armory.webp | 480×320 | 완료 |
-| guides/outfits | assets/illustrated/guides/outfits.webp | 480×320 | 완료 |
-| guides/bonds | assets/illustrated/guides/bonds.webp | 480×320 | 완료 |
-| guides/interior | assets/illustrated/guides/interior.webp | 480×320 | 완료 |
+| guides/cook | assets/illustrated/guides/cook.webp | 498×322 | 완료 |
+| guides/serve | assets/illustrated/guides/serve.webp | 498×322 | 완료 |
+| guides/host | assets/illustrated/guides/host.webp | 498×322 | 완료 |
+| guides/farm | assets/illustrated/guides/farm.webp | 498×318 | 완료 |
+| guides/hunt | assets/illustrated/guides/hunt.webp | 498×318 | 완료 |
+| guides/armory | assets/illustrated/guides/armory.webp | 1050×591 | 완료 |
+| guides/outfits | assets/illustrated/guides/outfits.webp | 498×342 | 완료 |
+| guides/bonds | assets/illustrated/guides/bonds.webp | 498×342 | 완료 |
+| guides/interior | assets/illustrated/guides/interior.webp | 498×342 | 완료 |
 | effects/bolt | assets/illustrated/effects/bolt.webp | 512×128 | 완료 |
 | effects/orbit | assets/illustrated/effects/orbit.webp | 512×128 | 완료 |
 | effects/crescent | assets/illustrated/effects/crescent.webp | 512×128 | 완료 |
@@ -409,10 +409,61 @@
 | wardrobe/raven@raven_swim | assets/illustrated/wardrobe/raven@raven_swim.webp | 1024×256 | 완료 |
 | wardrobe/neo@neo_swim | assets/illustrated/wardrobe/neo@neo_swim.webp | 1024×256 | 완료 |
 | wardrobe/neo | assets/illustrated/wardrobe/neo.webp | 1024×256 | 완료 |
+| actors/neo_cat_attack | assets/illustrated/actors/neo_cat_attack.webp | 512×512 | 완료 |
+| backgrounds/cafe_room | assets/illustrated/backgrounds/cafe_room.webp | 720×960 | 완료 |
+| ui/loading | assets/illustrated/ui/loading.webp | 280×336 | 완료 |
+| actors/neo_idle | assets/illustrated/actors/neo_idle.webp | 512×512 | 완료 |
+| actors/luna_idle | assets/illustrated/actors/luna_idle.webp | 512×512 | 완료 |
+| actors/luna_sis_idle | assets/illustrated/actors/luna_sis_idle.webp | 512×512 | 완료 |
+| actors/yeoni_idle | assets/illustrated/actors/yeoni_idle.webp | 512×512 | 완료 |
+| enemies/moon_bomber | assets/illustrated/enemies/moon_bomber.webp | 512×384 | 완료 |
+| enemies/rabbit_scout | assets/illustrated/enemies/blue_rabbit.webp | 512×384 | 완료 |
+| enemies/rabbit_brute | assets/illustrated/enemies/blue_rabbit.webp | 512×384 | 완료 |
+| enemies/shade_thorn | assets/illustrated/enemies/thorn.webp | 512×384 | 완료 |
+| enemies/shade_clock | assets/illustrated/enemies/clock.webp | 512×384 | 완료 |
+| objects/hunt_crystal | assets/illustrated/objects/hunt_crystal.webp | 176×176 | 완료 |
+| objects/hunt_urn | assets/illustrated/objects/hunt_urn.webp | 176×176 | 완료 |
+| objects/hunt_coffer | assets/illustrated/objects/hunt_coffer.webp | 176×176 | 완료 |
+| objects/hunt_obsidian | assets/illustrated/objects/hunt_obsidian.webp | 176×176 | 완료 |
+| tiles/hunt_garden | assets/illustrated/tiles/hunt_garden.webp | 512×512 | 완료 |
+| tiles/hunt_rabbit | assets/illustrated/tiles/hunt_rabbit.webp | 512×512 | 완료 |
+| tiles/hunt_ruins | assets/illustrated/tiles/hunt_ruins.webp | 512×512 | 완료 |
+| tiles/hunt_heukwol | assets/illustrated/tiles/hunt_heukwol.webp | 512×512 | 완료 |
+| backgrounds/crafting | assets/illustrated/backgrounds/crafting.webp | 960×640 | 완료 |
+| guides/shop | assets/illustrated/guides/shop.webp | 498×318 | 완료 |
+| actors/yeoni_farm | assets/illustrated/actors/yeoni_farm.webp | 512×512 | 완료 |
+| backgrounds/farm_ground | assets/illustrated/backgrounds/farm_ground.webp | 800×800 | 완료 |
+| farm/bed_empty | assets/illustrated/farm/bed_empty.webp | 256×256 | 완료 |
+| farm/bed_seeded | assets/illustrated/farm/bed_seeded.webp | 256×256 | 완료 |
+| farm/bed_watered | assets/illustrated/farm/bed_watered.webp | 256×256 | 완료 |
+| farm/bed_tended | assets/illustrated/farm/bed_tended.webp | 256×256 | 완료 |
+| ui/new_game | assets/illustrated/ui/new_game.webp | 720×480 | 완료 |
+| talking/yeoni | assets/illustrated/talking/yeoni.webp | 1280×384 | 완료 |
+| talking/neo | assets/illustrated/talking/neo.webp | 1280×384 | 완료 |
+| talking/neo_cat | assets/illustrated/talking/neo_cat.webp | 1280×384 | 완료 |
+| talking/yeoni_pig | assets/illustrated/talking/yeoni_pig.webp | 1280×384 | 완료 |
+| talking/luna | assets/illustrated/talking/luna.webp | 1280×384 | 완료 |
+| talking/luna_sis | assets/illustrated/talking/luna_sis.webp | 1280×384 | 완료 |
+| talking/moka | assets/illustrated/talking/moka.webp | 1280×384 | 완료 |
+| talking/solv | assets/illustrated/talking/solv.webp | 1280×384 | 완료 |
+| talking/bambi | assets/illustrated/talking/bambi.webp | 1280×384 | 완료 |
+| talking/lune | assets/illustrated/talking/lune.webp | 1280×384 | 완료 |
+| talking/raven | assets/illustrated/talking/raven.webp | 1280×384 | 완료 |
+| talking/yun | assets/illustrated/talking/yun.webp | 1280×384 | 완료 |
+| talking/seohanbi | assets/illustrated/talking/seohanbi.webp | 1280×384 | 완료 |
+| talking/museong | assets/illustrated/talking/museong.webp | 1280×384 | 완료 |
+| talking/neo_stage | assets/illustrated/talking/neo_stage.webp | 1280×384 | 완료 |
+| talking/cheongtokki | assets/illustrated/talking/cheongtokki.webp | 1280×384 | 완료 |
+
 
 ## 정밀 스프라이트 재배치 (2026-10-26)
 생성 원본의 간격은 완전히 균일하지 않으므로 단순 등분을 사용하지 않는다. tools/pack-sprites.py가 원본 전체의 알파 연결 성분으로 인물/적을 분리하고 실제 중심을 기준으로 행·열을 정한다. 다른 인물이나 떨어진 배경 조각은 마스크에 포함하지 않는다. 본체 가장자리2px의 안티앨리어싱만 복원한다.
 
 43개 배우·4개 적 원본에서 총736프레임을 분리하여 128px 셀, 최소6px 투명 여백, 발(64,122)에 배치한다. 의상 미리보기33장은 같은 분리 결과의256px 셀4방향이다. sourceBounds는 docs/sprite-crops.json에 기록한다. 원본 PNG는 수정하지 않는다. UI에서 미리보기 확대는 원본 해상도에서 만든 별도 시트를 사용한다.
 
-서빙 트레이·청소 천은 별도 interactions 투명 소품이며 실제 주문 메뉴 아이콘을 렌더링 때 합성한다. 배우 시트에 다른 메뉴·UI가 붙지 않도록 역할을 분리한다. 대화 초상화는 정적인 라이트노벨 이미지다. 여섯 희귀 재료 아이콘은 아직 색상 대체이며 일부 기존 적·타일·UI는 재사용한다. 모든 ready 키는 아래 표의 이미지로 로드되며 미로드 시에만 기존 도형 대체를 사용한다.
+서빙 트레이·청소 천은 별도 interactions 투명 소품이며 실제 주문 메뉴 아이콘을 렌더링 때 합성한다. 배우 시트에 다른 메뉴·UI가 붙지 않도록 역할을 분리한다. 대화 초상화는 정적인 초상화와 아래 발화 시트를 구분한다. 여섯 희귀 재료 아이콘은 아직 색상 대체이며 일부 기존 적·타일·UI는 재사용한다. ready 키는 이미지 로드 대상으로 사용되며 전체 장면의 품질 검수 완료를 뜻하지 않는다.
+
+## 대화 시트 재제작·보정 (2026-10-26)
+윤달과 서한비는 독립된2×2 원화부터 다시 그렸다. 윤달은 정면에 가까운 자세, 서한비는 사용자 확정 여성·검은 드레스 모습이다. 나머지14종은 원본의 실제 인물 경계로 다시 잘랐다.16종 모두320×384 셀4열(1280×384)이며 프레임0 중립,1 눈감음,2 작은 입,3 열린 입이다. 기준점160,368과 알파 외곽을 고정하고 눈·입 영역만 바꿔 머리·몸의 흔들림을 줄였다. 기존 talking 경로에 손실 없는 WebP로 교체했다.
+
+개별 프레임·원본PNG·미리보기·해시는 이 채팅의 outputs/claude-handoff에 보존했다. 생성 프롬프트와 원본 경계는 docs/art-prompts.json 및 각 WebP의 JSON에 기록한다. 텍스트 진행 기반 발화이며 음성에 맞춘 음소 립싱크는 아니다. 작은 대사용 얼굴 배지와 새 서빙 소품은 인계 패키지에만 있으며 UI/손 위치 연결은 후속 작업이다. 이동·공격·의상별 배우 시트의 검수 완료를 뜻하지 않는다.

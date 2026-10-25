@@ -1,0 +1,41 @@
+{
+  "prompt": "Use case: identity-preserve. The supplied official character sheet defines Seohanbi (서한비); use its black-haired adult woman only, ignore all lettering. REDRAW a premium Korean light-novel TALKING DIALOGUE BUST animation atlas of this one woman. Exactly TWO columns by TWO rows, four equal square cells on TRUE TRANSPARENT ALPHA. New calm conversational near-frontal pose, head upright with only a very slight 3/4 turn, level shoulders, eye contact. Chest-up including entire head/hair crown and shoulders, graceful long black wavy hair, warm red-brown eyes, black lace dress with modest chest framing, delicate black lace necklace/choker and ruby earrings, subtle mature elegance and restrained warmth as reference. Hands and tarot cards out of crop, NO hands anywhere. All four frames must be the SAME fixed drawing registered at precisely the same position/scale. Only eyelids or mouth change: top-left open eyes lips softly closed; top-right eyes gently closed in blink lips closed; bottom-left open eyes lips slightly parted for soft speech; bottom-right open eyes mouth gently open speaking, anatomically natural small mouth cavity. Mouth subtle, not smiling broadly, no oversized red hole, no lip warping, no jaw distortion. All hair, face shape, neck, shoulders, clothes and lighting identical frame to frame. Do NOT pose as a glamour poster: this is a calm face-to-face dialogue animation. 15 percent clear TRANSPARENT padding on EVERY edge of each cell, isolated busts, no touching any other cell. Refined fine linework and painterly shading with clear readable facial anatomy. No text, no scenery, no rectangles, no background painting, no glow, no borders, no extra faces or other characters.",
+  "createdAt": "2026-10-25T21:06:48.787Z",
+  "updatedAt": "2026-10-25T21:50:42.198954+00:00",
+  "sourceFile": "exec-43fbfce0-910e-4d3e-95f7-279549fdc3ce.png",
+  "sourceSha256": "117b1a57cec966694fc360ac25302a1692e9c687ddbbb58dd28f2e0666fff03a",
+  "sourceCells": [
+    [
+      0,
+      0,
+      638,
+      613
+    ],
+    [
+      638,
+      0,
+      1275,
+      613
+    ],
+    [
+      0,
+      617,
+      638,
+      1232
+    ],
+    [
+      638,
+      617,
+      1275,
+      1232
+    ]
+  ],
+  "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+  "sha256": "74efa5a06bf8b814c25dce242c8b854c587925f346428f4de2b3b2cd7433510c",
+  "frame": {
+    "width": 320,
+    "height": 384,
+    "count": 4
+  },
+  "revision": "new dedicated redraw, supersedes previous talk-mystery row"
+}

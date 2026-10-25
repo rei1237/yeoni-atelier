@@ -469,65 +469,9 @@
     "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
   },
   {
-    "id": "enemies/shade_hand",
-    "tool": "image_gen built-in",
-    "sourceFile": "exec-cfac1a1e-2716-486f-ac6b-0d07beeb5b08.png",
-    "prompt": "Premium hand-painted fantasy mobile cafe game illustration: smooth antialiased contours, subtle gouache shading, elegant cream rose-gold and indigo palette, polished commercial art, NOT pixel art, no mosaic or dithering, no text, no watermark. Dark fantasy game enemy sprite atlas of creeping black ink shadow hand with pale glowing palm eye. TRANSPARENT background. Exactly FOUR columns and THREE rows, 12 equal square cells. Row1 idle4frames, row2 moving4frames, row3 flinching4frames. Same enemy scale and position throughout, fully contained within each cell, ground anchor consistent. No gridlines, no labels, no text. Hand-painted soft haunting shapes, violet and midnight blue shadows, subtle moon glow. Not horror gore.",
-    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
-  },
-  {
-    "id": "enemies/shade_bat",
-    "tool": "image_gen built-in",
-    "sourceFile": "exec-f2a09280-1c47-471c-a021-2f5677a8d00f.png",
-    "prompt": "Premium hand-painted fantasy mobile cafe game illustration: smooth antialiased contours, subtle gouache shading, elegant cream rose-gold and indigo palette, polished commercial art, NOT pixel art, no mosaic or dithering, no text, no watermark. Dark fantasy game enemy sprite atlas of small dark purple bat with pink glowing eyes. TRANSPARENT background. Exactly FOUR columns and THREE rows, 12 equal square cells. Row1 idle4frames, row2 moving4frames, row3 flinching4frames. Same enemy scale and position throughout, fully contained within each cell, ground anchor consistent. No gridlines, no labels, no text. Hand-painted soft haunting shapes, violet and midnight blue shadows, subtle moon glow. Not horror gore.",
-    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
-  },
-  {
-    "id": "enemies/shade_blob",
-    "tool": "image_gen built-in",
-    "sourceFile": "exec-4f42f0cb-abac-4259-960b-5afa6636bf8b.png",
-    "prompt": "Premium hand-painted fantasy mobile cafe game illustration: smooth antialiased contours, subtle gouache shading, elegant cream rose-gold and indigo palette, polished commercial art, NOT pixel art, no mosaic or dithering, no text, no watermark. Dark fantasy game enemy sprite atlas of round dark purple shadow slime single pale eye. TRANSPARENT background. Exactly FOUR columns and THREE rows, 12 equal square cells. Row1 idle4frames, row2 moving4frames, row3 flinching4frames. Same enemy scale and position throughout, fully contained within each cell, ground anchor consistent. No gridlines, no labels, no text. Hand-painted soft haunting shapes, violet and midnight blue shadows, subtle moon glow. Not horror gore.",
-    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
-  },
-  {
-    "id": "enemies/shade_wisp",
-    "tool": "image_gen built-in",
-    "sourceFile": "exec-05052301-c80f-41bd-bc00-d8e54450b11c.png",
-    "prompt": "Premium hand-painted fantasy mobile cafe game illustration: smooth antialiased contours, subtle gouache shading, elegant cream rose-gold and indigo palette, polished commercial art, NOT pixel art, no mosaic or dithering, no text, no watermark. Dark fantasy game enemy sprite atlas of blue violet flickering flame white core. TRANSPARENT background. Exactly FOUR columns and THREE rows, 12 equal square cells. Row1 idle4frames, row2 moving4frames, row3 flinching4frames. Same enemy scale and position throughout, fully contained within each cell, ground anchor consistent. No gridlines, no labels, no text. Hand-painted soft haunting shapes, violet and midnight blue shadows, subtle moon glow. Not horror gore.",
-    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
-  },
-  {
-    "id": "enemies/elite_hand",
-    "tool": "image_gen built-in",
-    "sourceFile": "exec-12d9b0f5-11e7-429b-8dd7-eb3dfadf0b58.png",
-    "prompt": "Premium hand-painted fantasy mobile cafe game illustration: smooth antialiased contours, subtle gouache shading, elegant cream rose-gold and indigo palette, polished commercial art, NOT pixel art, no mosaic or dithering, no text, no watermark. Dark fantasy game enemy sprite atlas of large dark crimson shadow hand gold eye on palm. TRANSPARENT background. Exactly FOUR columns and THREE rows, 12 equal square cells. Row1 idle4frames, row2 moving4frames, row3 flinching4frames. Same enemy scale and position throughout, fully contained within each cell, ground anchor consistent. No gridlines, no labels, no text. Hand-painted soft haunting shapes, violet and midnight blue shadows, subtle moon glow. Not horror gore.",
-    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
-  },
-  {
-    "id": "enemies/boss_hand",
-    "tool": "image_gen built-in",
-    "sourceFile": "exec-9e2e17e3-e68c-45a7-abb0-a56c557d123a.png",
-    "prompt": "Premium hand-painted fantasy mobile cafe game illustration: smooth antialiased contours, subtle gouache shading, elegant cream rose-gold and indigo palette, polished commercial art, NOT pixel art, no mosaic or dithering, no text, no watermark. Dark fantasy game enemy sprite atlas of huge black shadow hand rising from ground red eye swirling purple aura. TRANSPARENT background. Exactly FOUR columns and THREE rows, 12 equal square cells. Row1 idle4frames, row2 moving4frames, row3 flinching4frames. Same enemy scale and position throughout, fully contained within each cell, ground anchor consistent. No gridlines, no labels, no text. Hand-painted soft haunting shapes, violet and midnight blue shadows, subtle moon glow. Not horror gore.",
-    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
-  },
-  {
     "id": "actors/yeoni",
     "source": "exec-51d52446-d73d-4536-abe8-a7b526fc96bf.png",
     "prompt": "Game animation sprite sheet, transparent background. Canonical reference identity, not a profile poster. Human Yeoni, young adult woman with LONG WAVY DUSTY PINK hair, lotus hair ornament, ivory floral midi dress, lilac waist apron, brown boots. Retain exact face/hair/clothing identity. Premium clean light novel chibi game illustration, 3-head proportions (cat naturally round). EXACTLY 16 whole-body poses in an EXACT 4 column x 4 row evenly spaced grid. Every cell identical width/height, generous transparent gutters. Row1 faces DOWN toward viewer in 4 successive natural walking frames. Row2 faces LEFT in 4 successive walking frames. Row3 faces RIGHT in 4 successive walking frames. Row4 faces UP with back toward viewer in 4 successive walking frames. Columns cycle left foot forward, standing pass, right foot forward, standing pass; tiny arm swing and cloth movement. Same camera, same character size, feet share SAME baseline within every cell. Full head, hair, hat, tail and feet entirely inside each cell. Character height 70% of cell, 15% clear margin on each side. No labels, text, lines, borders, shadows outside feet, particles, background, duplicate extra figures. Square sheet. Do not merge rows or add columns. This will be programmatically sliced into exactly sixteen cells.",
-    "processing": "2026-10-26: whole-source alpha connected-component separation (no equal-grid crop), antialias fringe only, uniform sheet scale, fixed transparent cells; source bounds in sprite-crops.json",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "actors/neo",
-    "source": "exec-723f80fa-f518-4a57-9368-ef5d355f76cb.png",
-    "prompt": "Game animation sprite sheet, transparent background. Canonical reference identity, not a profile poster. Human Neo, elegant adult man with SILVER WHITE tousled hair, icy blue eyes, black high collar shirt, ivory silver detailed host jacket, slim black trousers, black shoes. Retain exact face/hair identity. NO cat ears, NO animal body. Premium clean light novel chibi game illustration, 3-head proportions (cat naturally round). EXACTLY 16 whole-body poses in an EXACT 4 column x 4 row evenly spaced grid. Every cell identical width/height, generous transparent gutters. Row1 faces DOWN toward viewer in 4 successive natural walking frames. Row2 faces LEFT in 4 successive walking frames. Row3 faces RIGHT in 4 successive walking frames. Row4 faces UP with back toward viewer in 4 successive walking frames. Columns cycle left foot forward, standing pass, right foot forward, standing pass; tiny arm swing and cloth movement. Same camera, same character size, feet share SAME baseline within every cell. Full head, hair, hat, tail and feet entirely inside each cell. Character height 70% of cell, 15% clear margin on each side. No labels, text, lines, borders, shadows outside feet, particles, background, duplicate extra figures. Square sheet. Do not merge rows or add columns. This will be programmatically sliced into exactly sixteen cells.",
-    "processing": "2026-10-26: whole-source alpha connected-component separation (no equal-grid crop), antialias fringe only, uniform sheet scale, fixed transparent cells; source bounds in sprite-crops.json",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "actors/neo_cat",
-    "source": "exec-91ec39c0-d8d2-467c-b6c3-e1ecae9c979f.png",
-    "prompt": "Game animation sprite sheet, transparent background. Canonical reference identity, not a profile poster. Yeongnyangi, WHITE fluffy cat with skeptical narrow violet-gold eyes, midnight blue wizard cap with crescent and star embroideries, short navy cloak, amethyst collar, white curled tail. Retain exact reference identity. Premium clean light novel chibi game illustration, 3-head proportions (cat naturally round). EXACTLY 16 whole-body poses in an EXACT 4 column x 4 row evenly spaced grid. Every cell identical width/height, generous transparent gutters. Row1 faces DOWN toward viewer in 4 successive natural walking frames. Row2 faces LEFT in 4 successive walking frames. Row3 faces RIGHT in 4 successive walking frames. Row4 faces UP with back toward viewer in 4 successive walking frames. Columns cycle left foot forward, standing pass, right foot forward, standing pass; tiny arm swing and cloth movement. Same camera, same character size, feet share SAME baseline within every cell. Full head, hair, hat, tail and feet entirely inside each cell. Character height 70% of cell, 15% clear margin on each side. No labels, text, lines, borders, shadows outside feet, particles, background, duplicate extra figures. Square sheet. Do not merge rows or add columns. This will be programmatically sliced into exactly sixteen cells.",
     "processing": "2026-10-26: whole-source alpha connected-component separation (no equal-grid crop), antialias fringe only, uniform sheet scale, fixed transparent cells; source bounds in sprite-crops.json",
     "generationLog": "art-generation-log.json"
   },
@@ -868,13 +812,6 @@
     "aliasOf": "actors/museong@museong_formal"
   },
   {
-    "id": "backgrounds/title",
-    "source": "exec-1b300fc1-4621-4940-9746-cffe09bbba9b.png",
-    "prompt": "Create a polished portrait 2:3 mobile game title key visual for Code Destiny's Yeoni Atelier host cafe. Reference 1 is canonical human Yeoni: retain her long wavy dusty-pink hair, warm eyes, small lotus floral ornament, ivory floral dress and delicate lavender bow apron. Reference 2 is her magical flower-pig form, round pale pink pig, lotus on head and purple neck scarf. Reference 3 is Yeongnyangi, white fluffy cat with unimpressed half-lidded violet-gold eyes, navy star/crescent wizard hat and cape and amethyst collar. Show human Yeoni welcoming at a beautiful intimate evening cafe counter, flower-pig sitting on left counter and Yeongnyangi on right, clearly readable distinct characters. Elegant Korean light-novel illustration, refined expressive faces, delicate line work and watercolor shading, rose ivory brass and midnight blue, warm lamps, flowering courtyard outside. Compose characters in central upper 70%, leave uppermost 12% calm dark navy for title lettering added in code, lower 25% softly lit empty counter for real UI buttons. NOT a UI screenshot. No text, letters, logos, frames, cards or buttons. Keep all faces, hair and animal ears entirely inside picture with generous margins. Original composition based faithfully on these canonical references. No pixel art.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
     "id": "backgrounds/dressroom",
     "source": "exec-3a0e3d30-96b2-4c97-86fc-cd148f0be7a0.png",
     "prompt": "Refined intimate male host cafe dressing lounge, mobile game background, portrait-friendly landscape 6:5 composition. Dark walnut wardrobes, navy velvet curtain, brass trim, warmly lit full height mirror, neat hangers with elegant men's white dinner jackets, black waistcoats, navy suits, cufflinks and ties displayed on shallow shelves. Center floor empty for a full-body character overlay, soft rug, tasteful warm amber lamps. Premium Korean light novel painted interior, fine architectural detail, restrained comfortable luxury, no people or mannequins, no feminine gowns, no pink princess boudoir, no text/logos/UI.",
@@ -931,13 +868,6 @@
     "generationLog": "art-generation-log.json"
   },
   {
-    "id": "portraits/neo",
-    "source": "exec-69d19953-cfc9-43fd-b717-01055fddf678.png",
-    "prompt": "Anatomy correction edit of this exact Neo portrait. Keep face silver hair blue eyes intricate ivory gold embroidered coat black shirt jewelry chains light novel style and transparent background. Fix the malformed duplicated arm arrangement: EXACTLY TWO ARMS TOTAL, one attached naturally to each shoulder, each with one upper arm one elbow one forearm one hand. Replace entire arm pose with simplest natural relaxed standing pose: both upper arms hang down beside torso, elbows slightly bent, BOTH hands resting near respective hips at waist level. Remove ALL hands near face and all extra sleeves, duplicated forearms, floating hands, abnormal limbs. Two normal human hands with five fingers each, modest natural proportions. Preserve head torso legs and beautiful costume. Do not add text/background.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
     "id": "portraits/seohanbi",
     "source": "exec-2fb9b30a-d015-4616-a98b-8e8bc1bbf5d3.png",
     "prompt": "Use the supplied reference as definitive character identity for Seohanbi in this game. ONE standalone transparent thigh-up light novel portrait of this elegant adult woman: long wavy BLACK hair, deep RED eyes, delicate black lace evening dress, ruby and gold earrings, calm commanding mysterious smile, holding a single dark tarot card near waist. Exact reference face and outfit style. Fine light novel lines, restrained warm shadows. Natural adult proportions, not chibi, no explicit nudity, no background, no typography or frame, entire hair head hands contained with generous clear margins.",
@@ -975,152 +905,12 @@
     "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors"
   },
   {
-    "id": "portraits/cheongtokki",
-    "source": "rab.webp",
-    "prompt": "Canonical user references, high-quality illustrated mobile game art; imagegen. Mechanical alpha trim and fixed cell packing; original preserved.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors"
-  },
-  {
-    "id": "portraits/luna",
-    "source": "exec-b1ad7060-266d-4330-a04f-6c3ff479dac5.png",
-    "prompt": "Create transparent production game sprite atlas. Subject: Luna, tiny white baby rabbit with long pink inner ears, pink bow and a little bread basket, white fluffy body, NOT human, friendly warm expression. EXACTLY four equal columns and four equal rows, all cells identical dimensions and generous empty gutters 15%. Rows DOWN facing front, LEFT profile facing left, RIGHT profile facing right, UP fully back view. Each row exactly four successive walk frames left foot forward, passing, right foot forward, passing. NO repeated front view in back row. Whole body including toes and ears inside every cell, same consistent scale and foot baseline, no floating. High quality soft painterly LIGHT NOVEL CHIBI game art not pixels, clear silhouettes. Transparent background, no labels/no shadows on floor/no grid lines. Match reference identity where provided.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "portraits/luna_sis",
-    "source": "exec-5b3afc12-9856-4a63-b39b-292b570f62e4.png",
-    "prompt": "Create transparent production game sprite atlas. Subject: Luna older sister from reference, blond bob human bakery girl with rabbit ear headband and pink apron, chibi form, both hands held naturally at waist, no large bread blocking face. EXACTLY four equal columns and four equal rows, all cells identical dimensions and generous empty gutters 15%. Rows DOWN facing front, LEFT profile facing left, RIGHT profile facing right, UP fully back view. Each row exactly four successive walk frames left foot forward, passing, right foot forward, passing. NO repeated front view in back row. Whole body including toes and ears inside every cell, same consistent scale and foot baseline, no floating. High quality soft painterly LIGHT NOVEL CHIBI game art not pixels, clear silhouettes. Transparent background, no labels/no shadows on floor/no grid lines. Match reference identity where provided.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "portraits/yun@yun_formal",
-    "aliasOf": "portraits/yun"
-  },
-  {
-    "id": "portraits/yun@yun_moon",
-    "aliasOf": "portraits/yun"
-  },
-  {
-    "id": "portraits/yun@yun_garden",
-    "aliasOf": "portraits/yun"
-  },
-  {
     "id": "portraits/yun@yun_swim",
     "aliasOf": "portraits/yun"
   },
   {
-    "id": "portraits/museong@museong_formal",
-    "aliasOf": "portraits/museong"
-  },
-  {
-    "id": "portraits/museong@museong_moon",
-    "aliasOf": "portraits/museong"
-  },
-  {
-    "id": "portraits/museong@museong_garden",
-    "aliasOf": "portraits/museong"
-  },
-  {
     "id": "portraits/museong@museong_swim",
     "aliasOf": "portraits/museong"
-  },
-  {
-    "id": "portraits/solv@solv_formal",
-    "aliasOf": "portraits/solv"
-  },
-  {
-    "id": "portraits/solv@solv_moon",
-    "aliasOf": "portraits/solv"
-  },
-  {
-    "id": "portraits/solv@solv_garden",
-    "aliasOf": "portraits/solv"
-  },
-  {
-    "id": "portraits/solv@solv_swim",
-    "aliasOf": "portraits/solv"
-  },
-  {
-    "id": "portraits/bambi@bambi_formal",
-    "aliasOf": "portraits/bambi"
-  },
-  {
-    "id": "portraits/bambi@bambi_moon",
-    "aliasOf": "portraits/bambi"
-  },
-  {
-    "id": "portraits/bambi@bambi_garden",
-    "aliasOf": "portraits/bambi"
-  },
-  {
-    "id": "portraits/bambi@bambi_swim",
-    "aliasOf": "portraits/bambi"
-  },
-  {
-    "id": "portraits/lune@lune_formal",
-    "aliasOf": "portraits/lune"
-  },
-  {
-    "id": "portraits/lune@lune_moon",
-    "aliasOf": "portraits/lune"
-  },
-  {
-    "id": "portraits/lune@lune_garden",
-    "aliasOf": "portraits/lune"
-  },
-  {
-    "id": "portraits/lune@lune_swim",
-    "aliasOf": "portraits/lune"
-  },
-  {
-    "id": "portraits/raven@raven_formal",
-    "aliasOf": "portraits/raven"
-  },
-  {
-    "id": "portraits/raven@raven_moon",
-    "aliasOf": "portraits/raven"
-  },
-  {
-    "id": "portraits/raven@raven_garden",
-    "aliasOf": "portraits/raven"
-  },
-  {
-    "id": "portraits/raven@raven_swim",
-    "aliasOf": "portraits/raven"
-  },
-  {
-    "id": "portraits/neo@neo_swim",
-    "aliasOf": "portraits/neo"
-  },
-  {
-    "id": "portraits/neo@crescent_tailcoat",
-    "aliasOf": "portraits/neo"
-  },
-  {
-    "id": "portraits/neo@wood_suit",
-    "aliasOf": "portraits/neo"
-  },
-  {
-    "id": "portraits/neo@blossom_haori",
-    "aliasOf": "portraits/neo"
-  },
-  {
-    "id": "portraits/neo@rain_coat",
-    "aliasOf": "portraits/neo"
-  },
-  {
-    "id": "portraits/neo@summer_linen",
-    "aliasOf": "portraits/neo"
-  },
-  {
-    "id": "portraits/neo@moonstone_robe",
-    "aliasOf": "portraits/neo"
-  },
-  {
-    "id": "portraits/neo@winter_coat",
-    "aliasOf": "portraits/neo"
   },
   {
     "id": "portraits/yeoni@garden_apron",
@@ -1131,20 +921,12 @@
     "aliasOf": "actors/yeoni"
   },
   {
-    "id": "portraits/neo@host_first",
-    "aliasOf": "portraits/neo"
-  },
-  {
     "id": "portraits/yeoni@apron_spring",
     "aliasOf": "portraits/yeoni"
   },
   {
     "id": "actors/yeoni@apron_spring",
     "aliasOf": "actors/yeoni"
-  },
-  {
-    "id": "portraits/neo@vest_night",
-    "aliasOf": "portraits/neo"
   },
   {
     "id": "objects/table",
@@ -1679,69 +1461,6 @@
     "generationLog": "art-generation-log.json"
   },
   {
-    "id": "guides/cook",
-    "source": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
-    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "guides/serve",
-    "source": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
-    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "guides/host",
-    "source": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
-    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "guides/farm",
-    "source": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
-    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "guides/hunt",
-    "source": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
-    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "guides/armory",
-    "source": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
-    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "guides/outfits",
-    "source": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
-    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "guides/bonds",
-    "source": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
-    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
-    "id": "guides/interior",
-    "source": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
-    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
-    "processing": "alpha cutoff 16, bounding threshold 32, uniform scale, 6 px transparent margin, feet at y=122 for actors",
-    "generationLog": "art-generation-log.json"
-  },
-  {
     "id": "effects/bolt",
     "source": "exec-5838b5b9-6dcf-4de1-80eb-211307d7ce89.png",
     "prompt": "Transparent game magical attack VFX sprite atlas. EXACT 4 columns x5rows, twenty uniformly sized square cells, wide gutters. Fine painted gold/navy/amethyst light effects, bright readable transparent silhouettes. Each row FOUR sequential animation frames beginning, full, impact, fading. Row1 STAR BOLT: sharp gold star comet burst. Row2 CONSTELLATION ORBIT: circular arc of small gold stars. Row3 CRESCENT BOOMERANG: silver crescent with violet trail. Row4 MOONLIGHT AURA: luminous blue-violet circular protective sigil. Row5 TAROT STRIKE: single ornate gold tarot card falling with vertical lightburst. Same center and radius within each row, entire effect contained, amplemargin, no labels/numbers/text/borders/characters/background, NO opaque black rectangles.",
@@ -2167,9 +1886,1279 @@
     "processing": "2026-10-26: whole-source alpha connected-component separation (no equal-grid crop), antialias fringe only, uniform sheet scale, fixed transparent cells; source bounds in sprite-crops.json"
   },
   {
+    "id": "backgrounds/title",
+    "tool": "imagegen",
+    "sourceFile": "exec-6cdc79f6-6170-488a-95e4-2be1a66ac960.png",
+    "prompt": "Use case: illustration-story. Asset type: full-screen mobile cafe management game title background, portrait 2:3 composition. Generate original premium hand-painted anime game illustration, cozy welcoming small countryside patisserie at morning golden hour, cream plaster, honey oak shopfront, pale rose striped awning, open door and warmly lit bakery display, potted flowers, winding stone path and garden. Inspired by cozy classic cafe management games but entirely original Code Destiny setting. The small pink flower pig Yeoni from reference, same round drooping ears, lotus flower on head, violet scarf, cute 2.5 heads body, peeks cheerfully out of lower right shopfront carrying a teacup. Leave upper middle sky and lower middle path visually calm for live title and buttons. No typography, no logo, no UI buttons, no frames. Cafe building occupies most of frame and visually invites player inside. Rich painterly detail, warm natural materials, clear silhouettes, no 3D plastic look. Reference is character identity only.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "ui/loading",
+    "tool": "imagegen",
+    "sourceFile": "exec-278a4d23-52aa-4ed9-89f9-87aa4fb2455b.png",
+    "prompt": "Use case: illustration-story. Asset type: transparent loading mascot for a polished cozy cafe mobile game. Draw ONE cute full-body flower pig Yeoni based faithfully on reference: soft pink skin, round floppy pig ears, tiny pig nose, big warm brown eyes, pink lotus blossom at side of head, violet scarf, curled tail, short little hooves, 2.5-head chibi proportions. She is happily stirring fragrant tea in a cream teacup with small rose decoration, tiny wooden spoon in one hoof, cup on a small wooden serving tray in other hoof. Gentle steam curls attached to the cup. All visible anatomy natural, exactly two arms, no extra objects or characters. Refined hand-painted storybook anime game illustration, crisp silhouette, warm soft shading. Full figure centered with wide safe transparent margin all around. No text, no panel, no background, no cast shadow plate.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "portraits/raven@raven_formal",
+    "tool": "imagegen",
+    "sourceFile": "exec-0ccb4514-6f35-4c49-b370-d9534aafd54e.png",
+    "prompt": "Use case: identity-preserve. Asset type: costume illustration atlas for Code Destiny dressroom. Reference for identity ONLY lower RIGHT shaggy black-haired man, guarded expression. Draw this SAME adult man FOUR times, exactly 4 separate equal-width columns in one wide image, head-to-mid-thigh illustrations in realistic premium Korean light-novel anime painting style. NO chibi. Left to right: (1) his exact ornate canonical stage costume from poster (2) midnight navy fitted host tailcoat, silver crescent brooch and white shirt (3) ivory cafe vest with delicate gold embroidery over white shirt, relaxed casual sleeves (4) blue resort swim shorts, open white short-sleeve beach shirt, bare chest, relaxed tasteful adult summer look. Natural two arms, anatomically correct hands. Preserve his hair color, eye color and facial identity across all 4; each head same height and scale. Transparent background. Keep each figure with large transparent padding at sides and above hair, no parts touching adjoining figures or canvas. No text, no frame, no decorations or UI. Upper body fully visible, show clothing clearly; all four figures stay strictly inside individual columns.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "portraits/raven@raven_moon",
+    "tool": "imagegen",
+    "sourceFile": "exec-0ccb4514-6f35-4c49-b370-d9534aafd54e.png",
+    "prompt": "Use case: identity-preserve. Asset type: costume illustration atlas for Code Destiny dressroom. Reference for identity ONLY lower RIGHT shaggy black-haired man, guarded expression. Draw this SAME adult man FOUR times, exactly 4 separate equal-width columns in one wide image, head-to-mid-thigh illustrations in realistic premium Korean light-novel anime painting style. NO chibi. Left to right: (1) his exact ornate canonical stage costume from poster (2) midnight navy fitted host tailcoat, silver crescent brooch and white shirt (3) ivory cafe vest with delicate gold embroidery over white shirt, relaxed casual sleeves (4) blue resort swim shorts, open white short-sleeve beach shirt, bare chest, relaxed tasteful adult summer look. Natural two arms, anatomically correct hands. Preserve his hair color, eye color and facial identity across all 4; each head same height and scale. Transparent background. Keep each figure with large transparent padding at sides and above hair, no parts touching adjoining figures or canvas. No text, no frame, no decorations or UI. Upper body fully visible, show clothing clearly; all four figures stay strictly inside individual columns.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "portraits/raven@raven_garden",
+    "tool": "imagegen",
+    "sourceFile": "exec-0ccb4514-6f35-4c49-b370-d9534aafd54e.png",
+    "prompt": "Use case: identity-preserve. Asset type: costume illustration atlas for Code Destiny dressroom. Reference for identity ONLY lower RIGHT shaggy black-haired man, guarded expression. Draw this SAME adult man FOUR times, exactly 4 separate equal-width columns in one wide image, head-to-mid-thigh illustrations in realistic premium Korean light-novel anime painting style. NO chibi. Left to right: (1) his exact ornate canonical stage costume from poster (2) midnight navy fitted host tailcoat, silver crescent brooch and white shirt (3) ivory cafe vest with delicate gold embroidery over white shirt, relaxed casual sleeves (4) blue resort swim shorts, open white short-sleeve beach shirt, bare chest, relaxed tasteful adult summer look. Natural two arms, anatomically correct hands. Preserve his hair color, eye color and facial identity across all 4; each head same height and scale. Transparent background. Keep each figure with large transparent padding at sides and above hair, no parts touching adjoining figures or canvas. No text, no frame, no decorations or UI. Upper body fully visible, show clothing clearly; all four figures stay strictly inside individual columns.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "portraits/raven@raven_swim",
+    "tool": "imagegen",
+    "sourceFile": "exec-0ccb4514-6f35-4c49-b370-d9534aafd54e.png",
+    "prompt": "Use case: identity-preserve. Asset type: costume illustration atlas for Code Destiny dressroom. Reference for identity ONLY lower RIGHT shaggy black-haired man, guarded expression. Draw this SAME adult man FOUR times, exactly 4 separate equal-width columns in one wide image, head-to-mid-thigh illustrations in realistic premium Korean light-novel anime painting style. NO chibi. Left to right: (1) his exact ornate canonical stage costume from poster (2) midnight navy fitted host tailcoat, silver crescent brooch and white shirt (3) ivory cafe vest with delicate gold embroidery over white shirt, relaxed casual sleeves (4) blue resort swim shorts, open white short-sleeve beach shirt, bare chest, relaxed tasteful adult summer look. Natural two arms, anatomically correct hands. Preserve his hair color, eye color and facial identity across all 4; each head same height and scale. Transparent background. Keep each figure with large transparent padding at sides and above hair, no parts touching adjoining figures or canvas. No text, no frame, no decorations or UI. Upper body fully visible, show clothing clearly; all four figures stay strictly inside individual columns.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "portraits/yun@yun_formal",
+    "tool": "imagegen",
+    "sourceFile": "exec-260163d1-d8d0-4206-95c8-065c11c02322.png",
+    "prompt": "Use case: identity-preserve. Asset type: light-novel wardrobe illustration atlas. Reference identity ONLY: Yun, adult man with long dark hair tied in high ponytail, golden eyes. Draw SAME adult man exactly 3 times in equal separated columns, wide composition. Left to right outfits: (1) canonical navy traditional robe from reference with lunar collar motifs; (2) midnight navy fitted host tailcoat with crescent brooch white shirt; (3) ivory cafe vest gold embroidery over white rolled-sleeve shirt. Each figure from hair to mid thigh, natural proportions, NOT CHIBI, detailed premium Korean light novel anime painting. Face and hair match reference in every column. Natural anatomy exactly two arms and hands each. Truly transparent background, every figure completely isolated with large transparent padding on all sides, no overlap, no cut hair or arms, no text, no frames, no scenery, no sparkles outside silhouettes. Same head height and scale. Clothes must be clearly visible.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "portraits/yun@yun_moon",
+    "tool": "imagegen",
+    "sourceFile": "exec-260163d1-d8d0-4206-95c8-065c11c02322.png",
+    "prompt": "Use case: identity-preserve. Asset type: light-novel wardrobe illustration atlas. Reference identity ONLY: Yun, adult man with long dark hair tied in high ponytail, golden eyes. Draw SAME adult man exactly 3 times in equal separated columns, wide composition. Left to right outfits: (1) canonical navy traditional robe from reference with lunar collar motifs; (2) midnight navy fitted host tailcoat with crescent brooch white shirt; (3) ivory cafe vest gold embroidery over white rolled-sleeve shirt. Each figure from hair to mid thigh, natural proportions, NOT CHIBI, detailed premium Korean light novel anime painting. Face and hair match reference in every column. Natural anatomy exactly two arms and hands each. Truly transparent background, every figure completely isolated with large transparent padding on all sides, no overlap, no cut hair or arms, no text, no frames, no scenery, no sparkles outside silhouettes. Same head height and scale. Clothes must be clearly visible.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "portraits/yun@yun_garden",
+    "tool": "imagegen",
+    "sourceFile": "exec-260163d1-d8d0-4206-95c8-065c11c02322.png",
+    "prompt": "Use case: identity-preserve. Asset type: light-novel wardrobe illustration atlas. Reference identity ONLY: Yun, adult man with long dark hair tied in high ponytail, golden eyes. Draw SAME adult man exactly 3 times in equal separated columns, wide composition. Left to right outfits: (1) canonical navy traditional robe from reference with lunar collar motifs; (2) midnight navy fitted host tailcoat with crescent brooch white shirt; (3) ivory cafe vest gold embroidery over white rolled-sleeve shirt. Each figure from hair to mid thigh, natural proportions, NOT CHIBI, detailed premium Korean light novel anime painting. Face and hair match reference in every column. Natural anatomy exactly two arms and hands each. Truly transparent background, every figure completely isolated with large transparent padding on all sides, no overlap, no cut hair or arms, no text, no frames, no scenery, no sparkles outside silhouettes. Same head height and scale. Clothes must be clearly visible.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "portraits/museong@museong_formal",
+    "tool": "imagegen",
+    "sourceFile": "exec-b2e1156b-3b5b-4ae5-92bd-daa90dff8ebf.png",
+    "prompt": "Use case: identity-preserve. Asset type: light-novel wardrobe illustration atlas. Reference identity ONLY: Museong, adult man, black hair over one eye, purple eyes, gentle mysterious expression. Draw SAME adult man exactly 3 times in equal separated columns, wide composition. Left to right outfits: (1) canonical raven feather black hood with purple earrings from reference; (2) midnight navy fitted host tailcoat crescent brooch white shirt, hood down; (3) ivory cafe vest gold embroidery over white shirt, hood down. Each figure from hair to mid thigh, natural proportions, NOT CHIBI, detailed premium Korean light novel anime painting. Face and hair match reference in every column. Natural anatomy exactly two arms and hands each. Truly transparent background, every figure completely isolated with large transparent padding on all sides, no overlap, no cut hair or arms, no text, no frames, no scenery, no sparkles outside silhouettes. Same head height and scale. Clothes must be clearly visible.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "portraits/museong@museong_moon",
+    "tool": "imagegen",
+    "sourceFile": "exec-b2e1156b-3b5b-4ae5-92bd-daa90dff8ebf.png",
+    "prompt": "Use case: identity-preserve. Asset type: light-novel wardrobe illustration atlas. Reference identity ONLY: Museong, adult man, black hair over one eye, purple eyes, gentle mysterious expression. Draw SAME adult man exactly 3 times in equal separated columns, wide composition. Left to right outfits: (1) canonical raven feather black hood with purple earrings from reference; (2) midnight navy fitted host tailcoat crescent brooch white shirt, hood down; (3) ivory cafe vest gold embroidery over white shirt, hood down. Each figure from hair to mid thigh, natural proportions, NOT CHIBI, detailed premium Korean light novel anime painting. Face and hair match reference in every column. Natural anatomy exactly two arms and hands each. Truly transparent background, every figure completely isolated with large transparent padding on all sides, no overlap, no cut hair or arms, no text, no frames, no scenery, no sparkles outside silhouettes. Same head height and scale. Clothes must be clearly visible.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "portraits/museong@museong_garden",
+    "tool": "imagegen",
+    "sourceFile": "exec-b2e1156b-3b5b-4ae5-92bd-daa90dff8ebf.png",
+    "prompt": "Use case: identity-preserve. Asset type: light-novel wardrobe illustration atlas. Reference identity ONLY: Museong, adult man, black hair over one eye, purple eyes, gentle mysterious expression. Draw SAME adult man exactly 3 times in equal separated columns, wide composition. Left to right outfits: (1) canonical raven feather black hood with purple earrings from reference; (2) midnight navy fitted host tailcoat crescent brooch white shirt, hood down; (3) ivory cafe vest gold embroidery over white shirt, hood down. Each figure from hair to mid thigh, natural proportions, NOT CHIBI, detailed premium Korean light novel anime painting. Face and hair match reference in every column. Natural anatomy exactly two arms and hands each. Truly transparent background, every figure completely isolated with large transparent padding on all sides, no overlap, no cut hair or arms, no text, no frames, no scenery, no sparkles outside silhouettes. Same head height and scale. Clothes must be clearly visible.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "actors/neo",
+    "tool": "imagegen",
+    "sourceFile": "exec-ac24d422-cefd-40e0-adfc-8cccdbaf024e.png",
+    "prompt": "Use case: identity-preserve. Game WALK sprite atlas of Neo adult silver white-haired blue eyed man from reference, dressed in plain clean WHITE button up shirt with sleeves rolled to forearms, black trousers and black shoes. NO vest, NO coat, NO embroidery, NO jewelry. Cute refined light novel chibi 3 heads tall. Exactly 4 columns and 4 rows, sixteen fully separated equal cells. Row1 four alternating walking phases FRONT facing down. Row2 four phases LEFT PROFILE facing left. Row3 four phases RIGHT PROFILE facing right. Row4 four phases BACK facing up walking away. True transparent background. Same scale and feet baseline all16. Very large transparent padding inside each cell; arms hair feet never extend into neighboring cell. No text grid shadows scenery or particles. Each frame a complete single figure. Natural feet stepping, relaxed waiter at work.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
     "id": "wardrobe/neo",
-    "source": "exec-723f80fa-f518-4a57-9368-ef5d355f76cb.png",
-    "prompt": "Game animation sprite sheet, transparent background. Canonical reference identity, not a profile poster. Human Neo, elegant adult man with SILVER WHITE tousled hair, icy blue eyes, black high collar shirt, ivory silver detailed host jacket, slim black trousers, black shoes. Retain exact face/hair identity. NO cat ears, NO animal body. Premium clean light novel chibi game illustration, 3-head proportions (cat naturally round). EXACTLY 16 whole-body poses in an EXACT 4 column x 4 row evenly spaced grid. Every cell identical width/height, generous transparent gutters. Row1 faces DOWN toward viewer in 4 successive natural walking frames. Row2 faces LEFT in 4 successive walking frames. Row3 faces RIGHT in 4 successive walking frames. Row4 faces UP with back toward viewer in 4 successive walking frames. Columns cycle left foot forward, standing pass, right foot forward, standing pass; tiny arm swing and cloth movement. Same camera, same character size, feet share SAME baseline within every cell. Full head, hair, hat, tail and feet entirely inside each cell. Character height 70% of cell, 15% clear margin on each side. No labels, text, lines, borders, shadows outside feet, particles, background, duplicate extra figures. Square sheet. Do not merge rows or add columns. This will be programmatically sliced into exactly sixteen cells.",
-    "processing": "2026-10-26: whole-source alpha connected-component separation (no equal-grid crop), antialias fringe only, uniform sheet scale, fixed transparent cells; source bounds in sprite-crops.json"
+    "tool": "imagegen",
+    "sourceFile": "exec-ac24d422-cefd-40e0-adfc-8cccdbaf024e.png",
+    "prompt": "Use case: identity-preserve. Game WALK sprite atlas of Neo adult silver white-haired blue eyed man from reference, dressed in plain clean WHITE button up shirt with sleeves rolled to forearms, black trousers and black shoes. NO vest, NO coat, NO embroidery, NO jewelry. Cute refined light novel chibi 3 heads tall. Exactly 4 columns and 4 rows, sixteen fully separated equal cells. Row1 four alternating walking phases FRONT facing down. Row2 four phases LEFT PROFILE facing left. Row3 four phases RIGHT PROFILE facing right. Row4 four phases BACK facing up walking away. True transparent background. Same scale and feet baseline all16. Very large transparent padding inside each cell; arms hair feet never extend into neighboring cell. No text grid shadows scenery or particles. Each frame a complete single figure. Natural feet stepping, relaxed waiter at work.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "backgrounds/cafe_room",
+    "tool": "imagegen",
+    "sourceFile": "exec-2c4d4a52-806f-4715-a3fb-4009cac43b30.png",
+    "prompt": "Use case: stylized-concept. Background plate for premium cozy mobile cafe management GAME. Portrait 3:4. Nearly orthographic high angle top-down view of a simple charming SMALL CAFE ROOM, entire empty floor visible with warm light honey oak parquet panels large and quiet, cream plaster walls framing top and sides, rose fabric window valance at upper left wall, soft morning sunlight from top left windows. Light warm butter cream palette, subtle pistachio plant pots only in top corners, tiny rose accents. A clean empty large rectangular gameplay floor takes central85 percent. NO tables chairs characters counters appliances or text on floor: functional furniture will be added in game. Flat consistent game perspective, no photograph perspective vanishing point. Hand painted detailed anime 2D management game background like a welcoming dollhouse cafe, sophisticated material rendering, clean shapes, soft shadows confined to walls. Landscape outside room edges in small margin, mostly room. No UI.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "actors/neo_cat",
+    "tool": "imagegen",
+    "sourceFile": "exec-66c96a70-4cfc-4f3a-bbfa-aab913390692.png",
+    "prompt": "Use case: identity-preserve. Premium game character sprite atlas for Yeongnyangi from reference: WHITE CAT, violet-gold eyes, navy wizard hat with gold stars crescent, navy short cloak gold trim, purple gem necklace. Cute dignified grumpy expression. BIPEDAL anthropomorphic chibi cat, upright on TWO hind paws, forepaws free like arms, not quadrupedal, no humans. Smooth hand-painted light novel game art. EXACTLY4 columns and4 rows with sixteen strictly separate equal cells. Row1 FRONT/down, row2 LEFT profile, row3 RIGHT profile, row4 BACK/up. Same character proportions, scale and ground baseline every frame. True transparent background, generous16percent transparent padding in EVERY cell, no touching edges, no detached particles, no text/grid/background. Four-frame walk cycle in each row: left foot forward / passing / right foot forward / passing. Arms gently swing opposite legs, hat and cloak consistent. Paws step naturally, same hat silhouette and face throughout, no extra limbs.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "actors/neo_cat_attack",
+    "tool": "imagegen",
+    "sourceFile": "exec-71529577-d84a-450b-b200-d5a287c5c81d.png",
+    "prompt": "Use case: identity-preserve. Premium game character sprite atlas for Yeongnyangi from reference: WHITE CAT, violet-gold eyes, navy wizard hat with gold stars crescent, navy short cloak gold trim, purple gem necklace. Cute dignified grumpy expression. BIPEDAL anthropomorphic chibi cat, upright on TWO hind paws, forepaws free like arms, not quadrupedal, no humans. Smooth hand-painted light novel game art. EXACTLY4 columns and4 rows with sixteen strictly separate equal cells. Row1 FRONT/down, row2 LEFT profile, row3 RIGHT profile, row4 BACK/up. Same character proportions, scale and ground baseline every frame. True transparent background, generous16percent transparent padding in EVERY cell, no touching edges, no detached particles, no text/grid/background. Four-frame CLOSE RANGE slashing attack animation in each row: (1) anticipation forepaw draws back (2) leading forepaw sweeps forward (3) clear follow-through (4) returns to guard. Empty paws, a very small attached pale gold crescent along leading paw only. Feet planted with subtle body rotation, cloak follows torso, same hat and proportions allframes. No oversized weapon, no separate magic effects outside figure.",
+    "processing": "Alpha connected-component isolation; fixed canvas placement; WebP export."
+  },
+  {
+    "id": "enemies/shade_hand",
+    "tool": "imagegen",
+    "sourceFile": "exec-9eec0382-22e6-4229-b566-6cff53b6d1d0.png",
+    "prompt": "Use case: game asset. Original premium hand-painted anime monster SPRITE ATLAS. A floating charcoal-purple spectral HAND with five clear fingers, luminous lavender palm gem, rounded magical smoky wrist. No body. Exactly FOUR columns and THREE rows (12 full separate figures). Row1 idle subtle breathing four phases. Row2 locomotion four clear alternating phases (wingbeats for bat, float for hand/wisp, feet for others). Row3 attack anticipation, release, followthrough, recovery. Front three-quarter angle consistent identity and size. Each sprite is a complete isolated silhouette with generous transparent margin, NEVER touches adjacent frame. Truly transparent background. No particles detached from silhouette, no grid, no words, no labels, no scenery. Crisp polished mobile game sprites with soft painterly shading, no pixel art, no humans, no extra monsters.",
+    "processing": "Connected alpha components, fixed 128px cells, six transparent pixels at edges, common feet baseline."
+  },
+  {
+    "id": "enemies/shade_bat",
+    "tool": "imagegen",
+    "sourceFile": "exec-d0cf257a-3e9b-41bd-8678-366e264e0645.png",
+    "prompt": "Use case: game asset. Original premium hand-painted anime monster SPRITE ATLAS. A small moon BAT with midnight violet fur, two wide soft leather wings, turquoise eyes and crescent forehead. Exactly FOUR columns and THREE rows (12 full separate figures). Row1 idle subtle breathing four phases. Row2 locomotion four clear alternating phases (wingbeats for bat, float for hand/wisp, feet for others). Row3 attack anticipation, release, followthrough, recovery. Front three-quarter angle consistent identity and size. Each sprite is a complete isolated silhouette with generous transparent margin, NEVER touches adjacent frame. Truly transparent background. No particles detached from silhouette, no grid, no words, no labels, no scenery. Crisp polished mobile game sprites with soft painterly shading, no pixel art, no humans, no extra monsters.",
+    "processing": "Connected alpha components, fixed 128px cells, six transparent pixels at edges, common feet baseline."
+  },
+  {
+    "id": "enemies/shade_blob",
+    "tool": "imagegen",
+    "sourceFile": "exec-defa8d1e-7ff8-43bf-8a09-017d5b79c0e3.png",
+    "prompt": "Use case: game asset. Original premium hand-painted anime monster SPRITE ATLAS. A round lavender shadow SLIME with amber star eyes and small stubby feet, soft jelly silhouette. Exactly FOUR columns and THREE rows (12 full separate figures). Row1 idle subtle breathing four phases. Row2 locomotion four clear alternating phases (wingbeats for bat, float for hand/wisp, feet for others). Row3 attack anticipation, release, followthrough, recovery. Front three-quarter angle consistent identity and size. Each sprite is a complete isolated silhouette with generous transparent margin, NEVER touches adjacent frame. Truly transparent background. No particles detached from silhouette, no grid, no words, no labels, no scenery. Crisp polished mobile game sprites with soft painterly shading, no pixel art, no humans, no extra monsters.",
+    "processing": "Connected alpha components, fixed 128px cells, six transparent pixels at edges, common feet baseline."
+  },
+  {
+    "id": "enemies/shade_wisp",
+    "tool": "imagegen",
+    "sourceFile": "exec-890253e6-d81c-469a-9baf-4b9f02bc06bf.png",
+    "prompt": "Use case: game asset. Original premium hand-painted anime monster SPRITE ATLAS. A floating teardrop violet ghost WISP with a pearl crescent core and a short attached smoky tail, no human body. Exactly FOUR columns and THREE rows (12 full separate figures). Row1 idle subtle breathing four phases. Row2 locomotion four clear alternating phases (wingbeats for bat, float for hand/wisp, feet for others). Row3 attack anticipation, release, followthrough, recovery. Front three-quarter angle consistent identity and size. Each sprite is a complete isolated silhouette with generous transparent margin, NEVER touches adjacent frame. Truly transparent background. No particles detached from silhouette, no grid, no words, no labels, no scenery. Crisp polished mobile game sprites with soft painterly shading, no pixel art, no humans, no extra monsters.",
+    "processing": "Connected alpha components, fixed 128px cells, six transparent pixels at edges, common feet baseline."
+  },
+  {
+    "id": "enemies/elite_hand",
+    "tool": "imagegen",
+    "sourceFile": "exec-9172c1aa-af78-4a4a-9858-b88db6c5cb8c.png",
+    "prompt": "Use case: game asset. Original premium hand-painted anime monster SPRITE ATLAS. An elite magical giant dark violet spectral HAND, five fingers, silver armor rings and a large glowing purple palm crystal, no body. Exactly FOUR columns and THREE rows (12 full separate figures). Row1 idle subtle breathing four phases. Row2 locomotion four clear alternating phases (wingbeats for bat, float for hand/wisp, feet for others). Row3 attack anticipation, release, followthrough, recovery. Front three-quarter angle consistent identity and size. Each sprite is a complete isolated silhouette with generous transparent margin, NEVER touches adjacent frame. Truly transparent background. No particles detached from silhouette, no grid, no words, no labels, no scenery. Crisp polished mobile game sprites with soft painterly shading, no pixel art, no humans, no extra monsters.",
+    "processing": "Connected alpha components, fixed 128px cells, six transparent pixels at edges, common feet baseline."
+  },
+  {
+    "id": "enemies/boss_hand",
+    "tool": "imagegen",
+    "sourceFile": "exec-8f567976-5373-433d-9e40-844f3bb9c22e.png",
+    "prompt": "Edit this creature sprite atlas. Keep same violet armored spectral hand design. Rebuild the layout with VERY SMALL figures and HUGE empty transparent gaps. EXACT4columns3rows12 figures. Each hand fully visible from crown wrist to claw tips, especially top row do not clip crown. Each cell at least30percent transparent padding at ALL sides; adjacent silhouettes must NEVER touch or overlap. Four frames idle first row, four locomotion second, four attack poses third. No detached particles, no glow outside figure, no text grid borders. True alpha transparency. Consistent scale. Premium painted mobile game asset.",
+    "processing": "Connected alpha components, fixed 128px cells, six transparent pixels at edges, common feet baseline."
+  },
+  {
+    "id": "enemies/moon_bomber",
+    "tool": "imagegen",
+    "sourceFile": "exec-66e4a3e0-3397-4097-b1e0-5acbe3396513.png",
+    "prompt": "Use case: game asset. Original premium hand-painted anime monster SPRITE ATLAS. A small round dark purple crystal imp with tiny legs and an orange crescent crystal on its back. This is an unstable moon-energy explosive creature, playful but threatening, not a real bomb. Exactly FOUR columns and THREE rows (12 full separate figures). Row1 idle subtle breathing four phases. Row2 locomotion four clear alternating phases (wingbeats for bat, float for hand/wisp, feet for others). Row3 attack anticipation, release, followthrough, recovery. Front three-quarter angle consistent identity and size. Each sprite is a complete isolated silhouette with generous transparent margin, NEVER touches adjacent frame. Truly transparent background. No particles detached from silhouette, no grid, no words, no labels, no scenery. Crisp polished mobile game sprites with soft painterly shading, no pixel art, no humans, no extra monsters.",
+    "processing": "Connected alpha components, fixed 128px cells, six transparent pixels at edges, common feet baseline."
+  },
+  {
+    "id": "actors/neo_idle",
+    "tool": "imagegen",
+    "sourceFile": "exec-4096fcb7-4c67-4dc9-958b-b819007a8f0c.png",
+    "prompt": "Use case: identity-preserve. Create premium game sprite atlas using the EXACT character and clothes in reference, preserve all face, hair, ear, colors and clothing. Do not copy the walking pose. Transparent background, EXACT4 columns and4rows,16 isolated full-body figures, equal cells, very wide transparent margin, identical scale and feet anchored on same baseline in every cell. No detached particles, no text or grid, no scenery. Row1 FRONT, row2 LEFT profile, row3 RIGHT profile, row4 BACK. Each row FOUR real IDLE phases: relaxed neutral / subtle inhalation / one gentle blink and slight ear or hair settle / relaxed exhalation. Feet remain planted, NO walking or legs moving, arms naturally resting, empty hands, no tray basket or carried objects. Delicate small change only, no jitter or jumping. Clean polished hand-painted light novel chibi game style. Anatomy and silhouette consistent.",
+    "processing": "Connected alpha components, fixed 128px cells, six transparent pixels at edges, common feet baseline."
+  },
+  {
+    "id": "actors/luna_idle",
+    "tool": "imagegen",
+    "sourceFile": "exec-588163fa-e5c2-4274-83b2-22d6f2410223.png",
+    "prompt": "Use case: identity-preserve. Create premium game sprite atlas using the EXACT character and clothes in reference, preserve all face, hair, ear, colors and clothing. Do not copy the walking pose. Transparent background, EXACT4 columns and4rows,16 isolated full-body figures, equal cells, very wide transparent margin, identical scale and feet anchored on same baseline in every cell. No detached particles, no text or grid, no scenery. Row1 FRONT, row2 LEFT profile, row3 RIGHT profile, row4 BACK. Each row FOUR real IDLE phases: relaxed neutral / subtle inhalation / one gentle blink and slight ear or hair settle / relaxed exhalation. Feet remain planted, NO walking or legs moving, arms naturally resting, empty hands, no tray basket or carried objects. Delicate small change only, no jitter or jumping. Clean polished hand-painted light novel chibi game style. Anatomy and silhouette consistent.",
+    "processing": "Connected alpha components, fixed 128px cells, six transparent pixels at edges, common feet baseline."
+  },
+  {
+    "id": "actors/luna_sis_idle",
+    "tool": "imagegen",
+    "sourceFile": "exec-3dfc62ef-ecc3-401f-8104-f5b82946a1ed.png",
+    "prompt": "Use case: identity-preserve. Create premium game sprite atlas using the EXACT character and clothes in reference, preserve all face, hair, ear, colors and clothing. Do not copy the walking pose. Transparent background, EXACT4 columns and4rows,16 isolated full-body figures, equal cells, very wide transparent margin, identical scale and feet anchored on same baseline in every cell. No detached particles, no text or grid, no scenery. Row1 FRONT, row2 LEFT profile, row3 RIGHT profile, row4 BACK. Each row FOUR real IDLE phases: relaxed neutral / subtle inhalation / one gentle blink and slight ear or hair settle / relaxed exhalation. Feet remain planted, NO walking or legs moving, arms naturally resting, empty hands, no tray basket or carried objects. Delicate small change only, no jitter or jumping. Clean polished hand-painted light novel chibi game style. Anatomy and silhouette consistent.",
+    "processing": "Connected alpha components, fixed 128px cells, six transparent pixels at edges, common feet baseline."
+  },
+  {
+    "id": "actors/yeoni_idle",
+    "tool": "imagegen",
+    "sourceFile": "exec-40b427ba-67d9-4765-8377-b1e2f2ad745e.png",
+    "prompt": "Use case: identity-preserve. Create premium game sprite atlas using the EXACT character and clothes in reference, preserve all face, hair, ear, colors and clothing. Do not copy the walking pose. Transparent background, EXACT4 columns and4rows,16 isolated full-body figures, equal cells, very wide transparent margin, identical scale and feet anchored on same baseline in every cell. No detached particles, no text or grid, no scenery. All facing FRONT. Row1 four calm idle phases natural slow breath and one blink, feet planted. Row2 four welcoming wave phases one arm lifts palm then gently waves then returns. Row3 four goodbye bow phases hands folded at waist head and upper torso bow 15degrees then return. Row4 four cashier working phases hands accept a small receipt then count then place it away then return. Exactly two arms. Clean polished hand-painted light novel chibi game style. Anatomy and silhouette consistent.",
+    "processing": "Connected alpha components, fixed 128px cells, six transparent pixels at edges, common feet baseline."
+  },
+  {
+    "id": "tiles/hunt_garden",
+    "tool": "imagegen",
+    "sourceFile": "exec-5b00aa2e-4701-4938-a939-e8057295819c.png",
+    "prompt": "Square seamless game ground texture, premium light novel fantasy painted detail, orthographic top-down floor only. Moonlit garden of fate beside a tea house, deep sage grass with scattered small ivory petals and subtle bluish worn flagstones, soft moonlight, low contrast quiet center, no characters no text no horizon no buildings no large objects. Must tile perfectly in both directions without seams. Refined painterly mobile RPG.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "tiles/hunt_rabbit",
+    "tool": "imagegen",
+    "sourceFile": "exec-9be736c0-4754-4066-9157-29fb57f85a44.png",
+    "prompt": "Square seamless game ground texture, premium light novel fantasy painted detail, orthographic top-down floor only. Secret blue rabbit financial archive corridor, worn dark navy and blue grey flagstone paving with tiny muted brass zodiac inlays, scattered paper fragments too small to read, subdued moonlit cool lighting, no characters no text no walls no horizon no buildings no large objects. Tile perfectly in both directions. Refined painterly mobile RPG, restrained readable low contrast.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "tiles/hunt_ruins",
+    "tool": "imagegen",
+    "sourceFile": "exec-774879e0-6899-42c7-aa1f-d953e21e8731.png",
+    "prompt": "Square seamless game ground texture, premium light novel fantasy painted detail, orthographic top-down floor only. Ancient ruined lunar sanctuary, weathered purple grey carved stone floor with discreet arcane circular line motifs and sparse pale moss, soft lavender moonlit shadows, no text no characters no walls no horizon no large objects. Tile perfectly in both directions, low contrast readable beneath combat, refined painterly mobile RPG.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "tiles/hunt_heukwol",
+    "tool": "imagegen",
+    "sourceFile": "exec-c21323b9-f802-4b1c-8193-c3eda9675a55.png",
+    "prompt": "Square seamless game ground texture, premium light novel fantasy painted detail, orthographic top-down floor only. Final realm of fractured Black Moon, dark obsidian and dusty mauve rock ground, subtle fine violet crystalline fissures and silver dust, no deep holes, readable restrained low contrast with fine painterly texture. No text no characters no walls no horizon no large objects. Tile perfectly in both directions.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "objects/hunt_crystal",
+    "tool": "imagegen",
+    "sourceFile": "exec-5ea5230a-5c87-47db-8500-28877bfe3bd0.png",
+    "prompt": "Premium hand-painted anime mobile game asset atlas, transparent background, FOUR evenly spaced separate columns, one row. Four large isolated breakable dungeon props: 1 cluster of lavender crescent moonstone crystals growing from small stone base; 2 blue and gold ancient ceramic urn with moon motif; 3 closed dark walnut treasure coffer with restrained gold stars; 4 black obsidian crystal cluster with glowing mauve core. Orthographic three-quarter top-down view suitable for top-down RPG. Consistent scale each fully contained generous transparent margin. No text no grid no characters no cast shadows detached from objects. Crisp elegant details readable at 64px.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "objects/hunt_urn",
+    "tool": "imagegen",
+    "sourceFile": "exec-5ea5230a-5c87-47db-8500-28877bfe3bd0.png",
+    "prompt": "Premium hand-painted anime mobile game asset atlas, transparent background, FOUR evenly spaced separate columns, one row. Four large isolated breakable dungeon props: 1 cluster of lavender crescent moonstone crystals growing from small stone base; 2 blue and gold ancient ceramic urn with moon motif; 3 closed dark walnut treasure coffer with restrained gold stars; 4 black obsidian crystal cluster with glowing mauve core. Orthographic three-quarter top-down view suitable for top-down RPG. Consistent scale each fully contained generous transparent margin. No text no grid no characters no cast shadows detached from objects. Crisp elegant details readable at 64px.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "objects/hunt_coffer",
+    "tool": "imagegen",
+    "sourceFile": "exec-5ea5230a-5c87-47db-8500-28877bfe3bd0.png",
+    "prompt": "Premium hand-painted anime mobile game asset atlas, transparent background, FOUR evenly spaced separate columns, one row. Four large isolated breakable dungeon props: 1 cluster of lavender crescent moonstone crystals growing from small stone base; 2 blue and gold ancient ceramic urn with moon motif; 3 closed dark walnut treasure coffer with restrained gold stars; 4 black obsidian crystal cluster with glowing mauve core. Orthographic three-quarter top-down view suitable for top-down RPG. Consistent scale each fully contained generous transparent margin. No text no grid no characters no cast shadows detached from objects. Crisp elegant details readable at 64px.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "objects/hunt_obsidian",
+    "tool": "imagegen",
+    "sourceFile": "exec-5ea5230a-5c87-47db-8500-28877bfe3bd0.png",
+    "prompt": "Premium hand-painted anime mobile game asset atlas, transparent background, FOUR evenly spaced separate columns, one row. Four large isolated breakable dungeon props: 1 cluster of lavender crescent moonstone crystals growing from small stone base; 2 blue and gold ancient ceramic urn with moon motif; 3 closed dark walnut treasure coffer with restrained gold stars; 4 black obsidian crystal cluster with glowing mauve core. Orthographic three-quarter top-down view suitable for top-down RPG. Consistent scale each fully contained generous transparent margin. No text no grid no characters no cast shadows detached from objects. Crisp elegant details readable at 64px.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "guides/cook",
+    "tool": "imagegen",
+    "sourceFile": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
+    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "guides/serve",
+    "tool": "imagegen",
+    "sourceFile": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
+    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "guides/host",
+    "tool": "imagegen",
+    "sourceFile": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
+    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "guides/farm",
+    "tool": "imagegen",
+    "sourceFile": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
+    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "guides/hunt",
+    "tool": "imagegen",
+    "sourceFile": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
+    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "guides/outfits",
+    "tool": "imagegen",
+    "sourceFile": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
+    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "guides/bonds",
+    "tool": "imagegen",
+    "sourceFile": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
+    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "guides/interior",
+    "tool": "imagegen",
+    "sourceFile": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",
+    "prompt": "Edit first 3x3 tutorial atlas, preserve exact grid all nine panels and all other scenes. In middle-left farm panel ONLY replace pig with canonical Yeoni from second reference: smooth light pink chubby baby flower pig, floppy round ears, large glossy brown round eyes, small round snout, purple bow scarf, pink lotus on LEFT side of head, small brown hooves and curly tail. Do not put lotus in center top. Match reference face proportions. She waters seedlings with two forehooves naturally. Keep nine equal panels, gutters, style and all rest unchanged. No new text.",
+    "processing": "Original art, WebP export, alpha component isolation for individual props."
+  },
+  {
+    "id": "enemies/rabbit_scout",
+    "aliasOf": "enemies/blue_rabbit",
+    "normalization": "existing actor art alias; no new pixels"
+  },
+  {
+    "id": "enemies/rabbit_brute",
+    "aliasOf": "enemies/blue_brute",
+    "normalization": "existing actor art alias; no new pixels"
+  },
+  {
+    "id": "enemies/shade_thorn",
+    "aliasOf": "enemies/thorn",
+    "normalization": "existing actor art alias; no new pixels"
+  },
+  {
+    "id": "enemies/shade_clock",
+    "aliasOf": "enemies/clock",
+    "normalization": "existing actor art alias; no new pixels"
+  },
+  {
+    "id": "guides/shop",
+    "aliasOf": "guides/armory (prior Moka illustration)",
+    "sourceFile": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png"
+  },
+  {
+    "id": "backgrounds/crafting",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-5b18a48b-27db-4440-9791-f9bb41abca26.png",
+    "prompt": "Create an original premium mobile cafe game crafting workbench illustration, landscape 3:2. Warm light-novel storybook painterly rendering, cream porcelain, honey oak, dusty rose flowers, sage accents. Close view of a broad wooden kitchen counter, a single large elegant cream ceramic mixing bowl centered in the lower middle, seen from a slightly elevated angle so its dark golden honey surface is clearly visible. Behind, soft-focus cottage kitchen shelves with unlabeled glass ingredient jars and a small brick oven. Gentle alchemical gold motes rise from the bowl. Leave the center bowl interior uncluttered for small ingredient icons to be overlaid by game code. No characters, no text, no letters, no logos, no buttons, no panels, no frames. It should read as a real cozy cooking station, sophisticated polished 2D game illustration, not a UI mockup. Crisp bowl rim and soft background.",
+    "normalization": "Lanczos to 960x640, opaque WebP quality88"
+  },
+  {
+    "id": "guides/armory",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-5e4eb2c8-8ae6-40ee-b88c-54d907ce702e.png",
+    "prompt": "Create a single horizontal tutorial illustration, no text, no panels, full bleed, premium light novel mobile game style. Preserve male Yun from reference: long dark indigo hair tied back, cool eyes, ivory high collared shirt, midnight traditional jacket with subtle moons, calm mysterious expression. He stands behind an elegant moonlit crafting workbench, guiding a floating crescent blade into a soft glowing violet moonstone enchantment circle. To his side small illustrated shield and magnet charms arranged clearly, a single ivory pointing-hand UI icon indicates tapping a moonstone on the bench. Warm lanterns, refined navy brass and lavender palette, charming and readable at mobile width. Exactly two natural arms and hands. No otter, no extra character, no lettering, no split panels.",
+    "normalization": "Lanczos to 1050x591, opaque WebP quality87"
+  },
+  {
+    "id": "portraits/neo",
+    "tool": "imagegen",
+    "sourceFile": "exec-74e4b633-e76b-4a6b-b26d-d8d4adcbc311.png",
+    "prompt": "Repair this character wardrobe asset sheet for reliable individual sprite extraction. Keep the same character identity, hair, face, and EXACT 4 outfits in the SAME LEFT TO RIGHT ORDER as the reference. Redraw 4 separate FULL BODY adult male light-novel illustrations, from head to shoes, each one standing with arms close to his own body. Each figure occupies less than 65 percent of its own equally wide column. MANDATORY: large fully transparent vertical gutters at least 100 pixels wide between all figures, no touching, no overlapping, no shared ground shadows, no background, no decorative particles, no text. Exactly 4 whole people, one in each column. Landscape canvas. Same polished detailed light-novel rendering and individual costume colors/details. All silhouettes completely isolated on true alpha transparency, generous 40px outer border. This must be a clean production-ready costume sheet, not a group portrait.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      81,
+      14,
+      354,
+      870
+    ]
+  },
+  {
+    "id": "portraits/neo@vest_night",
+    "tool": "imagegen",
+    "sourceFile": "exec-74e4b633-e76b-4a6b-b26d-d8d4adcbc311.png",
+    "prompt": "Repair this character wardrobe asset sheet for reliable individual sprite extraction. Keep the same character identity, hair, face, and EXACT 4 outfits in the SAME LEFT TO RIGHT ORDER as the reference. Redraw 4 separate FULL BODY adult male light-novel illustrations, from head to shoes, each one standing with arms close to his own body. Each figure occupies less than 65 percent of its own equally wide column. MANDATORY: large fully transparent vertical gutters at least 100 pixels wide between all figures, no touching, no overlapping, no shared ground shadows, no background, no decorative particles, no text. Exactly 4 whole people, one in each column. Landscape canvas. Same polished detailed light-novel rendering and individual costume colors/details. All silhouettes completely isolated on true alpha transparency, generous 40px outer border. This must be a clean production-ready costume sheet, not a group portrait.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      526,
+      15,
+      803,
+      860
+    ]
+  },
+  {
+    "id": "portraits/neo@host_first",
+    "tool": "imagegen",
+    "sourceFile": "exec-74e4b633-e76b-4a6b-b26d-d8d4adcbc311.png",
+    "prompt": "Repair this character wardrobe asset sheet for reliable individual sprite extraction. Keep the same character identity, hair, face, and EXACT 4 outfits in the SAME LEFT TO RIGHT ORDER as the reference. Redraw 4 separate FULL BODY adult male light-novel illustrations, from head to shoes, each one standing with arms close to his own body. Each figure occupies less than 65 percent of its own equally wide column. MANDATORY: large fully transparent vertical gutters at least 100 pixels wide between all figures, no touching, no overlapping, no shared ground shadows, no background, no decorative particles, no text. Exactly 4 whole people, one in each column. Landscape canvas. Same polished detailed light-novel rendering and individual costume colors/details. All silhouettes completely isolated on true alpha transparency, generous 40px outer border. This must be a clean production-ready costume sheet, not a group portrait.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      954,
+      14,
+      1270,
+      866
+    ]
+  },
+  {
+    "id": "portraits/neo@crescent_tailcoat",
+    "tool": "imagegen",
+    "sourceFile": "exec-74e4b633-e76b-4a6b-b26d-d8d4adcbc311.png",
+    "prompt": "Repair this character wardrobe asset sheet for reliable individual sprite extraction. Keep the same character identity, hair, face, and EXACT 4 outfits in the SAME LEFT TO RIGHT ORDER as the reference. Redraw 4 separate FULL BODY adult male light-novel illustrations, from head to shoes, each one standing with arms close to his own body. Each figure occupies less than 65 percent of its own equally wide column. MANDATORY: large fully transparent vertical gutters at least 100 pixels wide between all figures, no touching, no overlapping, no shared ground shadows, no background, no decorative particles, no text. Exactly 4 whole people, one in each column. Landscape canvas. Same polished detailed light-novel rendering and individual costume colors/details. All silhouettes completely isolated on true alpha transparency, generous 40px outer border. This must be a clean production-ready costume sheet, not a group portrait.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      1351,
+      14,
+      1735,
+      870
+    ]
+  },
+  {
+    "id": "portraits/neo@wood_suit",
+    "tool": "imagegen",
+    "sourceFile": "exec-5ac52afe-6383-4eda-86bc-040d042cf3a3.png",
+    "prompt": "Repair this character wardrobe asset sheet for reliable individual sprite extraction. Keep the same character identity, hair, face, and EXACT 4 outfits in the SAME LEFT TO RIGHT ORDER as the reference. Redraw 4 separate FULL BODY adult male light-novel illustrations, from head to shoes, each one standing with arms close to his own body. Each figure occupies less than 65 percent of its own equally wide column. MANDATORY: large fully transparent vertical gutters at least 100 pixels wide between all figures, no touching, no overlapping, no shared ground shadows, no background, no decorative particles, no text. Exactly 4 whole people, one in each column. Landscape canvas. Same polished detailed light-novel rendering and individual costume colors/details. All silhouettes completely isolated on true alpha transparency, generous 40px outer border. This must be a clean production-ready costume sheet, not a group portrait.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      102,
+      16,
+      400,
+      872
+    ]
+  },
+  {
+    "id": "portraits/neo@blossom_haori",
+    "tool": "imagegen",
+    "sourceFile": "exec-5ac52afe-6383-4eda-86bc-040d042cf3a3.png",
+    "prompt": "Repair this character wardrobe asset sheet for reliable individual sprite extraction. Keep the same character identity, hair, face, and EXACT 4 outfits in the SAME LEFT TO RIGHT ORDER as the reference. Redraw 4 separate FULL BODY adult male light-novel illustrations, from head to shoes, each one standing with arms close to his own body. Each figure occupies less than 65 percent of its own equally wide column. MANDATORY: large fully transparent vertical gutters at least 100 pixels wide between all figures, no touching, no overlapping, no shared ground shadows, no background, no decorative particles, no text. Exactly 4 whole people, one in each column. Landscape canvas. Same polished detailed light-novel rendering and individual costume colors/details. All silhouettes completely isolated on true alpha transparency, generous 40px outer border. This must be a clean production-ready costume sheet, not a group portrait.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      514,
+      18,
+      868,
+      873
+    ]
+  },
+  {
+    "id": "portraits/neo@rain_coat",
+    "tool": "imagegen",
+    "sourceFile": "exec-5ac52afe-6383-4eda-86bc-040d042cf3a3.png",
+    "prompt": "Repair this character wardrobe asset sheet for reliable individual sprite extraction. Keep the same character identity, hair, face, and EXACT 4 outfits in the SAME LEFT TO RIGHT ORDER as the reference. Redraw 4 separate FULL BODY adult male light-novel illustrations, from head to shoes, each one standing with arms close to his own body. Each figure occupies less than 65 percent of its own equally wide column. MANDATORY: large fully transparent vertical gutters at least 100 pixels wide between all figures, no touching, no overlapping, no shared ground shadows, no background, no decorative particles, no text. Exactly 4 whole people, one in each column. Landscape canvas. Same polished detailed light-novel rendering and individual costume colors/details. All silhouettes completely isolated on true alpha transparency, generous 40px outer border. This must be a clean production-ready costume sheet, not a group portrait.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      972,
+      17,
+      1321,
+      874
+    ]
+  },
+  {
+    "id": "portraits/neo@summer_linen",
+    "tool": "imagegen",
+    "sourceFile": "exec-5ac52afe-6383-4eda-86bc-040d042cf3a3.png",
+    "prompt": "Repair this character wardrobe asset sheet for reliable individual sprite extraction. Keep the same character identity, hair, face, and EXACT 4 outfits in the SAME LEFT TO RIGHT ORDER as the reference. Redraw 4 separate FULL BODY adult male light-novel illustrations, from head to shoes, each one standing with arms close to his own body. Each figure occupies less than 65 percent of its own equally wide column. MANDATORY: large fully transparent vertical gutters at least 100 pixels wide between all figures, no touching, no overlapping, no shared ground shadows, no background, no decorative particles, no text. Exactly 4 whole people, one in each column. Landscape canvas. Same polished detailed light-novel rendering and individual costume colors/details. All silhouettes completely isolated on true alpha transparency, generous 40px outer border. This must be a clean production-ready costume sheet, not a group portrait.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      1408,
+      18,
+      1709,
+      872
+    ]
+  },
+  {
+    "id": "portraits/neo@moonstone_robe",
+    "tool": "imagegen",
+    "sourceFile": "exec-478ae34d-09ec-41d0-96d4-cf3655b25b60.png",
+    "prompt": "Repair this character wardrobe asset sheet for reliable individual sprite extraction. Keep the same character identity, hair, face, and EXACT 3 outfits in the SAME LEFT TO RIGHT ORDER as the reference. Redraw 3 separate FULL BODY adult male light-novel illustrations, from head to shoes, each one standing with arms close to his own body. Each figure occupies less than 65 percent of its own equally wide column. MANDATORY: large fully transparent vertical gutters at least 100 pixels wide between all figures, no touching, no overlapping, no shared ground shadows, no background, no decorative particles, no text. Exactly 3 whole people, one in each column. Landscape canvas. Same polished detailed light-novel rendering and individual costume colors/details. All silhouettes completely isolated on true alpha transparency, generous 40px outer border. This must be a clean production-ready costume sheet, not a group portrait.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      66,
+      16,
+      509,
+      1008
+    ]
+  },
+  {
+    "id": "portraits/neo@winter_coat",
+    "tool": "imagegen",
+    "sourceFile": "exec-478ae34d-09ec-41d0-96d4-cf3655b25b60.png",
+    "prompt": "Repair this character wardrobe asset sheet for reliable individual sprite extraction. Keep the same character identity, hair, face, and EXACT 3 outfits in the SAME LEFT TO RIGHT ORDER as the reference. Redraw 3 separate FULL BODY adult male light-novel illustrations, from head to shoes, each one standing with arms close to his own body. Each figure occupies less than 65 percent of its own equally wide column. MANDATORY: large fully transparent vertical gutters at least 100 pixels wide between all figures, no touching, no overlapping, no shared ground shadows, no background, no decorative particles, no text. Exactly 3 whole people, one in each column. Landscape canvas. Same polished detailed light-novel rendering and individual costume colors/details. All silhouettes completely isolated on true alpha transparency, generous 40px outer border. This must be a clean production-ready costume sheet, not a group portrait.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      569,
+      16,
+      1010,
+      998
+    ]
+  },
+  {
+    "id": "portraits/neo@neo_swim",
+    "tool": "imagegen",
+    "sourceFile": "exec-478ae34d-09ec-41d0-96d4-cf3655b25b60.png",
+    "prompt": "Repair this character wardrobe asset sheet for reliable individual sprite extraction. Keep the same character identity, hair, face, and EXACT 3 outfits in the SAME LEFT TO RIGHT ORDER as the reference. Redraw 3 separate FULL BODY adult male light-novel illustrations, from head to shoes, each one standing with arms close to his own body. Each figure occupies less than 65 percent of its own equally wide column. MANDATORY: large fully transparent vertical gutters at least 100 pixels wide between all figures, no touching, no overlapping, no shared ground shadows, no background, no decorative particles, no text. Exactly 3 whole people, one in each column. Landscape canvas. Same polished detailed light-novel rendering and individual costume colors/details. All silhouettes completely isolated on true alpha transparency, generous 40px outer border. This must be a clean production-ready costume sheet, not a group portrait.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      1116,
+      16,
+      1452,
+      1008
+    ]
+  },
+  {
+    "id": "portraits/bambi@bambi_formal",
+    "tool": "imagegen",
+    "sourceFile": "exec-cc31294c-21f4-439c-b43e-d88a1cb7da5f.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      69,
+      10,
+      514,
+      782
+    ]
+  },
+  {
+    "id": "portraits/bambi@bambi_moon",
+    "tool": "imagegen",
+    "sourceFile": "exec-cc31294c-21f4-439c-b43e-d88a1cb7da5f.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      598,
+      11,
+      971,
+      782
+    ]
+  },
+  {
+    "id": "portraits/bambi@bambi_garden",
+    "tool": "imagegen",
+    "sourceFile": "exec-cc31294c-21f4-439c-b43e-d88a1cb7da5f.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      1145,
+      10,
+      1413,
+      779
+    ]
+  },
+  {
+    "id": "portraits/bambi@bambi_swim",
+    "tool": "imagegen",
+    "sourceFile": "exec-cc31294c-21f4-439c-b43e-d88a1cb7da5f.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      1606,
+      9,
+      1873,
+      785
+    ]
+  },
+  {
+    "id": "portraits/lune@lune_formal",
+    "tool": "imagegen",
+    "sourceFile": "exec-706fbf0e-57e0-4e93-baf5-2abce6373094.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      42,
+      12,
+      498,
+      775
+    ]
+  },
+  {
+    "id": "portraits/lune@lune_moon",
+    "tool": "imagegen",
+    "sourceFile": "exec-706fbf0e-57e0-4e93-baf5-2abce6373094.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      596,
+      12,
+      1008,
+      784
+    ]
+  },
+  {
+    "id": "portraits/lune@lune_garden",
+    "tool": "imagegen",
+    "sourceFile": "exec-706fbf0e-57e0-4e93-baf5-2abce6373094.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      1114,
+      14,
+      1464,
+      782
+    ]
+  },
+  {
+    "id": "portraits/lune@lune_swim",
+    "tool": "imagegen",
+    "sourceFile": "exec-706fbf0e-57e0-4e93-baf5-2abce6373094.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      1578,
+      13,
+      1882,
+      781
+    ]
+  },
+  {
+    "id": "portraits/solv@solv_formal",
+    "tool": "imagegen",
+    "sourceFile": "exec-6eab0a19-9793-4b5f-bf26-d083d4c4b194.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      43,
+      10,
+      407,
+      872
+    ]
+  },
+  {
+    "id": "portraits/solv@solv_moon",
+    "tool": "imagegen",
+    "sourceFile": "exec-6eab0a19-9793-4b5f-bf26-d083d4c4b194.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      540,
+      7,
+      890,
+      880
+    ]
+  },
+  {
+    "id": "portraits/solv@solv_garden",
+    "tool": "imagegen",
+    "sourceFile": "exec-6eab0a19-9793-4b5f-bf26-d083d4c4b194.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      1018,
+      6,
+      1326,
+      881
+    ]
+  },
+  {
+    "id": "portraits/solv@solv_swim",
+    "tool": "imagegen",
+    "sourceFile": "exec-6eab0a19-9793-4b5f-bf26-d083d4c4b194.png",
+    "prompt": "Production wardrobe extraction repair. Keep the same adult male character, face, hair, EXACT FOUR costumes in the SAME left-to-right order of reference. Redraw FOUR separate FULL BODY light-novel characters, head to shoes, arms close to own body. Each figure has own column and occupies only 60% of column width. MANDATORY fully transparent vertical gaps at least 100px between figures. No touching, overlapping, no shadows linking figures, no background, no lettering. Four figures evenly separated in ONE horizontal row, landscape. Maintain exact costume colors and intricate details. Transparent alpha cutouts; outer 40px margin. This is for slicing into four individual costume portraits, never a group picture.",
+    "processing": "Individual non-overlapping alpha silhouette crop; fixed transparent canvas.",
+    "sourceBounds": [
+      1454,
+      6,
+      1734,
+      865
+    ]
+  },
+  {
+    "id": "backgrounds/farm_ground",
+    "tool": "imagegen",
+    "sourceFile": "exec-654b6c77-ffd9-48d7-91e5-478a596aba00.png",
+    "prompt": "Paint an original premium cozy mobile farming game playable ground background, near top-down 3/4 view with gentle depth, square composition. Warm hand painted high definition storybook style, same softly colored Code Destiny pink lotus cafe universe. Large central open mossy grass lawn occupying 75 percent, fine pale stepping-stone walking paths, peripheral little wooden potting shed, glass greenhouse only in upper corners, white picket fence and lotus flowers, herb pots along edges. NO people, NO animals, NO baked-in planting beds, NO crops in central lawn. The center is clear for interactive raised soil plots layered in the game. Readable gentle daylight, no text or UI, no horizon or distant landscape.",
+    "processing": "Fixed transparent cell with isolated source silhouette; WebP export."
+  },
+  {
+    "id": "farm/bed_empty",
+    "tool": "imagegen",
+    "sourceFile": "exec-877bf656-b5cd-4cc3-b3c2-9b2cce250408.png",
+    "prompt": "Original mobile farming game asset atlas, transparent background, exactly FOUR separate rectangular raised wooden soil garden beds arranged in ONE horizontal row with broad clear gaps. Same shape perspective and footprint in every tile, 3/4 top down view, rounded hand painted crafted pine planks, rich chocolate soil with horizontal planting furrows, sophisticated cute premium farming game. LEFT TO RIGHT: (1) dry empty tilled furrows, (2) newly planted furrows with a few tiny golden seed dots in the soil, (3) dark moist watered soil subtle puddle gleams, (4) carefully tended dark soil with clean furrows and little natural leaf mulch. No plants, no characters, no labels, no text, no perspective drift, no cut edges. True transparent alpha everywhere around all four beds. Each tile individually isolated.",
+    "processing": "Fixed transparent cell with isolated source silhouette; WebP export."
+  },
+  {
+    "id": "farm/bed_seeded",
+    "tool": "imagegen",
+    "sourceFile": "exec-877bf656-b5cd-4cc3-b3c2-9b2cce250408.png",
+    "prompt": "Original mobile farming game asset atlas, transparent background, exactly FOUR separate rectangular raised wooden soil garden beds arranged in ONE horizontal row with broad clear gaps. Same shape perspective and footprint in every tile, 3/4 top down view, rounded hand painted crafted pine planks, rich chocolate soil with horizontal planting furrows, sophisticated cute premium farming game. LEFT TO RIGHT: (1) dry empty tilled furrows, (2) newly planted furrows with a few tiny golden seed dots in the soil, (3) dark moist watered soil subtle puddle gleams, (4) carefully tended dark soil with clean furrows and little natural leaf mulch. No plants, no characters, no labels, no text, no perspective drift, no cut edges. True transparent alpha everywhere around all four beds. Each tile individually isolated.",
+    "processing": "Fixed transparent cell with isolated source silhouette; WebP export."
+  },
+  {
+    "id": "farm/bed_watered",
+    "tool": "imagegen",
+    "sourceFile": "exec-877bf656-b5cd-4cc3-b3c2-9b2cce250408.png",
+    "prompt": "Original mobile farming game asset atlas, transparent background, exactly FOUR separate rectangular raised wooden soil garden beds arranged in ONE horizontal row with broad clear gaps. Same shape perspective and footprint in every tile, 3/4 top down view, rounded hand painted crafted pine planks, rich chocolate soil with horizontal planting furrows, sophisticated cute premium farming game. LEFT TO RIGHT: (1) dry empty tilled furrows, (2) newly planted furrows with a few tiny golden seed dots in the soil, (3) dark moist watered soil subtle puddle gleams, (4) carefully tended dark soil with clean furrows and little natural leaf mulch. No plants, no characters, no labels, no text, no perspective drift, no cut edges. True transparent alpha everywhere around all four beds. Each tile individually isolated.",
+    "processing": "Fixed transparent cell with isolated source silhouette; WebP export."
+  },
+  {
+    "id": "farm/bed_tended",
+    "tool": "imagegen",
+    "sourceFile": "exec-877bf656-b5cd-4cc3-b3c2-9b2cce250408.png",
+    "prompt": "Original mobile farming game asset atlas, transparent background, exactly FOUR separate rectangular raised wooden soil garden beds arranged in ONE horizontal row with broad clear gaps. Same shape perspective and footprint in every tile, 3/4 top down view, rounded hand painted crafted pine planks, rich chocolate soil with horizontal planting furrows, sophisticated cute premium farming game. LEFT TO RIGHT: (1) dry empty tilled furrows, (2) newly planted furrows with a few tiny golden seed dots in the soil, (3) dark moist watered soil subtle puddle gleams, (4) carefully tended dark soil with clean furrows and little natural leaf mulch. No plants, no characters, no labels, no text, no perspective drift, no cut edges. True transparent alpha everywhere around all four beds. Each tile individually isolated.",
+    "processing": "Fixed transparent cell with isolated source silhouette; WebP export."
+  },
+  {
+    "id": "actors/yeoni_farm",
+    "tool": "imagegen",
+    "sourceFile": "exec-dc6cd89a-566f-4302-9825-a1dc5b4857c4.png",
+    "prompt": "Use reference as strict character identity: YEONI the small smooth pink flower PIG, floppy rounded pig ears, pink snout, brown eyes, pink lotus on head, purple neck scarf, short round limbs, NOT a furry fox or cat. Create a production transparent sprite sheet exactly 4 columns by 4 rows, 16 separate equally sized whole body poses with generous transparent gaps, no scene or ground. Facing 3/4 right in every frame, feet aligned to same baseline, stable body size. FOUR-FRAME sequential action per ROW. Row1 planting: holding seed pouch, crouching, scattering seeds with hoof, gently patting ground. Row2 watering: holds small gold watering can, lifts, tilts pouring tiny water arc, lowers. Row3 tending: little garden trowel lowered, gentle dig, brush dirt, relaxed finish. Row4 harvest: bends, lifts a small plain wicker basket, holds basket happily, returns upright. Keep any particles/tool connected within each figure bounds. Do not draw a particular crop in basket: actual crop icon added by game. Premium soft 2.5D chibi game art, expressive but anatomically consistent, actual transparent alpha, no labels/no borders/no text.",
+    "processing": "Fixed transparent cell with isolated source silhouette; WebP export."
+  },
+  {
+    "id": "talking/yeoni",
+    "tool": "imagegen",
+    "sourceFile": "exec-301d5f73-11a2-49c6-b1f2-b22d7738b3ca.png",
+    "prompt": "Create a production visual-novel TALKING PORTRAIT ATLAS, 2048x2048, exactly 4 columns x 4 rows, equal 512px cells, transparent background. Four characters; each row follows the corresponding reference image. Row 1: adult pink-haired human Yeoni, ivory floral blouse, lotus hair ornament. Row 2: adult silver-haired human Neo, relaxed plain white shirt. Row 3: official white cat Yeongnyangi, half-lidded violet-gold eyes, navy crescent constellation cap and cape, purple jewel; do NOT turn him into a brown-eyed kitten. Row 4: flower-pig Yeoni, soft pink rounded ears, pink lotus on head, purple neck scarf. CHEST-UP conversational busts, NOT full bodies, full head and shoulders inside each cell, clean true alpha background, no panels or borders or words or scenery. In EVERY row the SAME drawing and pose registered in precisely the SAME position in all four cells. Columns: 1 neutral closed mouth eyes open, 2 same mouth closed eyes softly closed for blink, 3 same eyes open mouth slightly parted speaking, 4 same eyes open mouth visibly open speaking. Change ONLY eyelids and lips, NOT hair, body, head tilt, framing, shoulders, costume or camera. 32px empty transparent padding between all busts. Refined Korean light-novel illustration for humans, official polished illustrated mascot style for animals. Crisp facial anatomy, readable small speaking mouth, no floating extra body parts. No glows or opaque backdrop; actual transparent alpha everywhere around each silhouette.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        0,
+        314,
+        309
+      ],
+      [
+        314,
+        0,
+        627,
+        309
+      ],
+      [
+        627,
+        0,
+        940,
+        309
+      ],
+      [
+        940,
+        0,
+        1254,
+        309
+      ]
+    ],
+    "sha256": "3334264e360ea1f7e9e4e6f24e7b683f0ee256cbc48927427e379e53a23c2c71"
+  },
+  {
+    "id": "talking/neo",
+    "tool": "imagegen",
+    "sourceFile": "exec-301d5f73-11a2-49c6-b1f2-b22d7738b3ca.png",
+    "prompt": "Create a production visual-novel TALKING PORTRAIT ATLAS, 2048x2048, exactly 4 columns x 4 rows, equal 512px cells, transparent background. Four characters; each row follows the corresponding reference image. Row 1: adult pink-haired human Yeoni, ivory floral blouse, lotus hair ornament. Row 2: adult silver-haired human Neo, relaxed plain white shirt. Row 3: official white cat Yeongnyangi, half-lidded violet-gold eyes, navy crescent constellation cap and cape, purple jewel; do NOT turn him into a brown-eyed kitten. Row 4: flower-pig Yeoni, soft pink rounded ears, pink lotus on head, purple neck scarf. CHEST-UP conversational busts, NOT full bodies, full head and shoulders inside each cell, clean true alpha background, no panels or borders or words or scenery. In EVERY row the SAME drawing and pose registered in precisely the SAME position in all four cells. Columns: 1 neutral closed mouth eyes open, 2 same mouth closed eyes softly closed for blink, 3 same eyes open mouth slightly parted speaking, 4 same eyes open mouth visibly open speaking. Change ONLY eyelids and lips, NOT hair, body, head tilt, framing, shoulders, costume or camera. 32px empty transparent padding between all busts. Refined Korean light-novel illustration for humans, official polished illustrated mascot style for animals. Crisp facial anatomy, readable small speaking mouth, no floating extra body parts. No glows or opaque backdrop; actual transparent alpha everywhere around each silhouette.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        312,
+        314,
+        618
+      ],
+      [
+        314,
+        312,
+        627,
+        618
+      ],
+      [
+        627,
+        312,
+        940,
+        618
+      ],
+      [
+        940,
+        312,
+        1254,
+        618
+      ]
+    ],
+    "sha256": "c31c3336c7b9483625b3ae1efe8dc873ce156ad0675a97a2b80360be48ec64af"
+  },
+  {
+    "id": "talking/neo_cat",
+    "tool": "imagegen",
+    "sourceFile": "exec-301d5f73-11a2-49c6-b1f2-b22d7738b3ca.png",
+    "prompt": "Create a production visual-novel TALKING PORTRAIT ATLAS, 2048x2048, exactly 4 columns x 4 rows, equal 512px cells, transparent background. Four characters; each row follows the corresponding reference image. Row 1: adult pink-haired human Yeoni, ivory floral blouse, lotus hair ornament. Row 2: adult silver-haired human Neo, relaxed plain white shirt. Row 3: official white cat Yeongnyangi, half-lidded violet-gold eyes, navy crescent constellation cap and cape, purple jewel; do NOT turn him into a brown-eyed kitten. Row 4: flower-pig Yeoni, soft pink rounded ears, pink lotus on head, purple neck scarf. CHEST-UP conversational busts, NOT full bodies, full head and shoulders inside each cell, clean true alpha background, no panels or borders or words or scenery. In EVERY row the SAME drawing and pose registered in precisely the SAME position in all four cells. Columns: 1 neutral closed mouth eyes open, 2 same mouth closed eyes softly closed for blink, 3 same eyes open mouth slightly parted speaking, 4 same eyes open mouth visibly open speaking. Change ONLY eyelids and lips, NOT hair, body, head tilt, framing, shoulders, costume or camera. 32px empty transparent padding between all busts. Refined Korean light-novel illustration for humans, official polished illustrated mascot style for animals. Crisp facial anatomy, readable small speaking mouth, no floating extra body parts. No glows or opaque backdrop; actual transparent alpha everywhere around each silhouette.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        622,
+        314,
+        925
+      ],
+      [
+        314,
+        622,
+        627,
+        925
+      ],
+      [
+        627,
+        622,
+        940,
+        925
+      ],
+      [
+        940,
+        622,
+        1254,
+        925
+      ]
+    ],
+    "sha256": "e4b603d38d5c055dac9f919949e5b65b9a254b00daf0b3c47fd66377e8eb7752"
+  },
+  {
+    "id": "talking/yeoni_pig",
+    "tool": "imagegen",
+    "sourceFile": "exec-301d5f73-11a2-49c6-b1f2-b22d7738b3ca.png",
+    "prompt": "Create a production visual-novel TALKING PORTRAIT ATLAS, 2048x2048, exactly 4 columns x 4 rows, equal 512px cells, transparent background. Four characters; each row follows the corresponding reference image. Row 1: adult pink-haired human Yeoni, ivory floral blouse, lotus hair ornament. Row 2: adult silver-haired human Neo, relaxed plain white shirt. Row 3: official white cat Yeongnyangi, half-lidded violet-gold eyes, navy crescent constellation cap and cape, purple jewel; do NOT turn him into a brown-eyed kitten. Row 4: flower-pig Yeoni, soft pink rounded ears, pink lotus on head, purple neck scarf. CHEST-UP conversational busts, NOT full bodies, full head and shoulders inside each cell, clean true alpha background, no panels or borders or words or scenery. In EVERY row the SAME drawing and pose registered in precisely the SAME position in all four cells. Columns: 1 neutral closed mouth eyes open, 2 same mouth closed eyes softly closed for blink, 3 same eyes open mouth slightly parted speaking, 4 same eyes open mouth visibly open speaking. Change ONLY eyelids and lips, NOT hair, body, head tilt, framing, shoulders, costume or camera. 32px empty transparent padding between all busts. Refined Korean light-novel illustration for humans, official polished illustrated mascot style for animals. Crisp facial anatomy, readable small speaking mouth, no floating extra body parts. No glows or opaque backdrop; actual transparent alpha everywhere around each silhouette.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        929,
+        314,
+        1254
+      ],
+      [
+        314,
+        929,
+        627,
+        1254
+      ],
+      [
+        627,
+        929,
+        940,
+        1254
+      ],
+      [
+        940,
+        929,
+        1254,
+        1254
+      ]
+    ],
+    "sha256": "2b1cb4429333f02ff7a5d4e1ddab2d3b896b4be0078c423a64e405d3554cd74b"
+  },
+  {
+    "id": "talking/luna",
+    "tool": "imagegen",
+    "sourceFile": "exec-7d91b958-4ba7-4130-9f96-c1f0eb2deee2.png",
+    "prompt": "Draw a NEW transparent 4x4 sprite atlas of talking chest-up busts, using provided 3 images for identity. FOUR rows: row1 white floppy-eared baby rabbit Luna pink bow bread basket; row2 adult human woman Luna's sister, short light pink bob and rabbit ears headband pink apron, illustrated light-novel mature face (not child); row3 female brown otter Moka with purple star beret, cream apron, headphones; row4 a BLUE RABBIT male cunning creditor with slick dark hair, narrowed purple eyes, navy-gold waistcoat, coin in right hand. FOUR equal columns: closed mouth neutral, eyes closed blink, mouth slightly open, mouth open talking. Each row same identical bust fixed in exactly same pose and position, only eyelids/mouth change. Crop chest-up, NOT full bodies, no text. The entire canvas behind all 16 busts is EMPTY TRANSPARENT ALPHA, all pixels outside characters completely invisible. Isolated sprites, no scenery, NO painted background, no gradient, no glow or shadow, no panel, no floor. Wide empty gutters between every cell and 32px outside margin. Square canvas. Exquisite clean face linework.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        0,
+        314,
+        281
+      ],
+      [
+        314,
+        0,
+        627,
+        281
+      ],
+      [
+        627,
+        0,
+        940,
+        281
+      ],
+      [
+        940,
+        0,
+        1254,
+        281
+      ]
+    ],
+    "sha256": "1c931edd062c2e4e29bd4047ca9d7a882516d99b2fd337839eb13b8bf040c216"
+  },
+  {
+    "id": "portraits/luna",
+    "tool": "imagegen",
+    "sourceFile": "exec-7d91b958-4ba7-4130-9f96-c1f0eb2deee2.png",
+    "prompt": "Draw a NEW transparent 4x4 sprite atlas of talking chest-up busts, using provided 3 images for identity. FOUR rows: row1 white floppy-eared baby rabbit Luna pink bow bread basket; row2 adult human woman Luna's sister, short light pink bob and rabbit ears headband pink apron, illustrated light-novel mature face (not child); row3 female brown otter Moka with purple star beret, cream apron, headphones; row4 a BLUE RABBIT male cunning creditor with slick dark hair, narrowed purple eyes, navy-gold waistcoat, coin in right hand. FOUR equal columns: closed mouth neutral, eyes closed blink, mouth slightly open, mouth open talking. Each row same identical bust fixed in exactly same pose and position, only eyelids/mouth change. Crop chest-up, NOT full bodies, no text. The entire canvas behind all 16 busts is EMPTY TRANSPARENT ALPHA, all pixels outside characters completely invisible. Isolated sprites, no scenery, NO painted background, no gradient, no glow or shadow, no panel, no floor. Wide empty gutters between every cell and 32px outside margin. Square canvas. Exquisite clean face linework.",
+    "processing": "Source crop, alpha retained, WebP export."
+  },
+  {
+    "id": "talking/luna_sis",
+    "tool": "imagegen",
+    "sourceFile": "exec-7d91b958-4ba7-4130-9f96-c1f0eb2deee2.png",
+    "prompt": "Draw a NEW transparent 4x4 sprite atlas of talking chest-up busts, using provided 3 images for identity. FOUR rows: row1 white floppy-eared baby rabbit Luna pink bow bread basket; row2 adult human woman Luna's sister, short light pink bob and rabbit ears headband pink apron, illustrated light-novel mature face (not child); row3 female brown otter Moka with purple star beret, cream apron, headphones; row4 a BLUE RABBIT male cunning creditor with slick dark hair, narrowed purple eyes, navy-gold waistcoat, coin in right hand. FOUR equal columns: closed mouth neutral, eyes closed blink, mouth slightly open, mouth open talking. Each row same identical bust fixed in exactly same pose and position, only eyelids/mouth change. Crop chest-up, NOT full bodies, no text. The entire canvas behind all 16 busts is EMPTY TRANSPARENT ALPHA, all pixels outside characters completely invisible. Isolated sprites, no scenery, NO painted background, no gradient, no glow or shadow, no panel, no floor. Wide empty gutters between every cell and 32px outside margin. Square canvas. Exquisite clean face linework.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        285,
+        314,
+        629
+      ],
+      [
+        314,
+        285,
+        627,
+        629
+      ],
+      [
+        627,
+        285,
+        940,
+        629
+      ],
+      [
+        940,
+        285,
+        1254,
+        629
+      ]
+    ],
+    "sha256": "843356da35725f8e42b975dadbe3485dc8efa4ede9cef4400f71faf3cea2787c"
+  },
+  {
+    "id": "portraits/luna_sis",
+    "tool": "imagegen",
+    "sourceFile": "exec-7d91b958-4ba7-4130-9f96-c1f0eb2deee2.png",
+    "prompt": "Draw a NEW transparent 4x4 sprite atlas of talking chest-up busts, using provided 3 images for identity. FOUR rows: row1 white floppy-eared baby rabbit Luna pink bow bread basket; row2 adult human woman Luna's sister, short light pink bob and rabbit ears headband pink apron, illustrated light-novel mature face (not child); row3 female brown otter Moka with purple star beret, cream apron, headphones; row4 a BLUE RABBIT male cunning creditor with slick dark hair, narrowed purple eyes, navy-gold waistcoat, coin in right hand. FOUR equal columns: closed mouth neutral, eyes closed blink, mouth slightly open, mouth open talking. Each row same identical bust fixed in exactly same pose and position, only eyelids/mouth change. Crop chest-up, NOT full bodies, no text. The entire canvas behind all 16 busts is EMPTY TRANSPARENT ALPHA, all pixels outside characters completely invisible. Isolated sprites, no scenery, NO painted background, no gradient, no glow or shadow, no panel, no floor. Wide empty gutters between every cell and 32px outside margin. Square canvas. Exquisite clean face linework.",
+    "processing": "Source crop, alpha retained, WebP export."
+  },
+  {
+    "id": "talking/moka",
+    "tool": "imagegen",
+    "sourceFile": "exec-7d91b958-4ba7-4130-9f96-c1f0eb2deee2.png",
+    "prompt": "Draw a NEW transparent 4x4 sprite atlas of talking chest-up busts, using provided 3 images for identity. FOUR rows: row1 white floppy-eared baby rabbit Luna pink bow bread basket; row2 adult human woman Luna's sister, short light pink bob and rabbit ears headband pink apron, illustrated light-novel mature face (not child); row3 female brown otter Moka with purple star beret, cream apron, headphones; row4 a BLUE RABBIT male cunning creditor with slick dark hair, narrowed purple eyes, navy-gold waistcoat, coin in right hand. FOUR equal columns: closed mouth neutral, eyes closed blink, mouth slightly open, mouth open talking. Each row same identical bust fixed in exactly same pose and position, only eyelids/mouth change. Crop chest-up, NOT full bodies, no text. The entire canvas behind all 16 busts is EMPTY TRANSPARENT ALPHA, all pixels outside characters completely invisible. Isolated sprites, no scenery, NO painted background, no gradient, no glow or shadow, no panel, no floor. Wide empty gutters between every cell and 32px outside margin. Square canvas. Exquisite clean face linework.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        635,
+        314,
+        911
+      ],
+      [
+        314,
+        635,
+        627,
+        911
+      ],
+      [
+        627,
+        635,
+        940,
+        911
+      ],
+      [
+        940,
+        635,
+        1254,
+        911
+      ]
+    ],
+    "sha256": "35c05dabca54ba59abbf7b4eaa0e6cec1d005fa09f73689d881c2e2970606477"
+  },
+  {
+    "id": "talking/solv",
+    "tool": "imagegen",
+    "sourceFile": "exec-c52e62cc-443c-4128-ade0-1de11637f4e0.png",
+    "prompt": "Visual novel TALKING PORTRAIT atlas, square 2048x2048, exactly FOUR columns x FOUR rows. Transparent background with NO scenery or glow. Each row corresponding to each reference adult man: 1 SOLV short swept black hair black feather stage jacket, 2 BAMBI ash silver short hair military gold epaulettes black suit, 3 LUNE long wavy pink-blond hair white gold stage jacket, 4 RAVEN messy black wavy hair feather black stage coat. Faithful premium Korean light novel faces. CHEST-UP ONLY, not full-body. Four same-sized identical fixed pose copies per row. Col1 lips closed eyes open;col2 lips closed eyes closed blink;col3 eyes open mouth slightly parted speech;col4 eyes open mouth open speech. All hair costume shoulders identical, same registration, ONLY eyelids/lips change. Complete hair and shoulders contained within cells, 24px clear transparent margins around each bust, uniform 4x4 layout, no text, no border or extra figure, no clipped heads.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        0,
+        314,
+        314
+      ],
+      [
+        314,
+        0,
+        627,
+        314
+      ],
+      [
+        627,
+        0,
+        940,
+        314
+      ],
+      [
+        940,
+        0,
+        1254,
+        314
+      ]
+    ],
+    "sha256": "8297ccda2d58ffe5376a8e9cc7ce8e3675358721d6d98e388428eb5524a1ceaf"
+  },
+  {
+    "id": "talking/bambi",
+    "tool": "imagegen",
+    "sourceFile": "exec-c52e62cc-443c-4128-ade0-1de11637f4e0.png",
+    "prompt": "Visual novel TALKING PORTRAIT atlas, square 2048x2048, exactly FOUR columns x FOUR rows. Transparent background with NO scenery or glow. Each row corresponding to each reference adult man: 1 SOLV short swept black hair black feather stage jacket, 2 BAMBI ash silver short hair military gold epaulettes black suit, 3 LUNE long wavy pink-blond hair white gold stage jacket, 4 RAVEN messy black wavy hair feather black stage coat. Faithful premium Korean light novel faces. CHEST-UP ONLY, not full-body. Four same-sized identical fixed pose copies per row. Col1 lips closed eyes open;col2 lips closed eyes closed blink;col3 eyes open mouth slightly parted speech;col4 eyes open mouth open speech. All hair costume shoulders identical, same registration, ONLY eyelids/lips change. Complete hair and shoulders contained within cells, 24px clear transparent margins around each bust, uniform 4x4 layout, no text, no border or extra figure, no clipped heads.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        316,
+        314,
+        629
+      ],
+      [
+        314,
+        316,
+        627,
+        629
+      ],
+      [
+        627,
+        316,
+        940,
+        629
+      ],
+      [
+        940,
+        316,
+        1254,
+        629
+      ]
+    ],
+    "sha256": "c566c69db5378de52202512851c1df4b59d861c0ac01786798deec9a271d4506"
+  },
+  {
+    "id": "talking/lune",
+    "tool": "imagegen",
+    "sourceFile": "exec-c52e62cc-443c-4128-ade0-1de11637f4e0.png",
+    "prompt": "Visual novel TALKING PORTRAIT atlas, square 2048x2048, exactly FOUR columns x FOUR rows. Transparent background with NO scenery or glow. Each row corresponding to each reference adult man: 1 SOLV short swept black hair black feather stage jacket, 2 BAMBI ash silver short hair military gold epaulettes black suit, 3 LUNE long wavy pink-blond hair white gold stage jacket, 4 RAVEN messy black wavy hair feather black stage coat. Faithful premium Korean light novel faces. CHEST-UP ONLY, not full-body. Four same-sized identical fixed pose copies per row. Col1 lips closed eyes open;col2 lips closed eyes closed blink;col3 eyes open mouth slightly parted speech;col4 eyes open mouth open speech. All hair costume shoulders identical, same registration, ONLY eyelids/lips change. Complete hair and shoulders contained within cells, 24px clear transparent margins around each bust, uniform 4x4 layout, no text, no border or extra figure, no clipped heads.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        631,
+        314,
+        943
+      ],
+      [
+        314,
+        631,
+        627,
+        943
+      ],
+      [
+        627,
+        631,
+        940,
+        943
+      ],
+      [
+        940,
+        631,
+        1254,
+        943
+      ]
+    ],
+    "sha256": "6319b68b4c7849df0d599820013b6b7d893e1ac7147390a694750cc0476edfce"
+  },
+  {
+    "id": "talking/raven",
+    "tool": "imagegen",
+    "sourceFile": "exec-c52e62cc-443c-4128-ade0-1de11637f4e0.png",
+    "prompt": "Visual novel TALKING PORTRAIT atlas, square 2048x2048, exactly FOUR columns x FOUR rows. Transparent background with NO scenery or glow. Each row corresponding to each reference adult man: 1 SOLV short swept black hair black feather stage jacket, 2 BAMBI ash silver short hair military gold epaulettes black suit, 3 LUNE long wavy pink-blond hair white gold stage jacket, 4 RAVEN messy black wavy hair feather black stage coat. Faithful premium Korean light novel faces. CHEST-UP ONLY, not full-body. Four same-sized identical fixed pose copies per row. Col1 lips closed eyes open;col2 lips closed eyes closed blink;col3 eyes open mouth slightly parted speech;col4 eyes open mouth open speech. All hair costume shoulders identical, same registration, ONLY eyelids/lips change. Complete hair and shoulders contained within cells, 24px clear transparent margins around each bust, uniform 4x4 layout, no text, no border or extra figure, no clipped heads.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        944,
+        314,
+        1254
+      ],
+      [
+        314,
+        944,
+        627,
+        1254
+      ],
+      [
+        627,
+        944,
+        940,
+        1254
+      ],
+      [
+        940,
+        944,
+        1254,
+        1254
+      ]
+    ],
+    "sha256": "f9c25b5f3af35608e298c06de0441eb37552c07017a79f0fcb559e3b7f663aab"
+  },
+  {
+    "id": "talking/yun",
+    "tool": "imagegen",
+    "sourceFile": "exec-8683a7b9-ef30-4d1c-b1e0-60d01b8503b8.png",
+    "prompt": "Use case: identity-preserve. Redraw the supplied Yun (윤달) reference as a polished Korean light-novel dialogue portrait animation asset. ONE CHARACTER ONLY. Exactly TWO columns by TWO rows, 4 equal square cells, true transparent alpha. Chest-up bust, entire head and both shoulders visible. Calm adult man with dark indigo-black layered hair, low tied hair at nape, cool gray-violet eyes and slight knowing warmth; preserve reference face, navy moon-patterned traditional coat, ivory high collar, round bronze pendant and understated earring. Hands and fan below the crop, do not include hands. NEW near-frontal conversational pose, upright head, relaxed level shoulders, looking toward viewer, not a tilted head. Every cell has exactly identical body, hair, neck, face scale and placement. ONLY lips or eyelids change. Reading order: top-left relaxed neutral closed lips and open eyes; top-right identical with closed eyes for one blink, closed lips; bottom-left open eyes, lips very slightly parted naturally saying a soft syllable; bottom-right open eyes, mouth gently open in a small natural speech shape, no exaggerated smile or red hole. Accurate human anatomy and subtle lip contours, delicate mouth interior, no teeth grin. Broad empty TRANSPARENT 15% padding on all four sides of EACH cell, no cropped hair, no overlapping portraits. Consistent painting/lighting, premium fine linework. No scenery, no matte background, no colored rectangle, no words, no panel borders, no extra heads or figures. Do not draw a collage or a reference sheet with text. Exactly four aligned speaking busts.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        0,
+        627,
+        630
+      ],
+      [
+        627,
+        0,
+        1254,
+        630
+      ],
+      [
+        0,
+        638,
+        627,
+        1254
+      ],
+      [
+        627,
+        638,
+        1254,
+        1254
+      ]
+    ],
+    "sha256": "b714dd5b595309e7dc715f60c1e721ac2423f4f250bb2bcca54d194e28afa619"
+  },
+  {
+    "id": "talking/seohanbi",
+    "tool": "imagegen",
+    "sourceFile": "exec-43fbfce0-910e-4d3e-95f7-279549fdc3ce.png",
+    "prompt": "Use case: identity-preserve. The supplied official character sheet defines Seohanbi (서한비); use its black-haired adult woman only, ignore all lettering. REDRAW a premium Korean light-novel TALKING DIALOGUE BUST animation atlas of this one woman. Exactly TWO columns by TWO rows, four equal square cells on TRUE TRANSPARENT ALPHA. New calm conversational near-frontal pose, head upright with only a very slight 3/4 turn, level shoulders, eye contact. Chest-up including entire head/hair crown and shoulders, graceful long black wavy hair, warm red-brown eyes, black lace dress with modest chest framing, delicate black lace necklace/choker and ruby earrings, subtle mature elegance and restrained warmth as reference. Hands and tarot cards out of crop, NO hands anywhere. All four frames must be the SAME fixed drawing registered at precisely the same position/scale. Only eyelids or mouth change: top-left open eyes lips softly closed; top-right eyes gently closed in blink lips closed; bottom-left open eyes lips slightly parted for soft speech; bottom-right open eyes mouth gently open speaking, anatomically natural small mouth cavity. Mouth subtle, not smiling broadly, no oversized red hole, no lip warping, no jaw distortion. All hair, face shape, neck, shoulders, clothes and lighting identical frame to frame. Do NOT pose as a glamour poster: this is a calm face-to-face dialogue animation. 15 percent clear TRANSPARENT padding on EVERY edge of each cell, isolated busts, no touching any other cell. Refined fine linework and painterly shading with clear readable facial anatomy. No text, no scenery, no rectangles, no background painting, no glow, no borders, no extra faces or other characters.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        0,
+        638,
+        613
+      ],
+      [
+        638,
+        0,
+        1275,
+        613
+      ],
+      [
+        0,
+        617,
+        638,
+        1232
+      ],
+      [
+        638,
+        617,
+        1275,
+        1232
+      ]
+    ],
+    "sha256": "74efa5a06bf8b814c25dce242c8b854c587925f346428f4de2b3b2cd7433510c"
+  },
+  {
+    "id": "talking/museong",
+    "tool": "imagegen",
+    "sourceFile": "exec-984719fb-fc81-41d3-89ec-af452928666e.png",
+    "prompt": "Create visual novel speaking bust sheet, exactly FOUR columns by THREE rows, landscape 4:3, isolated transparent background. Row1 reference1 adult Yun: dark hair loosely tied at nape, golden eyes, navy traditional robe white collar moon pendant. Row2 reference2 adult female Seohanbi: long black wavy hair red-brown eyes elegant black lace dress red earrings, mysterious gentle expression. Row3 reference3 Museong: dark violet hair violet eyes, dark feather hood/cape, quiet thoughtful man. Each row FOUR identical chest-up portraits same placement/pose/clothing, only mouth/eyes differ. Columns closed mouth/open eyes; closed mouth/eyes closed blink; mouth small open/open eyes; mouth open speaking/open eyes. Do not crop hair or shoulders; all heads complete. Exact equal cell grid, 24px TRANSPARENT gutter on every side. Premium Korean light novel painted linework. No full bodies, no text, no border, no scenery, no effects. Transparent alpha pixels everywhere outside the busts.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        701,
+        362,
+        1076
+      ],
+      [
+        362,
+        701,
+        724,
+        1076
+      ],
+      [
+        724,
+        701,
+        1086,
+        1076
+      ],
+      [
+        1086,
+        701,
+        1448,
+        1076
+      ]
+    ],
+    "sha256": "2459ea641272f6c9c8079f17ef8e7305648d02b87842d138c2fccc00f9bf086e"
+  },
+  {
+    "id": "talking/neo_stage",
+    "tool": "imagegen",
+    "sourceFile": "exec-74a98eca-af59-45e5-aae8-ead8b9256525.png",
+    "prompt": "NEW speaking bust sprite atlas, exactly FOUR columns by TWO rows, landscape 2:1. Row1: adult silver-haired Neo in black and gold DEST1NOVA stage suit like reference1, no white shirt, chest-up only. Row2: cunning BLUE RABBIT Cheongtokki like reference2, swept dark hair narrow purple eyes navy gold waistcoat holding coin. BOTH long rabbit ears must be complete and fit inside row2 with 40px transparent top margin. Columns1 mouth closed eyes open;2 eyes closed blink;3 small open talking mouth;4 open speaking mouth. Same exact pose/face scale/costume registration in each row, ONLY eyes and lips change. Each bust complete with empty transparent gutter on every side. Do NOT inherit reference2 background: no purple rectangle, no star background, no glow, no scenery. Transparent alpha background around every single character. Only 8 isolated chest-up portraits, no words, no frame, no full bodies.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        0,
+        444,
+        426
+      ],
+      [
+        444,
+        0,
+        887,
+        426
+      ],
+      [
+        887,
+        0,
+        1330,
+        426
+      ],
+      [
+        1330,
+        0,
+        1774,
+        426
+      ]
+    ],
+    "sha256": "ee7a530b03c82021c4ee3ff7e5a20d851fdcde253841652d8a73bcc607a98ce3"
+  },
+  {
+    "id": "talking/cheongtokki",
+    "tool": "imagegen",
+    "sourceFile": "exec-74a98eca-af59-45e5-aae8-ead8b9256525.png",
+    "prompt": "NEW speaking bust sprite atlas, exactly FOUR columns by TWO rows, landscape 2:1. Row1: adult silver-haired Neo in black and gold DEST1NOVA stage suit like reference1, no white shirt, chest-up only. Row2: cunning BLUE RABBIT Cheongtokki like reference2, swept dark hair narrow purple eyes navy gold waistcoat holding coin. BOTH long rabbit ears must be complete and fit inside row2 with 40px transparent top margin. Columns1 mouth closed eyes open;2 eyes closed blink;3 small open talking mouth;4 open speaking mouth. Same exact pose/face scale/costume registration in each row, ONLY eyes and lips change. Each bust complete with empty transparent gutter on every side. Do NOT inherit reference2 background: no purple rectangle, no star background, no glow, no scenery. Transparent alpha background around every single character. Only 8 isolated chest-up portraits, no words, no frame, no full bodies.",
+    "processing": "Fixed grid; neutral base held still, generated eyelid/lip regions registered and composited; transparent gutter; WebP export.",
+    "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+    "sourceCells": [
+      [
+        0,
+        433,
+        444,
+        887
+      ],
+      [
+        444,
+        433,
+        887,
+        887
+      ],
+      [
+        887,
+        433,
+        1330,
+        887
+      ],
+      [
+        1330,
+        433,
+        1774,
+        887
+      ]
+    ],
+    "sha256": "b1c791f42b6fb0deda77e7ab3957114060564803d21c009414de52e3e0e3cb72"
+  },
+  {
+    "id": "portraits/cheongtokki",
+    "tool": "imagegen",
+    "sourceFile": "exec-74a98eca-af59-45e5-aae8-ead8b9256525.png",
+    "prompt": "NEW speaking bust sprite atlas, exactly FOUR columns by TWO rows, landscape 2:1. Row1: adult silver-haired Neo in black and gold DEST1NOVA stage suit like reference1, no white shirt, chest-up only. Row2: cunning BLUE RABBIT Cheongtokki like reference2, swept dark hair narrow purple eyes navy gold waistcoat holding coin. BOTH long rabbit ears must be complete and fit inside row2 with 40px transparent top margin. Columns1 mouth closed eyes open;2 eyes closed blink;3 small open talking mouth;4 open speaking mouth. Same exact pose/face scale/costume registration in each row, ONLY eyes and lips change. Each bust complete with empty transparent gutter on every side. Do NOT inherit reference2 background: no purple rectangle, no star background, no glow, no scenery. Transparent alpha background around every single character. Only 8 isolated chest-up portraits, no words, no frame, no full bodies.",
+    "processing": "Source crop, alpha retained, WebP export."
+  },
+  {
+    "id": "ui/new_game",
+    "tool": "imagegen",
+    "sourceFile": "exec-a37c4011-aa34-4240-a10a-32629ba73528.png",
+    "prompt": "Edit target image 1 only, character reference image 2 is the authoritative Yeongnyangi model sheet. Preserve the entire cafe, pig Yeoni, key, journal, table, lighting and framing unchanged. Redraw ONLY the white cat at the right to match reference 2 exactly: fluffy white kitten, angular slightly narrowed confident half-lidded eyes with purple upper iris fading to golden lower iris; small closed mouth and mildly sardonic knowing expression, not open-mouth cheerful baby. Dark navy soft drooping wizard cap embroidered fine GOLD CONSTELLATION LINES and prominent gold CRESCENT MOON with tassel; navy cape with fine golden constellation linework and gold trim; ornate round purple-blue gemstone pendant with small gold dangling ornament at neck. Keep cat seated at same location and scale, looking toward viewer. Match reference character's distinctive brows, cheek fluff, pale pink inner ears, elegant cool personality. No brown round eyes, no generic big star badge clasp. No other changes. No text.",
+    "processing": "Source crop, alpha retained, WebP export."
   }
 ]

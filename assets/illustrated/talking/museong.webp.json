@@ -1,0 +1,41 @@
+{
+  "prompt": "Create visual novel speaking bust sheet, exactly FOUR columns by THREE rows, landscape 4:3, isolated transparent background. Row1 reference1 adult Yun: dark hair loosely tied at nape, golden eyes, navy traditional robe white collar moon pendant. Row2 reference2 adult female Seohanbi: long black wavy hair red-brown eyes elegant black lace dress red earrings, mysterious gentle expression. Row3 reference3 Museong: dark violet hair violet eyes, dark feather hood/cape, quiet thoughtful man. Each row FOUR identical chest-up portraits same placement/pose/clothing, only mouth/eyes differ. Columns closed mouth/open eyes; closed mouth/eyes closed blink; mouth small open/open eyes; mouth open speaking/open eyes. Do not crop hair or shoulders; all heads complete. Exact equal cell grid, 24px TRANSPARENT gutter on every side. Premium Korean light novel painted linework. No full bodies, no text, no border, no scenery, no effects. Transparent alpha pixels everywhere outside the busts.",
+  "createdAt": "2026-10-25T21:06:51.667Z",
+  "updatedAt": "2026-10-25T21:50:42.198954+00:00",
+  "sourceFile": "exec-984719fb-fc81-41d3-89ec-af452928666e.png",
+  "sourceSha256": "65c730224e4b5bd51541074fdd688b8c9931a79c29fca6ef1b439b76d02a8a9c",
+  "sourceCells": [
+    [
+      0,
+      701,
+      362,
+      1076
+    ],
+    [
+      362,
+      701,
+      724,
+      1076
+    ],
+    [
+      724,
+      701,
+      1086,
+      1076
+    ],
+    [
+      1086,
+      701,
+      1448,
+      1076
+    ]
+  ],
+  "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+  "sha256": "2459ea641272f6c9c8079f17ef8e7305648d02b87842d138c2fccc00f9bf086e",
+  "frame": {
+    "width": 320,
+    "height": 384,
+    "count": 4
+  },
+  "revision": "measured crop and fixed-position repack"
+}

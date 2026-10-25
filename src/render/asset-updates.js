@@ -184,7 +184,7 @@ export const ASSET_UPDATES = {
     },
     "neo_cat": {
       "kind": "actor",
-      "label": "neo_cat",
+      "label": "neo",
       "path": "assets/illustrated/actors/neo_cat.webp",
       "dimensions": [
         512,
@@ -4640,6 +4640,331 @@ export const ASSET_UPDATES = {
         "skin": "#ffe6da",
         "hair": "#332344"
       }
+    },
+    "neo_cat_attack": {
+      "kind": "actor",
+      "label": "neo",
+      "path": "assets/illustrated/actors/neo_cat_attack.webp",
+      "dimensions": [
+        512,
+        512
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 1,
+      "directions": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 0,
+        "cook": 0,
+        "serve": 0,
+        "host": 0,
+        "react": 0,
+        "attack": 0,
+        "hurt": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 0
+        },
+        "cook": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "serve": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "host": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "react": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "attack": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "hurt": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "neo_idle": {
+      "kind": "actor",
+      "label": "neo_idle",
+      "path": "assets/illustrated/actors/neo_idle.webp",
+      "dimensions": [
+        512,
+        512
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 1,
+      "directions": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ],
+      "stateRows": {
+        "idle": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 4,
+          "fps": 2
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "luna_idle": {
+      "kind": "actor",
+      "label": "luna_idle",
+      "path": "assets/illustrated/actors/luna_idle.webp",
+      "dimensions": [
+        512,
+        512
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 1,
+      "directions": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ],
+      "stateRows": {
+        "idle": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 4,
+          "fps": 2
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "luna_sis_idle": {
+      "kind": "actor",
+      "label": "luna_sis_idle",
+      "path": "assets/illustrated/actors/luna_sis_idle.webp",
+      "dimensions": [
+        512,
+        512
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 1,
+      "directions": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ],
+      "stateRows": {
+        "idle": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 4,
+          "fps": 2
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "yeoni_idle": {
+      "kind": "actor",
+      "label": "yeoni_idle",
+      "path": "assets/illustrated/actors/yeoni_idle.webp",
+      "dimensions": [
+        512,
+        512
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 0,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "welcome": 1,
+        "bow": 2,
+        "cashier": 3
+      },
+      "states": {
+        "idle": {
+          "frames": 4,
+          "fps": 3
+        },
+        "welcome": {
+          "frames": 4,
+          "fps": 4
+        },
+        "bow": {
+          "frames": 4,
+          "fps": 4
+        },
+        "cashier": {
+          "frames": 4,
+          "fps": 4
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "yeoni_farm": {
+      "kind": "actor",
+      "label": "yeoni_idle",
+      "path": "assets/illustrated/actors/yeoni_farm.webp",
+      "dimensions": [
+        512,
+        512
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 0,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "plant": 0,
+        "water": 1,
+        "tend": 2,
+        "harvest": 3,
+        "idle": 0
+      },
+      "states": {
+        "plant": {
+          "frames": 4,
+          "fps": 5,
+          "loop": false
+        },
+        "water": {
+          "frames": 4,
+          "fps": 5,
+          "loop": false
+        },
+        "tend": {
+          "frames": 4,
+          "fps": 5,
+          "loop": false
+        },
+        "harvest": {
+          "frames": 4,
+          "fps": 5,
+          "loop": false
+        },
+        "idle": {
+          "frames": 4,
+          "fps": 5,
+          "loop": false
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
     }
   },
   "enemies": {
@@ -5082,6 +5407,722 @@ export const ASSET_UPDATES = {
         "skin": "#ffe6da",
         "hair": "#332344"
       }
+    },
+    "shade_hand": {
+      "kind": "enemy",
+      "label": "shade_hand",
+      "path": "assets/illustrated/enemies/shade_hand.webp",
+      "dimensions": [
+        512,
+        384
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 0,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 1,
+        "attack": 2,
+        "hurt": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 4,
+          "fps": 6
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 9
+        },
+        "attack": {
+          "frames": 4,
+          "fps": 9
+        },
+        "hurt": {
+          "frames": 4,
+          "fps": 9
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "shade_bat": {
+      "kind": "enemy",
+      "label": "shade_bat",
+      "path": "assets/illustrated/enemies/shade_bat.webp",
+      "dimensions": [
+        512,
+        384
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 0,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 1,
+        "attack": 2,
+        "hurt": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 4,
+          "fps": 6
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 9
+        },
+        "attack": {
+          "frames": 4,
+          "fps": 9
+        },
+        "hurt": {
+          "frames": 4,
+          "fps": 9
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "shade_blob": {
+      "kind": "enemy",
+      "label": "shade_blob",
+      "path": "assets/illustrated/enemies/shade_blob.webp",
+      "dimensions": [
+        512,
+        384
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 0,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 1,
+        "attack": 2,
+        "hurt": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 4,
+          "fps": 6
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 9
+        },
+        "attack": {
+          "frames": 4,
+          "fps": 9
+        },
+        "hurt": {
+          "frames": 4,
+          "fps": 9
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "shade_wisp": {
+      "kind": "enemy",
+      "label": "shade_wisp",
+      "path": "assets/illustrated/enemies/shade_wisp.webp",
+      "dimensions": [
+        512,
+        384
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 0,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 1,
+        "attack": 2,
+        "hurt": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 4,
+          "fps": 6
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 9
+        },
+        "attack": {
+          "frames": 4,
+          "fps": 9
+        },
+        "hurt": {
+          "frames": 4,
+          "fps": 9
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "elite_hand": {
+      "kind": "enemy",
+      "label": "elite_hand",
+      "path": "assets/illustrated/enemies/elite_hand.webp",
+      "dimensions": [
+        512,
+        384
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 0,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 1,
+        "attack": 2,
+        "hurt": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 4,
+          "fps": 6
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 9
+        },
+        "attack": {
+          "frames": 4,
+          "fps": 9
+        },
+        "hurt": {
+          "frames": 4,
+          "fps": 9
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "boss_hand": {
+      "kind": "enemy",
+      "label": "boss_hand",
+      "path": "assets/illustrated/enemies/boss_hand.webp",
+      "dimensions": [
+        512,
+        384
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 0,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 1,
+        "attack": 2,
+        "hurt": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 4,
+          "fps": 6
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 9
+        },
+        "attack": {
+          "frames": 4,
+          "fps": 9
+        },
+        "hurt": {
+          "frames": 4,
+          "fps": 9
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "moon_bomber": {
+      "kind": "enemy",
+      "label": "moon_bomber",
+      "path": "assets/illustrated/enemies/moon_bomber.webp",
+      "dimensions": [
+        512,
+        384
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 0,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 1,
+        "attack": 2,
+        "hurt": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 4,
+          "fps": 6
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 9
+        },
+        "attack": {
+          "frames": 4,
+          "fps": 9
+        },
+        "hurt": {
+          "frames": 4,
+          "fps": 9
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "rabbit_scout": {
+      "kind": "actor",
+      "label": "blue_rabbit",
+      "path": "assets/illustrated/enemies/blue_rabbit.webp",
+      "dimensions": [
+        512,
+        384
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 3,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 1,
+        "cook": 0,
+        "serve": 0,
+        "host": 0,
+        "react": 0,
+        "attack": 0,
+        "hurt": 2
+      },
+      "states": {
+        "idle": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 0
+        },
+        "cook": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "serve": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "host": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "react": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "attack": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "hurt": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "rabbit_brute": {
+      "kind": "actor",
+      "label": "변이 청토끼",
+      "path": "assets/illustrated/enemies/blue_rabbit.webp",
+      "dimensions": [
+        512,
+        384
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 3,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 1,
+        "cook": 0,
+        "serve": 0,
+        "host": 0,
+        "react": 0,
+        "attack": 0,
+        "hurt": 2
+      },
+      "states": {
+        "idle": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 0
+        },
+        "cook": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "serve": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "host": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "react": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "attack": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "hurt": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "shade_thorn": {
+      "kind": "actor",
+      "label": "thorn",
+      "path": "assets/illustrated/enemies/thorn.webp",
+      "dimensions": [
+        512,
+        384
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 3,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 1,
+        "cook": 0,
+        "serve": 0,
+        "host": 0,
+        "react": 0,
+        "attack": 0,
+        "hurt": 2
+      },
+      "states": {
+        "idle": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 0
+        },
+        "cook": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "serve": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "host": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "react": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "attack": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "hurt": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "shade_clock": {
+      "kind": "actor",
+      "label": "clock",
+      "path": "assets/illustrated/enemies/clock.webp",
+      "dimensions": [
+        512,
+        384
+      ],
+      "frame": {
+        "w": 128,
+        "h": 128
+      },
+      "anchor": {
+        "x": 64,
+        "y": 122
+      },
+      "columns": 4,
+      "directionRows": 3,
+      "directions": [
+        "down"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 1,
+        "cook": 0,
+        "serve": 0,
+        "host": 0,
+        "react": 0,
+        "attack": 0,
+        "hurt": 2
+      },
+      "states": {
+        "idle": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 0
+        },
+        "cook": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "serve": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "host": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "react": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "attack": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "hurt": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
     }
   },
   "backgrounds": {
@@ -5090,8 +6131,8 @@ export const ASSET_UPDATES = {
       "label": "title",
       "path": "assets/illustrated/backgrounds/title.webp",
       "dimensions": [
-        720,
-        1080
+        768,
+        1152
       ],
       "opaque": true
     },
@@ -5124,6 +6165,34 @@ export const ASSET_UPDATES = {
         640
       ],
       "opaque": true
+    },
+    "cafe_room": {
+      "kind": "background",
+      "label": "cafe_room",
+      "path": "assets/illustrated/backgrounds/cafe_room.webp",
+      "dimensions": [
+        720,
+        960
+      ],
+      "opaque": true
+    },
+    "crafting": {
+      "kind": "background",
+      "path": "assets/illustrated/backgrounds/crafting.webp",
+      "dimensions": [
+        960,
+        640
+      ],
+      "opaque": true
+    },
+    "farm_ground": {
+      "kind": "background",
+      "opaque": true,
+      "path": "assets/illustrated/backgrounds/farm_ground.webp",
+      "dimensions": [
+        800,
+        800
+      ]
     }
   },
   "portraits": {
@@ -5220,14 +6289,18 @@ export const ASSET_UPDATES = {
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        81,
+        14,
+        354,
+        870
+      ]
     },
     "seohanbi": {
       "kind": "portrait",
@@ -5333,99 +6406,72 @@ export const ASSET_UPDATES = {
     },
     "cheongtokki": {
       "kind": "portrait",
-      "label": "cheongtokki",
+      "static": true,
       "path": "assets/illustrated/portraits/cheongtokki.webp",
       "dimensions": [
-        384,
-        576
-      ],
-      "static": true,
-      "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
-      ],
-      "px": 384
+        320,
+        384
+      ]
     },
     "luna": {
       "kind": "portrait",
-      "label": "luna",
+      "static": true,
       "path": "assets/illustrated/portraits/luna.webp",
       "dimensions": [
-        384,
-        576
-      ],
-      "static": true,
-      "expressions": [
-        "normal"
-      ],
-      "px": 384
+        320,
+        384
+      ]
     },
     "luna_sis": {
       "kind": "portrait",
-      "label": "luna_sis",
+      "static": true,
       "path": "assets/illustrated/portraits/luna_sis.webp",
       "dimensions": [
-        384,
-        576
-      ],
-      "static": true,
-      "expressions": [
-        "normal"
-      ],
-      "px": 384
+        320,
+        384
+      ]
     },
     "yun@yun_formal": {
       "kind": "portrait",
-      "label": "yun",
-      "path": "assets/illustrated/portraits/yun.webp",
+      "label": "yun@yun_formal",
+      "path": "assets/illustrated/portraits/yun@yun_formal.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true
     },
     "yun@yun_moon": {
       "kind": "portrait",
-      "label": "yun",
-      "path": "assets/illustrated/portraits/yun.webp",
+      "label": "yun@yun_moon",
+      "path": "assets/illustrated/portraits/yun@yun_moon.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true
     },
     "yun@yun_garden": {
       "kind": "portrait",
-      "label": "yun",
-      "path": "assets/illustrated/portraits/yun.webp",
+      "label": "yun@yun_garden",
+      "path": "assets/illustrated/portraits/yun@yun_garden.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true
     },
     "yun@yun_swim": {
       "kind": "portrait",
@@ -5446,54 +6492,45 @@ export const ASSET_UPDATES = {
     },
     "museong@museong_formal": {
       "kind": "portrait",
-      "label": "museong",
-      "path": "assets/illustrated/portraits/museong.webp",
+      "label": "museong@museong_formal",
+      "path": "assets/illustrated/portraits/museong@museong_formal.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true
     },
     "museong@museong_moon": {
       "kind": "portrait",
-      "label": "museong",
-      "path": "assets/illustrated/portraits/museong.webp",
+      "label": "museong@museong_moon",
+      "path": "assets/illustrated/portraits/museong@museong_moon.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true
     },
     "museong@museong_garden": {
       "kind": "portrait",
-      "label": "museong",
-      "path": "assets/illustrated/portraits/museong.webp",
+      "label": "museong@museong_garden",
+      "path": "assets/illustrated/portraits/museong@museong_garden.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true
     },
     "museong@museong_swim": {
       "kind": "portrait",
@@ -5514,411 +6551,479 @@ export const ASSET_UPDATES = {
     },
     "solv@solv_formal": {
       "kind": "portrait",
-      "label": "solv",
-      "path": "assets/illustrated/portraits/solv.webp",
+      "label": "solv@solv_formal",
+      "path": "assets/illustrated/portraits/solv@solv_formal.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        43,
+        10,
+        407,
+        872
+      ]
     },
     "solv@solv_moon": {
       "kind": "portrait",
-      "label": "solv",
-      "path": "assets/illustrated/portraits/solv.webp",
+      "label": "solv@solv_moon",
+      "path": "assets/illustrated/portraits/solv@solv_moon.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        540,
+        7,
+        890,
+        880
+      ]
     },
     "solv@solv_garden": {
       "kind": "portrait",
-      "label": "solv",
-      "path": "assets/illustrated/portraits/solv.webp",
+      "label": "solv@solv_garden",
+      "path": "assets/illustrated/portraits/solv@solv_garden.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        1018,
+        6,
+        1326,
+        881
+      ]
     },
     "solv@solv_swim": {
       "kind": "portrait",
-      "label": "solv",
-      "path": "assets/illustrated/portraits/solv.webp",
+      "label": "solv@solv_swim",
+      "path": "assets/illustrated/portraits/solv@solv_swim.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        1454,
+        6,
+        1734,
+        865
+      ]
     },
     "bambi@bambi_formal": {
       "kind": "portrait",
-      "label": "bambi",
-      "path": "assets/illustrated/portraits/bambi.webp",
+      "label": "bambi@bambi_formal",
+      "path": "assets/illustrated/portraits/bambi@bambi_formal.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        69,
+        10,
+        514,
+        782
+      ]
     },
     "bambi@bambi_moon": {
       "kind": "portrait",
-      "label": "bambi",
-      "path": "assets/illustrated/portraits/bambi.webp",
+      "label": "bambi@bambi_moon",
+      "path": "assets/illustrated/portraits/bambi@bambi_moon.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        598,
+        11,
+        971,
+        782
+      ]
     },
     "bambi@bambi_garden": {
       "kind": "portrait",
-      "label": "bambi",
-      "path": "assets/illustrated/portraits/bambi.webp",
+      "label": "bambi@bambi_garden",
+      "path": "assets/illustrated/portraits/bambi@bambi_garden.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        1145,
+        10,
+        1413,
+        779
+      ]
     },
     "bambi@bambi_swim": {
       "kind": "portrait",
-      "label": "bambi",
-      "path": "assets/illustrated/portraits/bambi.webp",
+      "label": "bambi@bambi_swim",
+      "path": "assets/illustrated/portraits/bambi@bambi_swim.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        1606,
+        9,
+        1873,
+        785
+      ]
     },
     "lune@lune_formal": {
       "kind": "portrait",
-      "label": "lune",
-      "path": "assets/illustrated/portraits/lune.webp",
+      "label": "lune@lune_formal",
+      "path": "assets/illustrated/portraits/lune@lune_formal.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        42,
+        12,
+        498,
+        775
+      ]
     },
     "lune@lune_moon": {
       "kind": "portrait",
-      "label": "lune",
-      "path": "assets/illustrated/portraits/lune.webp",
+      "label": "lune@lune_moon",
+      "path": "assets/illustrated/portraits/lune@lune_moon.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        596,
+        12,
+        1008,
+        784
+      ]
     },
     "lune@lune_garden": {
       "kind": "portrait",
-      "label": "lune",
-      "path": "assets/illustrated/portraits/lune.webp",
+      "label": "lune@lune_garden",
+      "path": "assets/illustrated/portraits/lune@lune_garden.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        1114,
+        14,
+        1464,
+        782
+      ]
     },
     "lune@lune_swim": {
       "kind": "portrait",
-      "label": "lune",
-      "path": "assets/illustrated/portraits/lune.webp",
+      "label": "lune@lune_swim",
+      "path": "assets/illustrated/portraits/lune@lune_swim.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        1578,
+        13,
+        1882,
+        781
+      ]
     },
     "raven@raven_formal": {
       "kind": "portrait",
-      "label": "raven",
-      "path": "assets/illustrated/portraits/raven.webp",
+      "label": "raven@raven_formal",
+      "path": "assets/illustrated/portraits/raven@raven_formal.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true
     },
     "raven@raven_moon": {
       "kind": "portrait",
-      "label": "raven",
-      "path": "assets/illustrated/portraits/raven.webp",
+      "label": "raven@raven_moon",
+      "path": "assets/illustrated/portraits/raven@raven_moon.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true
     },
     "raven@raven_garden": {
       "kind": "portrait",
-      "label": "raven",
-      "path": "assets/illustrated/portraits/raven.webp",
+      "label": "raven@raven_garden",
+      "path": "assets/illustrated/portraits/raven@raven_garden.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true
     },
     "raven@raven_swim": {
       "kind": "portrait",
-      "label": "raven",
-      "path": "assets/illustrated/portraits/raven.webp",
+      "label": "raven@raven_swim",
+      "path": "assets/illustrated/portraits/raven@raven_swim.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true
     },
     "neo@neo_swim": {
       "kind": "portrait",
-      "label": "neo",
-      "path": "assets/illustrated/portraits/neo.webp",
+      "label": "neo@neo_swim",
+      "path": "assets/illustrated/portraits/neo@neo_swim.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        1116,
+        16,
+        1452,
+        1008
+      ]
     },
     "neo@crescent_tailcoat": {
       "kind": "portrait",
-      "label": "neo",
-      "path": "assets/illustrated/portraits/neo.webp",
+      "label": "neo@crescent_tailcoat",
+      "path": "assets/illustrated/portraits/neo@crescent_tailcoat.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        1351,
+        14,
+        1735,
+        870
+      ]
     },
     "neo@wood_suit": {
       "kind": "portrait",
-      "label": "neo",
-      "path": "assets/illustrated/portraits/neo.webp",
+      "label": "neo@wood_suit",
+      "path": "assets/illustrated/portraits/neo@wood_suit.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        102,
+        16,
+        400,
+        872
+      ]
     },
     "neo@blossom_haori": {
       "kind": "portrait",
-      "label": "neo",
-      "path": "assets/illustrated/portraits/neo.webp",
+      "label": "neo@blossom_haori",
+      "path": "assets/illustrated/portraits/neo@blossom_haori.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        514,
+        18,
+        868,
+        873
+      ]
     },
     "neo@rain_coat": {
       "kind": "portrait",
-      "label": "neo",
-      "path": "assets/illustrated/portraits/neo.webp",
+      "label": "neo@rain_coat",
+      "path": "assets/illustrated/portraits/neo@rain_coat.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        972,
+        17,
+        1321,
+        874
+      ]
     },
     "neo@summer_linen": {
       "kind": "portrait",
-      "label": "neo",
-      "path": "assets/illustrated/portraits/neo.webp",
+      "label": "neo@summer_linen",
+      "path": "assets/illustrated/portraits/neo@summer_linen.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        1408,
+        18,
+        1709,
+        872
+      ]
     },
     "neo@moonstone_robe": {
       "kind": "portrait",
-      "label": "neo",
-      "path": "assets/illustrated/portraits/neo.webp",
+      "label": "neo@moonstone_robe",
+      "path": "assets/illustrated/portraits/neo@moonstone_robe.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        66,
+        16,
+        509,
+        1008
+      ]
     },
     "neo@winter_coat": {
       "kind": "portrait",
-      "label": "neo",
-      "path": "assets/illustrated/portraits/neo.webp",
+      "label": "neo@winter_coat",
+      "path": "assets/illustrated/portraits/neo@winter_coat.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        569,
+        16,
+        1010,
+        998
+      ]
     },
     "yeoni@garden_apron": {
       "kind": "portrait",
@@ -5939,20 +7044,24 @@ export const ASSET_UPDATES = {
     },
     "neo@host_first": {
       "kind": "portrait",
-      "label": "neo",
-      "path": "assets/illustrated/portraits/neo.webp",
+      "label": "neo@host_first",
+      "path": "assets/illustrated/portraits/neo@host_first.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        954,
+        14,
+        1270,
+        866
+      ]
     },
     "yeoni@apron_spring": {
       "kind": "portrait",
@@ -5973,20 +7082,24 @@ export const ASSET_UPDATES = {
     },
     "neo@vest_night": {
       "kind": "portrait",
-      "label": "neo",
-      "path": "assets/illustrated/portraits/neo.webp",
+      "label": "neo@vest_night",
+      "path": "assets/illustrated/portraits/neo@vest_night.webp",
       "dimensions": [
         384,
         576
       ],
-      "static": true,
+      "px": 384,
       "expressions": [
-        "normal",
-        "smile",
-        "serious",
-        "surprised"
+        "normal"
       ],
-      "px": 384
+      "static": true,
+      "opaque": false,
+      "sourceBounds": [
+        526,
+        15,
+        803,
+        860
+      ]
     }
   },
   "objects": {
@@ -6467,6 +7580,42 @@ export const ASSET_UPDATES = {
       "fallback": {
         "color": "#b48a6a"
       }
+    },
+    "hunt_crystal": {
+      "kind": "object",
+      "label": "hunt_crystal",
+      "path": "assets/illustrated/objects/hunt_crystal.webp",
+      "dimensions": [
+        176,
+        176
+      ]
+    },
+    "hunt_urn": {
+      "kind": "object",
+      "label": "hunt_urn",
+      "path": "assets/illustrated/objects/hunt_urn.webp",
+      "dimensions": [
+        176,
+        176
+      ]
+    },
+    "hunt_coffer": {
+      "kind": "object",
+      "label": "hunt_coffer",
+      "path": "assets/illustrated/objects/hunt_coffer.webp",
+      "dimensions": [
+        176,
+        176
+      ]
+    },
+    "hunt_obsidian": {
+      "kind": "object",
+      "label": "hunt_obsidian",
+      "path": "assets/illustrated/objects/hunt_obsidian.webp",
+      "dimensions": [
+        176,
+        176
+      ]
     }
   },
   "skills": {
@@ -6807,6 +7956,38 @@ export const ASSET_UPDATES = {
         "h": 1
       },
       "px": 160
+    },
+    "bed_empty": {
+      "kind": "ui",
+      "path": "assets/illustrated/farm/bed_empty.webp",
+      "dimensions": [
+        256,
+        256
+      ]
+    },
+    "bed_seeded": {
+      "kind": "ui",
+      "path": "assets/illustrated/farm/bed_seeded.webp",
+      "dimensions": [
+        256,
+        256
+      ]
+    },
+    "bed_watered": {
+      "kind": "ui",
+      "path": "assets/illustrated/farm/bed_watered.webp",
+      "dimensions": [
+        256,
+        256
+      ]
+    },
+    "bed_tended": {
+      "kind": "ui",
+      "path": "assets/illustrated/farm/bed_tended.webp",
+      "dimensions": [
+        256,
+        256
+      ]
     }
   },
   "crops": {
@@ -7149,92 +8330,102 @@ export const ASSET_UPDATES = {
   },
   "guides": {
     "cook": {
-      "kind": "ui",
+      "kind": "object",
       "label": "cook",
       "path": "assets/illustrated/guides/cook.webp",
       "dimensions": [
-        480,
-        320
+        498,
+        322
       ],
       "opaque": true
     },
     "serve": {
-      "kind": "ui",
+      "kind": "object",
       "label": "serve",
       "path": "assets/illustrated/guides/serve.webp",
       "dimensions": [
-        480,
-        320
+        498,
+        322
       ],
       "opaque": true
     },
     "host": {
-      "kind": "ui",
+      "kind": "object",
       "label": "host",
       "path": "assets/illustrated/guides/host.webp",
       "dimensions": [
-        480,
-        320
+        498,
+        322
       ],
       "opaque": true
     },
     "farm": {
-      "kind": "ui",
+      "kind": "object",
       "label": "farm",
       "path": "assets/illustrated/guides/farm.webp",
       "dimensions": [
-        480,
-        320
+        498,
+        318
       ],
       "opaque": true
     },
     "hunt": {
-      "kind": "ui",
+      "kind": "object",
       "label": "hunt",
       "path": "assets/illustrated/guides/hunt.webp",
       "dimensions": [
-        480,
-        320
+        498,
+        318
       ],
       "opaque": true
     },
     "armory": {
-      "kind": "ui",
+      "kind": "object",
       "label": "armory",
       "path": "assets/illustrated/guides/armory.webp",
       "dimensions": [
-        480,
-        320
+        1050,
+        591
       ],
       "opaque": true
     },
     "outfits": {
-      "kind": "ui",
+      "kind": "object",
       "label": "outfits",
       "path": "assets/illustrated/guides/outfits.webp",
       "dimensions": [
-        480,
-        320
+        498,
+        342
       ],
       "opaque": true
     },
     "bonds": {
-      "kind": "ui",
+      "kind": "object",
       "label": "bonds",
       "path": "assets/illustrated/guides/bonds.webp",
       "dimensions": [
-        480,
-        320
+        498,
+        342
       ],
       "opaque": true
     },
     "interior": {
-      "kind": "ui",
+      "kind": "object",
       "label": "interior",
       "path": "assets/illustrated/guides/interior.webp",
       "dimensions": [
-        480,
-        320
+        498,
+        342
+      ],
+      "opaque": true
+    },
+    "shop": {
+      "kind": "object",
+      "label": "armory",
+      "path": "assets/illustrated/guides/shop.webp",
+      "dimensions": [
+        498,
+        318
       ],
       "opaque": true
     }
@@ -7548,6 +8739,25 @@ export const ASSET_UPDATES = {
         "surprised"
       ],
       "px": 384
+    },
+    "loading": {
+      "kind": "ui",
+      "label": "loading",
+      "path": "assets/illustrated/ui/loading.webp",
+      "dimensions": [
+        280,
+        336
+      ],
+      "opaque": false
+    },
+    "new_game": {
+      "kind": "ui",
+      "opaque": true,
+      "path": "assets/illustrated/ui/new_game.webp",
+      "dimensions": [
+        720,
+        480
+      ]
     }
   },
   "wardrobe": {
@@ -8001,16 +9211,323 @@ export const ASSET_UPDATES = {
     },
     "neo": {
       "kind": "ui",
+      "label": "neo",
       "path": "assets/illustrated/wardrobe/neo.webp",
       "dimensions": [
         1024,
         256
+      ]
+    }
+  },
+  "tiles": {
+    "hunt_garden": {
+      "kind": "tile",
+      "label": "hunt_garden",
+      "path": "assets/illustrated/tiles/hunt_garden.webp",
+      "dimensions": [
+        512,
+        512
+      ]
+    },
+    "hunt_rabbit": {
+      "kind": "tile",
+      "label": "hunt_rabbit",
+      "path": "assets/illustrated/tiles/hunt_rabbit.webp",
+      "dimensions": [
+        512,
+        512
+      ]
+    },
+    "hunt_ruins": {
+      "kind": "tile",
+      "label": "hunt_ruins",
+      "path": "assets/illustrated/tiles/hunt_ruins.webp",
+      "dimensions": [
+        512,
+        512
+      ]
+    },
+    "hunt_heukwol": {
+      "kind": "tile",
+      "label": "hunt_heukwol",
+      "path": "assets/illustrated/tiles/hunt_heukwol.webp",
+      "dimensions": [
+        512,
+        512
+      ]
+    }
+  },
+  "talking": {
+    "yeoni": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
       ],
-      "directions": [
-        "down",
-        "left",
-        "right",
-        "up"
+      "static": false,
+      "path": "assets/illustrated/talking/yeoni.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "neo": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/neo.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "neo_cat": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/neo_cat.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "yeoni_pig": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/yeoni_pig.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "luna": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/luna.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "luna_sis": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/luna_sis.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "moka": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/moka.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "solv": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/solv.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "bambi": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/bambi.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "lune": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/lune.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "raven": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/raven.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "yun": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/yun.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "seohanbi": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/seohanbi.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "museong": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/museong.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "neo_stage": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/neo_stage.webp",
+      "dimensions": [
+        1280,
+        384
+      ]
+    },
+    "cheongtokki": {
+      "kind": "portrait",
+      "frame": {
+        "w": 320,
+        "h": 384
+      },
+      "columns": 4,
+      "expressions": [
+        "normal"
+      ],
+      "static": false,
+      "path": "assets/illustrated/talking/cheongtokki.webp",
+      "dimensions": [
+        1280,
+        384
       ]
     }
   }

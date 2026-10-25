@@ -1,0 +1,41 @@
+{
+  "prompt": "Create a production visual-novel TALKING PORTRAIT ATLAS, 2048x2048, exactly 4 columns x 4 rows, equal 512px cells, transparent background. Four characters; each row follows the corresponding reference image. Row 1: adult pink-haired human Yeoni, ivory floral blouse, lotus hair ornament. Row 2: adult silver-haired human Neo, relaxed plain white shirt. Row 3: official white cat Yeongnyangi, half-lidded violet-gold eyes, navy crescent constellation cap and cape, purple jewel; do NOT turn him into a brown-eyed kitten. Row 4: flower-pig Yeoni, soft pink rounded ears, pink lotus on head, purple neck scarf. CHEST-UP conversational busts, NOT full bodies, full head and shoulders inside each cell, clean true alpha background, no panels or borders or words or scenery. In EVERY row the SAME drawing and pose registered in precisely the SAME position in all four cells. Columns: 1 neutral closed mouth eyes open, 2 same mouth closed eyes softly closed for blink, 3 same eyes open mouth slightly parted speaking, 4 same eyes open mouth visibly open speaking. Change ONLY eyelids and lips, NOT hair, body, head tilt, framing, shoulders, costume or camera. 32px empty transparent padding between all busts. Refined Korean light-novel illustration for humans, official polished illustrated mascot style for animals. Crisp facial anatomy, readable small speaking mouth, no floating extra body parts. No glows or opaque backdrop; actual transparent alpha everywhere around each silhouette.",
+  "createdAt": "2026-10-25T21:06:06.729Z",
+  "updatedAt": "2026-10-25T21:50:42.198954+00:00",
+  "sourceFile": "exec-301d5f73-11a2-49c6-b1f2-b22d7738b3ca.png",
+  "sourceSha256": "7b34ee977ef99c5e61b5be3143178aacccdd95947acf3d5d79d45a9e109245c0",
+  "sourceCells": [
+    [
+      0,
+      0,
+      314,
+      309
+    ],
+    [
+      314,
+      0,
+      627,
+      309
+    ],
+    [
+      627,
+      0,
+      940,
+      309
+    ],
+    [
+      940,
+      0,
+      1254,
+      309
+    ]
+  ],
+  "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+  "sha256": "3334264e360ea1f7e9e4e6f24e7b683f0ee256cbc48927427e379e53a23c2c71",
+  "frame": {
+    "width": 320,
+    "height": 384,
+    "count": 4
+  },
+  "revision": "measured crop and fixed-position repack"
+}
