@@ -136,12 +136,14 @@ export function castStory(state, id) {
 
 // ── 의상(능력치 효과 없음)
 export function equip(state, who, slot, itemId) {
+  if (state.mode !== 'prep') return { ok: false, reason: '영업 준비 중에 갈아입을 수 있어요' };
   if (!OUTFIT_WEARERS.includes(who)) return { ok: false, reason: '의상을 입을 수 없는 대상입니다' };
   if (!OUTFIT_SLOTS.includes(slot)) return { ok: false, reason: '없는 칸입니다' };
   const eq = state.outfits.equipped[who];
   if (itemId == null) { eq[slot] = null; return { ok: true }; }
   const item = OUTFITS[itemId];
   if (!item || !state.outfits.owned.includes(itemId)) return { ok: false, reason: '가지고 있지 않은 의상입니다' };
+  if (item.who && item.who !== who) return { ok: false, reason: '이 인물의 의상이 아니에요' };
   if ((slot === 'outfit') !== (item.slot === 'outfit')) return { ok: false, reason: slot === 'outfit' ? '의상 칸에는 옷만 넣을 수 있습니다' : '액세서리 칸에는 액세서리만 넣을 수 있습니다' };
   const other = slot === 'acc1' ? 'acc2' : slot === 'acc2' ? 'acc1' : null;
   if (other && eq[other] === itemId) eq[other] = null;

@@ -188,9 +188,10 @@ test('피버: 접대 테이블 1개로도 사용 가능, 팁만 2배', () => {
 });
 
 test('피버·음식·의상으로도 상한(≤39) 고객은 만족·팁 불가', () => {
-  const s = quietShift();
-  assert.ok(dispatch(s, { type: 'outfit.equip', who: 'neo', slot: 'outfit', itemId: 'vest_night' }).ok);
-  assert.ok(dispatch(s, { type: 'outfit.equip', who: 'neo', slot: 'acc1', itemId: 'pin_star' }).ok);
+  const s = quietShift({ beforeStart: state => {
+    assert.ok(dispatch(state, { type: 'outfit.equip', who: 'neo', slot: 'outfit', itemId: 'vest_night' }).ok);
+    assert.ok(dispatch(state, { type: 'outfit.equip', who: 'neo', slot: 'acc1', itemId: 'pin_star' }).ok);
+  } });
   const { vid, tableNo } = seat(s, { profileId: 'funmix' });
   assert.ok(dispatch(s, { type: 'nomination.accept', tableNo }).ok);
   const v = s.visits[vid];

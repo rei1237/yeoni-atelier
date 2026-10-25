@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createGame, hostStats } from '../src/game/state.js';
+import { dispatch } from '../src/game/engine.js';
+import { serialize, deserialize } from '../src/core/save.js';
+import { portraitFrame } from '../src/ui/talking-portrait.js';
+import { OUTFITS } from '../src/data/outfits.js';
+test('의상은 월정석 정확히 1회 해금하고 준비 중만 올바른 인물이 입는다', () => {
+  const s = createGame(); s.moonstone = 100;
+  const stats = structuredClone(hostStats(s, 'neo'));
+  const item = 'crescent_tailcoat';
+  assert.ok(dispatch(s, { type: 'outfit.unlock', id: item }).ok);
+  assert.equal(s.moonstone, 100 - OUTFITS[item].unlock.cost);
+  assert.equal(dispatch(s, { type: 'outfit.unlock', id: item }).ok, false);
+  assert.equal(dispatch(s, { type: 'outfit.unlock', id: 'winter_coat' }).ok, false);
+  assert.equal(dispatch(s, { type: 'outfit.equip', who: 'yeoni', slot: 'outfit', itemId: item }).ok, false);
+  assert.ok(dispatch(s, { type: 'outfit.equip', who: 'neo', slot: 'outfit', itemId: item }).ok);
+  assert.deepEqual(hostStats(s, 'neo'), stats); assert.equal(s.neoStress, 0);
+  assert.equal(deserialize(serialize(s)).state.outfits.equipped.neo.outfit, item);
+  dispatch(s, { type: 'shift.start' });
+  assert.equal(dispatch(s, { type: 'outfit.equip', who: 'neo', slot: 'outfit', itemId: null }).ok, false);
+});
+test('이야기 지급은 중복 없이 저장되며 말하기 프레임은 종료·쉼표·모션 축소를 존중', () => {
+  const s = createGame(); s.day = 13;
+  assert.ok(dispatch(s, { type: 'story.seen', id: 'm4' }).ok);
+  dispatch(s, { type: 'story.seen', id: 'm4' });
+  assert.equal(s.outfits.owned.filter(id => id === 'rain_coat').length, 1);
+  assert.equal(portraitFrame({ now: 110, talking: true }), 3);
+  assert.equal(portraitFrame({ now: 110, talking: false }), 0);
+  assert.equal(portraitFrame({ now: 110, talking: true, pauseUntil: 200 }), 0);
+  assert.equal(portraitFrame({ now: 110, talking: true, blinking: true }), 1);
+  assert.equal(portraitFrame({ now: 110, talking: true, blinking: true, reduced: true }), 0);
+});

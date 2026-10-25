@@ -14,6 +14,7 @@ import * as recipe from './recipe.js';
 import * as town from './town.js';
 import * as bonds from './bonds.js';
 import * as farm from './farm.js';
+import { unlockOutfit } from './outfits.js';
 import { autoStep } from './auto.js';
 
 // 일시정지 중에도 받는 명령
@@ -67,6 +68,7 @@ function route(state, cmd) {
     case 'expand.decor': return town.buyDecor(state, cmd.defId);
     case 'expand.area': return town.buyArea(state, cmd.id);
     case 'outfit.equip': return eco.equip(state, cmd.who, cmd.slot, cmd.itemId);
+    case 'outfit.unlock': return unlockOutfit(state, cmd.id);
 
     case 'interior.begin': return interior.begin(state);
     case 'interior.select': return interior.select(state, cmd.uid);

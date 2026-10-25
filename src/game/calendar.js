@@ -7,6 +7,7 @@ import { PDF } from '../config/balance.pdf.js';
 import { emit } from './state.js';
 import { BOND_IDS, bondTier, bondFx } from '../data/bonds.js';
 import { advanceFarm } from './farm.js';
+import { grantEventOutfits } from './outfits.js';
 
 const C = TEMP.CALENDAR;
 export const PARTS = Object.freeze(['상순', '중순', '하순']);
@@ -126,5 +127,6 @@ export function markStory(state, id) {
     }
   }
   if (id === 'ev:hunt') state.huntUnlocked = true;
+  grantEventOutfits(state, id);
   return { ok: true };
 }
