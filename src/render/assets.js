@@ -5,6 +5,7 @@
 // 시트 규격: 한 방향 블록 안에서 행 = idle/walk/action, 열 = 프레임. 방향 블록은 DIRECTIONS 순서로 세로로 잇는다.
 // 자세한 규격과 생성 프롬프트는 docs/ASSETS.md, AGENTS.md.
 
+import { ASSET_UPDATES } from './asset-updates.js';
 import { OUTFITS } from '../data/outfits.js';
 import { RECRUITABLE } from '../data/companions.js';
 import { DECOR_CATALOG } from '../data/decor-catalog.js';
@@ -44,7 +45,7 @@ const icon = (key, label, color) => ({ kind: 'icon', label, path: `assets/sprite
 // 대화 초상화: 192×192, 4열 입/눈 프레임 × 표정 행(expressions 순서). 기존 가로형도 호환한다.
 const portrait = (key, label, expressions) => ({ kind: 'portrait', label, path: `assets/sprites/portraits/${sourceKey(key)}.webp`, legacyPath: `assets/portraits/${key}.png`, image: null, px: ART.PORTRAIT, expressions });
 
-export const ASSETS = Object.freeze({
+const LEGACY_ASSETS = {
   actors: {
     ...Object.fromEntries(RECRUITABLE.filter(c => c.id !== 'moka').map(c => [c.id, actor(c.id, c.name, { shape: 'person', body: c.color, hair: '#342b40', skin: '#ffe6da' })])),
     ...Object.fromEntries(Object.values(OUTFITS).filter(o => o.slot === 'outfit').map(o => [`${o.who}@${o.id}`, actor(`${o.who}@${o.id}`, o.name, { shape: 'person', body: o.color, hair: o.who === 'neo' ? '#e8ebf5' : '#d98ea6', skin: '#ffe6da' })])),
@@ -95,7 +96,7 @@ export const ASSETS = Object.freeze({
     night_dew: icon('night_dew', '밤이슬', '#6f7fe8'),
     gem_s: icon('gem_s', '별조각(소)', '#8fd3ff'), gem_m: icon('gem_m', '별조각(중)', '#9dff9a'), gem_l: icon('gem_l', '별조각(대)', '#ffb36b'),
     fish: icon('fish', '구운 생선', '#f0a060'), magnet: icon('magnet', '수염 자석', '#e85d75'), bomb: icon('bomb', '달빛 폭탄', '#c9a227'), chest: icon('chest', '별 상자', '#d9b45a'),
-    // 월정석: 사냥에서 떨어지고 루나의 저울에서 골드로 바꾼다(게임 오리지널)
+    // 월정석: 사냥에서 떨어지고 청토끼 금융 센터에서 골드로 바꾼다(게임 오리지널)
     moonstone: icon('moonstone', '월정석', '#cfd8ff'),
     // 영냥이 장비(게임 오리지널·임시, data/gear.js). 외형은 바뀌지 않고 아이콘만 쓴다.
     claw_glove: icon('claw_glove', '고양이 발톱 장갑', '#e8d9c4'), crescent_wand: icon('crescent_wand', '초승달 방울 지팡이', '#e5c58e'),
@@ -132,7 +133,8 @@ export const ASSETS = Object.freeze({
       ['transform',1024,128],['transform-large',1536,192],['moon-glint',128,128],['push-lines',128,128],['ledger',128,128],
     ].map(([key,w,h])=>[key,{kind:'ui',label:key,path:`assets/ui/${key}.webp`,dimensions:[w,h]}])),
   },
-});
+};
+export const ASSETS=Object.freeze(Object.fromEntries([...new Set([...Object.keys(LEGACY_ASSETS),...Object.keys(ASSET_UPDATES)])].map(g=>[g,{...LEGACY_ASSETS[g],...ASSET_UPDATES[g]}])));
 
 // assets/manifest.json 의 ready 에 적힌 키만 불러온다. 파일이 없거나 실패하면 도형 대체로 남는다.
 const loaded = new Map();
