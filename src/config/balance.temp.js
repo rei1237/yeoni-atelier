@@ -68,12 +68,12 @@ export const TEMP = Object.freeze({
     PLAYER_HP: 100,
     HURT_IFRAME_MS: 700,
     SUB_STEP_MS: 34,          // 탄이 적을 뚫고 지나가지 않도록 탐색 안에서 더 잘게 나눈다
-    SPAWN_RATE_START: 1.1,    // 초당 생성 수(시간에 따라 선형 증가)
-    SPAWN_RATE_END: 4.2,
-    DENSITY_START: 9,         // 이 수보다 적으면 생성 속도 2배
-    DENSITY_END: 70,
-    MAX_ENEMIES: 140,
-    HP_GROWTH: 1.7,           // 3분 끝에서 적 HP 배율 +170%
+    // 단계별 준비 시간·밀도·동시 상한은 src/data/hunt-stages.js. 생성은 밀도 목표보다 모자랄 때만 한다
+    SPAWN_RATE_MIN: 1.056,    // 초당 생성 수 = min(MAX, MIN + PER_MISSING × 모자란 수)
+    SPAWN_RATE_MAX: 2.64,
+    SPAWN_RATE_PER_MISSING: 0.45,
+    BOSS_DENSITY: 0.35,       // 보스가 있는 동안 잡몹 밀도 배율
+    MAX_ENEMIES: 140,         // 안전 상한(단계 상한이 먼저 걸린다)
     MONTH_HP: 0.08,           // 달이 지날 때마다 적 HP +8% (3월 0, 다음 해 2월 +88%)
     MONTH_DMG: 0.04,          // 달마다 접촉 피해 +4%
     SPAWN_DIST: Object.freeze([380, 470]),

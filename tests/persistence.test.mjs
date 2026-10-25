@@ -97,13 +97,15 @@ test('정산·보상·상환·탐색 결과는 복원 뒤 다시 처리해도 �
   assert.equal(r4.stats.repayCount, 1);
 });
 
-// 탐색 시간을 ms 만큼 진행하며 레벨업 카드는 첫 장을 바로 고른다
-// (카드가 나오면 그 틱의 남은 시간은 흐르지 않으므로 경과 시간 기준으로 반복한다)
-function huntRun(s, ms, input, step = 500) {
+// 탐색 시간을 ms 만큼 진행하며 레벨업 카드는 첫 장을 고르고 상자는 바로 연다.
+// 단계를 클리어하면 next 일 때 다음 단계로, 아니면 멈춘다(카드·상자·선택이 남으면 시간이 흐르지 않으므로 경과 시간 기준으로 반복한다)
+function huntRun(s, ms, input, step = 500, next = true) {
   const end = s.hunt.elapsedMs + ms;
   while (s.hunt.status === 'running' && s.hunt.elapsedMs < end) {
     tick(s, Math.min(step, end - s.hunt.elapsedMs), { input });
     while (s.hunt.picks.length) assert.ok(dispatch(s, { type: 'hunt.pick', index: 0 }).ok);
+    while (s.hunt.chests.length) assert.ok(dispatch(s, { type: 'hunt.chest' }).ok);
+    if (s.hunt.stageChoice && !(next && dispatch(s, { type: 'hunt.next' }).ok)) return;
   }
 }
 
@@ -132,28 +134,40 @@ test('월정석 사냥: 네오가 영냥이로 변하고, 모은 월정석은 �
   assert.equal(r2.stats.huntsCompleted, 1);
 });
 
-test('[자동 시계] 생존 사냥: 3분 이후에도 계속되고 퇴각하면 정산한다', () => {
+test('[자동 시계] 단계 사냥: 준비 시간 뒤 보스가 나오고, 쓰러뜨려야 클리어·다음 단계이며 3분 뒤에도 계속된다', () => {
   const s = createGame();
   s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   dispatch(s, { type: 'hunt.start' });
   s.hunt.hp = s.hunt.maxHp = 1e9; // 타이머만 떼어 보기 위해 HP 를 크게(테스트 준비)
-  huntRun(s, 179900, { x: 0.3, y: -0.2 });
+  assert.equal(dispatch(s, { type: 'hunt.next' }).ok, false, '보스 처치 전에는 다음 단계 불가');
+  huntRun(s, 59000, { x: 0.3, y: -0.2 });
+  assert.equal(s.hunt.bossSpawned, false, '1단계 준비 60초 전에는 보스가 없다');
+  huntRun(s, 240000, { x: 0.3, y: -0.2 }, 500, false);
+  assert.ok(s.hunt.stageChoice, '보스를 쓰러뜨려 클리어 선택이 떴다');
+  assert.equal(s.hunt.stageChoice.stage, 1);
+  assert.equal(s.hunter.maxStage, 2);
+  assert.equal(s.ledger.rewards['stage:neo:1'], true);
+  const t0 = s.hunt.elapsedMs;
+  tick(s, 5000, { input: { x: 0, y: 0 } });
+  assert.equal(s.hunt.elapsedMs, t0, '선택 중에는 시간이 멈춘다');
+  assert.ok(s.hunt.kills > 0 && s.hunt.level > 1);
+  assert.ok(dispatch(s, { type: 'hunt.next' }).ok);
+  assert.equal(s.hunt.depth, 2);
+  assert.equal(dispatch(s, { type: 'hunt.next' }).ok, false, '2단계 보스 전에는 3단계로 못 간다');
+  huntRun(s, Math.max(0, 200000 - s.hunt.elapsedMs), { x: 1, y: 0 });
   assert.equal(s.hunt.status, 'running');
-  huntRun(s, 100, { x: 0, y: 0 });
-  assert.equal(s.hunt.status, 'running');
-  assert.equal(s.hunt.elapsedMs, 180000);
-  assert.ok(s.hunt.kills > 0, '자동 공격으로 적을 처치했다');
-  assert.ok(s.hunt.level > 1, '별조각을 모아 레벨이 올랐다');
-  assert.ok(s.hunt.fired.includes('0:150'), '3분 안에 보스 사건까지 지나갔다');
-  huntRun(s,30000,{x:1,y:0});assert.equal(s.hunt.status,'running');assert.equal(s.hunt.elapsedMs,210000);dispatch(s,{type:'hunt.retreat'});
+  assert.ok(s.hunt.elapsedMs > 180000, '3분이 지나도 계속된다');
+  dispatch(s, { type: 'hunt.retreat' });
   assert.ok(dispatch(s, { type: 'hunt.finish' }).ok);
   assert.equal(s.mode, 'prep');
+  assert.ok(s.lastHunt.cleared >= 1);
 });
 
 test('[자동 시계] 탐색 중 HP 0 이면 3분 전에 쓰러짐으로 끝나고 결과 화면으로 간다', () => {
   const s = createGame();
   s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
-  dispatch(s, { type: 'hunt.start' });
+  s.hunter.maxStage = 40; // 테스트 준비: 깊은 단계(1단계는 가만히 있어도 버틸 만큼 잡몹이 적다)
+  dispatch(s, { type: 'hunt.start', depth: 40 });
   huntRun(s, 180000, { x: 0, y: 0 }, 1000); // 가만히 서 있으면 포위당한다
   assert.equal(s.hunt.status, 'down');
   assert.equal(s.hunt.hp, 0);

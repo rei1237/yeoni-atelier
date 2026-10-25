@@ -70,11 +70,12 @@ test('무한 필드 오브젝트는 좌표 기반으로 반복 생성되고 파�
  h=JSON.parse(JSON.stringify(h));assert.equal(hitFieldProp(h,prop,10000),0);assert.ok(!nearbyProps(h,p).some(x=>x.id===prop.id));
  assert.equal(fieldTheme(100),'hunt_heukwol');assert.equal(fieldTheme(35),'hunt_rabbit');
 });
-test('근접 검은 전방 원호에만 맞고 달빛 수호부는 짧게 피해를 막는다',()=>{
+test('근접 검은 전방 원호에만 맞고 달빛 수호부는 피해를 줄일 뿐 막지 않는다',()=>{
  assert.ok(withinMeleeArc(0,0,0,100,.6,{x:85,y:0},10));assert.equal(withinMeleeArc(0,0,0,100,.6,{x:-60,y:0},10),false);
- const s=createGame();s.hunt={hp:100,scale:{dmg:1},wardUntil:2000};const w={player:{hurtUntil:0}};
- assert.equal(damageHunter(s,w,20,1000),false);assert.equal(s.hunt.hp,100);
- assert.ok(damageHunter(s,w,20,2100));assert.ok(s.hunt.hp<100);
+ const s=createGame();s.hunt={hp:100,scale:{dmg:1}};const w={player:{hurtUntil:0},guard:.5};
+ assert.ok(damageHunter(s,w,20,1000));assert.equal(s.hunt.hp,90,'수호부 50% → 피해 절반');
+ w.guard=0;assert.ok(damageHunter(s,w,20,2000));assert.equal(s.hunt.hp,70);
+ s.hunt.shieldUntil=4000;assert.equal(damageHunter(s,w,20,3000),false,'방어막 소모품만 완전히 막는다');assert.equal(s.hunt.hp,70);
 });
 test('지연 만족도와 방문 평가는 저장 뒤에도 중복 반영되지 않는다',()=>{
  let s=createGame();s.shift={elapsedMs:120000};s.orders={x:{status:'waiting',placedAt:0}};s.visits={v:{orderIds:['x'],foodScores:[95]}};

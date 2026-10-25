@@ -123,6 +123,8 @@ function execute(state, cmd) {
     case 'hunt.retreat': return hunt.retreat(state);
     case 'hunt.finish': return hunt.finishHunt(state);
     case 'hunt.pick': return hunt.pick(state, cmd.index);
+    case 'hunt.next': return hunt.nextStage(state);
+    case 'hunt.chest': return hunt.openChest(state);
     default: return { ok: false, reason: `알 수 없는 명령: ${t}` };
   }
 }

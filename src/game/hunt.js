@@ -1,9 +1,10 @@
 import {nearbyProps,hitFieldProp} from './hunt-field.js';
 import {withinMeleeArc,facingAngle} from './melee.js';
 import {stepEnemyBehaviors,addBattleFx} from './enemy-behaviors.js';
-// 영냥이 월정석 사냥(생존형, 100단계). 적은 재료가 아니라 월정석(환전용)을 떨어뜨린다. 정규 영업과 분리된 모드이며 네오와 같은 인물 잠금(people.neo)을 쓴다.
+// 영냥이 월정석 사냥(100단계). 단계마다 준비 시간 동안 잡몹을 상대하고, 준비 시간이 끝나면 나오는 보스를 쓰러뜨리면 클리어다.
+// 클리어하면 "다음 단계/귀환"을 고르고, 사망·후퇴할 때까지 이어 간다. 정규 영업과 분리된 모드이며 네오와 같은 인물 잠금(people.neo)을 쓴다.
 // 장비(data/gear.js) 효과는 출발할 때 hs.gear 로 고정해 사냥 중 바뀌지 않는다.
-// 저장되는 것: 진행 시간·HP·가방·장비 효과·레벨·경험치·무기·보조 능력·대기 중인 레벨업 카드·지난 사건.
+// 저장되는 것: 진행 시간·단계 시간·HP·가방·장비 효과·레벨·경험치·무기·보조 능력·대기 중인 레벨업 카드·상자 결과·보스 HP·지난 사건.
 // 전장(적·탄·드롭 위치)은 저장하지 않고 이어하기 때 새로 만든다.
 // killerflowerpig 에서 가져온 것: Pool(그대로), 조이스틱 입력(변형). 무기 레벨 누적·진화 배율·
 // 밀도 목표 생성기·별조각 등급/합치기는 개념만 참고해 이 파일에서 새로 썼다(전투 로직 이식 아님).
@@ -15,9 +16,11 @@ import { TEMP } from '../config/balance.temp.js';
 import { INGREDIENTS,MENUS } from '../data/menus.js';
 import { gearBonus } from '../data/gear.js';
 import {
-  WEAPONS, PASSIVES, ENEMIES, SPAWN_MIX, HUNT_EVENTS,
+  WEAPONS, PASSIVES, ENEMIES,
   MAX_WEAPONS, MAX_PASSIVES, WEAPON_MAX_LV, PASSIVE_MAX_LV, EVO_MULT,
 } from '../data/hunt-kit.js';
+import { stageDef, stageAllows, stagePool, bossFor, stageEvents, firstClearMoon, HANBI_STAGES } from '../data/hunt-stages.js';
+import { initBoss, stepBoss, stepZones, clearBossAttacks } from './hunt-boss.js';
 import { Pool } from '../core/pool.js';
 import { nextRandom, randRange } from '../core/rng.js';
 import { emit, nextId } from './state.js';
@@ -30,6 +33,9 @@ import { hunterProgress, maxHuntDepth, depthScale, huntMoonReward } from './hunt
 const H = TEMP.HUNT;
 const worlds = new WeakMap(); // state.hunt 객체 → 실행 중 전장(저장 안 함)
 const POWER_NAMES = { fish: '구운 생선', magnet: '수염 자석', bomb: '달빛 폭탄', chest: '별 상자' };
+// 희귀 상자 룰렛 칸(월정석, 단계 보상 배율을 곱한다). 임시
+export const CHEST_WHEEL = Object.freeze([5, 8, 12, 20, 30, 50]);
+export const CHEST_FALLBACK = 25; // 올릴 무기·보조 능력이 없으면 강화 대신 더 주는 월정석(임시)
 
 export const xpNeeded = level => Math.round(H.XP_BASE + (level - 1) * H.XP_STEP + (level - 1) ** 2 * H.XP_CURVE);
 // 달력이 흐를수록 그늘이 짙어진다: 사냥 시작 때 정해 사냥 내내 쓴다
@@ -79,7 +85,7 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
     bag: { moonstone: 0 }, kills: 0, status: 'running', depth, careerLevel, careerXP: 0,
     scale: depthScale(depth, monthScale(state.day), calendarOf(state.day).monthIdx),
     fieldSeed:Math.floor(nextRandom(state.rng)*2147483647),brokenProps:{},propDamage:{},
-    ...(saved?{level:saved.level,xp:saved.xp,weapons:structuredClone(saved.weapons),passives:{...saved.passives}}:{}),
+    ...(saved?{level:saved.level,xp:saved.xp,weapons:structuredClone(saved.weapons),passives:{...saved.passives},picks:structuredClone(saved.picks||[])}:{}),
   });
   emit('huntStart', {});
   return { ok: true };
@@ -100,6 +106,8 @@ export function normalizeHunt(hs) {
   hs.bossDown ??= false;
   hs.scale ??= { hp: 1, dmg: 1 };
   hs.depth ??= 1; hs.careerLevel ??= 1; hs.careerXP ??= 0;
+  hs.startDepth ??= hs.depth; hs.stageMs ??= 0; hs.boss ??= null; hs.bossSpawned ??= false;
+  hs.cleared ??= 0; hs.stageChoice ??= null; hs.chests ??= [];
   return hs;
 }
 
@@ -111,7 +119,7 @@ function makeWorld() {
     strikes: new Pool(() => ({ x: 0, y: 0, at: 0, r: 0, dmg: 0, boomUntil: 0 })),
     drops: new Pool(() => ({ kind: 'gem', id: '', v: 0, x: 0, y: 0, speed: 0, magnet: false })),
     texts: new Pool(() => ({ x: 0, y: 0, v: 0, crit: false, life: 0 })),
-    hostile: [], fx: [], props: [],
+    hostile: [], fx: [], props: [], zones: [],
     cool: {},      // 무기별 다음 발사 시각
     orbitAngle: 0,
     auraAt: 0,
@@ -119,6 +127,8 @@ function makeWorld() {
     uidSeq: 0,
     shakeUntil: 0,
     banner: null,  // { label, warn, until }
+    guard: 0,      // 달빛 수호부 피해 감소
+    cameo: null,   // 검은 호랑이 실루엣 { x, y, until }
   };
 }
 
@@ -156,7 +166,7 @@ export function weaponStats(wp, m) {
     if (wp.id === 'bolt') { s.radius *= 1.3; s.halfArc = Math.PI * .6; }
     if (wp.id === 'orbit') { s.count = 6; s.radius *= 1.25; }
     if (wp.id === 'crescent') { s.count += 2; s.range *= 1.3; }
-    if (wp.id === 'aura') s.slow = 0.4;
+    if (wp.id === 'aura') { s.heal *= 2; s.guard += .1; }
     if (wp.id === 'tarot') { s.count += 3; s.radius *= 1.3; }
   }
   if (s.radius) s.radius *= m.area;
@@ -244,21 +254,26 @@ function gainXp(state, v) {
 }
 
 // ── 생성
+export const findBoss = w => { for (let i = 0; i < w.enemies.count; i++) if (ENEMIES[w.enemies.items[i].type].boss) return i; return -1; };
+// 모든 생성 경로(일반·무리·포위·박쥐·정예·보스 소환)가 여기를 지난다: 단계가 허용한 종류만, 잡몹은 단계 상한까지.
+// HP 는 단계·달 배율만 곱한다(경과 시간으로 커지지 않는다)
 export function spawnEnemy(state, w, type, x, y) {
-  if (w.enemies.count >= H.MAX_ENEMIES + (ENEMIES[type].elite ? 2 : 0)) return null;
-  const hs = state.hunt;
-  if(type==='shade_hand') { if(hs.depth>=85)type='heukwol_fragment'; else if(hs.depth>=55)type='rabbit_brute'; else if(hs.depth>=35)type='blue_rabbit'; }
-  const def = ENEMIES[type];
-  // 정예·보스는 시간 성장 없이 달 배율만(늦게 나와도 잡을 수 있게)
-  const grow = (1 + .55 * (hs.elapsedMs / 60000) + .08 * (hs.elapsedMs / 60000) ** 2) * hs.scale.hp;
+  const hs = state.hunt, def = ENEMIES[type];
+  if (!def) return null;
+  if (!def.boss) {
+    if (!stageAllows(hs.depth, type)) return null;
+    const alive = w.enemies.count - (findBoss(w) >= 0 ? 1 : 0);
+    if (alive >= stageDef(hs.depth).cap + (def.elite ? 2 : 0) || w.enemies.count >= H.MAX_ENEMIES) return null;
+  }
   const e = w.enemies.spawn();
   Object.assign(e, {
     rolePhase:'approach',roleUntil:0,nextAttack:hs.elapsedMs+1500,aimX:0,aimY:1,motionX:0,motionY:0,warningR:0,facing:'down',
-    uid: ++w.uidSeq, type, hp: Math.round(def.hp * grow), speed: def.speed * randRange(state.rng, 0.85, 1.15),
+    uid: ++w.uidSeq, type, hp: Math.round(def.hp * hs.scale.hp), speed: def.speed * (def.boss ? 1 : randRange(state.rng, 0.85, 1.15)),
     kx: 0, ky: 0, hitAt: 0, orbitAt: 0, cresAt: 0, vx: 0, vy: 0, life: 0, phase: nextRandom(state.rng) * 6.28,
     x, y,
   });
   e.maxHp = e.hp;
+  if (def.boss) initBoss(e, hs.elapsedMs);
   return e;
 }
 
@@ -268,16 +283,14 @@ function aroundPlayer(state, w, type) {
   return spawnEnemy(state, w, type, w.player.x + Math.cos(a) * r, w.player.y + Math.sin(a) * r);
 }
 
-function pickType(state, sec) {
-  const pool = SPAWN_MIX.filter(m => sec >= m.from);
-  if(state.hunt.depth>=35)pool.push({id:'blue_rabbit',w:6});
-  if(state.hunt.depth>=55)pool.push({id:'rabbit_brute',w:4});
-  if(state.hunt.depth>=85)pool.push({id:'heukwol_fragment',w:12});
-  const total = pool.reduce((a, m) => a + m.w, 0);
+function pickType(state) {
+  const pool = stagePool(state.hunt.depth);
+  const total = pool.reduce((a, m) => a + m[2], 0);
   let r = nextRandom(state.rng) * total;
-  for (const m of pool) { r -= m.w; if (r < 0) return m.id; }
-  return pool[0].id;
+  for (const m of pool) { r -= m[2]; if (r < 0) return m[0]; }
+  return pool[0][0];
 }
+const spawnMinion = (state, w, x, y) => spawnEnemy(state, w, pickType(state), x, y);
 
 function runEvent(state, w, ev) {
   const p = w.player;
@@ -299,27 +312,40 @@ function runEvent(state, w, ev) {
       if (e) { e.vx = dir * 150; e.vy = 0; e.life = 7000; }
     }
   } else if (ev.kind === 'elite') aroundPlayer(state, w, 'elite_hand');
-  else if (ev.kind === 'boss') { aroundPlayer(state, w, 'boss_hand'); w.shakeUntil = state.hunt.elapsedMs + 600; }
 }
 
+// 단계 보스. 저장된 HP·페이즈가 있으면(이어하기) 그대로 되살린다
+function spawnBoss(state, w) {
+  const hs = state.hunt, type = hs.boss?.type || bossFor(hs.depth, hs.hunterId, !!state.roster.seohanbi);
+  const e = aroundPlayer(state, w, type);
+  if (!e) return null;
+  if (hs.boss) { e.maxHp = hs.boss.maxHp; e.hp = Math.min(e.maxHp, hs.boss.hp); initBoss(e, hs.elapsedMs, hs.boss.phase || 0); }
+  else hs.boss = { type, hp: e.hp, maxHp: e.maxHp, phase: 0 };
+  hs.bossSpawned = true;
+  return e;
+}
+
+// 단계 시간(stageMs) 기준 사건·보스. 키는 `<단계>:<종류>` 이고 다음 단계로 가면 비운다
 function events(state, w, t) {
-  const hs = state.hunt;
-  const cycle = Math.floor(t / 180000);
-  for (const ev of HUNT_EVENTS) {
-    const at = ev.at * 1000 + cycle * 180000;
-    const wk = `${cycle}:${ev.at}:warn`, gk = `${cycle}:${ev.at}`;
-    if (t >= at - 2000 && !hs.fired.includes(wk)) {
-      hs.fired.push(wk);
-      w.banner = { label: `⚠ ${ev.label}`, warn: true, until: t + 2000 };
-      emit('huntEvent', { kind: ev.kind, label: ev.label, warn: true });
-    }
-    if (t >= at && !hs.fired.includes(gk)) {
-      hs.fired.push(gk);
-      w.banner = { label: ev.label, warn: false, until: t + 1600 };
-      runEvent(state, w, ev);
-      emit('huntEvent', { kind: ev.kind, label: ev.label, warn: false });
-    }
+  const hs = state.hunt, st = hs.stageMs, n = hs.depth, prep = stageDef(n).prepMs;
+  const once = k => !hs.fired.includes(k) && hs.fired.push(k);
+  for (const ev of stageEvents(n)) {
+    if (st >= ev.at - 2000 && once(`${n}:${ev.kind}:warn`)) { w.banner = { label: `⚠ ${ev.label}`, warn: true, until: t + 2000 }; emit('huntEvent', { kind: ev.kind, label: ev.label, warn: true }); }
+    if (st >= ev.at && once(`${n}:${ev.kind}`)) { w.banner = { label: ev.label, warn: false, until: t + 1600 }; runEvent(state, w, ev); emit('huntEvent', { kind: ev.kind, label: ev.label, warn: false }); }
   }
+  // 네오가 아직 모르는 검은 호랑이가 멀리서 지켜본다(연출만, 전장과 함께 사라진다)
+  if (hs.hunterId === 'neo' && !state.roster.seohanbi && HANBI_STAGES.includes(n) && n < 100 && st >= prep * .5 && once(`${n}:cameo`)) {
+    const a = nextRandom(state.rng) * Math.PI * 2;
+    w.cameo = { x: w.player.x + Math.cos(a) * 250, y: w.player.y + Math.sin(a) * 250, until: t + 4000 };
+    w.banner = { label: '??? · 검은 그림자가 이쪽을 보고 있다', warn: false, until: t + 3000 };
+    emit('huntEvent', { kind: 'cameo', label: '???', warn: false });
+  }
+  if (hs.stageChoice) return;
+  const name = ENEMIES[hs.boss?.type || bossFor(n, hs.hunterId, !!state.roster.seohanbi)].name;
+  if (st >= prep - 2000 && once(`${n}:boss:warn`)) { w.banner = { label: `⚠ 보스 등장 · ${name}`, warn: true, until: t + 2000 }; emit('huntEvent', { kind: 'boss', label: name, warn: true }); }
+  if (st >= prep && !hs.bossSpawned) {
+    if (spawnBoss(state, w)) { w.banner = { label: `${name} · 쓰러뜨리면 클리어`, warn: false, until: t + 2200 }; w.shakeUntil = t + 600; emit('huntEvent', { kind: 'boss', label: name, warn: false }); }
+  } else if (hs.bossSpawned && hs.boss && findBoss(w) < 0) spawnBoss(state, w); // 이어하기로 전장을 새로 만들었으면 보스를 되살린다
 }
 
 // ── 피해·처치·드롭
@@ -350,9 +376,8 @@ function killEnemy(state, w, i) {
   const e = w.enemies.items[i];
   const def = ENEMIES[e.type];
   dropFrom(state, w, e);
-  if (def.boss) { state.hunt.bossDown = true; state.hunt.bossKills += 1; w.banner = { label: '거대한 검은 손을 물리쳤다!', warn: false, until: state.hunt.elapsedMs + 2000 }; emit('huntEvent', { kind: 'bossDown', label: '거대한 검은 손을 물리쳤다!', warn: false }); }
+  if (def.boss) clearStage(state, w, def);
   if(state.hunt.elapsedMs-(w.lastDeathSound||-1000)>140){emit('huntDeath',{});w.lastDeathSound=state.hunt.elapsedMs;}
-  if(def.boss && state.yunQuest?.status==='active' && state.hunt.hunterId==='neo') {state.yunQuest.status='complete';emit('questProgress',{label:'윤달의 부탁 · 거대한 검은 손 토벌 완료'});}
   w.enemies.release(i);
   state.hunt.kills += 1;
   const c = TEMP.HUNT_CAREER;
@@ -407,8 +432,8 @@ function fireWeapons(state, w, t, m, sec) {
     }
     if (wp.id === 'aura') {
       if (t < w.auraAt) continue;
-      w.auraAt=t+s.tickMs;hs.wardUntil=t+s.wardMs;
-      w.hostile=w.hostile.filter(b=>Math.hypot(b.x-p.x,b.y-p.y)>s.radius);
+      w.auraAt=t+s.tickMs;
+      if(hs.hp<hs.maxHp)hs.hp=Math.min(hs.maxHp,hs.hp+Math.round(s.heal));
       addBattleFx(w,{kind:'ward',x:p.x,y:p.y,r:s.radius,at:t,until:t+500});
       emit('huntAttack',{weapon:'aura'});continue;
     }
@@ -529,13 +554,7 @@ function collect(state, w, t, m, dt) {
       }
       w.shakeUntil = t + 400;
       emit('huntPower', { kind: 'bomb', label: POWER_NAMES.bomb });
-    } else if (it.kind === 'chest') {
-      const opts = optionsFor(hs);
-      const o = opts.length ? opts[Math.floor(nextRandom(state.rng) * opts.length)] : { kind: 'heal' };
-      const label = describeOption(hs, o).name;
-      applyOption(state, o);
-      emit('huntChest', { label });
-    }
+    } else if (it.kind === 'chest') queueChest(state);
   }
 }
 
@@ -544,7 +563,7 @@ function subStep(state, dt, input) {
   const w = getHuntWorld(state);
   const p = w.player;
   const sec = dt / 1000;
-  hs.elapsedMs += dt;
+  hs.elapsedMs += dt; hs.stageMs += dt;
   const t = hs.elapsedMs;
   const m = mods(hs);
   if(!state.roster.museong && hs.careerLevel>=8 && t>=90000 && !state.museongEncounter){state.museongEncounter=true;w.banner={label:'안개 너머, 무성의 노래가 들려온다',warn:false,until:t+4000};emit('huntEvent',{kind:'encounter',label:'사냥을 마치고 무성의 이야기를 확인하세요',warn:false});}
@@ -560,14 +579,15 @@ function subStep(state, dt, input) {
     p.facing = Math.abs(input.x) > Math.abs(input.y) ? (input.x > 0 ? 'right' : 'left') : (input.y > 0 ? 'down' : 'up');
   }
 
-  // 사건·생성(밀도 목표보다 적으면 두 배로 빨리)
+  // 사건·생성: 단계 밀도 목표(준비 시간 동안 시작→끝)보다 적을 때만, 모자란 만큼 빨리. 보스가 있으면 목표를 줄인다
   events(state, w, t);
-  const f = Math.min(2, t / 180000);
-  const density = H.DENSITY_START + (H.DENSITY_END - H.DENSITY_START) * f;
-  let rate = H.SPAWN_RATE_START + (H.SPAWN_RATE_END - H.SPAWN_RATE_START) * f;
-  if (w.enemies.count < density) rate *= 2;
-  w.spawnAcc += sec * rate;
-  while (w.spawnAcc >= 1) { w.spawnAcc -= 1; aroundPlayer(state, w, pickType(state, t / 1000)); }
+  const sd = stageDef(hs.depth), boss = findBoss(w);
+  const target = (sd.density[0] + (sd.density[1] - sd.density[0]) * Math.min(1, hs.stageMs / sd.prepMs)) * (boss >= 0 ? H.BOSS_DENSITY : 1);
+  const missing = target - (w.enemies.count - (boss >= 0 ? 1 : 0));
+  if (missing > 0 && !hs.stageChoice) {
+    w.spawnAcc += sec * Math.min(H.SPAWN_RATE_MAX, H.SPAWN_RATE_MIN + H.SPAWN_RATE_PER_MISSING * missing);
+    while (w.spawnAcc >= 1) { w.spawnAcc -= 1; aroundPlayer(state, w, pickType(state)); }
+  } else w.spawnAcc = 0;
 
   fireWeapons(state, w, t, m, sec);
   for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(!ENEMIES[e.type].elite&&Math.hypot(e.x-p.x,e.y-p.y)>1300)w.enemies.release(i);}
@@ -575,8 +595,19 @@ function subStep(state, dt, input) {
   resolveMelee(state,w,t,m);
   stepShots(state, w, t, m, dt);
   const aura = hs.weapons.find(x => x.id === 'aura');
-  stepEnemyBehaviors(state, w, t, dt, aura ? weaponStats(aura, m) : null);
+  w.guard = aura ? Math.min(.6, weaponStats(aura, m).guard) : 0;
+  stepEnemyBehaviors(state, w, t, dt);
+  for (let i = w.enemies.count - 1; i >= 0; i--) {
+    const e = w.enemies.items[i];
+    if (!ENEMIES[e.type].boss) continue;
+    const phase = stepBoss(state, w, e, t, dt, spawnMinion);
+    if (hs.boss) { hs.boss.hp = Math.max(0, e.hp); hs.boss.phase = e.phaseNo || 0; }
+    if (phase != null) { const label = `${ENEMIES[e.type].name}의 기세가 바뀌었다!`; w.banner = { label, warn: true, until: t + 2000 }; emit('huntEvent', { kind: 'bossPhase', label, warn: true }); }
+  }
+  stepZones(state, w, t);
   collect(state, w, t, m, dt);
+  if (w.sweep) sweepField(state, w);
+  if (w.cameo && t >= w.cameo.until) w.cameo = null;
 
   for (let i = w.texts.count - 1; i >= 0; i--) { const tx = w.texts.items[i]; tx.life -= dt; tx.y -= 30 * sec; if (tx.life <= 0) w.texts.release(i); }
   if (p.actionUntil && t >= p.actionUntil) { p.action = 'idle'; p.actionUntil = 0; }
@@ -589,19 +620,104 @@ export function stepHunt(state, dt, input = { x: 0, y: 0 }) {
   if (!hs || hs.status !== 'running') return;
   normalizeHunt(hs);
   let left = dt;
-  while (left > 0 && hs.status === 'running' && !hs.picks.length) {
+  while (left > 0 && hs.status === 'running' && !paused(hs)) {
     const d = Math.min(H.SUB_STEP_MS, left);
     left -= d;
     subStep(state, d, input || { x: 0, y: 0 });
-    if (hs.hp <= 0) { hs.status = 'down'; emit('huntEnd', { status: 'down' }); }
-
+    if (hs.hp <= 0) { hs.status = 'down'; hs.stageChoice = null; flushChests(state); emit('huntEnd', { status: 'down' }); }
   }
 }
+// 레벨업 카드·열지 않은 상자·클리어 선택이 남아 있으면 사냥 시간이 흐르지 않는다
+export const paused = hs => hs.picks.length > 0 || hs.chests.length > 0 || !!hs.stageChoice;
+
+// ── 단계 클리어: 보스 처치 = 그 단계 클리어. 첫 클리어 보상은 사냥꾼별 원장 키로 한 번만
+function clearStage(state, w, def) {
+  const hs = state.hunt, n = hs.depth, key = `stage:${hs.hunterId}:${n}`;
+  const first = !state.ledger.rewards[key];
+  let bonus = 0;
+  hs.bossDown = true; hs.bossKills += 1; hs.cleared += 1; hs.boss = null;
+  if (first) {
+    state.ledger.rewards[key] = true;
+    bonus = huntMoonReward(firstClearMoon(n), hs.scale);
+    hs.bag.moonstone = (hs.bag.moonstone || 0) + bonus;
+  }
+  state.hunter.maxStage = Math.min(100, Math.max(state.hunter.maxStage || 1, n + 1));
+  hs.stageChoice = { stage: n, first, bonus, next: n < 100 };
+  w.sweep = true;
+  w.banner = { label: `${def.name} 처치 · ${n}단계 클리어!`, warn: false, until: hs.elapsedMs + 2400 };
+  emit('huntEvent', { kind: 'bossDown', label: `${n}단계 클리어!`, warn: false });
+  emit('huntStageClear', { stage: n, first, bonus });
+}
+
+// 클리어 뒤 전장 정리: 남은 적·공격을 지우고 떨어진 월정석·별조각·상자는 모두 거둔다(적 순회가 끝난 뒤 실행)
+function sweepField(state, w) {
+  const hs = state.hunt;
+  w.sweep = false;
+  for (let i = w.drops.count - 1; i >= 0; i--) {
+    const it = w.drops.items[i];
+    if (it.kind === 'moon') hs.bag.moonstone = (hs.bag.moonstone || 0) + it.v;
+    else if (it.kind === 'gem') gainXp(state, it.v);
+    else if (it.kind === 'chest') queueChest(state);
+  }
+  w.drops.clear(); w.enemies.clear(); w.shots.clear(); w.strikes.clear(); clearBossAttacks(w);
+  w.cameo = null;
+}
+
+// 다음 단계(엔진 명령 hunt.next). 무기·레벨·HP 는 그대로 이어 간다
+export function nextStage(state) {
+  const hs = state.hunt;
+  if (state.mode !== 'hunt' || !hs || hs.status !== 'running' || !hs.stageChoice) return { ok: false, reason: '보스를 쓰러뜨려야 다음 단계로 갈 수 있어요' };
+  if (hs.depth >= 100 || hs.depth >= maxHuntDepth(state)) return { ok: false, reason: '더 깊은 단계가 없어요 · 귀환해 정산해 주세요' };
+  if (hs.picks.length || hs.chests.length) return { ok: false, reason: '레벨업 카드와 상자를 먼저 정리해 주세요' };
+  hs.depth += 1; hs.stageMs = 0; hs.boss = null; hs.bossSpawned = false; hs.bossDown = false; hs.fired = []; hs.stageChoice = null;
+  hs.scale = depthScale(hs.depth, monthScale(state.day), calendarOf(state.day).monthIdx);
+  const w = getHuntWorld(state);
+  w.enemies.clear(); clearBossAttacks(w); w.spawnAcc = 0;
+  w.banner = { label: `${hs.depth}단계 · 보스가 나올 때까지 버티기`, warn: false, until: hs.elapsedMs + 2200 };
+  emit('huntStage', { depth: hs.depth });
+  return { ok: true, depth: hs.depth };
+}
+
+// ── 희귀 상자: 줍는 순간 결과를 정해 저장하고(재접속해도 같은 결과), 화면은 룰렛으로 보여 주기만 한다
+function chestTargets(hs) {
+  return [
+    ...hs.weapons.filter(x => x.level < WEAPON_MAX_LV).map(x => ({ kind: 'weapon', id: x.id })),
+    ...Object.entries(hs.passives).filter(([, lv]) => lv < PASSIVE_MAX_LV).map(([id]) => ({ kind: 'passive', id })),
+  ];
+}
+function queueChest(state) {
+  const hs = state.hunt, targets = chestTargets(hs);
+  const upgrade = targets.length ? targets[Math.floor(nextRandom(state.rng) * targets.length)] : null;
+  const slot = Math.floor(nextRandom(state.rng) * CHEST_WHEEL.length);
+  hs.chests.push({ id: nextId(state, 'chest'), upgrade, slot, moon: huntMoonReward(CHEST_WHEEL[slot], hs.scale) });
+  emit('huntChest', { label: POWER_NAMES.chest });
+}
+function applyChest(state, c) {
+  const hs = state.hunt;
+  // 고른 뒤 레벨업 카드로 이미 최대가 됐으면(또는 처음부터 없으면) 월정석으로 바꾼다
+  const still = !!c.upgrade && chestTargets(hs).some(x => x.kind === c.upgrade.kind && x.id === c.upgrade.id);
+  const label = still ? describeOption(hs, c.upgrade).name : null;
+  if (still) applyOption(state, c.upgrade);
+  const moon = c.moon + (still ? 0 : CHEST_FALLBACK);
+  hs.bag.moonstone = (hs.bag.moonstone || 0) + moon;
+  return { upgraded: still ? c.upgrade : null, moon, label };
+}
+// 상자 열기(엔진 명령 hunt.chest). 가장 먼저 주운 상자를 연다
+export function openChest(state) {
+  const hs = state.hunt;
+  if (state.mode !== 'hunt' || !hs || !hs.chests?.length) return { ok: false, reason: '열 상자가 없습니다' };
+  const c = hs.chests.shift(), r = applyChest(state, c);
+  emit('huntPower', { kind: 'chest', label: r.label ? `${r.label} 강화 · 월정석 +${r.moon}` : `월정석 +${r.moon}` });
+  return { ok: true, chest: c, ...r };
+}
+function flushChests(state) { const hs = state.hunt; while (hs.chests?.length) applyChest(state, hs.chests.shift()); }
 
 export function retreat(state) {
   if (!state.hunt || state.hunt.status !== 'running') return { ok: false, reason: '진행 중인 사냥이 없습니다' };
+  normalizeHunt(state.hunt);
   state.hunt.status = 'retreat';
-  state.hunt.picks = [];
+  state.hunt.stageChoice = null;
+  flushChests(state); // 열지 않은 상자는 정해진 결과대로 적용, 레벨업 카드는 다음 사냥으로 넘긴다
   emit('huntEnd', { status: 'retreat' });
   return { ok: true };
 }
@@ -628,13 +744,14 @@ export function finishHunt(state) {
     state.hunter.kills += hs.kills;
     state.hunter.lastStage=hs.depth;
     state.hunter.builds??={};
-    state.hunter.builds[hs.hunterId]={level:hs.level,xp:hs.xp,weapons:structuredClone(hs.weapons),passives:{...hs.passives},stage:hs.depth};
-    if(hs.elapsedMs>=180000)state.hunter.maxStage=Math.min(100,Math.max(state.hunter.maxStage||1,hs.depth+1));
+    state.hunter.builds[hs.hunterId]={level:hs.level,xp:hs.xp,weapons:structuredClone(hs.weapons),passives:{...hs.passives},picks:structuredClone(hs.picks||[]),stage:hs.depth};
     state.stats.longestHuntMs = Math.max(state.stats.longestHuntMs || 0, hs.elapsedMs);
     state.stats.huntBosses = (state.stats.huntBosses || 0) + (hs.bossKills || 0);
-    workHunt(state, hs.elapsedMs >= 180000, hs.hunterId);
+    workHunt(state, (hs.cleared || 0) > 0, hs.hunterId);
+    // 윤달의 부탁: 영냥이로 보스를 쓰러뜨리고 돌아와 정산하면 완료
+    if(hs.bossKills>0 && hs.hunterId==='neo' && state.yunQuest?.status==='active'){state.yunQuest.status='complete';emit('questProgress',{label:'윤달의 부탁 · 보스 토벌 완료'});}
   }
-  state.lastHunt = { id: hs.id, status: hs.status, hunterId:hs.hunterId, bonus, fieldBag:{...hs.bag}, bag: totalBag, kills: hs.kills, elapsedMs: hs.elapsedMs, level: hs.level ?? 1, bossDown: !!hs.bossDown, depth: hs.depth, careerXP: hs.careerXP || 0, careerLevel: hunterProgress(state.hunter.xp).level };
+  state.lastHunt = { id: hs.id, status: hs.status, hunterId:hs.hunterId, bonus, fieldBag:{...hs.bag}, bag: totalBag, kills: hs.kills, elapsedMs: hs.elapsedMs, level: hs.level ?? 1, bossDown: !!hs.bossDown, depth: hs.depth, startDepth: hs.startDepth ?? hs.depth, cleared: hs.cleared || 0, maxStage: state.hunter.maxStage || 1, careerXP: hs.careerXP || 0, careerLevel: hunterProgress(state.hunter.xp).level };
   worlds.delete(hs);
   state.hunt = null;
   state.mode = 'prep';
@@ -646,7 +763,7 @@ export function finishHunt(state) {
 
 export function useSupply(state,id) {
  const hs=state.hunt, d=SUPPLIES[id];
- if(state.mode!=='hunt'||!hs||hs.status!=='running'||hs.picks.length)return {ok:false,reason:'사냥 중에 사용할 수 있어요'};
+ if(state.mode!=='hunt'||!hs||hs.status!=='running'||paused(normalizeHunt(hs)))return {ok:false,reason:'사냥 중에 사용할 수 있어요'};
  if(!d || !(state.armory?.supplies?.[id]>0))return {ok:false,reason:'먼저 모카 식재료점에서 준비해 주세요'};
  if(id==='tonic' && hs.hp>=hs.maxHp)return {ok:false,reason:'이미 체력이 가득해요'};
  const w=getHuntWorld(state);state.armory.supplies[id]-=1;

@@ -2,14 +2,16 @@ import {ENEMIES} from '../data/hunt-kit.js';
 import {TEMP} from '../config/balance.temp.js';
 import {emit} from './state.js';
 const H=TEMP.HUNT;
-export function damageHunter(state,w,base,t){const h=state.hunt,p=w.player;if(t<p.hurtUntil||t<Math.max(h.shieldUntil||0,h.wardUntil||0))return false;h.hp=Math.max(0,h.hp-Math.round(base*h.scale.dmg*(1+.12*t/60000)));p.hurtUntil=t+H.HURT_IFRAME_MS;p.action='hurt';p.actionUntil=t+240;w.shakeUntil=t+160;emit('huntHurt',{hp:h.hp});return true;}
+// 받는 피해 = 기본 × 단계·달 배율 × (1 − 수호부 피해 감소 w.guard). 보호막 소모품(shieldUntil)은 무적
+export function damageHunter(state,w,base,t){const h=state.hunt,p=w.player;if(t<p.hurtUntil||t<(h.shieldUntil||0))return false;h.hp=Math.max(0,h.hp-Math.max(1,Math.round(base*h.scale.dmg*(1-(w.guard||0)))));p.hurtUntil=t+H.HURT_IFRAME_MS;p.action='hurt';p.actionUntil=t+240;w.shakeUntil=t+160;emit('huntHurt',{hp:h.hp});return true;}
 export function addBattleFx(w,fx){if(w.fx.length>=40)w.fx.shift();w.fx.push(fx);}
-function shoot(w,e,t,def){const n=def.boss?8:def.role==='fan'?3:1;for(let k=0;k<n&&w.hostile.length<48;k++){const a=def.boss?k/n*Math.PI*2:Math.atan2(e.aimY,e.aimX)+(k-(n-1)/2)*.25;w.hostile.push({x:e.x,y:e.y,vx:Math.cos(a)*(def.boss?135:155),vy:Math.sin(a)*(def.boss?135:155),r:6,dmg:def.dmg*.7,until:t+3000});}emit('huntEnemyAttack',{kind:'shot'});}
-export function stepEnemyBehaviors(state,w,t,dt,auraSlow){
+function shoot(w,e,t,def){const n=def.role==='fan'?3:1;for(let k=0;k<n&&w.hostile.length<48;k++){const a=Math.atan2(e.aimY,e.aimX)+(k-(n-1)/2)*.25;w.hostile.push({x:e.x,y:e.y,vx:Math.cos(a)*155,vy:Math.sin(a)*155,r:6,dmg:def.dmg*.7,until:t+3000});}emit('huntEnemyAttack',{kind:'shot'});}
+// 보스는 src/game/hunt-boss.js 가 움직인다(여기서는 건너뛴다)
+export function stepEnemyBehaviors(state,w,t,dt){
  const p=w.player,sec=dt/1000,decay=Math.exp(-8*sec),grid=new Map(),cell=60;
  for(let i=0;i<w.enemies.count;i++){const e=w.enemies.items[i],key=`${Math.floor(e.x/cell)},${Math.floor(e.y/cell)}`;if(!grid.has(key))grid.set(key,[]);grid.get(key).push(e);}
  for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i],def=ENEMIES[e.type],dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;let mx=dx/d,my=dy/d,sp=e.speed,planted=false;
-  if(auraSlow&&d<auraSlow.radius+def.r)sp*=1-auraSlow.slow;
+  if(def.boss)continue;
   if(e.life>0){e.life-=dt;e.x+=e.vx*sec;e.y+=e.vy*sec;if(e.life<=0){w.enemies.release(i);continue;}}
   else {
    if(def.role==='bomber'){
@@ -19,9 +21,9 @@ export function stepEnemyBehaviors(state,w,t,dt,auraSlow){
     if(e.rolePhase==='approach'&&d<230&&t>=e.nextAttack){e.rolePhase='warning';e.roleUntil=t+750;e.aimX=mx;e.aimY=my;}
     if(e.rolePhase==='warning'){planted=true;if(t>=e.roleUntil){e.rolePhase='dash';e.roleUntil=t+420;}}
     else if(e.rolePhase==='dash'){mx=e.aimX;my=e.aimY;sp=245;if(t>=e.roleUntil){e.rolePhase='approach';e.nextAttack=t+2400;}}
-   }else if(['ranged','fan','boss'].includes(def.role)){
+   }else if(['ranged','fan'].includes(def.role)){
     if(d<150){mx=-mx;my=-my;}else if(d<280){mx*=.15;my*=.15;}
-    if(e.rolePhase==='warning'){planted=true;if(t>=e.roleUntil){shoot(w,e,t,def);e.rolePhase='approach';e.nextAttack=t+(def.boss?2800:3600);}}
+    if(e.rolePhase==='warning'){planted=true;if(t>=e.roleUntil){shoot(w,e,t,def);e.rolePhase='approach';e.nextAttack=t+3600;}}
     else if(d<350&&t>=e.nextAttack){e.rolePhase='warning';e.roleUntil=t+850;e.aimX=dx/d;e.aimY=dy/d;}
    }else if(def.role==='slam'){
     if(e.rolePhase==='approach'&&d<100&&t>=e.nextAttack){e.rolePhase='warning';e.roleUntil=t+950;e.warningR=95;}

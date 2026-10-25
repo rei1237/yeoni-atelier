@@ -7,6 +7,8 @@ export function botHunt(s, depth=1, idle=false) {
  const start=dispatch(s,{type:'hunt.start',depth}); if(!start.ok)throw Error(start.reason);
  for(let n=0;n<12000 && s.hunt.status==='running';n++) {
   const hs=s.hunt,offer=hs.picks[0];
+  if(hs.chests.length){dispatch(s,{type:'hunt.chest'});continue;}
+  if(hs.stageChoice&&!offer){if(!dispatch(s,{type:'hunt.next'}).ok)break;continue;} // 봇은 클리어하면 계속 내려간다
   if(offer){const ranked=offer.map((o,index)=>({index,score:o.kind==='weapon'?30+({bolt:10,aura:7,orbit:6,crescent:4,tarot:3}[o.id]||0):o.kind==='heal'?hs.hp<hs.maxHp*.5?45:0:({bell:24,fish_stock:20,hat:18,whisker:15,paw:10}[o.id]||5)})).sort((a,b)=>b.score-a.score); dispatch(s,{type:'hunt.pick',index:ranked[0].index});continue;}
   const w=getHuntWorld(s),p=w.player;let x=0,y=0;
   if(!idle) {
@@ -18,15 +20,15 @@ export function botHunt(s, depth=1, idle=false) {
   }
   tick(s,100,{input:{x,y}});
  }
- if(s.hunt.status==='running')dispatch(s,{type:'hunt.retreat'}); // 봇만 20분 뒤 귀환; 게임 제한 없음
+ if(s.hunt.status==='running')dispatch(s,{type:'hunt.retreat'}); // 봇만 20분(또는 100단계) 뒤 귀환; 게임 제한 없음
  dispatch(s,{type:'hunt.finish'});return s.lastHunt;
 }
 if(process.argv[1]?.endsWith('sim-hunt.mjs')){
  const rows=[];
  for(const seed of [7,42,20261025]){
   const s=createGame({seed});dispatch(s,{type:'story.seen',id:'m0'});dispatch(s,{type:'story.seen',id:'ev:hunt'});
-  for(let run=1;run<=2;run++){const r=botHunt(s,maxHuntDepth(s));rows.push({seed,run,depth:r.depth,status:r.status,kills:r.kills,moonstone:r.bag.moonstone,xp:r.careerXP,careerLevel:hunterProgress(s.hunter.xp).level});}
-  const idle=createGame({seed});dispatch(idle,{type:'story.seen',id:'m0'});dispatch(idle,{type:'story.seen',id:'ev:hunt'});const r=botHunt(idle,1,true);rows.push({seed,run:'idle',status:r.status,kills:r.kills,moonstone:r.bag.moonstone});
+  for(let run=1;run<=2;run++){const r=botHunt(s,maxHuntDepth(s));rows.push({seed,run,from:r.startDepth,depth:r.depth,cleared:r.cleared,maxStage:s.hunter.maxStage,status:r.status,kills:r.kills,moonstone:r.bag.moonstone,xp:r.careerXP,careerLevel:hunterProgress(s.hunter.xp).level});}
+  const idle=createGame({seed});dispatch(idle,{type:'story.seen',id:'m0'});dispatch(idle,{type:'story.seen',id:'ev:hunt'});const r=botHunt(idle,1,true);rows.push({seed,run:'idle',depth:r.depth,cleared:r.cleared,status:r.status,kills:r.kills,moonstone:r.bag.moonstone});
  }
  console.log(JSON.stringify({method:'사냥 조이스틱 봇 / 사람 플레이테스트 아님 / 신규 무장비',rows},null,2));
 }

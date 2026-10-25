@@ -8,7 +8,8 @@ export function hunterProgress(totalXP = 0) {
   const spent = a * completed * completed + b * completed;
   return { level: completed + 1, totalXP: total, xp: total - spent, xpNext: C.xpBase + C.xpStep * completed };
 }
-export const maxHuntDepth = state => Math.min(100, Math.max(state.hunter.maxStage || 1, 1 + Math.floor((hunterProgress(state.hunter.xp).level - 1) / C.levelsPerDepth)));
+// 갈 수 있는 단계 = 보스를 쓰러뜨려 연 단계까지(사냥꾼 레벨로는 열리지 않는다). 옛 저장의 maxStage 는 그대로 둔다
+export const maxHuntDepth = state => Math.min(100, Math.max(state.hunter.maxStage || 1, 1));
 export const stageName = depth => depth >= 85 ? '흑월의 균열' : depth >= 55 ? '변이 청토끼의 회랑' : depth >= 35 ? '청토끼의 밤길' : '달그늘';
 export function depthScale(depth, calendarScale, monthIdx) {
   return { hp: calendarScale.hp * (1 + .08 * (depth - 1) + .0015 * (depth - 1) ** 2), dmg: calendarScale.dmg * (1 + .025 * (depth - 1)), reward: 1 + C.depthReward * (depth - 1) + C.monthReward * Math.min(11, monthIdx) };
