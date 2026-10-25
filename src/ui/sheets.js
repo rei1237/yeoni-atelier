@@ -405,13 +405,14 @@ function debtSheet(state) {
 }
 
 // ── 동료
+const companionPortrait = id => `<canvas class="companion-portrait" data-talking-portrait="${esc(id)}" width="192" height="192" aria-hidden="true"></canvas>`;
 function companionSheet(state) {
   const neoStats = STAT_KEYS.map(k => `${STAT_LABELS[k]} ${PEOPLE.neo.stats[k]}`).join(' · ');
   const neoStatus = personBusyReason(state, 'neo') || (state.mode === 'shift' ? staffStatusText(state, 'neo') : state.people.neo.activity === 'hunting' ? '영냥이 모습으로 월정석 사냥 중' : '대기');
   const rows = [
-    `<div class="item"><span class="swatch" style="background:${PEOPLE.yeoni.color}"></span><div class="meta grow"><b>연이 · 사장</b><span>계산·농장 담당 · 동료들과 함께 가게를 꾸려요${state.mode === 'shift' ? ` · ${esc(staffStatusText(state, 'yeoni'))}` : ''}</span></div></div>`,
-    `<div class="item"><span class="swatch" style="background:${PEOPLE.neo.color}"></span><div class="meta grow"><b>네오 · ${state.hostbar.open ? '대화 담당' : '손님맞이 담당'}</b>${state.hostbar.open ? `<span>${neoStats}</span>` : ''}<span>${esc(PEOPLE.neo.profile)}</span><span>${esc(PEOPLE.neo.specialty)}</span><span>상태: ${esc(neoStatus)} · 고양이 모습일 때 이름은 영냥이(같은 사람)</span></div></div>`,
-    ...STAFF_CREW.map(id => `<div class="item"><span class="swatch" style="background:${PEOPLE[id].color}"></span><div class="meta grow"><b>${PEOPLE[id].name} · ${PEOPLE[id].work === 'baker' ? '굽기 담당' : '서빙·정리 담당'}</b><span>빚을 갚을 때까지 처음부터 일을 돕는다${state.mode === 'shift' ? ` · ${esc(staffStatusText(state, id))}` : ''}</span></div></div>`),
+    `<div class="item">${companionPortrait('yeoni')}<div class="meta grow"><b>연이 · 사장</b><span>계산·농장 담당 · 동료들과 함께 가게를 꾸려요${state.mode === 'shift' ? ` · ${esc(staffStatusText(state, 'yeoni'))}` : ''}</span></div></div>`,
+    `<div class="item">${companionPortrait('neo')}<div class="meta grow"><b>네오 · ${state.hostbar.open ? '대화 담당' : '손님맞이 담당'}</b>${state.hostbar.open ? `<span>${neoStats}</span>` : ''}<span>${esc(PEOPLE.neo.profile)}</span><span>${esc(PEOPLE.neo.specialty)}</span><span>상태: ${esc(neoStatus)} · 고양이 모습일 때 이름은 영냥이(같은 사람)</span></div></div>`,
+    ...STAFF_CREW.map(id => `<div class="item">${companionPortrait(id)}<div class="meta grow"><b>${PEOPLE[id].name} · ${PEOPLE[id].work === 'baker' ? '굽기 담당' : '서빙·정리 담당'}</b><span>빚을 갚을 때까지 처음부터 일을 돕는다${state.mode === 'shift' ? ` · ${esc(staffStatusText(state, id))}` : ''}</span></div></div>`),
   ];
   for (const r of recruitView(state)) {
     const def = personDef(state, r.id);
@@ -430,7 +431,7 @@ function companionSheet(state) {
     }
     const stats = def?.stats ? STAT_KEYS.map(k => `${STAT_LABELS[k]} ${def.stats[k]}`).join(' · ') : '';
     const followup = r.status === 'recruited' && def?.followup ? btn({ action: 'cast.read', args: { id: r.id }, disabled: state.mode !== 'prep' || state.day <= state.recruitment[r.id].at, title: '함께 영업한 뒤 영업 준비 중에 열려요', label: state.ledger.story[`cast:${r.id}`] ? '이야기 다시 보기' : '함께한 이야기' }) : '';
-    rows.push(`<article class="card"><div class="row"><b class="grow">${tag}${esc(r.name)}</b>${right}</div><p>${esc(def?.profile || '')}</p><p class="small">${esc(def?.specialty || '')}<br>${stats}</p><p class="small muted">${esc(sub)}</p>${followup}</article>`);
+    rows.push(`<article class="card"><div class="row">${companionPortrait(r.id)}<b class="grow">${tag}${esc(r.name)}</b>${right}</div><p>${esc(def?.profile || '')}</p><p class="small">${esc(def?.specialty || '')}<br>${stats}</p><p class="small muted">${esc(sub)}</p>${followup}</article>`);
   }
   // 인연: 단계·열린 능력, 누르면 마을의 그 장소로
   const bondRows = BOND_IDS.map(id => {

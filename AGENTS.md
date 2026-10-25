@@ -9,7 +9,7 @@ Codex·Claude 등 코딩 에이전트가 이 저장소에서 작업할 때 따�
 - 실행: `npm start` → http://127.0.0.1:5280 (개발 모드 `/?dev=1`)
 - 테스트: `npm test` (Node 20+, `node:test`)
 
-구조와 명령은 [docs/DEV.md](docs/DEV.md), 수치는 [docs/TUNING.md](docs/TUNING.md), 도트 규격과 프롬프트는 [docs/ASSETS.md](docs/ASSETS.md) 를 본다.
+구조와 명령은 [docs/DEV.md](docs/DEV.md), 수치는 [docs/TUNING.md](docs/TUNING.md), 일러스트 규격과 프롬프트는 [docs/ASSETS.md](docs/ASSETS.md) 를 본다.
 
 ## 절대 규칙
 
@@ -42,10 +42,10 @@ Codex·Claude 등 코딩 에이전트가 이 저장소에서 작업할 때 따�
 - 위 네 인물의 세부 말버릇 일부는 이 게임에서 정한 것이다([docs/WORLD.md](docs/WORLD.md)).
 - 대사는 한 번에 두 문장 이하로 쓰고, 큰따옴표 대신 대화창 형식을 쓴다.
 
-## 도트 에셋 작업
+## 일러스트 에셋 작업
 
-- 기본 단위는 32px이다(캐릭터 프레임 32×32, 기준점 16·30). 아이콘은 16px, 초상화는 96px이다.
-- PNG 는 docs/ASSETS.md 의 경로에 두고, [assets/manifest.json](assets/manifest.json) 의 `ready` 에 `"묶음/키"` 를 추가한다.
+- 최신 사용자 요청에 따라 픽셀 아트 대신 부드러운 생성 일러스트를 쓴다. 캐릭터 셀 96×96·발 기준점 48·90, 아이콘 96px, 초상화 192px이다.
+- WebP는 docs/ASSETS.md 의 경로에 두고, [assets/manifest.json](assets/manifest.json) 의 `ready` 에 `"묶음/키"` 를 추가한다.
 - 그림이 없거나 실패하면 도형으로 그려지므로 게임 로직을 바꿀 필요가 없다. 게임 로직이 이미지 존재 여부에 의존하게 만들지 않는다.
 - 새 에셋 키를 만들면 [src/render/assets.js](src/render/assets.js) 정의와 docs/ASSETS.md 표를 함께 고친다.
 - 이미지 규격은 docs/ASSETS.md, 실제 생성 프롬프트는 docs/art-prompts.json을 쓴다. 창작 범위는 이 문서 끝의 최신 사용자 결정을 따른다.
@@ -66,3 +66,6 @@ Codex·Claude 등 코딩 에이전트가 이 저장소에서 작업할 때 따�
 
 ## 2026-10-25 최신 사용자 결정
 위 일반 규칙과 충돌할 때 이번 명시 요청을 우선한다. 연이는 영업 준비 중 직접 농사를 짓는다. 일러스트에서 확인한 데스티노바 멤버 이름을 바탕으로 새 프로필·능력·이야기를 창작하고 WORLD.md에 구분한다. 코드 데스티니 앨범의 프로필 추가는 별도 브랜치·PR로 허용됐다. 원본 체크아웃과 그 외 저장소는 읽기 전용이며 main 직접 push·머지·운영 배포는 하지 않는다. 영업 600초·모든 접대 60초는 사용자 결정이다.
+
+### 추가 결정: 일러스트와 호스트 카페
+도트·32색 제한·정수 배율을 폐기하고, 고급스러운 생성 일러스트와 투명 스프라이트를 쓴다. PNG 원본은 보존하고 WebP로 내보낸다. 처음에는 일반 카페만 운영하며 5월 「오늘부터 호스트 카페!」 이야기가 끝나야 지명이 열린다. 개장 전 HUD·결산은 지명·피버·스트레스 항목을 숨긴다. 내부 저장 키 hostbar는 호환성을 위해 유지한다.

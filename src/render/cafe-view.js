@@ -49,7 +49,12 @@ export function drawCafe(ctx, state, v, opts = {}) {
   // 바닥
   for (let y = 0; y < GRID.rows; y++) for (let x = 0; x < GRID.cols; x++) {
     const p = P(x, y);
-    if (drawObjectImage(ctx, 'tiles', y === 0 ? 'cafe_wall' : 'cafe_floor', p.x, p.y, T, T)) continue;
+    ctx.fillStyle = y === 0 ? '#e8dbc8' : '#f3e8d9';
+    ctx.fillRect(p.x,p.y,T+.5,T+.5);
+    ctx.globalAlpha = y === 0 ? .5 : .22;
+    const tiled = drawObjectImage(ctx, 'tiles', y === 0 ? 'cafe_wall' : 'cafe_floor', p.x, p.y, T, T);
+    ctx.globalAlpha = 1;
+    if (tiled) continue;
     ctx.fillStyle = y === 0 ? '#e9dccb' : (x + y) % 2 ? '#f6ead9' : '#f1e2cd';
     ctx.fillRect(p.x, p.y, T + 0.5, T + 0.5);
   }
@@ -149,7 +154,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   actors.sort((a, b) => a.y - b.y);
   for (const a of actors) {
     const p = P(a.x, a.y);
-    drawActor(ctx, a.key, { ...a.o, x: p.x, y: p.y + T * 0.32, size: T * 1.05, t });
+    drawActor(ctx, a.key, { ...a.o, x: p.x, y: p.y + T * 0.32, size: T * 1.45, t });
   }
 
   // 편집 표시: 선택 가구와 문제 가구

@@ -1,7 +1,7 @@
 // 캐릭터 그리기: 스프라이트 시트가 있으면 프레임을, 없으면 도형 대체를 그린다.
 // 같은 입력(상태·방향·시간)을 받으므로 시트를 넣어도 호출하는 쪽은 바뀌지 않는다.
 
-import { ASSETS, SPRITE_STATES, imageFor, resolveState, actorDef } from './assets.js';
+import { ASSETS, imageFor, resolveState, actorDef } from './assets.js';
 
 export function drawActor(ctx, key, o) {
   const dressed = o.outfitId ? `${key}@${o.outfitId}` : key;
@@ -15,12 +15,12 @@ export function drawActor(ctx, key, o) {
 
 function drawFromSheet(ctx, def, img, st, o) {
   const s = def.states[st];
-  const row = SPRITE_STATES.indexOf(st) + Math.max(0, def.directions.indexOf(o.facing || 'down')) * SPRITE_STATES.length;
+  const row = def.stateRows[st] + Math.max(0, def.directions.indexOf(o.facing || 'down')) * def.directionRows;
   const frame = Math.floor((o.t / 1000) * s.fps) % s.frames;
-  // 도트 그림은 정수 배율로만 키워야 픽셀이 고르게 보인다(32px 프레임 → 32·64·96…)
-  const scale = Math.max(1, Math.round(o.size / def.frame.h));
+  // 고해상도 원본을 실제 화면 크기에 맞춰 축소한다.
+  const scale = o.size / def.frame.h;
   const prev = ctx.imageSmoothingEnabled;
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   if (o.flash) ctx.filter = 'brightness(3)';
   ctx.drawImage(img, frame * def.frame.w, row * def.frame.h, def.frame.w, def.frame.h,
     Math.round(o.x - def.anchor.x * scale), Math.round(o.y - def.anchor.y * scale), def.frame.w * scale, def.frame.h * scale);
@@ -268,12 +268,12 @@ function hostMark(ctx, x, y, s, t) {
   ctx.fillText('♥', x, y);
 }
 
-// 16×16 아이콘: 이미지가 있으면 정수 배율, 없으면 색 마름모
+// 아이콘은 요청 크기로 부드럽게 축소한다. 없으면 색 마름모.
 export function drawIcon(ctx, key, x, y, px) {
   const img = imageFor(`icons/${key}`);
   if (img) {
-    const k = Math.max(1, Math.round(px / 16));
-    const prev = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = false;
+    const k = px / 16;
+    const prev = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(img, Math.round(x - 8 * k), Math.round(y - 8 * k), 16 * k, 16 * k);
     ctx.imageSmoothingEnabled = prev;
     return;
@@ -292,8 +292,8 @@ export function drawPortrait(ctx, key, expr, w, h, { frame = 0 } = {}) {
   const img = imageFor(`portraits/${actualKey}`);
   if (def && img) {
     const i = Math.max(0, def.expressions.indexOf(expr));
-    const k = Math.max(1, Math.floor(Math.min(w, h) / def.px));
-    ctx.imageSmoothingEnabled = false;
+    const k = Math.min(w, h) / def.px;
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
     const animated = img.width === 4 * def.px && img.height === def.expressions.length * def.px;
     const sx = animated ? Math.max(0, Math.min(3, frame)) * def.px : i * def.px;
     const sy = animated ? i * def.px : 0;
@@ -312,8 +312,9 @@ export function drawObjectImage(ctx, group, key, x, y, w, h) {
   const img = imageFor(`${group}/${key}`);
   if (!img || Math.abs(img.width / img.height - w / h) > 0.01) return false;
   const prev = ctx.imageSmoothingEnabled;
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(img, Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  if (group === 'tiles') ctx.drawImage(img,2,2,img.width-4,img.height-4,x,y,w+.5,h+.5);
+  else ctx.drawImage(img, Math.round(x), Math.round(y), Math.round(w), Math.round(h));
   ctx.imageSmoothingEnabled = prev;
   return true;
 }

@@ -393,7 +393,7 @@ function draw(t) {
   if (state && ui.sheet?.kind === 'outfits') drawDressroom(state, ui, t);
   drawInlinePortraits(t);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.imageSmoothingEnabled = false; // 도트 그림 번짐 방지
+  ctx.imageSmoothingEnabled = true; // 고해상도 일러스트 축소
   if (state?.mode === 'hunt' && state.hunt) {
     drawHunt(ctx, state, getHuntWorld(state), cssW, cssH, { t, joy: joystick.state.joy, rect: el.canvas.getBoundingClientRect() });
     return;

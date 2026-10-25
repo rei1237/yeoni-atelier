@@ -137,7 +137,7 @@ tools/serve.mjs               정적 서버
 npm test
 ```
 
-결과: 70개 통과·0개 실패. 2026-10-25에 `npm test`로 실행했다. 최신 검증 기록은 QA.md 참조.
+결과: 72개 통과·0개 실패. 2026-10-25에 `npm test`로 실행했다. 최신 검증 기록은 QA.md 참조.
 
 - `[자동 시계]` 가 붙은 테스트는 엔진 `tick` 으로 10분 영업이나 3분 사냥을 수 초 안에 진행한 것이다.
 - **실제 사용자의 10분 플레이테스트가 아니다.** 사람이 10분 동안 직접 플레이하는 테스트는 아직 하지 않았다.
@@ -163,3 +163,6 @@ state.farm: xp, seed, greenhouse, lastAdvancedDay, harvests, plots. 작물 인�
 `outfit.unlock {id}`는 준비 중에만 정해진 월정석 가격을 지불하고 보유 목록에 1회 추가한다. `outfit.equip`는 소유·인물·슬롯을 확인한다. 이야기 의상은 story.seen의 기존 원장과 grantEventOutfits로 지급한다. 외형 전용이며 네오 능력·만족도 공식·스트레스에 영향 없음.
 말하기 초상화는 4열(입 닫음/눈감음/작게 열기/크게 열기) × 표정 행이다. 110ms 입 움직임, 2–5초 깜빡임, 문장 부호 정지, reduced-motion 지원. 기존 가로형 초상화는 manifest.legacyPortraits로 읽을 수 있다.
 HTML과 Canvas는 manifest.ready에서 로드 성공한 파일만 사용한다. 시트·소설은 초점을 가두고 닫으면 열었던 버튼에 복귀한다. 변신·숫자 카운트·대사 연출은 엔진 상태를 변경하지 않는다.
+
+## 일러스트 전환
+런타임은 WebP를 읽는다. 배우 시트는 4열 × 방향별 3행(idle/walk/action), 방향 down/left/right/up. 상태별 행은 stateRows로 정의하며 cook/serve/host/react/attack/hurt는 인물의 대표 행동을 재사용한다. 초상화는 192px 셀, 기존 입/눈 프레임 계약을 유지한다. Canvas 고품질 보간과 CSS image-rendering:auto를 사용하며 작은 셀에도 실제 요청 크기로 축소한다. 원본·시트 정렬·품질 기록은 ASSETS.md와 art-prompts.json 참조.

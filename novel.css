@@ -43,10 +43,10 @@
 /* 초상화 3칸. 말하지 않는 사람은 어둡게 */
 .nv-portraits { position: absolute; left: 0; right: 0; bottom: 168px; height: min(52vw, 260px); pointer-events: none; }
 .nv-pt {
-  position: absolute; bottom: 0; width: min(52vw, 260px); height: min(52vw, 260px);
-  image-rendering: pixelated; opacity: 0; transform: translateY(12px); transition: opacity .35s var(--nv-ease), transform .35s var(--nv-ease), filter .35s;
+  position: absolute; bottom: 0; width: 36%; height: auto;
+  image-rendering: auto; opacity: 0; transform: translateY(12px); transition: opacity .35s var(--nv-ease), transform .35s var(--nv-ease), filter .35s;
 }
-.nv-pt.l { left: -4%; } .nv-pt.c { left: 50%; margin-left: max(-26vw, -130px); } .nv-pt.r { right: -4%; transform: translateY(12px) scaleX(-1); }
+.nv-pt.l { left: 0; } .nv-pt.c { left: 32%; } .nv-pt.r { right: 0; transform: translateY(12px) scaleX(-1); }
 .nv-pt.show { opacity: 1; transform: none; } .nv-pt.r.show { transform: scaleX(-1); }
 .nv-pt.dim { filter: brightness(0.45) saturate(0.6); }
 
@@ -123,7 +123,7 @@
 .nv-box[data-speaker-slot="r"] .nv-name { left:auto; right:18px; }
 .nv-pt.speaking { filter:brightness(1.08); }
 .nv-tools button { min-height:44px; }
-.nv-bg-layer { background-size:cover; background-position:center; image-rendering:pixelated; }
+.nv-bg-layer { background-size:cover; background-position:center; image-rendering:auto; }
 .who-yeoni .nv-name { background:#f0bdd0; color:#361b2b; }
 .who-neo .nv-name { background:#cdd4ed; color:#202943; }
 .who-neo_cat .nv-name { background:#d7c6ed; color:#30203f; }
