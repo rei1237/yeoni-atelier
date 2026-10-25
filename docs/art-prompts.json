@@ -1,0 +1,1086 @@
+[
+  {
+    "id": "actors/yeoni",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-1e03f598-2600-42c0-a96f-d4f07fba98ef.png",
+    "prompt": "Use case stylized-concept. A single production sprite sheet for yeoni: young woman, long dusty pink hair, rose eyes, lotus hair ornament, lavender ribbon, ivory dusty rose apron dress. Polished cute 32x32 pixel art, 2.5 heads tall, dark indigo one pixel outline, flat limited 31 colors, no antialias, light from upper left. Transparent canvas. EXACTLY 6 columns by 16 rows equal size cells, no padding or gaps or text. Four direction blocks DOWN LEFT RIGHT UP from top to bottom, each direction four rows: idle, walk, react, hurt. Each row six sequential animation poses of SAME character identity, consistent size with feet at same baseline and centered. idle gently breathing, walk six stride phases, host bow hand to heart, cook whisking, serve tray hand out, react bouncing, attack paw slash, hurt recoil as applicable. Cells must never overlap. No grid lines, no labels, no checkerboard. Tall portrait sheet.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/yeoni_pig",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-14dc6da1-5d74-448a-9bb1-39aa0149c189.png",
+    "prompt": "Use case stylized-concept. A single production sprite sheet for yeoni_pig: round small pastel pink piglet, lotus at left ear, lavender ribbon. Polished cute 32x32 pixel art, 2.5 heads tall, dark indigo one pixel outline, flat limited 31 colors, no antialias, light from upper left. Transparent canvas. EXACTLY 6 columns by 16 rows equal size cells, no padding or gaps or text. Four direction blocks DOWN LEFT RIGHT UP from top to bottom, each direction four rows: idle, walk, react, hurt. Each row six sequential animation poses of SAME character identity, consistent size with feet at same baseline and centered. idle gently breathing, walk six stride phases, host bow hand to heart, cook whisking, serve tray hand out, react bouncing, attack paw slash, hurt recoil as applicable. Cells must never overlap. No grid lines, no labels, no checkerboard. Tall portrait sheet.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/neo",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-8d2e8dd6-6233-4c8c-b3cc-87ecc10e39ca.png",
+    "prompt": "Use case stylized-concept. A single production sprite sheet for neo: young man with short silver hair, navy shirt and silver coat, gold crescent brooch. Polished cute 32x32 pixel art, 2.5 heads tall, dark indigo one pixel outline, flat limited 31 colors, no antialias, light from upper left. Transparent canvas. EXACTLY 6 columns by 16 rows equal size cells, no padding or gaps or text. Four direction blocks DOWN LEFT RIGHT UP from top to bottom, each direction four rows: idle, walk, host, react. Each row six sequential animation poses of SAME character identity, consistent size with feet at same baseline and centered. idle gently breathing, walk six stride phases, host bow hand to heart, cook whisking, serve tray hand out, react bouncing, attack paw slash, hurt recoil as applicable. Cells must never overlap. No grid lines, no labels, no checkerboard. Tall portrait sheet.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/neo_cat",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-f50cd963-02dc-4ecd-917b-fb2f8b4d98f4.png",
+    "prompt": "Use case stylized-concept. A single production sprite sheet for neo_cat: small white cat, navy wizard hat with gold crescent, violet eyes, black collar with blue violet gem. Polished cute 32x32 pixel art, 2.5 heads tall, dark indigo one pixel outline, flat limited 31 colors, no antialias, light from upper left. Transparent canvas. EXACTLY 6 columns by 16 rows equal size cells, no padding or gaps or text. Four direction blocks DOWN LEFT RIGHT UP from top to bottom, each direction four rows: idle, walk, attack, hurt. Each row six sequential animation poses of SAME character identity, consistent size with feet at same baseline and centered. idle gently breathing, walk six stride phases, host bow hand to heart, cook whisking, serve tray hand out, react bouncing, attack paw slash, hurt recoil as applicable. Cells must never overlap. No grid lines, no labels, no checkerboard. Tall portrait sheet.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/luna",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-4ba183d7-71ed-4c20-bc42-e654f5554db6.png",
+    "prompt": "Use case stylized-concept. A single production sprite sheet for luna: small white baby rabbit, long ears, pink inner ears, small bread basket. Polished cute 32x32 pixel art, 2.5 heads tall, dark indigo one pixel outline, flat limited 31 colors, no antialias, light from upper left. Transparent canvas. EXACTLY 6 columns by 16 rows equal size cells, no padding or gaps or text. Four direction blocks DOWN LEFT RIGHT UP from top to bottom, each direction four rows: idle, walk, serve, react. Each row six sequential animation poses of SAME character identity, consistent size with feet at same baseline and centered. idle gently breathing, walk six stride phases, host bow hand to heart, cook whisking, serve tray hand out, react bouncing, attack paw slash, hurt recoil as applicable. Cells must never overlap. No grid lines, no labels, no checkerboard. Tall portrait sheet.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/luna_sis",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-2fbbcb1b-a067-4d07-9b2c-0d2432d8c850.png",
+    "prompt": "Use case stylized-concept. A single production sprite sheet for luna_sis: bakery young woman cream bobbed hair with rabbit-ear pink bow headband, pink apron, ivory blouse. Polished cute 32x32 pixel art, 2.5 heads tall, dark indigo one pixel outline, flat limited 31 colors, no antialias, light from upper left. Transparent canvas. EXACTLY 6 columns by 16 rows equal size cells, no padding or gaps or text. Four direction blocks DOWN LEFT RIGHT UP from top to bottom, each direction four rows: idle, walk, cook, react. Each row six sequential animation poses of SAME character identity, consistent size with feet at same baseline and centered. idle gently breathing, walk six stride phases, host bow hand to heart, cook whisking, serve tray hand out, react bouncing, attack paw slash, hurt recoil as applicable. Cells must never overlap. No grid lines, no labels, no checkerboard. Tall portrait sheet.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/cheongtokki",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-a37f224a-81bf-414e-9ae6-c886c45c093f.png",
+    "prompt": "Use case stylized-concept. A single production sprite sheet for cheongtokki: blue rabbit in a dark blue formal vest, calculating polite smile. Polished cute 32x32 pixel art, 2.5 heads tall, dark indigo one pixel outline, flat limited 31 colors, no antialias, light from upper left. Transparent canvas. EXACTLY 6 columns by 16 rows equal size cells, no padding or gaps or text. Four direction blocks DOWN LEFT RIGHT UP from top to bottom, each direction four rows: idle, walk, host, react. Each row six sequential animation poses of SAME character identity, consistent size with feet at same baseline and centered. idle gently breathing, walk six stride phases, host bow hand to heart, cook whisking, serve tray hand out, react bouncing, attack paw slash, hurt recoil as applicable. Cells must never overlap. No grid lines, no labels, no checkerboard. Tall portrait sheet.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/moka",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-b423f606-7f7f-42d9-9239-ca7a9276c5d1.png",
+    "prompt": "Use case stylized-concept. A single production sprite sheet for moka: brown otter cook, headphones, cream apron, microphone, whiskers and long tail. Polished cute 32x32 pixel art, 2.5 heads tall, dark indigo one pixel outline, flat limited 31 colors, no antialias, light from upper left. Transparent canvas. EXACTLY 6 columns by 16 rows equal size cells, no padding or gaps or text. Four direction blocks DOWN LEFT RIGHT UP from top to bottom, each direction four rows: idle, walk, host, react. Each row six sequential animation poses of SAME character identity, consistent size with feet at same baseline and centered. idle gently breathing, walk six stride phases, host bow hand to heart, cook whisking, serve tray hand out, react bouncing, attack paw slash, hurt recoil as applicable. Cells must never overlap. No grid lines, no labels, no checkerboard. Tall portrait sheet.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/customer",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-0a571788-f11b-4bab-9627-e966a651d526.png",
+    "prompt": "Use case stylized-concept. A single production sprite sheet for customer: generic cozy cafe customer brown short hair, sage sweater beige trousers. Polished cute 32x32 pixel art, 2.5 heads tall, dark indigo one pixel outline, flat limited 31 colors, no antialias, light from upper left. Transparent canvas. EXACTLY 6 columns by 16 rows equal size cells, no padding or gaps or text. Four direction blocks DOWN LEFT RIGHT UP from top to bottom, each direction four rows: idle, walk, host, react. Each row six sequential animation poses of SAME character identity, consistent size with feet at same baseline and centered. idle gently breathing, walk six stride phases, host bow hand to heart, cook whisking, serve tray hand out, react bouncing, attack paw slash, hurt recoil as applicable. Cells must never overlap. No grid lines, no labels, no checkerboard. Tall portrait sheet.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/neo",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-5a30128e-947e-4565-8f2b-2a0226c48dc9.png",
+    "prompt": "Use case: stylized-concept. One game talking portrait sprite sheet for neo. silver haired young man, short tousled silver hair, gentle face, navy formal shirt and silver coat, gold crescent brooch. Cute polished cozy pixel art, 96x96 logical pixel cells, crisp one pixel dark indigo outlines, flat 31 color palette, no antialiasing, top left light. Transparent background. Exact 4 columns by 4 rows equal cells with no padding gutters or labels. Each cell a centered bust anchored to bottom with consistent head size and position. Rows in order: normal, smile, serious, flustered expressions. In EVERY row columns: eyes open mouth closed; eyes closed mouth closed; eyes open mouth half open; eyes open mouth open speaking. Repeat identical identity and clothes throughout, only face changes. No text, no watermark, no baked checkerboard. All heads fully inside cells.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/yeoni",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-dbbddf5e-c883-4606-ba09-25198b3184aa.png",
+    "prompt": "Use case: stylized-concept. One game talking portrait sprite sheet for yeoni. young woman with long muted dusty rose pink hair, rose eyes, lotus ornament by left temple, lavender ribbon, ivory dress and dusty rose cafe apron. Cute polished cozy pixel art, 96x96 logical pixel cells, crisp one pixel dark indigo outlines, flat 31 color palette, no antialiasing, top left light. Transparent background. Exact 4 columns by 5 rows equal cells with no padding gutters or labels. Each cell a centered bust anchored to bottom with consistent head size and position. Rows in order: normal, smile, surprised, sulky, determined expressions. In EVERY row columns: eyes open mouth closed; eyes closed mouth closed; eyes open mouth half open; eyes open mouth open speaking. Repeat identical identity and clothes throughout, only face changes. No text, no watermark, no baked checkerboard. All heads fully inside cells.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/luna",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-24c42a70-bf62-4be7-b378-998bee348cc5.png",
+    "prompt": "Use case: stylized-concept. One game talking portrait sprite sheet for luna. small white baby rabbit with long ears, pink inner ears, a bread basket, bright expressive face. Cute polished cozy pixel art, 96x96 logical pixel cells, crisp one pixel dark indigo outlines, flat 31 color palette, no antialiasing, top left light. Transparent background. Exact 4 columns by 4 rows equal cells with no padding gutters or labels. Each cell a centered bust anchored to bottom with consistent head size and position. Rows in order: normal, smile, cry, surprised expressions. In EVERY row columns: eyes open mouth closed; eyes closed mouth closed; eyes open mouth half open; eyes open mouth open speaking. Repeat identical identity and clothes throughout, only face changes. No text, no watermark, no baked checkerboard. All heads fully inside cells.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/luna_sis",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-12efe1fa-0e9e-4628-9345-952e98b41a6b.png",
+    "prompt": "Use case: stylized-concept. One game talking portrait sprite sheet for luna_sis. kind young bakery older sister human woman with cream hair and rabbit ear headband, pink apron, white blouse. Cute polished cozy pixel art, 96x96 logical pixel cells, crisp one pixel dark indigo outlines, flat 31 color palette, no antialiasing, top left light. Transparent background. Exact 4 columns by 4 rows equal cells with no padding gutters or labels. Each cell a centered bust anchored to bottom with consistent head size and position. Rows in order: normal, smile, tired, serious expressions. In EVERY row columns: eyes open mouth closed; eyes closed mouth closed; eyes open mouth half open; eyes open mouth open speaking. Repeat identical identity and clothes throughout, only face changes. No text, no watermark, no baked checkerboard. All heads fully inside cells.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/cheongtokki",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-41be0102-db1e-40a2-a925-52371a4ddaaa.png",
+    "prompt": "Use case: stylized-concept. One game talking portrait sprite sheet for cheongtokki. blue rabbit banker wearing a dark blue vest, long upright ears, calculating polite face. Cute polished cozy pixel art, 96x96 logical pixel cells, crisp one pixel dark indigo outlines, flat 31 color palette, no antialiasing, top left light. Transparent background. Exact 4 columns by 3 rows equal cells with no padding gutters or labels. Each cell a centered bust anchored to bottom with consistent head size and position. Rows in order: normal, smile, smug expressions. In EVERY row columns: eyes open mouth closed; eyes closed mouth closed; eyes open mouth half open; eyes open mouth open speaking. Repeat identical identity and clothes throughout, only face changes. No text, no watermark, no baked checkerboard. All heads fully inside cells.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/moka",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-c59d48d9-2050-451b-b39b-5f6eb57c94e0.png",
+    "prompt": "Use case: stylized-concept. One game talking portrait sprite sheet for moka. brown otter cook with whiskers round ears, purple headphones and cream apron, handheld microphone. Cute polished cozy pixel art, 96x96 logical pixel cells, crisp one pixel dark indigo outlines, flat 31 color palette, no antialiasing, top left light. Transparent background. Exact 4 columns by 3 rows equal cells with no padding gutters or labels. Each cell a centered bust anchored to bottom with consistent head size and position. Rows in order: normal, smug, angry expressions. In EVERY row columns: eyes open mouth closed; eyes closed mouth closed; eyes open mouth half open; eyes open mouth open speaking. Repeat identical identity and clothes throughout, only face changes. No text, no watermark, no baked checkerboard. All heads fully inside cells.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/neo_cat",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-45b1c3e7-5619-435d-9912-c8f7f8af941e.png",
+    "prompt": "Reference-preserving pixel talking portrait of white cat with crescent hat; four expressions by four mouth/blink frames.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "backgrounds/atelier_lit",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-0af1f56a-b0b3-487f-bed7-54553b3270d1.png",
+    "prompt": "Use case stylized-concept. Single backgrounds raster game asset atelier_lit. cozy cream and rose gold fantasy cafe interior at daytime, warm wood bar counter, tea cups, round tables and ivy, crescent lamps, large arched windows with garden outside. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 720:600 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "backgrounds/atelier_dark",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-04a641e4-1a2f-45eb-a2e3-f1a87a6aaf22.png",
+    "prompt": "Use case stylized-concept. Single backgrounds raster game asset atelier_dark. same cozy cream and rose gold fantasy cafe at closing time, dark navy blue shadows and golden lamps, account ledger on wooden counter, no people. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 720:600 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "backgrounds/river_night",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-e20af794-2537-41ae-b817-64370d12bcb8.png",
+    "prompt": "Use case stylized-concept. Single backgrounds raster game asset river_night. magical river bank at night, indigo starlit sky, crescent moon, purple willows, dark grass and luminous lunar stones, distant golden lights, no characters. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 720:600 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "backgrounds/dressroom",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-35987621-2033-467e-8bc3-fd30489afffe.png",
+    "prompt": "Use case stylized-concept. Single backgrounds raster game asset dressroom. cozy fantasy dressing room, velvet indigo curtains flanking gold edged mirror, cream wood floor and rose gold clothes rail, clear central stage, no people. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 720:600 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "backgrounds/farm",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-1d31a4b2-f396-463e-b815-9c0623eaf9b5.png",
+    "prompt": "Use case stylized-concept. Single backgrounds raster game asset farm. cozy fantasy spring vegetable garden beside a small cream cottage and cafe, a pink watering can, raised empty brown earth beds and soft green grass, top down three quarter view, no people, no crops yet. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 720:400 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "tiles/cafe_floor",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-62eb478e-cd00-483d-b377-b33845dd2347.png",
+    "prompt": "Use case stylized-concept. Single tiles raster game asset cafe_floor. seamless warm beige parquet wooden cafe floor tile viewed from above, subtle dark grain, repeats at all edges. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 32:32 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "tiles/cafe_wall",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-e8040766-f3ad-4c31-887d-01bdee102421.png",
+    "prompt": "Use case stylized-concept. Single tiles raster game asset cafe_wall. seamless cream cafe wall with wooden wainscoting tile front view. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 32:32 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "tiles/town_street",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-85232e31-dee0-4d42-bdda-343c6bb78f19.png",
+    "prompt": "Use case stylized-concept. Single tiles raster game asset town_street. seamless warm cream stone town street tile viewed from above, small grass between cobbles. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 32:32 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "tiles/river_field",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-0cbc0dfd-b2f1-4fd4-9412-d972ee78cb05.png",
+    "prompt": "Use case stylized-concept. Single tiles raster game asset river_field. seamless dark indigo violet grassy night field tile, tiny sparse gold flecks, top down. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 32:32 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/town-map-spring",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-8623134d-faaa-40fb-84c8-a08bcdd3687f.png",
+    "prompt": "Use case stylized-concept. Single ui raster game asset town-map-spring. spring fantasy village map, river from upper right to lower left, atelier cafe at bottom center, notice board center, otter ingredient shop lower left, moonstone weighing shop lower right, equipment stall upper left, dark violet hunting woods upper right, pink blossoms and cream stone paths, no text or people. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 720:600 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/town-map-summer",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-7457e0b2-5367-49c3-9e4b-16da22580015.png",
+    "prompt": "Use case stylized-concept. Single ui raster game asset town-map-summer. summer fantasy village map, river from upper right to lower left, atelier cafe at bottom center, notice board center, otter ingredient shop lower left, moonstone weighing shop lower right, equipment stall upper left, dark violet hunting woods upper right, rich green leaves, cream stone paths, no text or people. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 720:600 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/town-map-autumn",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-d26e1313-7f1a-45b6-818b-d0a111efbb48.png",
+    "prompt": "Use case stylized-concept. Single ui raster game asset town-map-autumn. autumn fantasy village map, river from upper right to lower left, atelier cafe at bottom center, notice board center, otter ingredient shop lower left, moonstone weighing shop lower right, equipment stall upper left, dark violet hunting woods upper right, golden orange leaves, cream stone paths, no text or people. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 720:600 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/town-map-winter",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-1bf3ea0f-5fa0-41ed-b84b-12c24f76578c.png",
+    "prompt": "Use case stylized-concept. Single ui raster game asset town-map-winter. winter fantasy village map, river from upper right to lower left, atelier cafe at bottom center, notice board center, otter ingredient shop lower left, moonstone weighing shop lower right, equipment stall upper left, dark violet hunting woods upper right, snowy roofs and warm golden windows, no text or people. Cute sophisticated pixel art for Code Destiny cozy cafe game. Crisp pixel squares, limited flat 32 color palette, navy outlines, cream rose gold and midnight violet, top left light, no gradients or antialiasing. Landscape 720:600 aspect. No text, no watermark. Full bleed composition.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/yun",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-fc569f11-01dd-435d-91d3-8823aa5f9b01.png",
+    "prompt": "Use case stylized-concept. One talking portrait sprite sheet for yun, a young man with dark purple black medium hair tied in low ponytail, crescent earring, white high collar and navy gold embroidered fortune teller robe. Cozy fantasy pixel art, 96x96 logical pixel cells, crisp dark indigo outline, max31 colors, top left lighting, transparent background. Exactly 4 columns and 4 rows evenly spaced no margins or labels. Rows normal, smile, serious, surprised. Columns eyes open mouth closed, eyes closed mouth closed, mouth half open, mouth open. Identical bust size and bottom aligned pose in every cell. Pixel edges, no antialias, no text or watermark. Same character in every cell.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/seohanbi",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-984a747b-8d0f-4e28-b919-daad6fd06e86.png",
+    "prompt": "Use case stylized-concept. One talking portrait sprite sheet for seohanbi, young woman with long wavy black hair, deep red eyes, elegant black lace dress, red gemstone necklace and earrings. Cozy fantasy pixel art, 96x96 logical pixel cells, crisp dark indigo outline, max31 colors, top left lighting, transparent background. Exactly 4 columns and 4 rows evenly spaced no margins or labels. Rows normal, smile, serious, surprised. Columns eyes open mouth closed, eyes closed mouth closed, mouth half open, mouth open. Identical bust size and bottom aligned pose in every cell. Pixel edges, no antialias, no text or watermark. Same character in every cell.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/museong",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-833d0f9c-8d8f-4525-9d6c-e27511164775.png",
+    "prompt": "Use case stylized-concept. One talking portrait sprite sheet for museong, young man with long black hair, violet eyes, dark feather headpiece over left eye, black robe with gold star embroidery, purple gemstone earring. Cozy fantasy pixel art, 96x96 logical pixel cells, crisp dark indigo outline, max31 colors, top left lighting, transparent background. Exactly 4 columns and 4 rows evenly spaced no margins or labels. Rows normal, smile, serious, surprised. Columns eyes open mouth closed, eyes closed mouth closed, mouth half open, mouth open. Identical bust size and bottom aligned pose in every cell. Pixel edges, no antialias, no text or watermark. Same character in every cell.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/solv",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-dca8a106-17cd-44db-942a-d9fa241cd997.png",
+    "prompt": "Use case stylized-concept. One talking portrait sprite sheet for solv, young man with short black hair, expressive sharp eyes, gray black cream performance suit, wolf symbolic small pin. Cozy fantasy pixel art, 96x96 logical pixel cells, crisp dark indigo outline, max31 colors, top left lighting, transparent background. Exactly 4 columns and 4 rows evenly spaced no margins or labels. Rows normal, smile, serious, surprised. Columns eyes open mouth closed, eyes closed mouth closed, mouth half open, mouth open. Identical bust size and bottom aligned pose in every cell. Pixel edges, no antialias, no text or watermark. Same character in every cell.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/bambi",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-7bb57f07-dee8-4f54-b249-4da55b384544.png",
+    "prompt": "Use case stylized-concept. One talking portrait sprite sheet for bambi, young man with soft gray taupe short hair, gentle eyes, cream and gray stage suit, panda symbolic small pin. Cozy fantasy pixel art, 96x96 logical pixel cells, crisp dark indigo outline, max31 colors, top left lighting, transparent background. Exactly 4 columns and 4 rows evenly spaced no margins or labels. Rows normal, smile, serious, surprised. Columns eyes open mouth closed, eyes closed mouth closed, mouth half open, mouth open. Identical bust size and bottom aligned pose in every cell. Pixel edges, no antialias, no text or watermark. Same character in every cell.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/lune",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-17406d8c-282a-4af1-9a49-f6113a20a37b.png",
+    "prompt": "Use case stylized-concept. One talking portrait sprite sheet for lune, young man with long dusty pink hair, cream gold stage coat, expressive soft eyes, rabbit symbolic small pin. Cozy fantasy pixel art, 96x96 logical pixel cells, crisp dark indigo outline, max31 colors, top left lighting, transparent background. Exactly 4 columns and 4 rows evenly spaced no margins or labels. Rows normal, smile, serious, surprised. Columns eyes open mouth closed, eyes closed mouth closed, mouth half open, mouth open. Identical bust size and bottom aligned pose in every cell. Pixel edges, no antialias, no text or watermark. Same character in every cell.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/raven",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-52e6302d-1c98-490a-b138-2d1715c1a93c.png",
+    "prompt": "Use case stylized-concept. One talking portrait sprite sheet for raven, young man with short tousled black hair, dark eyes, black fur collar stage jacket, panther symbolic small pin. Cozy fantasy pixel art, 96x96 logical pixel cells, crisp dark indigo outline, max31 colors, top left lighting, transparent background. Exactly 4 columns and 4 rows evenly spaced no margins or labels. Rows normal, smile, serious, surprised. Columns eyes open mouth closed, eyes closed mouth closed, mouth half open, mouth open. Identical bust size and bottom aligned pose in every cell. Pixel edges, no antialias, no text or watermark. Same character in every cell.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/yeoni_pig",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-3227d588-b909-45e6-91d3-13c9d729c087.png",
+    "prompt": "Use case stylized-concept. One talking portrait sprite sheet for yeoni_pig, round small pastel pink piglet with lotus beside left ear, lavender ribbon, small pink snout. Cozy fantasy pixel art, 96x96 logical pixel cells, crisp dark indigo outline, max31 colors, top left lighting, transparent background. Exactly 4 columns and 4 rows evenly spaced no margins or labels. Rows normal, smile, serious, surprised. Columns eyes open mouth closed, eyes closed mouth closed, mouth half open, mouth open. Identical bust size and bottom aligned pose in every cell. Pixel edges, no antialias, no text or watermark. Same character in every cell.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/table",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-f81b6b7d-e57a-4fa3-b885-f5b1e18400e2.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: small round warm wooden cafe table with cream lace coaster. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/chair",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-1ba8d883-1431-481d-b6bf-4b97bedcd4c4.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: small cream cushioned wooden cafe chair. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/drink",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-fd52aad8-dc60-4a6f-b735-22887ec99941.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: silver and sky blue espresso machine on wooden worktop. Pixel art at 64x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/oven",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-150e2e83-860c-49a3-848d-92e803ee653a.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: round brick bakery oven with warm opening and bread. Pixel art at 64x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/pass",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-ec5ea97b-33d6-4371-aa3d-34b95abcc291.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: wooden serving counter with golden bell and tea tray. Pixel art at 64x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/counter",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-70139334-4715-4df8-ad12-a0e345b0dfa9.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: vertical wooden cash register counter with ledger. Pixel art at 32x64 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:64.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/plant",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-fb2e2c6a-584f-4857-bda8-4a70d9622b87.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: small leafy green plant in terracotta pot. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/bookshelf",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-46087c16-70d2-4447-9e59-76dfc5aa7b99.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: low walnut bookshelf with colored books. Pixel art at 64x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/lamp",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-ad619221-c9d3-440a-b7b0-a83faa152e33.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: gold star shaped standing lamp. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/rug",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-5ce2e11e-d954-4580-aa11-69c805754e11.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: square dusty pink floral cafe rug, flat top down. Pixel art at 64x64 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:64.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/pot",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-16e0858e-f18d-4fd7-9e0f-4e14196d8e6e.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: copper cooking pot with handles. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/lotus_pot",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-b77cc36b-c527-4150-ba2b-733e74fdf705.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: pink lotus flowers floating in cream ceramic bowl. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/bamboo",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-56a4488e-e21d-416d-a530-49119a85b388.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: tiny green bamboo cluster in cream planter. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/garden_bench",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-7f05c989-8783-4841-955f-3fbb74971495.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: wooden garden bench with pink blossom cushion. Pixel art at 64x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/lotus_rug",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-1903af95-9c47-45c8-971f-9107e0ae323e.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: rose pink rug with lotus central motif, flat top down. Pixel art at 64x64 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:64.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/moon_lamp",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-e32b8d72-0392-446b-b03a-656b87814397.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: gold crescent moon standing lamp. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/velvet_sofa",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-0001e08b-060b-4a20-9ffd-5ccf954a64af.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: indigo velvet two seat sofa with golden legs. Pixel art at 64x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/star_carpet",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-c11df6c7-ce32-44e0-a006-54205c58be43.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: navy constellation rug with tiny golden stars, top down. Pixel art at 64x64 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:64.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/record_shelf",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-bff33d5f-8166-4607-9fb3-018dae877648.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: walnut vinyl record cabinet with five album sleeves, no text. Pixel art at 64x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/tea_cabinet",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-d53ed03e-b5b3-4370-8d32-84b53b30af7c.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: wood cabinet with five tea cups in green red ochre ivory blue. Pixel art at 64x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/water_bowl",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-b38eb2c2-52a8-45f5-9f8f-75409d7215ae.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: blue ceramic water bowl with silver ripple. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/fire_lantern",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-e9b435ae-fcb9-402e-a4e6-a541a3acb743.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: red paper standing lantern with golden tassel. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/earth_vase",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-738b817f-18a8-4951-bab9-1a83c51c97d2.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: ochre pottery urn with cream geometric band. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/silver_bell",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-f1600e11-105b-4a1a-9cbe-6e5edb0142cd.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: small silver wind chime hanging from wooden tabletop stand. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/harvest_basket",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-d89a5653-c71a-4fc0-aa9f-f6c5c471a5bb.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: wicker basket with wheat pumpkin berries. Pixel art at 32x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 32:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/herb_shelf",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-d02da486-8110-43eb-a43f-d3a057a44858.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: low wooden shelf holding three potted herbs. Pixel art at 64x32 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:32.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "objects/greenhouse_rug",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-de45abe6-e699-496e-b337-ff20fc832edf.png",
+    "prompt": "Use case stylized-concept. Single small transparent game furniture sprite: sage green leaf and sprout welcome rug, flat top down. Pixel art at 64x64 logical pixel resolution, chunky clean readable silhouette, one pixel dark indigo outline, only 31 flat colors, top left lighting, cozy cream rose gold midnight navy palette. Orthographic top-down three quarter view for a cafe management game, entire object centered, tight frame but no clipping, transparent background. No grid, no text, no antialiasing, no labels, no other objects. Aspect 64:64.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/yun",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-83a0245d-aa1d-49d7-8e57-3b4c7e8543ae.png",
+    "prompt": "Production sprite sheet, a young man with dark purple black medium hair tied in low ponytail, crescent earring, white high collar and navy gold embroidered fortune teller robe. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/seohanbi",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-dc8ed32c-e52d-4f47-a3ae-42db6660c3e7.png",
+    "prompt": "Production sprite sheet, young woman with long wavy black hair, deep red eyes, elegant black lace dress, red gemstone necklace and earrings. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/museong",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-307ba8ce-b7a5-4a6c-8160-4452340b7fd4.png",
+    "prompt": "Production sprite sheet, young man with long black hair, violet eyes, dark feather headpiece over left eye, black robe with gold star embroidery, purple gemstone earring. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/solv",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-99129222-f036-445c-9700-0bcf6acad6f1.png",
+    "prompt": "Production sprite sheet, young man with short black hair, expressive sharp eyes, gray black cream performance suit, wolf symbolic small pin. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/bambi",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-73c66f45-498d-40b3-b665-296570d6a581.png",
+    "prompt": "Production sprite sheet, young man with soft gray taupe short hair, gentle eyes, cream and gray stage suit, panda symbolic small pin. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/lune",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-ee14a6f1-0a14-49e3-84cb-d92768978166.png",
+    "prompt": "Production sprite sheet, young man with long dusty pink hair, cream gold stage coat, expressive soft eyes, rabbit symbolic small pin. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/raven",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-4475ca78-2975-459d-9a74-6e16e5b9acf6.png",
+    "prompt": "Production sprite sheet, young man with short tousled black hair, dark eyes, black fur collar stage jacket, panther symbolic small pin. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/neo@crescent_tailcoat",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-f70259d8-2a02-4ef5-a554-b922ea1ca311.png",
+    "prompt": "Production sprite sheet, short silver hair young man wearing navy gold crescent embroidered tailcoat. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/neo@wood_suit",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-c9af5c1d-b7f0-48c2-b5bf-24d8800e9694.png",
+    "prompt": "Production sprite sheet, short silver hair young man wearing forest green double breasted suit with gold leaf embroidery. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/neo@blossom_haori",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-ad782c1a-8dd7-4c5d-a159-2a195c62f957.png",
+    "prompt": "Production sprite sheet, short silver hair young man wearing dusty pink cherry blossom haori coat over ivory shirt. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/neo@rain_coat",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-789a79a3-80de-4a73-bf63-572d41540694.png",
+    "prompt": "Production sprite sheet, short silver hair young man wearing blue hooded raincoat with crescent brass fasteners. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/neo@summer_linen",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-cbf25b37-5861-490a-9898-0fc1cbb02ae4.png",
+    "prompt": "Production sprite sheet, short silver hair young man wearing ivory summer linen shirt rolled sleeves and beige trousers. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/neo@moonstone_robe",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-a0441e30-7b97-445b-a107-f1bd0da6fbe6.png",
+    "prompt": "Production sprite sheet, short silver hair young man wearing pale lavender jeweled ceremonial robe with moonstone shoulders. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/neo@winter_coat",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-6f3ae5b3-1854-4a28-a702-a8426c557fb7.png",
+    "prompt": "Production sprite sheet, short silver hair young man wearing dark purple winter wool coat with cream fur collar. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/neo@host_first",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-de52976a-3c85-465f-a8a5-a5ac98da10fd.png",
+    "prompt": "Production sprite sheet, short silver hair young man wearing dark navy tuxedo gold bow tie and rose gold crescent pin. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/yeoni@garden_apron",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-92272289-eb7d-4d0a-9e69-6549e81db9e0.png",
+    "prompt": "Production sprite sheet, young woman with pink wavy hair lotus hairpin lavender ribbon wearing sage green gardening apron over cream blouse. Cute 32px pixel art fantasy cafe game. Dark indigo outlines, 31 flat colors, crisp pixels, transparent background. Exact 6 columns x 16 rows evenly spaced cells, consistent character size, feet aligned. Direction blocks DOWN LEFT RIGHT UP in order top to bottom. Within EACH direction 4 rows: idle breathing, walking six stride frames, hosting bow and hand at heart, reacting surprised. Each row six distinct consecutive poses same face/clothing proportions. No text, no grids, no props outside cells. Upper left lighting. Full body.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/neo@crescent_tailcoat",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-b377123d-b99f-4ebc-8653-6ac185580eae.png",
+    "prompt": "Use case stylized-concept. Production talking portrait sheet of silver haired young man wearing navy gold crescent embroidered tailcoat. EXACT grid 4 columns x 4 rows, no margins. Rows expressions normal, smile, serious, flustered. Columns: closed mouth open eyes; closed mouth eyes closed blinking; slightly open talking mouth eyes open; wide open talking mouth eyes open. Same bust cropped at chest, equal size and placement in every cell. 96x96 pixel art per cell, crisp dark indigo outline, flat cream rose gold navy palette max31colors, no gradients. Transparent background, no labels or text.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/neo@wood_suit",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-128e24cc-e123-43a0-86a3-6d2866524308.png",
+    "prompt": "Use case stylized-concept. Production talking portrait sheet of silver haired young man wearing forest green double breasted suit with gold leaf embroidery. EXACT grid 4 columns x 4 rows, no margins. Rows expressions normal, smile, serious, flustered. Columns: closed mouth open eyes; closed mouth eyes closed blinking; slightly open talking mouth eyes open; wide open talking mouth eyes open. Same bust cropped at chest, equal size and placement in every cell. 96x96 pixel art per cell, crisp dark indigo outline, flat cream rose gold navy palette max31colors, no gradients. Transparent background, no labels or text.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/neo@blossom_haori",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-1add1fa6-9f34-4c33-a805-e47a87536eb7.png",
+    "prompt": "Use case stylized-concept. Production talking portrait sheet of silver haired young man wearing dusty pink cherry blossom haori over ivory shirt. EXACT grid 4 columns x 4 rows, no margins. Rows expressions normal, smile, serious, flustered. Columns: closed mouth open eyes; closed mouth eyes closed blinking; slightly open talking mouth eyes open; wide open talking mouth eyes open. Same bust cropped at chest, equal size and placement in every cell. 96x96 pixel art per cell, crisp dark indigo outline, flat cream rose gold navy palette max31colors, no gradients. Transparent background, no labels or text.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/neo@rain_coat",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-3044b5bf-92e9-4a9c-af18-f0517b545692.png",
+    "prompt": "Use case stylized-concept. Production talking portrait sheet of silver haired young man wearing blue raincoat with crescent brass fasteners. EXACT grid 4 columns x 4 rows, no margins. Rows expressions normal, smile, serious, flustered. Columns: closed mouth open eyes; closed mouth eyes closed blinking; slightly open talking mouth eyes open; wide open talking mouth eyes open. Same bust cropped at chest, equal size and placement in every cell. 96x96 pixel art per cell, crisp dark indigo outline, flat cream rose gold navy palette max31colors, no gradients. Transparent background, no labels or text.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/neo@summer_linen",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-0518fa80-78fb-432a-a305-90b5ef58b50f.png",
+    "prompt": "Use case stylized-concept. Production talking portrait sheet of silver haired young man wearing ivory summer linen shirt rolled sleeves. EXACT grid 4 columns x 4 rows, no margins. Rows expressions normal, smile, serious, flustered. Columns: closed mouth open eyes; closed mouth eyes closed blinking; slightly open talking mouth eyes open; wide open talking mouth eyes open. Same bust cropped at chest, equal size and placement in every cell. 96x96 pixel art per cell, crisp dark indigo outline, flat cream rose gold navy palette max31colors, no gradients. Transparent background, no labels or text.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/neo@moonstone_robe",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-769d1380-4b4a-4389-b897-27bb2d2a2e0d.png",
+    "prompt": "Use case stylized-concept. Production talking portrait sheet of silver haired young man wearing pale lavender jeweled ceremonial robe with moonstone shoulders. EXACT grid 4 columns x 4 rows, no margins. Rows expressions normal, smile, serious, flustered. Columns: closed mouth open eyes; closed mouth eyes closed blinking; slightly open talking mouth eyes open; wide open talking mouth eyes open. Same bust cropped at chest, equal size and placement in every cell. 96x96 pixel art per cell, crisp dark indigo outline, flat cream rose gold navy palette max31colors, no gradients. Transparent background, no labels or text.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/neo@winter_coat",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-f6a335d2-eb68-4bc5-9af2-3b94601afa4d.png",
+    "prompt": "Use case stylized-concept. Production talking portrait sheet of silver haired young man wearing dark purple winter coat with cream fur collar. EXACT grid 4 columns x 4 rows, no margins. Rows expressions normal, smile, serious, flustered. Columns: closed mouth open eyes; closed mouth eyes closed blinking; slightly open talking mouth eyes open; wide open talking mouth eyes open. Same bust cropped at chest, equal size and placement in every cell. 96x96 pixel art per cell, crisp dark indigo outline, flat cream rose gold navy palette max31colors, no gradients. Transparent background, no labels or text.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/neo@host_first",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-19006e9f-3b83-4a61-973b-ebbc312e61bc.png",
+    "prompt": "Use case stylized-concept. Production talking portrait sheet of silver haired young man wearing dark navy tuxedo gold bow tie and rose gold crescent pin. EXACT grid 4 columns x 4 rows, no margins. Rows expressions normal, smile, serious, flustered. Columns: closed mouth open eyes; closed mouth eyes closed blinking; slightly open talking mouth eyes open; wide open talking mouth eyes open. Same bust cropped at chest, equal size and placement in every cell. 96x96 pixel art per cell, crisp dark indigo outline, flat cream rose gold navy palette max31colors, no gradients. Transparent background, no labels or text.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "portraits/yeoni@garden_apron",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-055bb7eb-f9ef-47c2-894c-35d87b67a1f2.png",
+    "prompt": "Use case stylized-concept. Production talking portrait sheet of young woman with pink wavy hair lotus hairpin lavender ribbon wearing sage green gardening apron over cream blouse. EXACT grid 4 columns x 5 rows, no margins. Rows expressions normal, smile, surprised, sulky, determined. Columns: closed mouth open eyes; closed mouth eyes closed blinking; slightly open talking mouth eyes open; wide open talking mouth eyes open. Same bust cropped at chest, equal size and placement in every cell. 96x96 pixel art per cell, crisp dark indigo outline, flat cream rose gold navy palette max31colors, no gradients. Transparent background, no labels or text.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "enemies/shade_hand",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-9f9f70ec-695d-4962-9baa-16fcccef8754.png",
+    "prompt": "Use case stylized-concept. Production pixel art enemy sprite sheet: creeping black ink shadow hand with pale glowing palm eye, menacing but cute fantasy game. Exact grid 4 columns x3rows equal cells. Row1 idle four poses, row2 walking/floating four movement poses, row3 hurt recoil four poses. No other rows. Same monster consistent size centered. Crisp dark indigo outline, 31 flat colors maximum, transparent background, no text no grid lines. Each frame intended32px square.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "enemies/shade_bat",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-919b5ee5-9844-49d2-a945-5eace96d31a0.png",
+    "prompt": "Use case stylized-concept. Production pixel art enemy sprite sheet: small dark purple bat with pink glowing eyes, menacing but cute fantasy game. Exact grid 4 columns x3rows equal cells. Row1 idle four poses, row2 walking/floating four movement poses, row3 hurt recoil four poses. No other rows. Same monster consistent size centered. Crisp dark indigo outline, 31 flat colors maximum, transparent background, no text no grid lines. Each frame intended32px square.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "enemies/shade_blob",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-37615261-79e2-4f5a-bbac-103dd9b85254.png",
+    "prompt": "Use case stylized-concept. Production pixel art enemy sprite sheet: round dark purple shadow slime single pale eye, menacing but cute fantasy game. Exact grid 4 columns x3rows equal cells. Row1 idle four poses, row2 walking/floating four movement poses, row3 hurt recoil four poses. No other rows. Same monster consistent size centered. Crisp dark indigo outline, 31 flat colors maximum, transparent background, no text no grid lines. Each frame intended32px square.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "enemies/shade_wisp",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-98423693-c28c-4946-9fb6-73f203eb6045.png",
+    "prompt": "Use case stylized-concept. Production pixel art enemy sprite sheet: blue violet flickering flame white core, menacing but cute fantasy game. Exact grid 4 columns x3rows equal cells. Row1 idle four poses, row2 walking/floating four movement poses, row3 hurt recoil four poses. No other rows. Same monster consistent size centered. Crisp dark indigo outline, 31 flat colors maximum, transparent background, no text no grid lines. Each frame intended32px square.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "enemies/elite_hand",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-2690592a-755a-482b-a573-093a934a5a35.png",
+    "prompt": "Use case stylized-concept. Production pixel art enemy sprite sheet: large dark crimson shadow hand gold eye on palm, menacing but cute fantasy game. Exact grid 4 columns x3rows equal cells. Row1 idle four poses, row2 walking/floating four movement poses, row3 hurt recoil four poses. No other rows. Same monster consistent size centered. Crisp dark indigo outline, 31 flat colors maximum, transparent background, no text no grid lines. Each frame intended64px square.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "enemies/boss_hand",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-a0fc3304-a92b-41bb-8022-045c08821ee9.png",
+    "prompt": "Use case stylized-concept. Production pixel art enemy sprite sheet: huge black shadow hand rising from ground red eye swirling purple aura, menacing but cute fantasy game. Exact grid 4 columns x3rows equal cells. Row1 idle four poses, row2 walking/floating four movement poses, row3 hurt recoil four poses. No other rows. Same monster consistent size centered. Crisp dark indigo outline, 31 flat colors maximum, transparent background, no text no grid lines. Each frame intended96px square.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/bean",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-366f920b-5609-4b39-b93a-92bafef1911e.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: one roasted coffee bean. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/milk",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-7f800368-09b6-4869-8867-5310b53137b2.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: cream glass milk bottle. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/tea",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-4ad6d487-06c9-4d1f-8f4b-7c5788a5add4.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: two green tea leaves. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/flour",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-4d4529ac-bb6d-437e-b51d-425e30e8f95b.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: small flour sack. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/egg",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-57c7bb12-79c4-4424-8cf6-1442dee4008a.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: one golden white egg. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/sugar",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-d65d437d-8505-4a87-a63a-d45a148cff88.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: three white sugar cubes. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/night_dew",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-baa94681-1717-41e1-bed6-a30d07c08ff8.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: blue violet dew drop. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/gem_s",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-3bf0f60e-573a-4b33-a2a0-051378309065.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: small cyan star crystal. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/gem_m",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-cfb8cc7e-1eff-420f-a208-125e7ea2e323.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: medium green star crystal. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/gem_l",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-a516e5f9-a7d7-40bf-98bb-12089007da62.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: large orange star crystal. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/fish",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-05baecd1-b022-4557-b8c1-6141ef2285f0.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: grilled fish. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/magnet",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-04e90855-22e1-4b57-8fb3-845397f82ac1.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: cat whisker shaped red magnet. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/bomb",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-691cd6b0-7317-482d-b4f5-12fdcfa3066b.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: gold crescent bomb. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/chest",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-db2f7d74-59a9-4118-9047-936980566f19.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: gold star treasure chest. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/moonstone",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-7ea5c77d-3b01-43cc-90d1-efb255d7605d.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: pale lavender crescent crystal. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/claw_glove",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-45a63765-0f00-4396-8b4b-8c6f5acc2498.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: cat paw claw glove. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/crescent_wand",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-c8049fbb-f724-4c0f-a2e7-7ceff7a6d9e4.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: short crescent bell wand. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/scale_vest",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-d7a01e83-5662-4e72-9528-c87e7e3452ce.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: blue fish scale vest. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/fluff_cape",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-4c78346c-f0e6-47d1-bfb6-f5c612fb423c.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: white fluffy cape. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/fishbone_charm",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-dc184b5e-0646-4ea7-90fc-28da561b6d92.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: fishbone charm. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/churu_magnet",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-79d72faa-2636-4417-97f3-31109637a32b.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: pink cat treat packet magnet. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/berry",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-36804c01-6a2d-4445-9d57-b5e1c1c25db7.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: ripe red strawberry. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/rice",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-85a35370-68ea-4ba6-a5b7-3fc675c78a98.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: bowl of white rice grains. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/pumpkin",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-d5bf949c-45ba-4497-af3e-0e1e18b73c7e.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: small golden pumpkin. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/lotus_berry_tart",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-8ed5fd01-13b2-49b2-95d3-3243aeb3422d.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: pink lotus strawberry tart. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/moon_rice_bowl",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-2a2d3e49-fca5-40fa-92d6-81bfb9c7315d.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: rice bowl with crescent fried egg. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/golden_pumpkin_soup",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-db1b7a08-351f-490f-a7b8-1080d858b986.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: golden pumpkin soup in white bowl. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/fortune_latte",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-7f69b4cb-bd6e-4b40-bfe5-71bda3ab2662.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: latte cup with star foam. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/starlight_tea",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-93103ab4-c2b2-4b79-ac62-30468c66554e.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: green tea cup with gold star. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/flower_cookie",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-1da265f0-6dd5-4de1-be0d-cb34feb3e88c.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: pink flower shaped cookie. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/moon_pudding",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-7e340ce8-0092-4794-b494-8946bb7fcae5.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: gold crescent pudding. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/lucky_sand",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-4c97ab18-1d3b-439e-a20e-e835be750033.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: triangle egg sandwich. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/moon_milk_tea",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-7fa39d4c-fed8-47b2-a9a1-ea2a026fc02b.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: beige milk tea in moon cup. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/stardust_castella",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-a12fcc8b-de9b-4dd5-978c-f0ab7411b0a9.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: golden sponge cake slice. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/oink_cream_latte",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-f84dfff3-b81b-4907-a90e-368401aac339.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: latte topped with pink pig cream. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "icons/night_dew_latte",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-6fdc745d-2159-4339-82d0-e2e2b687ec56.png",
+    "prompt": "Use case stylized-concept. One single game inventory icon: violet night dew latte. Readable at16x16px, chunky pixel art, cute luxurious fantasy cafe, cream navy rose gold palette, dark indigo outline, max16 flat colors, upper left light, centered isolated object fills square with 5%margin, transparent background, no words numbers labels shadow or scene.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/town-node-atelier",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-76bfd106-ad56-45a1-9830-bc6aeb6a3553.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: one cozy cream cafe cottage rose roof crescent sign. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 48x48 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/town-node-expand",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-52461234-8160-4264-9c62-d12e0868837e.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: wooden construction notice board and hammer. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 48x48 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/town-node-moka",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-f488a6e9-c731-476e-bec0-c1d4899b04fa.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: otter ingredient shop market stall with vegetable baskets. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 48x48 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/town-node-luna",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-40df2a9f-569e-45b9-82cf-600c4bac76f5.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: moonstone weighing scale on cream table. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 48x48 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/town-node-gear",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-91aeeb99-3053-4400-acef-7e1ff4c2c81e.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: navy equipment market stall with wand and cape. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 48x48 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/town-node-hunt",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-853d4dd7-827b-4d3e-a7f6-cf10d4eb28b3.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: dark violet forest gate and crescent moon. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 48x48 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/heart-full",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-b44a9064-d1da-417f-8527-c2b33fd540e5.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: solid rose pink heart with gold edge. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 16x16 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/heart-empty",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-121af7d6-60c8-4445-a408-4c90ca0efc56.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: hollow rose gold heart outline transparent center. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 16x16 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/sos",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-c94b6201-8244-45dd-8592-1c68a1c7b4a8.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: bright red gold exclamation speech bubble. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 32x32 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/stress-calm",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-19c3940d-383a-4519-a565-1d09fc646728.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: silver haired young man navy shirt calm smiling face icon. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 32x32 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/stress-tired",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-7cbbe958-9d44-473b-92e0-174202653b1e.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: silver haired young man navy shirt tired sweating face icon. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 32x32 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/stress-limit",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-86d8e112-2342-49fb-bd0a-b5f90b085769.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: silver haired young man navy shirt exhausted distressed face icon. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 32x32 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/frame-panel",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-451246a9-c5cd-481b-8dad-68b9d53e9b0f.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: square ornamental rose gold pixel border with cream paper interior, wide clear center, symmetric corners, suitable9slice. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 48x48 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/frame-button",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-83ede4ae-31ac-4362-98d3-8cd30762a2bc.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: square rose gold pixel border and ivory interior, subtle raised edge, suitable9slice. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 48x48 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/frame-tab",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-34a5251a-fa34-4c7c-bd65-0da41135d2e1.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: square navy gold pixel border and ivory interior, suitable9slice. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 48x48 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/frame-card",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-a16352bc-0c22-4b5b-9cd5-5b9ab0cea46b.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: square thin gold ornamental border ivory paper interior, suitable9slice. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 48x48 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/transform",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-e4963ebd-a44e-4f99-b771-5a64c445cad2.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: sprite sheet EXACTLY8 columns1row, gold crescent magical transformation spark swirling into crescent ring then dispersing, transparent background, no character, identical square frames. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 256x32 target pixels. Transparent background, upper left light, no labels no text. Wide horizontal strip eight square frames.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/transform-large",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-bdaa0a59-5bcc-4030-beff-84300d96e87a.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: sprite sheet EXACTLY8 columns1row, ornate gold crescent magic ring transformation then dispersing, transparent background, no character, identical square frames. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 768x96 target pixels. Transparent background, upper left light, no labels no text. Wide horizontal strip eight square frames.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/moon-glint",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-1f893bb7-cb07-4e54-b6cf-c703b739409a.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: pale lavender moonstone crystal with four gold sparkle stars. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 32x32 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/push-lines",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-8f62c844-6fa2-485f-9720-0af47f9c8c75.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: comic motion effect lines sweeping left to right, white gold and rose, no character or objects. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 96x96 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "ui/ledger",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-8c9c48de-73a1-4223-98be-91375009451b.png",
+    "prompt": "Use case stylized-concept. Single production game UI asset: open cream account ledger navy cover gold clasp with tiny abstract ink strokes no legible writing. Cute premium pixel art fantasy cafe, crisp dark indigo outline, cream rose gold navy palette maximum31flatcolors. 32x32 target pixels. Transparent background, upper left light, no labels no text. Centered square composition fills90%canvas.",
+    "normalization": "nearest-neighbor, <=32 colors, binary alpha, registry cell layout; unused animation rows reuse idle"
+  },
+  {
+    "id": "actors/neo@vest_night",
+    "aliasOf": "actors/neo",
+    "note": "기본 복장과 기본 시트가 같은 외형이므로 동일 파일 사용"
+  },
+  {
+    "id": "actors/yeoni@apron_spring",
+    "aliasOf": "actors/yeoni",
+    "note": "기본 복장과 기본 시트가 같은 외형이므로 동일 파일 사용"
+  },
+  {
+    "id": "portraits/neo@vest_night",
+    "aliasOf": "portraits/neo",
+    "note": "기본 복장과 기본 시트가 같은 외형이므로 동일 파일 사용"
+  },
+  {
+    "id": "portraits/yeoni@apron_spring",
+    "aliasOf": "portraits/yeoni",
+    "note": "기본 복장과 기본 시트가 같은 외형이므로 동일 파일 사용"
+  }
+]

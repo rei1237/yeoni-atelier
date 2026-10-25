@@ -1,222 +1,250 @@
-# 도트 에셋 규격과 생성 프롬프트
+# 도트 에셋 규격과 생성 기록
 
-지금 저장소에는 **이미지 파일이 하나도 없다.** 모든 항목은 도형 대체(fallback)로 그린다.
-이 문서는 Codex 등으로 도트 그림을 만들 때 따를 규격과 프롬프트 초안이다. 프롬프트로 실제 이미지를 만들어 확인한 적은 아직 없다.
+2026-10-25: 정식 에셋 156개 완료. 개발 전용 dev_temp_01만 의도적으로 도형 대체한다. 실제 PNG 로드 성공을 브라우저에서 확인했다. 실패한 이미지는 기존 도형 렌더러로 복귀한다.
 
-정의는 [src/render/assets.js](../src/render/assets.js) 에 있고, 그리는 코드는 [src/render/sprite-renderer.js](../src/render/sprite-renderer.js) 다.
-게임 로직은 에셋 파일을 읽지 않는다. 그림이 없거나 불러오기에 실패하면 자동으로 도형으로 돌아간다.
+## 공통 규격
+- 생성 도구: 내장 image_gen. 한 번에 한 파일을 생성했다. 전체 원문 프롬프트·원본 파일명·별칭은 [art-prompts.json](art-prompts.json)에 기록한다.
+- 사용자 승인 후처리: nearest-neighbor 크기 조정, 셀 정렬, RGB/RGBA8, 파일마다 32색 이하, 알파 0/255. 원본 생성 파일은 덮어쓰지 않았다.
+- 광원 왼쪽 위, 남보라 외곽선, 크림·로즈·금색. 배경/타일은 불투명, 나머지는 투명 배경이다. 외부 폰트/CDN을 추가하지 않았다.
+- 캐릭터 셀 32×32, 발 기준점 (16,30). 열 6프레임, 행 idle/walk/cook/serve/host/react/attack/hurt × 방향 down/left/right/up. 상태별 사용 프레임·fps는 레지스트리를 따른다.
+- 생성 원본의 누락 포즈는 같은 방향의 가까운 포즈로 보완했다. 쓰지 않는 상태는 idle을 재사용한다. 8개 상태 모두를 독립 제작한 애니메이션이라고 주장하지 않는다. 작은 셀의 동작과 일부 방향은 후속 아트 검수 대상이다.
+- 적: 4열, 8행, idle=0/walk=1/hurt=7. 정예 셀 64, 보스 96.
+- 초상화: 셀 96×96, 열 입닫음/눈감음/작게열기/크게열기, 행 표정 순서. 110ms 입 움직임, 2–5초 눈깜빡임, 문장부호 180ms 휴지. reduced-motion이면 정지. legacyPortraits에 등록한 기존 가로형도 호환한다.
+- 9-slice 프레임 48×48, 가장자리 12px. 말풍선·메뉴·사냥 아이콘 16px 또는 표의 크기. 변신은 8프레임 가로 시트이다.
+- Canvas smoothing=false, 캐릭터는 정수 배율. 가구/타일/배경은 반응형 칸에 맞추므로 비정수 배율이 생길 수 있다.
 
-## 1. 이미지 넣는 순서
+## 등록과 검사
+1. src/render/assets.js에 정의, 아래 표에 크기·상태를 기록한다.
+2. PNG를 확인한 뒤 assets/manifest.json ready에 묶음/키를 추가한다.
+3. node tools/check-assets.mjs: Node 내장 fs/zlib만 사용해 문서·레지스트리 크기, 색 수, 투명 배경, 알파 단계를 검사한다.
+4. npm start에서 실제 화면을 확인한다. ready에 없는 키는 요청하지 않는다.
 
-1. 아래 규격대로 PNG 를 만들어 표의 경로에 둔다(투명 배경, 색 수 제한, 안티에일리어싱 없음).
-2. [assets/manifest.json](../assets/manifest.json) 의 `ready` 배열에 `"묶음/키"` 를 추가한다.
-   ```json
-   { "ready": ["actors/yeoni", "portraits/yeoni", "icons/bean"] }
-   ```
-3. `npm start` 로 열어 확인한다. 매니페스트에 없는 키는 아예 요청하지 않으므로, 파일이 없어서 404 가 쌓이지 않는다.
+정규화 보조 도구는 tools/*normalize*.py, actor-detect.py 및 actor-grid-spec.json이다. Pillow가 필요하며 개인 원본 경로는 tools/*.local.json으로 분리한다(커밋하지 않음). art-prompts.json의 sourceFile을 로컬 생성 원본에 연결한 입력 목록을 사용한다.
 
-## 2. 공통 규칙
+## actors
 
-- 기본 단위 **32px**. 캐릭터 프레임 32×32, 타일 32×32, 아이콘 16×16, 초상화 96×96.
-- 화면에는 **정수 배율로만** 키운다(32 → 64 → 96…). 캔버스는 `imageSmoothingEnabled = false`, CSS 는 `image-rendering: pixelated`.
-  - 오브젝트·타일은 칸 크기가 화면 폭에 따라 달라서 정수 배율이 아닐 수 있다. 픽셀 폭이 약간 고르지 않을 수 있다.
-- 외곽선 1px, 어두운 남보라 계열(#1b1530 근처). 순수 검정 외곽선은 쓰지 않는다.
-- 한 시트 안의 색 수는 32색 이하를 권장한다. 반투명 픽셀은 그림자 1단계만 허용한다.
-- 광원은 왼쪽 위.
-- 배경은 완전 투명(알파 0). 흰 배경이나 체크무늬를 굽지 않는다.
+| 키 | 이름 | 경로 | PNG 크기 | 상태 |
+| --- | --- | --- | --- | --- |
+| actors/yun | 윤달 | assets/sprites/actors/yun.png | 192×1024 | 완료 |
+| actors/seohanbi | 서한비 | assets/sprites/actors/seohanbi.png | 192×1024 | 완료 |
+| actors/museong | 무성 | assets/sprites/actors/museong.png | 192×1024 | 완료 |
+| actors/solv | 솔브 | assets/sprites/actors/solv.png | 192×1024 | 완료 |
+| actors/bambi | 밤비 | assets/sprites/actors/bambi.png | 192×1024 | 완료 |
+| actors/lune | 루네 | assets/sprites/actors/lune.png | 192×1024 | 완료 |
+| actors/raven | 레이븐 | assets/sprites/actors/raven.png | 192×1024 | 완료 |
+| actors/neo@crescent_tailcoat | 초승달 연미복 | assets/sprites/actors/neo@crescent_tailcoat.png | 192×1024 | 완료 |
+| actors/neo@wood_suit | 청목 정장 | assets/sprites/actors/neo@wood_suit.png | 192×1024 | 완료 |
+| actors/neo@blossom_haori | 벚꽃 저녁 | assets/sprites/actors/neo@blossom_haori.png | 192×1024 | 완료 |
+| actors/neo@rain_coat | 비 갠 새벽 | assets/sprites/actors/neo@rain_coat.png | 192×1024 | 완료 |
+| actors/neo@summer_linen | 여름의 여백 | assets/sprites/actors/neo@summer_linen.png | 192×1024 | 완료 |
+| actors/neo@moonstone_robe | 월정석 예복 | assets/sprites/actors/neo@moonstone_robe.png | 192×1024 | 완료 |
+| actors/neo@winter_coat | 한겨울 별자리 | assets/sprites/actors/neo@winter_coat.png | 192×1024 | 완료 |
+| actors/yeoni@garden_apron | 연꽃 정원 앞치마 | assets/sprites/actors/yeoni@garden_apron.png | 192×1024 | 완료 |
+| actors/neo@host_first | 달빛 첫인사 | assets/sprites/actors/neo@host_first.png | 192×1024 | 완료 |
+| actors/yeoni@apron_spring | 봄빛 앞치마 | assets/sprites/actors/yeoni@apron_spring.png | 192×1024 | 완료 |
+| actors/neo@vest_night | 밤하늘 조끼 | assets/sprites/actors/neo@vest_night.png | 192×1024 | 완료 |
+| actors/yeoni | 연이 | assets/sprites/actors/yeoni.png | 192×1024 | 완료 |
+| actors/yeoni_pig | 연이(꽃돼지) | assets/sprites/actors/yeoni_pig.png | 192×1024 | 완료 |
+| actors/neo | 네오 | assets/sprites/actors/neo.png | 192×1024 | 완료 |
+| actors/neo_cat | 영냥이 | assets/sprites/actors/neo_cat.png | 192×1024 | 완료 |
+| actors/customer | 손님 | assets/sprites/actors/customer.png | 192×1024 | 완료 |
+| actors/luna | 루나 | assets/sprites/actors/luna.png | 192×1024 | 완료 |
+| actors/luna_sis | 루나 언니 | assets/sprites/actors/luna_sis.png | 192×1024 | 완료 |
+| actors/cheongtokki | 청토끼 | assets/sprites/actors/cheongtokki.png | 192×1024 | 완료 |
+| actors/moka | 모카 | assets/sprites/actors/moka.png | 192×1024 | 완료 |
+| actors/dev_temp_01 | DEV 임시 동료 01 | assets/sprites/actors/dev_temp_01.png | 192×1024 | 초안 · 개발용 도형 유지 |
 
-## 3. 캐릭터 시트 (actors)
+## enemies
 
-- 프레임 32×32, 기준점 (16, 30) = 발밑 중앙.
-- **열 = 프레임**(최대 6열 → 시트 폭 192px).
-- **행 = 상태**. 아래 8행 순서를 방향마다 반복한다. 쓰지 않는 상태도 빈 행으로 자리를 남긴다(행 번호 = 상태 순번 + 방향 순번 × 8).
-- **방향 블록 순서**: `down`, `left`, `right`, `up` → 시트 높이 4 × 8 × 32 = 1024px.
+| 키 | 이름 | 경로 | PNG 크기 | 상태 |
+| --- | --- | --- | --- | --- |
+| enemies/shade_hand | 검은 손 | assets/sprites/enemies/shade_hand.png | 128×256 | 완료 |
+| enemies/shade_bat | 그림자 박쥐(임시) | assets/sprites/enemies/shade_bat.png | 128×256 | 완료 |
+| enemies/shade_blob | 그림자 덩어리(임시) | assets/sprites/enemies/shade_blob.png | 128×256 | 완료 |
+| enemies/shade_wisp | 도깨비불(임시) | assets/sprites/enemies/shade_wisp.png | 128×256 | 완료 |
+| enemies/elite_hand | 큰 검은 손(임시 정예) | assets/sprites/enemies/elite_hand.png | 256×512 | 완료 |
+| enemies/boss_hand | 거대한 검은 손(임시 보스) | assets/sprites/enemies/boss_hand.png | 384×768 | 완료 |
 
-| 행 | 상태 | 프레임 | fps | 반복 | 쓰이는 곳 |
-| --- | --- | --- | --- | --- | --- |
-| 0 | idle | 4 | 4 | 예 | 대기 |
-| 1 | walk | 6 | 10 | 예 | 이동 |
-| 2 | cook | 4 | 6 | 예 | 연이 조리 |
-| 3 | serve | 4 | 8 | 아니오 | 서빙 |
-| 4 | host | 4 | 4 | 예 | 네오 접대 |
-| 5 | react | 4 | 8 | 아니오 | 판정·피버·조합 발견 반응 |
-| 6 | attack | 4 | 12 | 아니오 | 영냥이 공격 |
-| 7 | hurt | 2 | 8 | 아니오 | 영냥이 피격 |
+## objects
 
-정의에서 `null` 인 상태는 idle 로 그린다(`resolveState`). 그 행은 비워 둬도 된다.
+| 키 | 이름 | 경로 | PNG 크기 | 상태 |
+| --- | --- | --- | --- | --- |
+| objects/lotus_pot | 연꽃 수반 | assets/sprites/objects/lotus_pot.png | 32×32 | 완료 |
+| objects/bamboo | 작은 대나무 | assets/sprites/objects/bamboo.png | 32×32 | 완료 |
+| objects/garden_bench | 꽃길 벤치 | assets/sprites/objects/garden_bench.png | 64×32 | 완료 |
+| objects/lotus_rug | 연꽃 원형 카펫 | assets/sprites/objects/lotus_rug.png | 64×64 | 완료 |
+| objects/moon_lamp | 초승달 스탠드 | assets/sprites/objects/moon_lamp.png | 32×32 | 완료 |
+| objects/velvet_sofa | 남보라 벨벳 소파 | assets/sprites/objects/velvet_sofa.png | 64×32 | 완료 |
+| objects/star_carpet | 별자리 카펫 | assets/sprites/objects/star_carpet.png | 64×64 | 완료 |
+| objects/record_shelf | 데스티노바 음반장 | assets/sprites/objects/record_shelf.png | 64×32 | 완료 |
+| objects/tea_cabinet | 오행 찻잔장 | assets/sprites/objects/tea_cabinet.png | 64×32 | 완료 |
+| objects/water_bowl | 푸른 물결 수반 | assets/sprites/objects/water_bowl.png | 32×32 | 완료 |
+| objects/fire_lantern | 붉은 등불 | assets/sprites/objects/fire_lantern.png | 32×32 | 완료 |
+| objects/earth_vase | 황토빛 항아리 | assets/sprites/objects/earth_vase.png | 32×32 | 완료 |
+| objects/silver_bell | 은빛 풍경 | assets/sprites/objects/silver_bell.png | 32×32 | 완료 |
+| objects/harvest_basket | 수확 바구니 | assets/sprites/objects/harvest_basket.png | 32×32 | 완료 |
+| objects/herb_shelf | 허브 화분 선반 | assets/sprites/objects/herb_shelf.png | 64×32 | 완료 |
+| objects/greenhouse_rug | 새싹 발매트 | assets/sprites/objects/greenhouse_rug.png | 64×64 | 완료 |
+| objects/table | 테이블 | assets/sprites/objects/table.png | 32×32 | 완료 |
+| objects/chair | 의자 | assets/sprites/objects/chair.png | 32×32 | 완료 |
+| objects/drink | 음료 머신 | assets/sprites/objects/drink.png | 64×32 | 완료 |
+| objects/oven | 오븐 | assets/sprites/objects/oven.png | 64×32 | 완료 |
+| objects/pass | 서빙대 | assets/sprites/objects/pass.png | 64×32 | 완료 |
+| objects/counter | 카운터 | assets/sprites/objects/counter.png | 32×64 | 완료 |
+| objects/plant | 화분 | assets/sprites/objects/plant.png | 32×32 | 완료 |
+| objects/bookshelf | 책장 | assets/sprites/objects/bookshelf.png | 64×32 | 완료 |
+| objects/lamp | 별 조명 | assets/sprites/objects/lamp.png | 32×32 | 완료 |
+| objects/rug | 꽃무늬 러그 | assets/sprites/objects/rug.png | 64×64 | 완료 |
+| objects/pot | 조합 냄비 | assets/sprites/objects/pot.png | 32×32 | 완료 |
 
-| 키 | 경로 | 이름 | 비고 |
-| --- | --- | --- | --- |
-| `yeoni` | assets/sprites/actors/yeoni.png | 연이 | 카운터·조리·서빙 |
-| `yeoni_pig` | assets/sprites/actors/yeoni_pig.png | 연이(꽃돼지) | cook·serve·host·attack 없음. 프롤로그·연출용 |
-| `neo` | assets/sprites/actors/neo.png | 네오 | 접대 |
-| `neo_cat` | assets/sprites/actors/neo_cat.png | 영냥이 | 네오의 고양이 모습. 같은 인물 id `neo` 를 쓰고 렌더링 키만 다르다. 사냥 주인공 |
-| `customer` | assets/sprites/actors/customer.png | 손님 | 몸 색은 코드가 손님마다 바꾸지 않는다(그림이 있으면 그림 색 그대로) |
-| `luna` | assets/sprites/actors/luna.png | 루나 | 원작 그림 기준 흰 아기 토끼. idle·walk·serve·react (가게 서빙·정리 담당) |
-| `luna_sis` | assets/sprites/actors/luna_sis.png | 루나 언니 | 원작 소개: 분홍 앞치마·토끼 귀 머리띠의 빵집 언니. 종족 표현은 원작 그림을 따른다. idle·walk·cook·react (가게 굽기 담당) |
-| `cheongtokki` | assets/sprites/actors/cheongtokki.png | 청토끼 | 원작: 조끼 입은 파란 토끼, 청토끼 금융 주인. NPC 상태만 |
-| `moka` | assets/sprites/actors/moka.png | 모카 | 원작: 헤드폰·마이크·앞치마의 랩하는 수달 요리사(식상의 섬). 마을 식재료점은 게임 설정. NPC 상태만 |
-| `dev_temp_01` | assets/sprites/actors/dev_temp_01.png | DEV 임시 동료 01 | **개발 전용. 정식 에셋을 만들지 않는다** |
+## icons
 
-## 4. 적 시트 (enemies)
+| 키 | 이름 | 경로 | PNG 크기 | 상태 |
+| --- | --- | --- | --- | --- |
+| icons/berry | 딸기 | assets/sprites/icons/berry.png | 16×16 | 완료 |
+| icons/rice | 쌀 | assets/sprites/icons/rice.png | 16×16 | 완료 |
+| icons/pumpkin | 호박 | assets/sprites/icons/pumpkin.png | 16×16 | 완료 |
+| icons/bean | 원두 | assets/sprites/icons/bean.png | 16×16 | 완료 |
+| icons/milk | 우유 | assets/sprites/icons/milk.png | 16×16 | 완료 |
+| icons/tea | 찻잎 | assets/sprites/icons/tea.png | 16×16 | 완료 |
+| icons/flour | 밀가루 | assets/sprites/icons/flour.png | 16×16 | 완료 |
+| icons/egg | 달걀 | assets/sprites/icons/egg.png | 16×16 | 완료 |
+| icons/sugar | 설탕 | assets/sprites/icons/sugar.png | 16×16 | 완료 |
+| icons/night_dew | 밤이슬 | assets/sprites/icons/night_dew.png | 16×16 | 완료 |
+| icons/lotus_berry_tart | 연꽃 딸기 타르트 | assets/sprites/icons/lotus_berry_tart.png | 16×16 | 완료 |
+| icons/moon_rice_bowl | 초승달 달걀밥 | assets/sprites/icons/moon_rice_bowl.png | 16×16 | 완료 |
+| icons/golden_pumpkin_soup | 황금 호박 수프 | assets/sprites/icons/golden_pumpkin_soup.png | 16×16 | 완료 |
+| icons/fortune_latte | 운세 라테 | assets/sprites/icons/fortune_latte.png | 16×16 | 완료 |
+| icons/starlight_tea | 별빛 차 | assets/sprites/icons/starlight_tea.png | 16×16 | 완료 |
+| icons/flower_cookie | 꽃 쿠키 | assets/sprites/icons/flower_cookie.png | 16×16 | 완료 |
+| icons/moon_pudding | 달빛 푸딩 | assets/sprites/icons/moon_pudding.png | 16×16 | 완료 |
+| icons/lucky_sand | 행운 샌드 | assets/sprites/icons/lucky_sand.png | 16×16 | 완료 |
+| icons/moon_milk_tea | 달빛 밀크티 | assets/sprites/icons/moon_milk_tea.png | 16×16 | 완료 |
+| icons/stardust_castella | 별가루 카스텔라 | assets/sprites/icons/stardust_castella.png | 16×16 | 완료 |
+| icons/oink_cream_latte | 꿀꿀 크림 라테 | assets/sprites/icons/oink_cream_latte.png | 16×16 | 완료 |
+| icons/night_dew_latte | 밤이슬 라테 | assets/sprites/icons/night_dew_latte.png | 16×16 | 완료 |
+| icons/gem_s | 별조각(소) | assets/sprites/icons/gem_s.png | 16×16 | 완료 |
+| icons/gem_m | 별조각(중) | assets/sprites/icons/gem_m.png | 16×16 | 완료 |
+| icons/gem_l | 별조각(대) | assets/sprites/icons/gem_l.png | 16×16 | 완료 |
+| icons/fish | 구운 생선 | assets/sprites/icons/fish.png | 16×16 | 완료 |
+| icons/magnet | 수염 자석 | assets/sprites/icons/magnet.png | 16×16 | 완료 |
+| icons/bomb | 달빛 폭탄 | assets/sprites/icons/bomb.png | 16×16 | 완료 |
+| icons/chest | 별 상자 | assets/sprites/icons/chest.png | 16×16 | 완료 |
+| icons/moonstone | 월정석 | assets/sprites/icons/moonstone.png | 16×16 | 완료 |
+| icons/claw_glove | 고양이 발톱 장갑 | assets/sprites/icons/claw_glove.png | 16×16 | 완료 |
+| icons/crescent_wand | 초승달 방울 지팡이 | assets/sprites/icons/crescent_wand.png | 16×16 | 완료 |
+| icons/scale_vest | 생선 비늘 조끼 | assets/sprites/icons/scale_vest.png | 16×16 | 완료 |
+| icons/fluff_cape | 솜뭉치 망토 | assets/sprites/icons/fluff_cape.png | 16×16 | 완료 |
+| icons/fishbone_charm | 생선뼈 부적 | assets/sprites/icons/fishbone_charm.png | 16×16 | 완료 |
+| icons/churu_magnet | 자석 츄르 | assets/sprites/icons/churu_magnet.png | 16×16 | 완료 |
 
-- 방향 블록은 `down` 하나만 쓴다. 행 번호 규칙은 캐릭터와 같아서 **idle = 0행, walk = 1행, hurt = 7행**이고 2–6행은 비운다.
-- 프레임: idle 4, walk 4, hurt 2. 열 최대 4 → 폭 128px × size.
-- `size` 배수만큼 프레임이 커진다(정예 2 → 64×64, 보스 3 → 96×96). 기준점도 같은 배수(16·30 × size).
+## portraits
 
-| 키 | 크기 | 이름 | 출처 |
-| --- | --- | --- | --- |
-| `shade_hand` | 1 | 검은 손 | 원작 EP.01 에 나오는 존재 |
-| `shade_bat` | 1 | 그림자 박쥐 | 게임 임시 적(정식 설정 아님) |
-| `shade_blob` | 1 | 그림자 덩어리 | 게임 임시 적 |
-| `shade_wisp` | 1 | 도깨비불 | 게임 임시 적 |
-| `elite_hand` | 2 | 큰 검은 손 | 게임 임시 정예 |
-| `boss_hand` | 3 | 거대한 검은 손 | 게임 임시 보스 |
+| 키 | 이름 | 경로 | PNG 크기 | 상태 |
+| --- | --- | --- | --- | --- |
+| portraits/yun | 윤달 | assets/sprites/portraits/yun.png | 384×384 | 완료 |
+| portraits/seohanbi | 서한비 | assets/sprites/portraits/seohanbi.png | 384×384 | 완료 |
+| portraits/museong | 무성 | assets/sprites/portraits/museong.png | 384×384 | 완료 |
+| portraits/solv | 솔브 | assets/sprites/portraits/solv.png | 384×384 | 완료 |
+| portraits/bambi | 밤비 | assets/sprites/portraits/bambi.png | 384×384 | 완료 |
+| portraits/lune | 루네 | assets/sprites/portraits/lune.png | 384×384 | 완료 |
+| portraits/raven | 레이븐 | assets/sprites/portraits/raven.png | 384×384 | 완료 |
+| portraits/neo@crescent_tailcoat | 초승달 연미복 | assets/sprites/portraits/neo@crescent_tailcoat.png | 384×384 | 완료 |
+| portraits/neo@wood_suit | 청목 정장 | assets/sprites/portraits/neo@wood_suit.png | 384×384 | 완료 |
+| portraits/neo@blossom_haori | 벚꽃 저녁 | assets/sprites/portraits/neo@blossom_haori.png | 384×384 | 완료 |
+| portraits/neo@rain_coat | 비 갠 새벽 | assets/sprites/portraits/neo@rain_coat.png | 384×384 | 완료 |
+| portraits/neo@summer_linen | 여름의 여백 | assets/sprites/portraits/neo@summer_linen.png | 384×384 | 완료 |
+| portraits/neo@moonstone_robe | 월정석 예복 | assets/sprites/portraits/neo@moonstone_robe.png | 384×384 | 완료 |
+| portraits/neo@winter_coat | 한겨울 별자리 | assets/sprites/portraits/neo@winter_coat.png | 384×384 | 완료 |
+| portraits/yeoni@garden_apron | 연꽃 정원 앞치마 | assets/sprites/portraits/yeoni@garden_apron.png | 384×480 | 완료 |
+| portraits/neo@host_first | 달빛 첫인사 | assets/sprites/portraits/neo@host_first.png | 384×384 | 완료 |
+| portraits/yeoni@apron_spring | 봄빛 앞치마 | assets/sprites/portraits/yeoni@apron_spring.png | 384×480 | 완료 |
+| portraits/neo@vest_night | 밤하늘 조끼 | assets/sprites/portraits/neo@vest_night.png | 384×384 | 완료 |
+| portraits/yeoni | 연이 | assets/sprites/portraits/yeoni.png | 384×480 | 완료 |
+| portraits/yeoni_pig | 연이(꽃돼지) | assets/sprites/portraits/yeoni_pig.png | 384×384 | 완료 |
+| portraits/neo | 네오 | assets/sprites/portraits/neo.png | 384×384 | 완료 |
+| portraits/neo_cat | 영냥이 | assets/sprites/portraits/neo_cat.png | 384×384 | 완료 |
+| portraits/luna | 루나 | assets/sprites/portraits/luna.png | 384×384 | 완료 |
+| portraits/luna_sis | 루나 언니 | assets/sprites/portraits/luna_sis.png | 384×384 | 완료 |
+| portraits/cheongtokki | 청토끼 | assets/sprites/portraits/cheongtokki.png | 384×288 | 완료 |
+| portraits/moka | 모카 | assets/sprites/portraits/moka.png | 384×288 | 완료 |
 
-## 5. 초상화 (portraits)
+표정 행 순서:
 
-- 96×96 한 칸에 표정 하나. 표정을 **가로로** 이어 붙인다(아래 순서). 프롤로그 대화창에 쓴다.
-- 가슴 위 반신, 아래쪽이 잘려도 되게 바닥에 붙인다. 정면에서 약간 비스듬히.
+- yun: normal, smile, serious, surprised
+- seohanbi: normal, smile, serious, surprised
+- museong: normal, smile, serious, surprised
+- solv: normal, smile, serious, surprised
+- bambi: normal, smile, serious, surprised
+- lune: normal, smile, serious, surprised
+- raven: normal, smile, serious, surprised
+- neo@crescent_tailcoat: normal, smile, serious, flustered
+- neo@wood_suit: normal, smile, serious, flustered
+- neo@blossom_haori: normal, smile, serious, flustered
+- neo@rain_coat: normal, smile, serious, flustered
+- neo@summer_linen: normal, smile, serious, flustered
+- neo@moonstone_robe: normal, smile, serious, flustered
+- neo@winter_coat: normal, smile, serious, flustered
+- yeoni@garden_apron: normal, smile, surprised, sulky, determined
+- neo@host_first: normal, smile, serious, flustered
+- yeoni@apron_spring: normal, smile, surprised, sulky, determined
+- neo@vest_night: normal, smile, serious, flustered
+- yeoni: normal, smile, surprised, sulky, determined
+- yeoni_pig: normal, smile, surprised, sulky
+- neo: normal, smile, serious, flustered
+- neo_cat: normal, smug, serious, surprised
+- luna: normal, smile, cry, surprised
+- luna_sis: normal, smile, tired, serious
+- cheongtokki: normal, smile, smug
+- moka: normal, smug, angry
 
-| 키 | 표정 순서 | 시트 크기 |
-| --- | --- | --- |
-| `yeoni` | normal, smile, surprised, sulky, determined | 480×96 |
-| `yeoni_pig` | normal, smile, surprised, sulky | 384×96 |
-| `neo` | normal, smile, serious, flustered | 384×96 |
-| `neo_cat` | normal, smug, serious, surprised | 384×96 |
-| `luna` | normal, smile, cry, surprised | 384×96 |
-| `luna_sis` | normal, smile, tired, serious | 384×96 |
-| `cheongtokki` | normal, smile, smug | 288×96 |
-| `moka` | normal, smug, angry | 288×96 |
+## tiles
 
-## 6. 아이콘 (icons, 16×16)
+| 키 | 이름 | 경로 | PNG 크기 | 상태 |
+| --- | --- | --- | --- | --- |
+| tiles/cafe_floor | 카페 바닥 | assets/tiles/cafe_floor.png | 32×32 | 완료 |
+| tiles/cafe_wall | 카페 벽 | assets/tiles/cafe_wall.png | 32×32 | 완료 |
+| tiles/town_street | 카페 앞 마을 길(마을 화면 배경) | assets/tiles/town_street.png | 32×32 | 완료 |
+| tiles/river_field | 사주의 강 밤 들판 | assets/tiles/river_field.png | 32×32 | 완료 |
 
-| 키 | 이름 | 키 | 이름 |
-| --- | --- | --- | --- |
-| `bean` | 원두 | `gem_s` | 별조각(소) — 경험치 |
-| `milk` | 우유 | `gem_m` | 별조각(중) |
-| `tea` | 찻잎 | `gem_l` | 별조각(대) |
-| `flour` | 밀가루 | `fish` | 구운 생선 — 회복 |
-| `egg` | 달걀 | `magnet` | 수염 자석 — 전부 끌어오기 |
-| `sugar` | 설탕 | `bomb` | 달빛 폭탄 — 화면 적 피해 |
-| `night_dew` | 밤이슬 | `chest` | 별 상자 — 무료 강화 |
-| `moonstone` | 월정석 — 사냥 드롭, 골드로 환전 | | |
-| `claw_glove` | 고양이 발톱 장갑(무기) | `crescent_wand` | 초승달 방울 지팡이(무기) |
-| `scale_vest` | 생선 비늘 조끼(방어구) | `fluff_cape` | 솜뭉치 망토(방어구) |
-| `fishbone_charm` | 생선뼈 부적(장신구) | `churu_magnet` | 자석 츄르(장신구) |
+## backgrounds
 
-월정석과 영냥이 장비는 게임 오리지널·임시 항목이다. 장비는 아이콘만 있고 영냥이 외형은 바꾸지 않는다.
+| 키 | 이름 | 경로 | PNG 크기 | 상태 |
+| --- | --- | --- | --- | --- |
+| backgrounds/atelier_lit | atelier_lit | assets/backgrounds/atelier_lit.png | 720×600 | 완료 |
+| backgrounds/atelier_dark | atelier_dark | assets/backgrounds/atelier_dark.png | 720×600 | 완료 |
+| backgrounds/river_night | river_night | assets/backgrounds/river_night.png | 720×600 | 완료 |
+| backgrounds/dressroom | dressroom | assets/backgrounds/dressroom.png | 720×600 | 완료 |
+| backgrounds/farm | farm | assets/backgrounds/farm.png | 720×400 | 완료 |
 
-경로: `assets/sprites/icons/<키>.png`
+## ui
 
-메뉴(완성 음식) 아이콘은 아직 레지스트리에 없다. 지금은 [menus.js](../src/data/menus.js) 의 `color` 원으로 그린다.
-메뉴 아이콘을 추가하려면 먼저 `assets.js` 의 `icons` 에 메뉴 id(예: `moon_milk_tea`)로 항목을 만들고, 주방·트레이·레시피 발견 화면이 그것을 쓰게 코드를 고쳐야 한다.
+| 키 | 이름 | 경로 | PNG 크기 | 상태 |
+| --- | --- | --- | --- | --- |
+| ui/town-map-spring | spring 마을 | assets/ui/town-map-spring.png | 720×600 | 완료 |
+| ui/town-map-summer | summer 마을 | assets/ui/town-map-summer.png | 720×600 | 완료 |
+| ui/town-map-autumn | autumn 마을 | assets/ui/town-map-autumn.png | 720×600 | 완료 |
+| ui/town-map-winter | winter 마을 | assets/ui/town-map-winter.png | 720×600 | 완료 |
+| ui/town-node-atelier | town-node-atelier | assets/ui/town-node-atelier.png | 48×48 | 완료 |
+| ui/town-node-expand | town-node-expand | assets/ui/town-node-expand.png | 48×48 | 완료 |
+| ui/town-node-moka | town-node-moka | assets/ui/town-node-moka.png | 48×48 | 완료 |
+| ui/town-node-luna | town-node-luna | assets/ui/town-node-luna.png | 48×48 | 완료 |
+| ui/town-node-gear | town-node-gear | assets/ui/town-node-gear.png | 48×48 | 완료 |
+| ui/town-node-hunt | town-node-hunt | assets/ui/town-node-hunt.png | 48×48 | 완료 |
+| ui/heart-full | heart-full | assets/ui/heart-full.png | 16×16 | 완료 |
+| ui/heart-empty | heart-empty | assets/ui/heart-empty.png | 16×16 | 완료 |
+| ui/sos | sos | assets/ui/sos.png | 32×32 | 완료 |
+| ui/stress-calm | stress-calm | assets/ui/stress-calm.png | 32×32 | 완료 |
+| ui/stress-tired | stress-tired | assets/ui/stress-tired.png | 32×32 | 완료 |
+| ui/stress-limit | stress-limit | assets/ui/stress-limit.png | 32×32 | 완료 |
+| ui/frame-panel | frame-panel | assets/ui/frame-panel.png | 48×48 | 완료 |
+| ui/frame-button | frame-button | assets/ui/frame-button.png | 48×48 | 완료 |
+| ui/frame-tab | frame-tab | assets/ui/frame-tab.png | 48×48 | 완료 |
+| ui/frame-card | frame-card | assets/ui/frame-card.png | 48×48 | 완료 |
+| ui/transform | transform | assets/ui/transform.png | 256×32 | 완료 |
+| ui/transform-large | transform-large | assets/ui/transform-large.png | 768×96 | 완료 |
+| ui/moon-glint | moon-glint | assets/ui/moon-glint.png | 32×32 | 완료 |
+| ui/push-lines | push-lines | assets/ui/push-lines.png | 96×96 | 완료 |
+| ui/ledger | ledger | assets/ui/ledger.png | 32×32 | 완료 |
 
-## 7. 오브젝트·타일
-
-오브젝트 그림은 **가구가 차지하는 칸 상자 전체**에 한 장으로 그린다(타일 1칸 = 32px).
-가구를 회전해서 가로세로 비율이 바뀌면 그림 대신 도형으로 그린다(회전 시트는 아직 없다).
-
-| 키 | 칸 | 픽셀 | 이름 |
-| --- | --- | --- | --- |
-| `drink` | 2×1 | 64×32 | 음료 머신 |
-| `oven` | 2×1 | 64×32 | 오븐 |
-| `pass` | 2×1 | 64×32 | 서빙대 |
-| `counter` | 1×2 | 32×64 | 카운터 |
-| `table` | 1×1 | 32×32 | 테이블(상태 표시는 코드가 위에 덧그린다) |
-| `chair` | 1×1 | 32×32 | 의자 |
-| `plant` | 1×1 | 32×32 | 화분 |
-| `bookshelf` | 2×1 | 64×32 | 책장 |
-| `lamp` | 1×1 | 32×32 | 별 조명 |
-| `rug` | 2×2 | 64×64 | 꽃무늬 러그 |
-| `pot` | 1×1 | 32×32 | 조합 냄비(조합대 화면용, 카페 바닥에는 아직 안 그림) |
-
-경로: `assets/sprites/objects/<키>.png`
-
-| 타일 키 | 이름 | 비고 |
-| --- | --- | --- |
-| `cafe_floor` | 카페 바닥 | 이어 붙여도 이음새가 안 보이게 |
-| `cafe_wall` | 카페 벽 | 맨 윗줄 |
-| `town_street` | 카페 앞 마을 길 | 마을 화면 배경(게임 설정). 이어 붙임 가능하게 |
-| `river_field` | 사주의 강 밤 들판 | 사냥 배경. 이어 붙임 가능하게 |
-
-경로: `assets/tiles/<키>.png`
-
-## 8. 색 기준 (원작 디자인 문서에서 확인한 것)
-
-| 대상 | 기준 |
-| --- | --- |
-| 연이(사람) | 긴 머리 탁한 분홍, 장미색 눈, 연꽃 장식, 라벤더 리본, 아이보리·더스티 로즈 옷 |
-| 연이(꽃돼지) | 파스텔 분홍 돼지, 왼쪽 귀 옆 연꽃, 라벤더 리본 |
-| 네오(사람) | 은발, 남색 옷, 은빛 코트 |
-| 영냥이 | 흰 2등신 고양이, 금빛 초승달이 달린 남색 마법모자, 보라→금 그라데이션 눈, 파란 보라 보석이 달린 검은 목걸이 |
-| 검은 손 | 어둡고 끈적한 손 모양. 네오의 금빛 사주성광에 베인다 |
-| 밤 팔레트 | #0b1220 (밤하늘), #665087 (보라), #e5c58e (금빛) |
-| 연이 팔레트 | 분홍·장미 + 샴페인 골드 |
-| 네오 팔레트 | 한밤 남색·보라 + 금색 #e8d5a3 |
-
-원작에 없는 캐릭터·의상·설정은 만들지 않는다. 다른 데스티노바 멤버의 외형은 공식 자료가 없으므로 그리지 않는다.
-
-## 9. 생성 프롬프트 초안
-
-모든 프롬프트 앞에 아래 공통 문장을 붙인다.
-
-> **STYLE**: `pixel art sprite sheet, 32x32 pixel grid per frame, crisp 1px dark indigo outline (#1b1530), no anti-aliasing, limited palette (max 32 colors), top-left light source, transparent background, cute chibi proportions (2.5 heads tall), cozy fantasy cafe game, consistent across frames, no text, no watermark`
-
-시트 배치를 같이 적는다: `layout: columns = animation frames, rows = states in order idle, walk, cook, serve, host, react, attack, hurt; repeat the 8-row block for facing down, left, right, up (top to bottom); sheet 192x1024`.
-이미지 생성 모델은 정확한 격자를 자주 틀린다. 한 상태·한 방향씩 따로 만든 뒤 도구로 시트에 이어 붙이는 쪽이 안전하다.
-
-### 캐릭터
-
-- **yeoni**: `young woman barista, long muted dusty-pink hair, rose-colored eyes, small lotus flower hair ornament, lavender ribbon, ivory and dusty-rose robe-style dress with a small cafe apron, cheerful expressive face`. cook = 거품기를 젓는 동작, serve = 쟁반을 내미는 동작, react = 두 팔을 들고 깡충.
-- **yeoni_pig**: `small pastel-pink piglet, lotus flower beside the left ear, lavender ribbon, round body, tiny hooves, big sparkling eyes`. idle·walk·react·hurt 만.
-- **neo**: `calm young man host, silver hair, navy outfit with a long silver coat, gentle smile, elegant posture`. host = 한 손을 가슴에 대고 살짝 숙이는 인사.
-- **neo_cat**: `small white chibi cat, navy wizard hat with a golden crescent moon, violet-to-gold gradient eyes, black collar with a blue-violet gem, deadpan expression`. attack = 앞발을 휘두르며 금빛 빛줄기, hurt = 움찔하며 모자가 들썩.
-- **customer**: `generic cafe customer, simple casual clothes in neutral colors, brown hair, friendly` (특정 원작 인물로 보이지 않게).
-- 아래 네 인물은 원작 그림(code-destiny 소설 캐스트 시트)이 있으므로 **그 그림을 참고 이미지로 함께 넣는 것을 우선한다.** 프롬프트에는 원작 소개 문구에 있는 특징만 적었다. idle·walk·react 행만 만든다.
-- **luna**: `small white baby rabbit, holding a bread basket, bright teary-eyed cheerful face`.
-- **luna_sis**: `bakery older sister with a pink apron and a rabbit-ear headband, tired but kind face`.
-- **cheongtokki**: `blue rabbit wearing a vest, polite smiling banker manner, calculating eyes`.
-- **moka**: `otter street cook with headphones, a microphone and an apron, long tail, whiskers, webbed paws, sharp-tongued confident face`.
-
-### 적 (down 방향만, 행 0·1·7)
-
-- **shade_hand**: `a creeping black hand made of dark ink-like shadow, thin violet glow at the edges, faint pale eye-glint on the palm, menacing but cute enough for a cozy game`.
-- **shade_bat**: `small shadow bat, dark purple, pink glowing eyes, flapping`.
-- **shade_blob**: `round dark purple shadow slime, single pale eye, wobbling`.
-- **shade_wisp**: `blue-violet will-o-the-wisp flame, flickering, white core`.
-- **elite_hand** (64×64 프레임): shade_hand 와 같은 디자인, `larger, dark crimson tint, golden eye-glint`.
-- **boss_hand** (96×96 프레임): `huge black shadow hand rising from the ground, red glowing eye on the palm, swirling dark aura`.
-
-### 초상화 (96×96, 표정 가로 배열)
-
-STYLE 의 `32x32 pixel grid per frame` 를 `96x96 bust portrait per frame` 으로 바꾼다.
-- **yeoni**: 위 연이 외형. normal / smile / surprised(눈 동그랗게) / sulky(볼 부풀림) / determined(주먹 쥠).
-- **yeoni_pig**: 위 꽃돼지 외형. normal / smile / surprised / sulky.
-- **neo**: 위 네오 외형. normal / smile(부드럽게) / serious / flustered(살짝 붉어짐).
-- **neo_cat**: 위 영냥이 외형. normal / smug(한쪽 눈 가늘게) / serious / surprised(모자가 튀어 오름).
-- **luna**: normal / smile / cry(눈물 글썽) / surprised. **luna_sis**: normal / smile / tired / serious. **cheongtokki**: normal / smile / smug. **moka**: normal / smug / angry. 외형은 위 캐릭터 문장과 원작 그림을 따른다.
-
-### 아이콘 (16×16)
-
-STYLE 의 격자를 `16x16 icon` 으로 바꾸고 키마다 한 장: 원두 한 알, 우유병, 찻잎 두 장, 밀가루 자루, 달걀, 각설탕, 푸른 밤이슬 방울, 하늘색·연두·주황 별조각(소·중·대 순으로 크게), 구운 생선, 고양이 수염 모양 자석, 초승달 무늬 폭탄, 금테 별 상자.
-월정석·장비: 연보라빛 초승달 모양 결정(월정석), 고양이 발톱 장갑, 초승달 방울이 달린 짧은 지팡이, 생선 비늘 무늬 조끼, 솜뭉치 망토, 생선뼈 부적, 츄르 봉지 모양 자석.
-
-### 오브젝트·타일
-
-STYLE 에 `top-down 3/4 view furniture, fits exactly WxH pixels` 를 붙인다.
-- drink: 은색·하늘색 에스프레소 머신 / oven: 둥근 벽돌 오븐 / pass: 나무 서빙대와 벨 / counter: 세로로 긴 나무 카운터와 계산대
-- table: 둥근 나무 2인 테이블 / chair: 나무 의자 / plant: 토분 화초 / bookshelf: 낮은 책장 / lamp: 별 모양 스탠드 조명 / rug: 분홍 꽃무늬 러그 / pot: 구리 조합 냄비
-- cafe_floor: 따뜻한 베이지 나무 바닥(이음새 없는 반복) / cafe_wall: 크림색 벽과 나무 몰딩 / town_street: 따뜻한 돌길과 작은 가게 차양(반복 가능) / river_field: 밤의 강가 풀밭, #0b1220·#665087·#e5c58e 팔레트, 반복 가능
-
-## 10. 마을 지도 (town map)
-
-마을 나가기 화면의 월드 맵. 지금은 CSS 그라데이션과 이모지 아이콘으로 대신하고 있다([styles.css](../styles.css) `.town-map`).
-
-- 배경: `assets/ui/town-map-spring.png` · `-summer` · `-autumn` · `-winter` 네 장. 달력의 달로 고른다(3–5월 봄, 6–8월 여름, 9–11월 가을, 12–2월 겨울).
-  - 크기 **720×600** (가로:세로 6:5, 화면에서는 폭에 맞춰 줄어든다). 픽셀 아트라면 240×200 으로 그리고 3배로 키운다.
-  - 오른쪽 위에서 왼쪽 아래로 흐르는 강, 강 건너 오른쪽 위가 달그늘 사냥터(밤 팔레트). 나머지는 낮의 마을 돌길.
-  - 장소 자리(가로 %, 세로 %): 아틀리에 (50, 84) · 증축 게시판 (52, 52) · 모카 식재료점 (17, 66) · 루나의 저울 (83, 68) · 무인 장비 좌판 (20, 24) · 사냥터 (80, 20). 길 점선은 코드가 그리므로 배경에 길을 굽지 않아도 된다.
-- 장소 아이콘: `assets/ui/town-node-<id>.png`, **48×48**, 투명 배경. id = atelier · expand · moka · luna · gear · hunt.
-- 연이 표시: 지도 위 `yeoni_pig` idle 1프레임(32×32)을 2배로 쓴다. 따로 그릴 필요 없다.
-- 인연 하트: `assets/ui/heart-full.png` · `heart-empty.png`, 16×16.
+기본 의상 actors/portraits의 neo@vest_night와 yeoni@apron_spring은 해당 기본 인물 시트의 별칭 파일이다. 나머지는 개별 생성 후 정규화했다. 월정석 로브의 누락 행은 확인한 15개 행 중심으로 다시 맞췄다.
