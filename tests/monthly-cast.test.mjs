@@ -4,10 +4,12 @@ import { createGame } from '../src/game/state.js';
 import { dispatch } from '../src/game/engine.js';
 import { recruitView } from '../src/game/economy.js';
 import { MONTHLY_CAST } from '../src/data/monthly-cast.js';
+import { DEST1NOVA_CAST } from '../src/data/dest1nova-cast.js';
+import { validateLayout } from '../src/game/space.js';
 import { serialize, deserialize } from '../src/core/save.js';
 
 test('윤달·모카·서한비·무성의 지정 월 이벤트는 1회 영입, 놓친 월은 다음 해 재등장', () => {
-  for (const c of MONTHLY_CAST) {
+  for (const c of [...MONTHLY_CAST, ...DEST1NOVA_CAST]) {
     let s = createGame();
     assert.equal(dispatch(s, { type: 'recruit.complete', id: c.id }).ok, false);
     const day = 1 + ((c.month + 9) % 12) * 3;
@@ -24,6 +26,20 @@ test('윤달·모카·서한비·무성의 지정 월 이벤트는 1회 영입, 
     assert.ok(s.roster[c.id]); assert.ok(s.ledger.story[`cast:${c.id}`]);
     const nextYear = createGame(); nextYear.day = day + 36;
     assert.equal(recruitView(nextYear).find(v => v.id === c.id).status, 'available');
+  }
+});
+test('아홉 접대 동료가 모두 영입되어도 가게 안의 통로에서 출근한다', () => {
+  const s = createGame();
+  for (const c of [...MONTHLY_CAST, ...DEST1NOVA_CAST]) {
+    s.day = 1 + ((c.month + 9) % 12) * 3;
+    assert.ok(dispatch(s, { type: 'recruit.complete', id: c.id }).ok);
+  }
+  s.day = 36; s.hostbar.open = true;
+  assert.ok(dispatch(s, { type: 'shift.start' }).ok);
+  assert.ok(validateLayout(s.interior.furniture, []).ok);
+  for (const id of Object.keys(s.roster)) {
+    assert.ok(s.staff[id]);
+    assert.ok(s.staff[id].x >= 0 && s.staff[id].x < 12 && s.staff[id].y >= 0 && s.staff[id].y < 16);
   }
 });
 test('개별 능력치·이야기가 다르고 새 게임의 활동 명단은 네오만이다', () => {

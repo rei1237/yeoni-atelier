@@ -56,7 +56,7 @@ export function setupWorld(state) {
   const crewHome = { luna_sis: SPOTS.sisHome, luna: SPOTS.lunaHome };
   for (const id of STAFF_CREW) state.staff[id] = mk(id, { ...crewHome[id] });
   usableHosts(state).forEach((id, i) => {
-    const home = i === 0 ? { ...SPOTS.neoHome } : nearestWalkable(grid, { x: SPOTS.neoHome.x + i * 2, y: SPOTS.neoHome.y });
+    const home = i === 0 ? { ...SPOTS.neoHome } : nearestWalkable(grid, { x: 1 + ((i - 1) % 4) * 2, y: 2 + Math.floor((i - 1) / 4) * 4 });
     state.staff[id] = mk(id, home);
   });
 }
