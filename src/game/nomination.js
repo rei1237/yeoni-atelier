@@ -36,7 +36,7 @@ export function personBusyReason(state, personId) {
   const p = state.people[personId];
   if (!p) return null;
   if (p.activity === 'hosting') return `${personName(state, personId)}: ${p.tableNo}번 테이블 접대 중 · ${fmtTime(p.endAt - state.shift.elapsedMs)} 남음`;
-  if (p.activity === 'hunting') return `${personName(state, personId)}: 영냥이 모습으로 재료 탐색 중`;
+  if (p.activity === 'hunting') return `${personName(state, personId)}: 영냥이 모습으로 월정석 사냥 중`;
   return null;
 }
 

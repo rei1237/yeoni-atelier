@@ -90,7 +90,7 @@ button.on { background: #2f6e4a; color: #fff; box-shadow: none; }
 .slot.empty { color: var(--muted); background: #f5ede2; }
 .slot.sel { box-shadow: inset 0 0 0 3px var(--info); }
 .slot .to { font-size: 11px; color: var(--info); font-weight: 700; }
-.hostrow { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: stretch; }
+.hostrow { display: grid; grid-template-columns: 1fr auto auto auto; gap: 6px; align-items: stretch; }
 .hostcard { justify-content: flex-start; text-align: left; gap: 6px; min-width: 0; padding: 4px 8px; }
 .hostcard .av { width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 800; }
 .hostcard .txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
@@ -107,6 +107,8 @@ button.on { background: #2f6e4a; color: #fff; box-shadow: none; }
 .prep { display: flex; flex-direction: column; gap: 6px; }
 .prep .big { min-height: 52px; font-size: 16px; }
 .prep .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 6px 0 8px; }
+.tabs button { font-size: 12px; padding: 5px 2px; }
 .debtline { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
 
 /* ── 바텀 시트 */

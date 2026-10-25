@@ -74,6 +74,9 @@
 .who-yeoni { border-color: rgba(247, 168, 200, 0.55); }
 .who-neo { border-color: rgba(185, 34, 43, 0.5); } .who-neo .nv-name { color: #2a1a10; }
 .who-neo_cat { border-color: rgba(125, 107, 214, 0.6); }
+.who-luna, .who-luna_sis { border-color: rgba(244, 184, 200, 0.6); }
+.who-rab { border-color: rgba(61, 111, 209, 0.65); }
+.who-moka { border-color: rgba(123, 79, 184, 0.6); }
 .sp-nar .nv-text { font-style: italic; color: rgba(232, 228, 217, 0.82); }
 .sp-sys .nv-text { text-align: center; font: 600 14px/1.7 system-ui, sans-serif; color: #dcd3ff; }
 .sp-impact .nv-text { text-align: center; font: 800 24px/1.5 'Noto Serif KR', serif; color: #ffe6c9; text-shadow: 0 0 12px rgba(255, 180, 120, 0.6); }

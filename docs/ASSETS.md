@@ -52,6 +52,10 @@
 | `neo` | assets/sprites/actors/neo.png | 네오 | 접대 |
 | `neo_cat` | assets/sprites/actors/neo_cat.png | 영냥이 | 네오의 고양이 모습. 같은 인물 id `neo` 를 쓰고 렌더링 키만 다르다. 사냥 주인공 |
 | `customer` | assets/sprites/actors/customer.png | 손님 | 몸 색은 코드가 손님마다 바꾸지 않는다(그림이 있으면 그림 색 그대로) |
+| `luna` | assets/sprites/actors/luna.png | 루나 | 원작 그림 기준 흰 아기 토끼. NPC 상태(idle·walk·react)만 |
+| `luna_sis` | assets/sprites/actors/luna_sis.png | 루나 언니 | 원작 소개: 분홍 앞치마·토끼 귀 머리띠의 빵집 언니. 종족 표현은 원작 그림을 따른다. NPC 상태만 |
+| `cheongtokki` | assets/sprites/actors/cheongtokki.png | 청토끼 | 원작: 조끼 입은 파란 토끼, 청토끼 금융 주인. NPC 상태만 |
+| `moka` | assets/sprites/actors/moka.png | 모카 | 원작: 헤드폰·마이크·앞치마의 랩하는 수달 요리사(식상의 섬). 마을 식재료점은 게임 설정. NPC 상태만 |
 | `dev_temp_01` | assets/sprites/actors/dev_temp_01.png | DEV 임시 동료 01 | **개발 전용. 정식 에셋을 만들지 않는다** |
 
 ## 4. 적 시트 (enemies)
@@ -80,6 +84,10 @@
 | `yeoni_pig` | normal, smile, surprised, sulky | 384×96 |
 | `neo` | normal, smile, serious, flustered | 384×96 |
 | `neo_cat` | normal, smug, serious, surprised | 384×96 |
+| `luna` | normal, smile, cry, surprised | 384×96 |
+| `luna_sis` | normal, smile, tired, serious | 384×96 |
+| `cheongtokki` | normal, smile, smug | 288×96 |
+| `moka` | normal, smug, angry | 288×96 |
 
 ## 6. 아이콘 (icons, 16×16)
 
@@ -92,6 +100,12 @@
 | `egg` | 달걀 | `magnet` | 수염 자석 — 전부 끌어오기 |
 | `sugar` | 설탕 | `bomb` | 달빛 폭탄 — 화면 적 피해 |
 | `night_dew` | 밤이슬 | `chest` | 별 상자 — 무료 강화 |
+| `moonstone` | 월정석 — 사냥 드롭, 골드로 환전 | | |
+| `claw_glove` | 고양이 발톱 장갑(무기) | `crescent_wand` | 초승달 방울 지팡이(무기) |
+| `scale_vest` | 생선 비늘 조끼(방어구) | `fluff_cape` | 솜뭉치 망토(방어구) |
+| `fishbone_charm` | 생선뼈 부적(장신구) | `churu_magnet` | 자석 츄르(장신구) |
+
+월정석과 영냥이 장비는 게임 오리지널·임시 항목이다. 장비는 아이콘만 있고 영냥이 외형은 바꾸지 않는다.
 
 경로: `assets/sprites/icons/<키>.png`
 
@@ -123,6 +137,7 @@
 | --- | --- | --- |
 | `cafe_floor` | 카페 바닥 | 이어 붙여도 이음새가 안 보이게 |
 | `cafe_wall` | 카페 벽 | 맨 윗줄 |
+| `town_street` | 카페 앞 마을 길 | 마을 화면 배경(게임 설정). 이어 붙임 가능하게 |
 | `river_field` | 사주의 강 밤 들판 | 사냥 배경. 이어 붙임 가능하게 |
 
 경로: `assets/tiles/<키>.png`
@@ -158,6 +173,11 @@
 - **neo**: `calm young man host, silver hair, navy outfit with a long silver coat, gentle smile, elegant posture`. host = 한 손을 가슴에 대고 살짝 숙이는 인사.
 - **neo_cat**: `small white chibi cat, navy wizard hat with a golden crescent moon, violet-to-gold gradient eyes, black collar with a blue-violet gem, deadpan expression`. attack = 앞발을 휘두르며 금빛 빛줄기, hurt = 움찔하며 모자가 들썩.
 - **customer**: `generic cafe customer, simple casual clothes in neutral colors, brown hair, friendly` (특정 원작 인물로 보이지 않게).
+- 아래 네 인물은 원작 그림(code-destiny 소설 캐스트 시트)이 있으므로 **그 그림을 참고 이미지로 함께 넣는 것을 우선한다.** 프롬프트에는 원작 소개 문구에 있는 특징만 적었다. idle·walk·react 행만 만든다.
+- **luna**: `small white baby rabbit, holding a bread basket, bright teary-eyed cheerful face`.
+- **luna_sis**: `bakery older sister with a pink apron and a rabbit-ear headband, tired but kind face`.
+- **cheongtokki**: `blue rabbit wearing a vest, polite smiling banker manner, calculating eyes`.
+- **moka**: `otter street cook with headphones, a microphone and an apron, long tail, whiskers, webbed paws, sharp-tongued confident face`.
 
 ### 적 (down 방향만, 행 0·1·7)
 
@@ -175,14 +195,16 @@ STYLE 의 `32x32 pixel grid per frame` 를 `96x96 bust portrait per frame` 으�
 - **yeoni_pig**: 위 꽃돼지 외형. normal / smile / surprised / sulky.
 - **neo**: 위 네오 외형. normal / smile(부드럽게) / serious / flustered(살짝 붉어짐).
 - **neo_cat**: 위 영냥이 외형. normal / smug(한쪽 눈 가늘게) / serious / surprised(모자가 튀어 오름).
+- **luna**: normal / smile / cry(눈물 글썽) / surprised. **luna_sis**: normal / smile / tired / serious. **cheongtokki**: normal / smile / smug. **moka**: normal / smug / angry. 외형은 위 캐릭터 문장과 원작 그림을 따른다.
 
 ### 아이콘 (16×16)
 
 STYLE 의 격자를 `16x16 icon` 으로 바꾸고 키마다 한 장: 원두 한 알, 우유병, 찻잎 두 장, 밀가루 자루, 달걀, 각설탕, 푸른 밤이슬 방울, 하늘색·연두·주황 별조각(소·중·대 순으로 크게), 구운 생선, 고양이 수염 모양 자석, 초승달 무늬 폭탄, 금테 별 상자.
+월정석·장비: 연보라빛 초승달 모양 결정(월정석), 고양이 발톱 장갑, 초승달 방울이 달린 짧은 지팡이, 생선 비늘 무늬 조끼, 솜뭉치 망토, 생선뼈 부적, 츄르 봉지 모양 자석.
 
 ### 오브젝트·타일
 
 STYLE 에 `top-down 3/4 view furniture, fits exactly WxH pixels` 를 붙인다.
 - drink: 은색·하늘색 에스프레소 머신 / oven: 둥근 벽돌 오븐 / pass: 나무 서빙대와 벨 / counter: 세로로 긴 나무 카운터와 계산대
 - table: 둥근 나무 2인 테이블 / chair: 나무 의자 / plant: 토분 화초 / bookshelf: 낮은 책장 / lamp: 별 모양 스탠드 조명 / rug: 분홍 꽃무늬 러그 / pot: 구리 조합 냄비
-- cafe_floor: 따뜻한 베이지 나무 바닥(이음새 없는 반복) / cafe_wall: 크림색 벽과 나무 몰딩 / river_field: 밤의 강가 풀밭, #0b1220·#665087·#e5c58e 팔레트, 반복 가능
+- cafe_floor: 따뜻한 베이지 나무 바닥(이음새 없는 반복) / cafe_wall: 크림색 벽과 나무 몰딩 / town_street: 따뜻한 돌길과 작은 가게 차양(반복 가능) / river_field: 밤의 강가 풀밭, #0b1220·#665087·#e5c58e 팔레트, 반복 가능

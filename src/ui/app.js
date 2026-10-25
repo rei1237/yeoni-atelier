@@ -20,6 +20,7 @@ import { topbarHtml, panelHtml, bubblesHtml, hitsHtml } from './hud.js';
 import { sheetHtml, overlayHtml } from './sheets.js';
 import { playNovel } from './novel.js';
 import { PROLOGUE } from '../story/prologue.js';
+import { GAG_SHIFT_START, GAG_KITCHEN, GAG_MOKA_BUY, GAG_MOKA_DELIVERY, GAG_LUNA_EXCHANGE, GAG_GEAR_STALL, GAG_CHEONGTOKKI_REPAY, GAG_HUNT_RETURN, pickLine } from '../data/lines.js';
 
 // ── 부팅
 const DEV = new URLSearchParams(location.search).get('dev') === '1';
@@ -97,7 +98,8 @@ const n = v => Number(v);
 // data-action → 처리. 엔진 명령은 같은 이름을 쓰고, 화면 전용 동작(시트·확인창·저장)은 여기서만 처리한다.
 const ACTIONS = {
   // 화면 전용
-  'sheet.open': d => { ui.sheet = { kind: d.sheet }; },
+  'sheet.open': d => { ui.sheet = { kind: d.sheet, tab: d.tab }; },
+  'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; },
   'sheet.close': () => { ui.sheet = null; },
   'overlay.settlement': () => {},
   'overlay.hunt': () => {},
@@ -180,10 +182,15 @@ const ACTIONS = {
   'interior.rotate': d => run({ type: 'interior.rotate', uid: d.uid }),
   'interior.store': d => run({ type: 'interior.store', uid: d.uid }),
   'interior.place': d => run({ type: 'interior.place', uid: d.uid }),
+  'moonstone.exchange': d => run({ type: 'moonstone.exchange', qty: d.qty === 'all' ? state.moonstone : n(d.qty) }),
+  'gear.buy': d => run({ type: 'gear.buy', id: d.id }),
+  'gear.equip': d => run({ type: 'gear.equip', slot: d.slot, id: d.id || null }),
+  'expand.decor': d => run({ type: 'expand.decor', defId: d.def }),
+  'kitchen.toggle': () => { const r = run({ type: 'kitchen.toggle' }); if (r.ok) toast(r.autoKitchen ? '🍳 주방 자동 켬 · 주문이 들어오면 연이가 만들고 네오가 서빙해요' : '주방 자동 끔 · 주방에서 직접 만들고 트레이로 서빙해요'); },
   'auto.toggle': () => { const r = run({ type: 'auto.toggle' }); if (r.ok) toast(r.auto ? '🤖 자동 운영 켬 (플레이어와 같은 명령만 사용)' : '자동 운영 끔'); },
 };
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
-  'hunt.start', 'hunt.retreat', 'hunt.finish']) ACTIONS[t] = () => run({ type: t });
+  'hunt.start', 'hunt.retreat', 'hunt.finish', 'expand.table']) ACTIONS[t] = () => run({ type: t });
 ACTIONS['hunt.pick'] = d => run({ type: 'hunt.pick', index: n(d.index) });
 
 document.addEventListener('click', e => {
@@ -219,14 +226,22 @@ const tableAt = no => tablePx[no] || { x: cssW / 2, y: cssH / 3 };
 function gagLines(lines) {
   (lines || []).forEach((l, i) => setTimeout(() => toast(`${l.who}: ${l.text}`, 'gag', 3000), i * 1100));
 }
+// 개그 말풍선은 화면 연출일 뿐이다. 같은 종류가 너무 자주 뜨지 않게 실제 시간으로 간격을 둔다.
+const gagAt = {};
+function gagOnce(kind, lines, gapMs = 15000) {
+  const t = performance.now();
+  if (gagAt[kind] != null && t - gagAt[kind] < gapMs) return;
+  gagAt[kind] = t;
+  gagLines(Array.isArray(lines) ? lines : [lines]);
+}
 
 function handleEvents(events) {
   if (!events?.length) return;
   for (const ev of events) {
     const p = ev.tableNo != null ? tableAt(ev.tableNo) : null;
     switch (ev.type) {
-      case 'shiftStart': toast(`☀ Day ${ev.day} 영업 시작 · 30:00`, 'good'); break;
-      case 'served': floater(p.x, p.y - 10, `+${ev.price}G`, '#b07a12'); break;
+      case 'shiftStart': toast(`☀ Day ${ev.day} 영업 시작 · 30:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
+      case 'served': floater(p.x, p.y - 10, `+${ev.price}G`, '#b07a12'); if (Math.random() < 0.25) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
       case 'nominationRequest': toast(`💌 ${ev.tableNo}번 손님이 ${personName(state, ev.nominee)} 지명 요청 — 테이블을 눌러 확인`, 'good', 3600); break;
       case 'nominationAccepted': toast(`🫖 ${ev.tableNo}번 접대 시작 · 300초 전담`, 'good'); gagLines(ev.gag); break;
       case 'nominationConverted': toast(`${ev.tableNo}번: ${ev.why}`); break;
@@ -247,8 +262,14 @@ function handleEvents(events) {
       case 'comboMiss': toast(`🤔 ${ev.hint}`, '', 2600); break;
       case 'recruited': toast(`👥 ${ev.name} 영입 완료 · 다음 영업부터 접대 가능`, 'good', 3600); break;
       case 'reward': toast('🎁 보상을 받았습니다', 'good'); break;
-      case 'repaid': toast(`💳 ${ev.amount}G 상환 · 남은 빚 ${ev.debt}G`, 'good'); break;
-      case 'huntStart': toast('🐾 네오가 영냥이 모습으로 탐색을 떠났어요 (3:00)', 'good'); break;
+      case 'repaid': toast(`💳 ${ev.amount}G 상환 · 남은 빚 ${ev.debt}G`, 'good'); gagOnce('repay', pickLine(GAG_CHEONGTOKKI_REPAY), 0); break;
+      case 'bought': if (ev.delivery) { toast(`🛵 모카 긴급 배달 · 배달비 ${ev.fee}G 포함 ${ev.cost}G`); gagOnce('delivery', pickLine(GAG_MOKA_DELIVERY), 20000); } else gagOnce('moka', pickLine(GAG_MOKA_BUY), 12000); break;
+      case 'exchanged': toast(`⚖ 월정석 ${ev.qty}개 → ${ev.gold}G`, 'good'); gagOnce('luna', pickLine(GAG_LUNA_EXCHANGE), 8000); break;
+      case 'gearBought': toast(`🗡 ${ev.name} 구입 · 상자에 돈을 넣었다`, 'good'); gagOnce('stall', pickLine(GAG_GEAR_STALL), 8000); break;
+      case 'expanded': toast(`🪑 ${ev.tableNo}번 테이블을 들였어요 · 다음 영업부터 손님 자리가 늘어요`, 'good', 3600); break;
+      case 'decorBought': toast(`📦 ${ev.name} 보관함에 도착 · 인테리어에서 놓아 주세요`, 'good'); break;
+      case 'huntFinished': if ((ev.bag?.moonstone || 0) > 0) gagOnce('hunt', pickLine(GAG_HUNT_RETURN), 0); break;
+      case 'huntStart': toast('🐾 네오가 영냥이 모습으로 사냥을 떠났어요 (3:00)', 'good'); break;
       case 'huntPickup': floater(cssW / 2, cssH * 0.4, `+${ev.name}`, '#7d86e8'); break;
       case 'huntHurt': shake(el.stage); break;
       case 'huntEvolve': toast(`🌟 진화! ${ev.name}`, 'good', 3200); break;

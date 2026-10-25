@@ -5,7 +5,7 @@ import { FURNITURE } from '../data/layout.js';
 import { inBounds, validateLayout } from './space.js';
 
 export function editCheck(state) {
-  if (state.mode !== 'prep') return { ok: false, reason: state.mode === 'shift' ? '영업 중에는 인테리어를 바꿀 수 없습니다' : state.mode === 'hunt' ? '탐색 중에는 인테리어를 바꿀 수 없습니다' : '결산을 닫은 뒤 편집할 수 있습니다' };
+  if (state.mode !== 'prep') return { ok: false, reason: state.mode === 'shift' ? '영업 중에는 인테리어를 바꿀 수 없습니다' : state.mode === 'hunt' ? '사냥 중에는 인테리어를 바꿀 수 없습니다' : '결산을 닫은 뒤 편집할 수 있습니다' };
   return { ok: true };
 }
 
@@ -58,7 +58,7 @@ export function rotate(state, uid) {
 export function store(state, uid) {
   const { f, error } = needDraft(state, uid);
   if (error) return error;
-  if (FURNITURE[f.defId].storable === false) return { ok: false, reason: `${FURNITURE[f.defId].name}은(는) 보관할 수 없습니다 (좌석 3개 고정)` };
+  if (FURNITURE[f.defId].storable === false) return { ok: false, reason: `${FURNITURE[f.defId].name}은(는) 보관할 수 없습니다 (테이블은 늘릴 수만 있어요)` };
   f.x = null; f.y = null; f.rot = 0;
   return { ok: true };
 }

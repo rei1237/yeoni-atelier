@@ -10,10 +10,11 @@ import * as eco from './economy.js';
 import * as interior from './interior.js';
 import * as hunt from './hunt.js';
 import * as recipe from './recipe.js';
+import * as town from './town.js';
 import { autoStep } from './auto.js';
 
 // 일시정지 중에도 받는 명령
-const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle']);
+const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle', 'kitchen.toggle']);
 // 영업 중에만 의미가 있는 명령
 const SHIFT_ONLY = new Set(['cook', 'cook.cancelNext', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate']);
 
@@ -25,10 +26,11 @@ function route(state, cmd) {
     case 'shift.start': return shift.startShift(state);
     case 'settlement.close': return shift.closeSettlement(state);
     case 'pause':
-      if (state.mode !== 'shift' && state.mode !== 'hunt') return { ok: false, reason: '진행 중인 영업·탐색이 없습니다' };
+      if (state.mode !== 'shift' && state.mode !== 'hunt') return { ok: false, reason: '진행 중인 영업·사냥이 없습니다' };
       state.paused = true; return { ok: true };
     case 'resume': state.paused = false; return { ok: true };
     case 'auto.toggle': state.auto = cmd.on ?? !state.auto; return { ok: true, auto: state.auto };
+    case 'kitchen.toggle': state.autoKitchen = cmd.on ?? !state.autoKitchen; return { ok: true, autoKitchen: state.autoKitchen };
 
     case 'cook': return cafe.cook(state, cmd.menuId);
     case 'recipe.try': return recipe.tryCombo(state, cmd.ingredients);
@@ -46,6 +48,11 @@ function route(state, cmd) {
     case 'debt.repay': return eco.repay(state, cmd.amount, cmd.requestId);
     case 'quest.claim': return eco.claimQuest(state, cmd.questId);
     case 'recruit.complete': return eco.completeRecruit(state, cmd.id);
+    case 'moonstone.exchange': return town.exchange(state, cmd.qty);
+    case 'gear.buy': return town.buyGear(state, cmd.id);
+    case 'gear.equip': return town.equipGear(state, cmd.slot, cmd.id ?? null);
+    case 'expand.table': return town.buyExpansion(state);
+    case 'expand.decor': return town.buyDecor(state, cmd.defId);
     case 'outfit.equip': return eco.equip(state, cmd.who, cmd.slot, cmd.itemId);
 
     case 'interior.begin': return interior.begin(state);

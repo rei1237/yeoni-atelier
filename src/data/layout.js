@@ -37,7 +37,7 @@ export const FURNITURE = Object.freeze({
 });
 
 // 새 게임의 가구. x/y 가 null 이면 보관함에 있다.
-// 테이블 세트 3개는 보관할 수 없다(좌석 3개는 1단계의 고정 규모).
+// 테이블 세트는 보관할 수 없다. 마을 「가게 확장」에서 4·5번 테이블을 더 들인다(game/town.js).
 export const START_FURNITURE = Object.freeze([
   { uid: 'table1', defId: 'table_set', x: 2, y: 5, rot: 0, tableNo: 1 },
   { uid: 'table2', defId: 'table_set', x: 6, y: 5, rot: 0, tableNo: 2 },

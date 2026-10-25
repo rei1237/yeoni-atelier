@@ -73,6 +73,8 @@ function drawFallback(ctx, def, st, o) {
   else if (fb.shape === 'hand') drawHand(ctx, x, y, s, fb, o, t);
   else if (fb.shape === 'bat') drawBat(ctx, x, y, s, fb, o, t);
   else if (fb.shape === 'wisp') drawWisp(ctx, x, y, s, fb, o, t);
+  else if (fb.shape === 'rabbit') drawRabbit(ctx, x, y, s, fb, o, t);
+  else if (fb.shape === 'otter') drawOtter(ctx, x, y, s, fb, o, t);
   else drawPerson(ctx, x, y, s, fb, o, t, st);
 
   if (st === 'hurt') {
@@ -195,6 +197,59 @@ function drawBlob(ctx, x, y, s, fb, o, t) {
   ctx.beginPath(); ctx.arc(x - s * 0.09, y - s * 0.3, s * 0.04, 0, Math.PI * 2); ctx.arc(x + s * 0.09, y - s * 0.3, s * 0.04, 0, Math.PI * 2); ctx.fill();
 }
 
+// 토끼(루나·루나 언니·청토끼): 흰 몸 + 긴 귀. vest = 청토끼 파란 조끼, apron = 앞치마(도형 대체용 임시 구분)
+function drawRabbit(ctx, x, y, s, fb, o, t) {
+  const k = fb.scale || 1;
+  const ear = Math.sin(t * 3 + (o.seed || 0)) * 0.08;
+  ctx.fillStyle = fb.body;
+  ctx.beginPath(); ctx.ellipse(x, y - s * 0.24 * k, s * 0.24 * k, s * 0.22 * k, 0, 0, Math.PI * 2); ctx.fill();
+  if (fb.vest) { ctx.fillStyle = fb.vest; roundRect(ctx, x - s * 0.2 * k, y - s * 0.4 * k, s * 0.4 * k, s * 0.24 * k, s * 0.06); ctx.fill(); }
+  if (fb.apron) { ctx.fillStyle = fb.apron; roundRect(ctx, x - s * 0.14 * k, y - s * 0.36 * k, s * 0.28 * k, s * 0.3 * k, s * 0.05); ctx.fill(); }
+  const hy = y - s * 0.56 * k;
+  ctx.fillStyle = fb.body;
+  for (const sx of [-1, 1]) {
+    ctx.beginPath(); ctx.ellipse(x + sx * s * 0.08 * k, hy - s * 0.26 * k, s * 0.055 * k, s * 0.2 * k, sx * (0.15 + ear), 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.fillStyle = fb.accent;
+  for (const sx of [-1, 1]) {
+    ctx.beginPath(); ctx.ellipse(x + sx * s * 0.08 * k, hy - s * 0.26 * k, s * 0.025 * k, s * 0.14 * k, sx * (0.15 + ear), 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.fillStyle = fb.body;
+  ctx.beginPath(); ctx.arc(x, hy, s * 0.17 * k, 0, Math.PI * 2); ctx.fill();
+  if (o.facing !== 'up') {
+    ctx.fillStyle = fb.eye || '#3a2a2a';
+    ctx.beginPath(); ctx.arc(x - s * 0.06 * k, hy - s * 0.01, s * 0.025 * k, 0, Math.PI * 2); ctx.arc(x + s * 0.06 * k, hy - s * 0.01, s * 0.025 * k, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = fb.accent;
+    ctx.beginPath(); ctx.arc(x, hy + s * 0.05 * k, s * 0.02 * k, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
+// 수달(모카): 코코아색 몸·크림 주둥이·보라 베레모·목에 건 헤드폰
+function drawOtter(ctx, x, y, s, fb, o, t) {
+  ctx.strokeStyle = fb.body; ctx.lineWidth = s * 0.08; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(x - s * 0.16, y - s * 0.08); ctx.quadraticCurveTo(x - s * 0.4, y - s * 0.04, x - s * 0.38, y - s * 0.2 + Math.sin(t * 3) * s * 0.03); ctx.stroke();
+  ctx.fillStyle = fb.body;
+  roundRect(ctx, x - s * 0.19, y - s * 0.52, s * 0.38, s * 0.5, s * 0.17); ctx.fill();
+  if (fb.apron) { ctx.fillStyle = fb.apron; roundRect(ctx, x - s * 0.12, y - s * 0.38, s * 0.24, s * 0.32, s * 0.05); ctx.fill(); }
+  const hy = y - s * 0.66;
+  ctx.fillStyle = fb.body;
+  ctx.beginPath(); ctx.arc(x, hy, s * 0.17, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x - s * 0.14, hy - s * 0.1, s * 0.05, 0, Math.PI * 2); ctx.arc(x + s * 0.14, hy - s * 0.1, s * 0.05, 0, Math.PI * 2); ctx.fill();
+  if (o.facing !== 'up') {
+    ctx.fillStyle = fb.muzzle;
+    ctx.beginPath(); ctx.ellipse(x, hy + s * 0.06, s * 0.1, s * 0.07, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#2d2420';
+    ctx.beginPath(); ctx.arc(x, hy + s * 0.03, s * 0.025, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x - s * 0.07, hy - s * 0.03, s * 0.022, 0, Math.PI * 2); ctx.arc(x + s * 0.07, hy - s * 0.03, s * 0.022, 0, Math.PI * 2); ctx.fill();
+  }
+  if (fb.phones) { ctx.strokeStyle = fb.phones; ctx.lineWidth = s * 0.04; ctx.beginPath(); ctx.arc(x, y - s * 0.5, s * 0.15, 0.2, Math.PI - 0.2); ctx.stroke(); }
+  if (fb.hat) {
+    ctx.fillStyle = fb.hat;
+    ctx.beginPath(); ctx.ellipse(x + s * 0.03, hy - s * 0.15, s * 0.18, s * 0.07, -0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + s * 0.1, hy - s * 0.21, s * 0.025, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
 function steam(ctx, x, y, s, t) {
   ctx.fillStyle = 'rgba(255,255,255,0.75)';
   for (let i = 0; i < 3; i++) {
@@ -239,7 +294,7 @@ export function drawPortrait(ctx, key, expr, w, h) {
     ctx.drawImage(img, i * def.px, 0, def.px, def.px, Math.round((w - def.px * k) / 2), h - def.px * k, def.px * k, def.px * k);
     return;
   }
-  const state = expr === 'surprised' || expr === 'flustered' ? 'react' : 'idle';
+  const state = expr === 'surprised' || expr === 'flustered' || expr === 'cry' ? 'react' : 'idle';
   drawActor(ctx, key, { x: w / 2, y: h * 0.98, size: h * 0.92, state, facing: 'down', t: 0 });
 }
 

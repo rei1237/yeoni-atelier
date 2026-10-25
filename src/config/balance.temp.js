@@ -44,7 +44,7 @@ export const TEMP = Object.freeze({
   // ── 영입(임시 조건: 정규 영업 2회 완료 + 첫 상환)
   RECRUIT_CONDITION: Object.freeze({ shiftsCompleted: 2, repaidAtLeast: 1 }),
 
-  // ── 재료 사냥
+  // ── 월정석 사냥(영냥이). 사냥은 재료가 아니라 월정석을 떨어뜨리고, 재료는 마을 모카 식재료점에서 산다.
   HUNT: Object.freeze({
     // 무기·보조 능력·적 수치는 src/data/hunt-kit.js (모두 임시)
     PLAYER_SPEED: 165,        // px/s (필드 좌표)
@@ -74,13 +74,19 @@ export const TEMP = Object.freeze({
       { id: 'magnet', chance: 0.005 },
       { id: 'bomb', chance: 0.005 },
     ]),
-    DROP_TABLE: Object.freeze([ // 재료(임시 확률 — 사냥이 뱀서식으로 바뀌며 처치 수가 늘어 낮췄다)
-      { id: 'night_dew', chance: 0.05 },
-      { id: 'sugar', chance: 0.08 },
-    ]),
+    MOON_DROP: Object.freeze({ chance: 0.1, elite: 5, boss: 20 }), // 일반 적 확률 1개, 정예·보스는 고정 개수(임시)
     FIELD_W: 1400,
     FIELD_H: 1800,
   }),
+
+  // ── 마을(임시). 월정석 환전·모카 긴급 배달·가게 확장
+  MOONSTONE_GOLD: 35,         // 루나의 저울: 월정석 1개 = 35G
+  DELIVERY_FEE_RATE: 0.25,    // 영업 중 모카 긴급 배달 = 재료값 +25%
+  EXPANSION: Object.freeze([  // 추가 테이블 세트(순서대로 산다)
+    Object.freeze({ id: 'table4', label: '4번 테이블 세트', cost: 3000 }),
+    Object.freeze({ id: 'table5', label: '5번 테이블 세트', cost: 8000 }),
+  ]),
+  DECOR_PRICES: Object.freeze({ plant: 400, lamp: 700, bookshelf: 1200, rug: 1500 }),
 
   // ── 자동 운영
   AUTO_DECIDE_MS: 600,
