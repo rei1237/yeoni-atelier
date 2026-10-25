@@ -18,6 +18,14 @@ import { drawHunt } from '../render/hunt-view.js';
 import { $, morph, toast, floater, shake } from './dom.js';
 import { topbarHtml, panelHtml, bubblesHtml, hitsHtml } from './hud.js';
 import { sheetHtml, overlayHtml } from './sheets.js';
+import { drawDressroom, drawInlinePortraits } from './dressroom.js';
+import { outfitLine } from '../data/outfit-lines.js';
+import { stressStage } from '../game/stress.js';
+import { drawFarm } from './farm.js';
+import { drawNumbers } from './number-motion.js';
+import { installDialogFocus } from './dialog-focus.js';
+import { applyAssetTheme } from './asset-html.js';
+import { pixelFx } from './pixel-fx.js';
 import { playNovel, novelActive } from './novel.js';
 import { EVENT_STORIES } from '../story/events.js';
 import { PROLOGUE } from '../story/prologue.js';
@@ -57,7 +65,7 @@ function resize() {
 }
 new ResizeObserver(resize).observe(el.stage);
 resize();
-loadAssetImages();
+loadAssetImages().then(() => { applyAssetTheme(); render(true); });
 
 const joystick = createJoystick(el.canvas, { radius: 56 });
 
@@ -129,6 +137,12 @@ function replayStory() {
 const n = v => Number(v);
 // data-action → 처리. 엔진 명령은 같은 이름을 쓰고, 화면 전용 동작(시트·확인창·저장)은 여기서만 처리한다.
 const ACTIONS = {
+  'dress.who': d => { ui.dressWho = d.who; ui.dressPreview = null; ui.dressLine = null; },
+  'dress.slot': d => { ui.dressSlot = d.slot; ui.dressPreview = null; ui.dressLine = null; },
+  'dress.direction': d => { ui.dressDirection = d.dir; },
+  'dress.pose': () => { ui.dressPose = ui.dressPose === 'host' ? 'idle' : 'host'; },
+  'dress.preview': d => { ui.dressPreview = d.id; ui.dressLine = outfitLine(ui.dressWho || 'neo', d.id, stressStage(state), 'preview'); },
+  'outfit.unlock': d => { if (run({ type: 'outfit.unlock', id: d.id }).ok) ui.dressLine = outfitLine(ui.dressWho || 'neo', d.id, stressStage(state), 'unlock'); },
   'hunt.start': () => { ui.sheet = { kind: 'hunt' }; },
   'hunt.depart': d => { if (run({ type: 'hunt.start', depth: n(d.depth) }).ok) ui.sheet = null; },
   'farm.select': d => { ui.farmCrop = d.id; },
@@ -152,7 +166,11 @@ const ACTIONS = {
     const story = personDef(state, d.id)?.followup;
     if (!story || !state.roster[d.id] || state.mode !== 'prep' || state.day <= state.recruitment[d.id].at) { toast('함께 영업한 뒤 준비 시간에 이야기를 나눠요'); return; }
     ui.sheet = null;
-    playNovel([{ chapter: ['인연', story.title], bg: 'atelier_lit' }, ...story.lines.map(t => ({ s: 'nar', t }))], { onEnd: () => run({ type: 'cast.story', id: d.id }) });
+    playNovel([{ chapter: ['인연', story.title], bg: 'atelier_lit', l:'yeoni:normal', r:`${d.id}:normal` }, ...story.lines.map(line => {
+      const split=line.indexOf(':'); const name=split<0?'':line.slice(0,split);
+      const speaker=Object.keys(SPEAKERS).find(key=>SPEAKERS[key].name===name);
+      return { s:speaker||'nar', t:speaker?line.slice(split+1).trim():line };
+    })], { onEnd: () => run({ type: 'cast.story', id: d.id }) });
   },
   'recruit.close': () => { ui.recruitEvent = null; },
   // 조합대 선택은 화면 상태다. 섞기만 엔진 명령(recipe.try)으로 보낸다.
@@ -227,7 +245,7 @@ const ACTIONS = {
   'debt.repay': d => run({ type: 'debt.repay', amount: n(d.amount), requestId: `repay-${Date.now()}-${++repaySeq}` }),
   'quest.claim': d => run({ type: 'quest.claim', questId: d.id }),
   'recruit.complete': d => { if (run({ type: 'recruit.complete', id: d.id }).ok) ui.recruitEvent = null; },
-  'outfit.equip': d => run({ type: 'outfit.equip', who: d.who, slot: d.slot, itemId: d.item || null }),
+  'outfit.equip': d => { if (run({ type: 'outfit.equip', who: d.who, slot: d.slot, itemId: d.item || null }).ok) { ui.dressPreview = d.item; ui.dressLine = outfitLine(d.who, d.item, stressStage(state)); } },
   'interior.nudge': d => run({ type: 'interior.nudge', uid: d.uid, dx: n(d.dx), dy: n(d.dy) }),
   'interior.rotate': d => run({ type: 'interior.rotate', uid: d.uid }),
   'interior.store': d => run({ type: 'interior.store', uid: d.uid }),
@@ -237,7 +255,7 @@ const ACTIONS = {
   'gear.equip': d => run({ type: 'gear.equip', slot: d.slot, id: d.id || null }),
   'expand.decor': d => run({ type: 'expand.decor', defId: d.def }),
   'expand.area': d => run({ type: 'expand.area', id: d.id }),
-  'kitchen.toggle': () => { const r = run({ type: 'kitchen.toggle' }); if (r.ok) toast(r.autoKitchen ? '🍳 주방 자동 켬 · 루나 언니가 굽고 루나와 네오가 서빙해요' : '주방 자동 끔 · 주방에서 직접 만들고 트레이로 서빙해요'); },
+  'kitchen.toggle': () => { const r = run({ type: 'kitchen.toggle' }); if (r.ok) toast(r.autoKitchen ? '🍳 주방 자동 켬 · 루나 언니가 굽고 루나가 서빙해요' : '편한 수동 · 주문을 눌러 조리하고 완성된 음식을 눌러 서빙해요'); },
   'auto.toggle': () => { const r = run({ type: 'auto.toggle' }); if (r.ok) toast(r.auto ? '🤖 자동 운영 켬 (플레이어와 같은 명령만 사용)' : '자동 운영 끔'); },
 };
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
@@ -277,7 +295,14 @@ el.canvas.addEventListener('click', e => {
 // ── 이벤트 → 피드백
 const tableAt = no => tablePx[no] || { x: cssW / 2, y: cssH / 3 };
 function gagLines(lines) {
-  (lines || []).forEach((l, i) => setTimeout(() => toast(`${l.who}: ${l.text}`, 'gag', 3000), i * 1100));
+  (lines || []).forEach((l, i) => setTimeout(() => {
+    const node = toast(`${l.who}: ${l.text}`, 'gag', 3000);
+    const key = Object.values(SPEAKERS).find(s => s.name === l.who)?.portrait;
+    if (node && key) {
+      const cv = document.createElement('canvas'); cv.width = cv.height = 96;
+      cv.dataset.talkingPortrait = key; cv.setAttribute('aria-hidden', 'true'); node.prepend(cv);
+    }
+  }, i * 1100));
 }
 // 개그 말풍선은 화면 연출일 뿐이다. 같은 종류가 너무 자주 뜨지 않게 실제 시간으로 간격을 둔다.
 const gagAt = {};
@@ -294,7 +319,7 @@ function handleEvents(events) {
     const p = ev.tableNo != null ? tableAt(ev.tableNo) : null;
     switch (ev.type) {
       case 'farmAction': toast(ev.text, 'good'); break;
-      case 'shiftStart': toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 30:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
+      case 'shiftStart': toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 10:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
       case 'served': floater(p.x, p.y - 10, `+${ev.price}G`, '#b07a12'); if (Math.random() < 0.25) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
       case 'nominationRequest': toast(`💌 ${ev.tableNo}번 손님이 ${personName(state, ev.nominee)} 지명 요청 — 테이블을 눌러 확인`, 'good', 3600); break;
       case 'nominationAccepted': toast(`🫖 ${ev.tableNo}번 접대 시작 · 60초 전담`, 'good'); gagLines(ev.gag); break;
@@ -323,8 +348,8 @@ function handleEvents(events) {
       case 'expanded': toast(`🪑 ${ev.tableNo}번 테이블을 들였어요 · 다음 영업부터 손님 자리가 늘어요`, 'good', 3600); break;
       case 'areaOpened': toast(`🔓 ${ev.name} 증축 완료 · 인테리어에서 테이블과 장식을 놓아 보세요`, 'good', 3600); break;
       case 'decorBought': toast(`📦 ${ev.name} 보관함에 도착 · 인테리어에서 놓아 주세요`, 'good'); break;
-      case 'huntFinished': if ((ev.bag?.moonstone || 0) > 0) gagOnce('hunt', pickLine(GAG_HUNT_RETURN), 0); break;
-      case 'huntStart': toast('🐾 네오가 영냥이 모습으로 사냥을 떠났어요 (3:00)', 'good'); break;
+      case 'huntFinished': pixelFx(el.stage,'transform',{frames:8}); if ((ev.bag?.moonstone || 0) > 0) gagOnce('hunt', pickLine(GAG_HUNT_RETURN), 0); break;
+      case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast('🐾 네오가 영냥이 모습으로 사냥을 떠났어요 (3:00)', 'good'); break;
       case 'huntPickup': floater(cssW / 2, cssH * 0.4, `+${ev.name}`, '#7d86e8'); break;
       case 'huntHurt': shake(el.stage); break;
       case 'huntEvolve': toast(`🌟 진화! ${ev.name}`, 'good', 3200); break;
@@ -363,6 +388,10 @@ function render(force = false) {
 }
 
 function draw(t) {
+  drawNumbers(t);
+  if (state && ui.sheet?.kind === 'farm') drawFarm(state, t);
+  if (state && ui.sheet?.kind === 'outfits') drawDressroom(state, ui, t);
+  drawInlinePortraits(t);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.imageSmoothingEnabled = false; // 도트 그림 번짐 방지
   if (state?.mode === 'hunt' && state.hunt) {
@@ -407,6 +436,7 @@ const loop = createFrameLoop({
 });
 loop.start();
 render(true);
+installDialogFocus();
 
 // 개발 모드에서만 콘솔 확인용 핸들 노출(일반 플레이에는 없음)
 if (DEV) window.__yeoni = { get state() { return state; }, ui };

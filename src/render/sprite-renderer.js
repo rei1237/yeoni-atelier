@@ -4,6 +4,8 @@
 import { ASSETS, SPRITE_STATES, imageFor, resolveState, actorDef } from './assets.js';
 
 export function drawActor(ctx, key, o) {
+  const dressed = o.outfitId ? `${key}@${o.outfitId}` : key;
+  key = imageFor(dressed) ? dressed : key.split('@')[0];
   const def = actorDef(key) || ASSETS.actors.customer;
   const st = resolveState(def, o.state || 'idle');
   const img = imageFor(key);
@@ -283,15 +285,19 @@ export function drawIcon(ctx, key, x, y, px) {
 }
 
 // 대화 초상화(소설 화면): 초상화 시트가 있으면 표정 칸을, 없으면 캐릭터 도형을 크게 그린다
-export function drawPortrait(ctx, key, expr, w, h) {
+export function drawPortrait(ctx, key, expr, w, h, { frame = 0 } = {}) {
   ctx.clearRect(0, 0, w, h);
-  const def = ASSETS.portraits[key];
-  const img = imageFor(`portraits/${key}`);
+  const actualKey = imageFor(`portraits/${key}`) ? key : key.split('@')[0];
+  const def = ASSETS.portraits[actualKey];
+  const img = imageFor(`portraits/${actualKey}`);
   if (def && img) {
     const i = Math.max(0, def.expressions.indexOf(expr));
     const k = Math.max(1, Math.floor(Math.min(w, h) / def.px));
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(img, i * def.px, 0, def.px, def.px, Math.round((w - def.px * k) / 2), h - def.px * k, def.px * k, def.px * k);
+    const animated = img.width === 4 * def.px && img.height === def.expressions.length * def.px;
+    const sx = animated ? Math.max(0, Math.min(3, frame)) * def.px : i * def.px;
+    const sy = animated ? i * def.px : 0;
+    ctx.drawImage(img, sx, sy, def.px, def.px, Math.round((w - def.px * k) / 2), h - def.px * k, def.px * k, def.px * k);
     return;
   }
   const state = expr === 'surprised' || expr === 'flustered' || expr === 'cry' ? 'react' : 'idle';

@@ -1,10 +1,14 @@
-// 에셋 정의 레지스트리. 지금은 이미지 파일이 없다 → 모든 항목은 도형 대체 렌더링으로 그린다.
+// 에셋 정의 레지스트리. manifest.ready의 검증된 PNG만 읽고, 누락·실패한 항목은 도형으로 대체한다.
 // 도트 그림 규격: 캐릭터 프레임 32×32, 기준점 (16, 30) = 발밑 중앙. 화면에는 정수 배율로만 키운다(번짐 없음).
 // 이미지를 넣는 방법: 각 항목의 path 에 PNG 를 두고 assets/manifest.json 의 ready 배열에 "묶음/키"(예: actors/yeoni)를 적는다.
 //   매니페스트에 적힌 키만 불러오므로, 아직 없는 파일 때문에 404 가 쌓이지 않는다. 실패하면 도형으로 남는다.
 // 시트 규격: 한 방향 블록 안에서 행 = 상태(SPRITE_STATES 순서), 열 = 프레임. 방향 블록은 DIRECTIONS 순서로 세로로 잇는다.
 // 자세한 규격과 생성 프롬프트는 docs/ASSETS.md, AGENTS.md.
 
+import { OUTFITS } from '../data/outfits.js';
+import { RECRUITABLE } from '../data/companions.js';
+import { DECOR_CATALOG } from '../data/decor-catalog.js';
+import { MENUS, INGREDIENTS } from '../data/menus.js';
 export const SPRITE_STATES = Object.freeze(['idle', 'walk', 'cook', 'serve', 'host', 'react', 'attack', 'hurt']);
 export const DIRECTIONS = Object.freeze(['down', 'left', 'right', 'up']);
 export const PIXEL = Object.freeze({ FRAME: 32, ANCHOR_X: 16, ANCHOR_Y: 30, ICON: 16, TILE: 32, PORTRAIT: 96 });
@@ -35,11 +39,13 @@ const enemy = (key, label, fallback, size = 1) => ({
 });
 const object = (key, label, size, color) => ({ kind: 'object', label, path: `assets/sprites/objects/${key}.png`, image: null, size, fallback: { color } });
 const icon = (key, label, color) => ({ kind: 'icon', label, path: `assets/sprites/icons/${key}.png`, image: null, px: PIXEL.ICON, fallback: { color } });
-// 대화 초상화: 96×96 한 장에 표정을 가로로 이어 붙인다(expressions 순서)
-const portrait = (key, label, expressions) => ({ kind: 'portrait', label, path: `assets/portraits/${key}.png`, image: null, px: PIXEL.PORTRAIT, expressions });
+// 대화 초상화: 96×96, 4열 입/눈 프레임 × 표정 행(expressions 순서). 기존 가로형도 호환한다.
+const portrait = (key, label, expressions) => ({ kind: 'portrait', label, path: `assets/sprites/portraits/${key}.png`, legacyPath: `assets/portraits/${key}.png`, image: null, px: PIXEL.PORTRAIT, expressions });
 
 export const ASSETS = Object.freeze({
   actors: {
+    ...Object.fromEntries(RECRUITABLE.filter(c => c.id !== 'moka').map(c => [c.id, actor(c.id, c.name, { shape: 'person', body: c.color, hair: '#342b40', skin: '#ffe6da' })])),
+    ...Object.fromEntries(Object.values(OUTFITS).filter(o => o.slot === 'outfit').map(o => [`${o.who}@${o.id}`, actor(`${o.who}@${o.id}`, o.name, { shape: 'person', body: o.color, hair: o.who === 'neo' ? '#e8ebf5' : '#d98ea6', skin: '#ffe6da' })])),
     // 색은 code-destiny 원작 디자인 문서의 외형 기준(분홍 머리·연꽃·라벤더 리본 / 은발·남색 옷 / 흰 고양이·남색 마법모자)
     yeoni: actor('yeoni', '연이', { shape: 'person', body: '#e3b3bd', hair: '#d98ea6', skin: '#ffe6da', accent: '#b9a3e3' }),
     yeoni_pig: actor('yeoni_pig', '연이(꽃돼지)', { shape: 'pig', body: '#f6bccb', accent: '#f08fb0' }, { cook: null, serve: null, host: null, attack: null }),
@@ -66,6 +72,7 @@ export const ASSETS = Object.freeze({
     boss_hand: enemy('boss_hand', '거대한 검은 손(임시 보스)', { shape: 'hand', body: '#1a0f26', eye: '#ff7a8a' }, 3),
   },
   objects: {
+    ...Object.fromEntries(DECOR_CATALOG.map(d => [d.id, object(d.id, d.name, {w:d.width,h:d.height}, d.color)])),
     table: object('table', '테이블', { w: 1, h: 1 }, '#c79a6b'),
     chair: object('chair', '의자', { w: 1, h: 1 }, '#a8774c'),
     drink: object('drink', '음료 머신', { w: 2, h: 1 }, '#8fb3c9'),
@@ -80,6 +87,7 @@ export const ASSETS = Object.freeze({
   },
   // 16×16 아이콘: 재료·메뉴·사냥 줍기·무기
   icons: {
+    ...Object.fromEntries([...Object.values(INGREDIENTS),...Object.values(MENUS)].map(d => [d.id, icon(d.id,d.name,d.color)])),
     bean: icon('bean', '원두', '#7a4b2a'), milk: icon('milk', '우유', '#f3efe2'), tea: icon('tea', '찻잎', '#7fa65a'),
     flour: icon('flour', '밀가루', '#efe3c4'), egg: icon('egg', '달걀', '#f6d77a'), sugar: icon('sugar', '설탕', '#ffffff'),
     night_dew: icon('night_dew', '밤이슬', '#6f7fe8'),
@@ -93,6 +101,8 @@ export const ASSETS = Object.freeze({
     fishbone_charm: icon('fishbone_charm', '생선뼈 부적', '#d8d2bf'), churu_magnet: icon('churu_magnet', '자석 츄르', '#e85d75'),
   },
   portraits: {
+    ...Object.fromEntries(RECRUITABLE.filter(c => c.id !== 'moka').map(c => [c.id, portrait(c.id, c.name, ['normal','smile','serious','surprised'])])),
+    ...Object.fromEntries(Object.values(OUTFITS).filter(o => o.slot === 'outfit').map(o => [`${o.who}@${o.id}`, portrait(`${o.who}@${o.id}`, o.name, o.who === 'neo' ? ['normal','smile','serious','flustered'] : ['normal','smile','surprised','sulky','determined'])])),
     yeoni: portrait('yeoni', '연이', ['normal', 'smile', 'surprised', 'sulky', 'determined']),
     yeoni_pig: portrait('yeoni_pig', '연이(꽃돼지)', ['normal', 'smile', 'surprised', 'sulky']),
     neo: portrait('neo', '네오', ['normal', 'smile', 'serious', 'flustered']),
@@ -109,6 +119,17 @@ export const ASSETS = Object.freeze({
     town_street: { kind: 'tile', label: '카페 앞 마을 길(마을 화면 배경)', path: 'assets/tiles/town_street.png', image: null, fallback: { color: '#d9c7a5' } },
     river_field: { kind: 'tile', label: '사주의 강 밤 들판', path: 'assets/tiles/river_field.png', image: null, fallback: { color: '#1f3346' } },
   },
+  backgrounds: Object.fromEntries(['atelier_lit','atelier_dark','river_night','dressroom','farm'].map(key => [key, { kind:'background', label:key, path:`assets/backgrounds/${key}.png`, dimensions:key==='farm'?[720,400]:[720,600], opaque:true }])),
+  ui: {
+    ...Object.fromEntries(['spring','summer','autumn','winter'].map(season => [`town-map-${season}`, { kind:'ui', label:`${season} 마을`, path:`assets/ui/town-map-${season}.png`, dimensions:[720,600], opaque:true }])),
+    ...Object.fromEntries([
+      ...['atelier','expand','moka','luna','gear','hunt'].map(k=>[`town-node-${k}`,48,48]),
+      ['heart-full',16,16],['heart-empty',16,16],['sos',32,32],
+      ...['calm','tired','limit'].map(k=>[`stress-${k}`,32,32]),
+      ...['panel','button','tab','card'].map(k=>[`frame-${k}`,48,48]),
+      ['transform',256,32],['transform-large',768,96],['moon-glint',32,32],['push-lines',96,96],['ledger',32,32],
+    ].map(([key,w,h])=>[key,{kind:'ui',label:key,path:`assets/ui/${key}.png`,dimensions:[w,h]}])),
+  },
 });
 
 // assets/manifest.json 의 ready 에 적힌 키만 불러온다. 파일이 없거나 실패하면 도형 대체로 남는다.
@@ -116,17 +137,17 @@ const loaded = new Map();
 // 매니페스트 id 는 '묶음/키' 형식(예: actors/yeoni, portraits/yeoni, icons/bean)
 const allEntries = () => Object.entries(ASSETS).flatMap(([g, group]) => Object.entries(group).map(([k, d]) => [`${g}/${k}`, d]));
 export async function loadAssetImages(manifestUrl = 'assets/manifest.json') {
-  let ready = [];
+  let ready = [], legacyPortraits = [];
   try {
     const r = await fetch(manifestUrl, { cache: 'no-store' });
-    if (r.ok) ready = (await r.json()).ready || [];
+    if (r.ok) { const manifest = await r.json(); ready = manifest.ready || []; legacyPortraits = manifest.legacyPortraits || []; }
   } catch { /* 매니페스트가 없으면 전부 도형 */ }
   const want = new Set(ready);
   await Promise.all(allEntries().filter(([k]) => want.has(k)).map(([k, d]) => new Promise(res => {
     const img = new Image();
     img.onload = () => { loaded.set(k, img); res(); };
     img.onerror = () => res();
-    img.src = d.image || d.path;
+    img.src = d.image || (d.legacyPath && legacyPortraits.includes(k) ? d.legacyPath : d.path);
   })));
   return [...loaded.keys()];
 }

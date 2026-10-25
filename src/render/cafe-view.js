@@ -8,7 +8,7 @@ import { MENUS } from '../data/menus.js';
 import { OUTFITS } from '../data/outfits.js';
 import { ASSETS } from './assets.js';
 import { furnitureCells } from '../game/space.js';
-import { drawActor, roundRect, drawObjectImage } from './sprite-renderer.js';
+import { drawActor, roundRect, drawObjectImage, drawIcon } from './sprite-renderer.js';
 
 export function computeView(w, h) {
   const tile = Math.max(8, Math.floor(Math.min(w / GRID.cols, h / GRID.rows) * 100) / 100);
@@ -34,6 +34,7 @@ function outfitLook(state, who) {
   const eq = state.outfits?.equipped?.[who];
   if (!eq) return {};
   return {
+    outfitId: eq.outfit,
     body: eq.outfit ? OUTFITS[eq.outfit]?.color : undefined,
     accents: [eq.acc1, eq.acc2].filter(Boolean).map(id => OUTFITS[id]?.color).filter(Boolean),
   };
@@ -198,7 +199,7 @@ function drawTable(ctx, state, p, T, f, tb, t) {
     served.forEach((o, i) => {
       const cx = p.x + T * (served.length === 1 ? 0.5 : 0.33 + i * 0.34), cy = p.y + T * 0.55;
       ctx.fillStyle = '#fffaf2'; ctx.beginPath(); ctx.arc(cx, cy, T * 0.15, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = MENUS[o.menuId].color; ctx.beginPath(); ctx.arc(cx, cy, T * 0.09, 0, Math.PI * 2); ctx.fill();
+      drawIcon(ctx,o.menuId,cx,cy,16);
     });
   }
   // 테이블 번호(색만이 아니라 숫자로)
@@ -257,6 +258,6 @@ function drawStations(ctx, state, v) {
   state.tray.forEach((it, i) => {
     const cx = pp.x + T * (0.4 + i * 0.6), cy = pp.y + T * 0.72;
     ctx.fillStyle = it ? '#fffaf2' : 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.arc(cx, cy, T * 0.18, 0, Math.PI * 2); ctx.fill();
-    if (it) { ctx.fillStyle = MENUS[it.menuId].color; ctx.beginPath(); ctx.arc(cx, cy, T * 0.11, 0, Math.PI * 2); ctx.fill(); }
+    if (it) drawIcon(ctx,it.menuId,cx,cy,16);
   });
 }

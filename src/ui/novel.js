@@ -2,8 +2,10 @@
 // 조작: 탭 = 글자 다 보이기 → 한 번 더 탭 = 다음. Enter·Space 같음. AUTO·SKIP·LOG·◀(이전)·건너뛰기.
 // 연출 기준은 code-destiny 소설 읽기 화면(유리 대화창·금테·이름표·초상화 3칸·켄 번스 배경)을 참고해 새로 만든 것이다.
 
-import { drawPortrait } from '../render/sprite-renderer.js';
+import { paintTalkingPortrait } from './talking-portrait.js';
+import { pixelFx } from './pixel-fx.js';
 import { SPEAKERS } from '../story/prologue.js';
+import { imageFor } from '../render/assets.js';
 
 const TYPE_MS = 30, SKIP_MS = 120, LOG_MAX = 60;
 const autoDelay = len => Math.min(4200, 1100 + len * 55);
@@ -42,6 +44,7 @@ export function playNovel(beats, { onEnd } = {}) {
   const slots = { l: null, c: null, r: null };
   let idx = -1, typing = false, full = '', shown = 0, typeTimer = 0, waitTimer = 0, mode = null, bgFront = 0, bgName = null;
   const log = [];
+  let portraitRaf = 0, currentSpeaker = null, pauseUntil = 0;
 
   function clearTimers() { clearInterval(typeTimer); clearTimeout(waitTimer); typeTimer = waitTimer = 0; }
 
@@ -50,22 +53,35 @@ export function playNovel(beats, { onEnd } = {}) {
     bgName = name;
     bgFront = 1 - bgFront;
     layers[bgFront].className = `nv-bg-layer ${bgFront ? 'b' : 'a'} bg-${name} on`;
+    const bg = imageFor(`backgrounds/${name}`);
+    layers[bgFront].style.backgroundImage = bg ? `url("${bg.src}")` : '';
     layers[1 - bgFront].classList.remove('on');
   }
 
   function drawSlots(speakerKey) {
+    currentSpeaker = speakerKey;
     for (const k of ['l', 'c', 'r']) {
       const cv = pts[k], v = slots[k];
       cv.classList.toggle('show', !!v);
       if (!v) continue;
       const [key, expr] = v.split(':');
-      drawPortrait(cv.getContext('2d'), key, expr || 'normal', cv.width, cv.height);
+      if (cv.dataset.expression !== v) {
+        cv.dataset.expression = v;
+        if (!reduced()) cv.animate([{translate:'0 4px'},{translate:'0 -3px'},{translate:'0 0'}],{duration:220});
+      }
+      paintTalkingPortrait(cv, { key, expression: expr || 'normal', talking: typing && key === speakerKey, reduced: reduced(), pauseUntil });
       cv.classList.toggle('dim', !!speakerKey && key !== speakerKey);
+      cv.classList.toggle('speaking', !!speakerKey && key === speakerKey);
+      if (speakerKey && key === speakerKey) box.dataset.speakerSlot = k;
     }
   }
 
   function fx(kind) {
     if (!kind || reduced()) return;
+    if(kind==='transform'){pixelFx(root,'transform-large',{frames:8,size:288,duration:960});return;}
+    if(kind==='ledger'){pixelFx(root,'ledger',{size:96,duration:1200});return;}
+    if(kind==='glow')pixelFx(root,'moon-glint',{size:96});
+    if(kind==='shake')pixelFx(root,'push-lines',{size:192});
     const f = q('.nv-fx');
     if (kind === 'shake') { root.classList.remove('shake'); void root.offsetWidth; root.classList.add('shake'); }
     else { f.className = `nv-fx ${kind}`; void f.offsetWidth; f.classList.add('go'); }
@@ -103,11 +119,13 @@ export function playNovel(beats, { onEnd } = {}) {
     full = b.t; shown = 0;
     if (instant || reduced() || mode === 'skip') return finishLine();
     typing = true; nextEl.classList.remove('on'); textEl.textContent = '';
-    typeTimer = setInterval(() => {
+    const typeNext = () => {
       shown += 1;
       textEl.textContent = full.slice(0, shown);
       if (shown >= full.length) finishLine();
-    }, TYPE_MS);
+      else { const punctuation = /[,，.。!?…]/.test(full[shown - 1]); if (punctuation) pauseUntil = performance.now() + 180; typeTimer = setTimeout(typeNext, punctuation ? 210 : TYPE_MS); }
+    };
+    typeTimer = setTimeout(typeNext, TYPE_MS);
   }
 
   function finishLine() {
@@ -161,12 +179,14 @@ export function playNovel(beats, { onEnd } = {}) {
     else if (a === 'end') close(true);
   }
   function onKey(e) {
+    if(e.target.closest?.('button') && (e.key==='Enter'||e.key===' '))return;
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); }
     else if (e.key === 'Escape' && !q('.nv-log').hidden) toggleLog();
   }
 
   function close(done) {
     clearTimers();
+    cancelAnimationFrame(portraitRaf);
     root.removeEventListener('click', onClick);
     window.removeEventListener('keydown', onKey, true);
     root.hidden = true; root.innerHTML = ''; root.classList.remove('shake');
@@ -177,6 +197,8 @@ export function playNovel(beats, { onEnd } = {}) {
   root.addEventListener('click', onClick);
   window.addEventListener('keydown', onKey, true);
   active = { close };
+  const animatePortraits = () => { if (!root.hidden) drawSlots(currentSpeaker); portraitRaf = requestAnimationFrame(animatePortraits); };
+  portraitRaf = requestAnimationFrame(animatePortraits);
   box.focus({ preventScroll: true });
   next();
 }

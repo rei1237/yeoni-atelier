@@ -1,4 +1,4 @@
-// 지명 접대: 요청 → (수락 검사) → 수락 순간부터 정확히 300초 → 정산 1회 → 동료 해제.
+// 지명 접대: 요청 → (수락 검사) → 수락 순간부터 해당 영업의 접대 시간 → 정산 1회 → 동료 해제.
 // 요청과 수락은 다른 상태다. 요청만으로는 동료를 예약하지 않고 타이머도 시작하지 않는다.
 
 import { RULES, STAT_KEYS } from '../config/rules.js';
@@ -84,7 +84,7 @@ export function accept(state, tableNo) {
   const now = state.shift.elapsedMs;
   visit.waitPenalty = waitPenaltyAt(visit, now);
   visit.acceptAt = now;
-  visit.endAt = now + nominationDuration(state); // 300초는 이동 연출을 포함한 수락 시점부터
+  visit.endAt = now + nominationDuration(state); // 이동 연출을 포함한 수락 시점부터
   visit.help = helpSchedule(state, visit);
   const pid = visit.nominee;
   if (pid === 'neo') changeStress(state, 'accept');
@@ -189,7 +189,7 @@ export function activateFever(state) {
   return { ok: true, tables: chk.list.map(x => x.v.tableNo) };
 }
 
-// 접대 정산(방문당 1회). 300초를 모두 채웠을 때만 팁이 생긴다.
+// 접대 정산(방문당 1회). 해당 영업의 접대 시간을 모두 채웠을 때만 팁이 생긴다.
 export function settleHosting(state, visit) {
   if (visit.settled) return;
   const now = state.shift.elapsedMs;

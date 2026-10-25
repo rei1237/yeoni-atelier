@@ -5,7 +5,9 @@
 // 박자 형식: s = 말하는 이(SPEAKERS 키·nar·sys·impact), t = 대사, l/c/r = 'key:표정' 초상화 칸(null 이면 비움, 생략하면 유지),
 //           bg = 배경(river_night·atelier_dark·atelier_lit), fx = shake·flash·glow, chapter = [위 작은 글, 제목]
 
+import { RECRUITABLE } from '../data/companions.js';
 export const SPEAKERS = Object.freeze({
+  ...Object.fromEntries(RECRUITABLE.map(c => [c.id, {name:c.name,portrait:c.id}])),
   yeoni: { name: '연이', portrait: 'yeoni' },
   neo: { name: '네오', portrait: 'neo' },
   neo_cat: { name: '영냥이', portrait: 'neo_cat' },

@@ -1,4 +1,5 @@
 import { stressLabel, stressStage } from '../game/stress.js';
+import { assetIcon } from './asset-html.js';
 // 상단 바·하단 패널·테이블 말풍선·테이블 터치 영역의 HTML. 상태를 읽기만 한다.
 // 모든 표시는 글자 + 아이콘 + 시간으로 쓴다(색만으로 구분하지 않는다).
 
@@ -26,8 +27,8 @@ const won = n => `${Math.floor(n).toLocaleString('ko-KR')}G`;
 export function topbarHtml(state, ui) {
   const dev = ui.dev ? '<span class="tag dev">DEV</span>' : '';
   if (!state) return `<div class="tb-col"><span class="clock">연이의 아틀리에</span></div>${dev}`;
-  const stress = `<span class="stress-chip ${stressStage(state)}" aria-label="네오 스트레스 ${state.neoStress}/100">네오 · ${stressLabel(state)}<meter min="0" max="100" value="${state.neoStress}">${state.neoStress}</meter></span>`;
-  const gold = `<span class="gold" aria-label="골드">🪙 ${won(state.gold)}</span>`;
+  const stress = `<span class="stress-chip ${stressStage(state)}" aria-label="네오 스트레스 ${state.neoStress}/100">${assetIcon(`ui/stress-${stressStage(state)}`)}네오 · ${stressLabel(state)}<meter min="0" max="100" value="${state.neoStress}">${state.neoStress}</meter></span>`;
+  const gold = `<span class="gold" aria-label="골드">🪙 <span data-count-to="${Math.floor(state.gold)}" data-count-suffix="G">${won(state.gold)}</span></span>`;
   if (state.mode === 'shift') {
     const sh = state.shift;
     const st = [];
@@ -100,7 +101,7 @@ function shiftPanel(state, ui) {
     const to = it.reservedFor ? '🚶 운반 중' : target != null ? `→ ${target}번` : '주문 없음';
     const sel = ui.selectedSlot === i ? ' sel' : '';
     return `<button type="button" class="slot${sel}" data-action="tray.tap" data-i="${i}" data-key="slot${i}" aria-pressed="${!!sel}" aria-label="트레이 ${i + 1}번 ${esc(m.name)} ${esc(to)}">
-      <span><i class="dot" style="background:${m.color}"></i> ${esc(m.short)}</span><span class="to">${esc(to)}</span></button>`;
+      <span>${assetIcon(`icons/${m.id}`,`<i class="dot" style="background:${m.color}"></i>`)} ${esc(m.short)}</span><span class="to">${esc(to)}</span></button>`;
   }).join('');
   const held = Object.entries(state.stations).filter(([, s]) => s.held)
     .map(([sid, s]) => `⚠ 트레이가 가득 차 ${STATION_NAMES[sid]} 위에 ${MENUS[s.held.menuId].short} 보관 중`);
@@ -145,6 +146,7 @@ function prepPanel(state) {
       ${btn({ action: 'hunt.start', disabled: !hc.ok, title: hc.ok ? '영냥이 월정석 사냥 (약 3분) · 월정석은 루나의 저울에서 골드로' : hc.reasons.join(' / '), label: '🌙 월정석 사냥 (3분 · 행동력 1)' })}
       ${btn({ action: 'sheet.open', args: { sheet: 'town' }, cls: 'primary', title: '마을 지도 · 동료와 대화·선물 · 식재료점 · 장비 좌판 · 루나의 저울 · 증축 게시판 · 사냥터', label: '🏘 마을 나가기' })}
       ${btn({ action: 'interior.begin', label: '🪑 인테리어' })}
+      ${btn({ action: 'sheet.open', args: { sheet: 'outfits' }, label: '드레스룸' })}
       ${btn({ action: 'sheet.open', args: { sheet: 'farm' }, label: '🌱 연이의 농장' })}
       ${btn({ action: 'kitchen.toggle', cls: state.autoKitchen ? 'on' : '', title: '영업 중 주문 조리·서빙을 자동으로', label: `🍳 주방 자동 ${state.autoKitchen ? '켜짐' : '꺼짐'}` })}
     </div>
@@ -207,7 +209,7 @@ export function bubblesHtml(state, v) {
     const b = bubbleOf(state, t, now);
     if (!b) return '';
     const p = cellToPx(v, t.table.x + 0.5, t.table.y);
-    return `<button type="button" class="bubble ${b.cls}" data-key="b${t.no}" data-action="${b.orderId ? 'order.quick' : 'table.tap'}" data-id="${b.orderId || ''}" data-no="${t.no}" style="left:${Math.round(p.x)}px;top:${Math.round(p.y - 2)}px" aria-label="${t.no}번 테이블: ${esc(b.text)}">${esc(b.text)}</button>`;
+    return `<button type="button" class="bubble ${b.cls}" data-key="b${t.no}" data-action="${b.orderId ? 'order.quick' : 'table.tap'}" data-id="${b.orderId || ''}" data-no="${t.no}" style="left:clamp(110px,${Math.round(p.x)}px,calc(100% - 110px));top:${Math.round(p.y - 2)}px" aria-label="${t.no}번 테이블: ${esc(b.text)}">${b.cls==='help'?assetIcon('ui/sos'):''}${esc(b.text)}</button>`;
   }).join('');
 }
 

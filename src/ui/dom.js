@@ -44,7 +44,7 @@ function patchChildren(a, b) {
 }
 
 function patchAttrs(x, y) {
-  for (const { name } of [...x.attributes]) if (!y.hasAttribute(name)) x.removeAttribute(name);
+  for (const { name } of [...x.attributes]) if (!y.hasAttribute(name) && !(x.tagName==='DETAILS' && name==='open')) x.removeAttribute(name);
   for (const { name, value } of [...y.attributes]) if (x.getAttribute(name) !== value) x.setAttribute(name, value);
 }
 
@@ -58,6 +58,7 @@ export function toast(text, kind = '', ms = 2600) {
   el.textContent = text;
   box.appendChild(el);
   setTimeout(() => el.remove(), ms);
+  return el;
 }
 
 // 화면 위 떠오르는 숫자(+골드 등)

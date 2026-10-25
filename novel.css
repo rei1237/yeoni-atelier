@@ -119,3 +119,13 @@
   .nv-bg-layer.on, .nv-stars, .nv-next.on { animation: none; }
   .nv-chapter.go { animation: none; opacity: 1; }
 }
+.nv-box[data-speaker-slot="c"] .nv-name { left:50%; transform:translateX(-50%); }
+.nv-box[data-speaker-slot="r"] .nv-name { left:auto; right:18px; }
+.nv-pt.speaking { filter:brightness(1.08); }
+.nv-tools button { min-height:44px; }
+.nv-bg-layer { background-size:cover; background-position:center; image-rendering:pixelated; }
+.who-yeoni .nv-name { background:#f0bdd0; color:#361b2b; }
+.who-neo .nv-name { background:#cdd4ed; color:#202943; }
+.who-neo_cat .nv-name { background:#d7c6ed; color:#30203f; }
+.who-luna .nv-name,.who-luna_sis .nv-name { background:#f3d5bb; color:#3c2821; }
+.who-moka .nv-name { background:#ddc4a2; color:#36291f; }

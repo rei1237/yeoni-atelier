@@ -8,12 +8,15 @@
 import { NEO_STATS } from '../config/rules.js';
 import { MONTHLY_CAST } from './monthly-cast.js';
 import { DEST1NOVA_CAST } from './dest1nova-cast.js';
+import { DEST1NOVA_MEMBERS } from './dest1nova-profiles.js';
 
 export const PEOPLE = Object.freeze({
   yeoni: { id: 'yeoni', name: '연이', role: 'owner', work: 'cashier', color: '#f2a1b3', canServe: false, canHost: false },
   neo: {
     id: 'neo', name: '네오', role: 'host', color: '#5b6fb0', canServe: false, canHost: true,
     stats: NEO_STATS,
+    profile: DEST1NOVA_MEMBERS[0].personality,
+    specialty: '대화·외모 중심 손님',
     forms: { human: { name: '네오', color: '#5b6fb0' }, cat: { name: '영냥이', color: '#3b3f57' } },
   },
   luna_sis: { id: 'luna_sis', name: '루나 언니', role: 'crew', work: 'baker', color: '#f0b0c0', canServe: false, canHost: false },
