@@ -1,0 +1,56 @@
+{
+  "method": "180순 자동 시계 봇 / 인간 플레이테스트 아님 / 사냥 없이 경영+농사 / 5테이블",
+  "rows": [
+    {
+      "seed": 7,
+      "turns": 180,
+      "sales": 1260525254,
+      "tips": 175369015,
+      "purchases": 512135,
+      "hostings": 1541,
+      "interest": 88019984,
+      "payroll": 147228285,
+      "huntGold": 0,
+      "clearedDay": 124,
+      "repaid": 157308426,
+      "debt": 0,
+      "gold": 1100121566,
+      "ending": "grand",
+      "farmXP": 10728
+    },
+    {
+      "seed": 42,
+      "turns": 180,
+      "sales": 1161778775,
+      "tips": 175570161,
+      "purchases": 507330,
+      "hostings": 1485,
+      "interest": 91593613,
+      "payroll": 137294892,
+      "huntGold": 0,
+      "clearedDay": 128,
+      "repaid": 160515808,
+      "debt": 0,
+      "gold": 1007940994,
+      "ending": "grand",
+      "farmXP": 10584
+    },
+    {
+      "seed": 20261025,
+      "turns": 180,
+      "sales": 1239513042,
+      "tips": 181592944,
+      "purchases": 514456,
+      "hostings": 1516,
+      "interest": 89795124,
+      "payroll": 146253973,
+      "huntGold": 0,
+      "clearedDay": 126,
+      "repaid": 159275121,
+      "debt": 0,
+      "gold": 1084530326,
+      "ending": "grand",
+      "farmXP": 10584
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "method": "사냥 조이스틱 봇 / 사람 플레이테스트 아님 / 신규 무장비",
+  "rows": [
+    {
+      "seed": 7,
+      "run": 1,
+      "depth": 1,
+      "status": "down",
+      "kills": 316,
+      "moonstone": 122,
+      "xp": 650,
+      "careerLevel": 1
+    },
+    {
+      "seed": 7,
+      "run": 2,
+      "depth": 2,
+      "status": "down",
+      "kills": 246,
+      "moonstone": 110,
+      "xp": 738,
+      "careerLevel": 2
+    },
+    {
+      "seed": 7,
+      "run": "idle",
+      "status": "down",
+      "kills": 14,
+      "moonstone": 0
+    },
+    {
+      "seed": 42,
+      "run": 1,
+      "depth": 1,
+      "status": "down",
+      "kills": 257,
+      "moonstone": 143,
+      "xp": 550,
+      "careerLevel": 1
+    },
+    {
+      "seed": 42,
+      "run": 2,
+      "depth": 2,
+      "status": "down",
+      "kills": 450,
+      "moonstone": 193,
+      "xp": 1377,
+      "careerLevel": 2
+    },
+    {
+      "seed": 42,
+      "run": "idle",
+      "status": "down",
+      "kills": 12,
+      "moonstone": 1
+    },
+    {
+      "seed": 20261025,
+      "run": 1,
+      "depth": 1,
+      "status": "down",
+      "kills": 242,
+      "moonstone": 78,
+      "xp": 484,
+      "careerLevel": 1
+    },
+    {
+      "seed": 20261025,
+      "run": 2,
+      "depth": 2,
+      "status": "down",
+      "kills": 594,
+      "moonstone": 219,
+      "xp": 1836,
+      "careerLevel": 2
+    },
+    {
+      "seed": 20261025,
+      "run": "idle",
+      "status": "down",
+      "kills": 31,
+      "moonstone": 10
+    }
+  ]
+}

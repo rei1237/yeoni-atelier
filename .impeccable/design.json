@@ -1,0 +1,535 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-25T17:33:49.595Z",
+  "title": "Design System: 연이의 아틀리에",
+  "extensions": {
+    "colorMeta": {
+      "accent": {
+        "role": "primary",
+        "displayName": "카페 남색",
+        "tonalRamp": [
+          "oklch(15.00% 0.06851 265.06)",
+          "oklch(26.43% 0.06851 265.06)",
+          "oklch(37.86% 0.06851 265.06)",
+          "oklch(49.29% 0.06851 265.06)",
+          "oklch(60.71% 0.06851 265.06)",
+          "oklch(72.14% 0.06851 265.06)",
+          "oklch(83.57% 0.06851 265.06)",
+          "oklch(95.00% 0.06851 265.06)"
+        ]
+      },
+      "accent-hover": {
+        "role": "primary",
+        "displayName": "남색 hover",
+        "tonalRamp": [
+          "oklch(15.00% 0.06842 259.35)",
+          "oklch(26.43% 0.06842 259.35)",
+          "oklch(37.86% 0.06842 259.35)",
+          "oklch(49.29% 0.06842 259.35)",
+          "oklch(60.71% 0.06842 259.35)",
+          "oklch(72.14% 0.06842 259.35)",
+          "oklch(83.57% 0.06842 259.35)",
+          "oklch(95.00% 0.06842 259.35)"
+        ]
+      },
+      "selected": {
+        "role": "primary",
+        "displayName": "선택 남색",
+        "tonalRamp": [
+          "oklch(15.00% 0.05867 258.63)",
+          "oklch(26.43% 0.05867 258.63)",
+          "oklch(37.86% 0.05867 258.63)",
+          "oklch(49.29% 0.05867 258.63)",
+          "oklch(60.71% 0.05867 258.63)",
+          "oklch(72.14% 0.05867 258.63)",
+          "oklch(83.57% 0.05867 258.63)",
+          "oklch(95.00% 0.05867 258.63)"
+        ]
+      },
+      "accent-ink": {
+        "role": "neutral",
+        "displayName": "행동 버튼 흰색",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 89.88)",
+          "oklch(26.43% 0.00000 89.88)",
+          "oklch(37.86% 0.00000 89.88)",
+          "oklch(49.29% 0.00000 89.88)",
+          "oklch(60.71% 0.00000 89.88)",
+          "oklch(72.14% 0.00000 89.88)",
+          "oklch(83.57% 0.00000 89.88)",
+          "oklch(95.00% 0.00000 89.88)"
+        ]
+      },
+      "bg": {
+        "role": "neutral",
+        "displayName": "따뜻한 배경",
+        "tonalRamp": [
+          "oklch(15.00% 0.02642 76.78)",
+          "oklch(26.43% 0.02642 76.78)",
+          "oklch(37.86% 0.02642 76.78)",
+          "oklch(49.29% 0.02642 76.78)",
+          "oklch(60.71% 0.02642 76.78)",
+          "oklch(72.14% 0.02642 76.78)",
+          "oklch(83.57% 0.02642 76.78)",
+          "oklch(95.00% 0.02642 76.78)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "크림 종이",
+        "tonalRamp": [
+          "oklch(15.00% 0.01302 82.40)",
+          "oklch(26.43% 0.01302 82.40)",
+          "oklch(37.86% 0.01302 82.40)",
+          "oklch(49.29% 0.01302 82.40)",
+          "oklch(60.71% 0.01302 82.40)",
+          "oklch(72.14% 0.01302 82.40)",
+          "oklch(83.57% 0.01302 82.40)",
+          "oklch(95.00% 0.01302 82.40)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "자주빛 먹색",
+        "tonalRamp": [
+          "oklch(15.00% 0.01860 303.46)",
+          "oklch(26.43% 0.01860 303.46)",
+          "oklch(37.86% 0.01860 303.46)",
+          "oklch(49.29% 0.01860 303.46)",
+          "oklch(60.71% 0.01860 303.46)",
+          "oklch(72.14% 0.01860 303.46)",
+          "oklch(83.57% 0.01860 303.46)",
+          "oklch(95.00% 0.01860 303.46)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "차분한 회색",
+        "tonalRamp": [
+          "oklch(15.00% 0.02281 328.53)",
+          "oklch(26.43% 0.02281 328.53)",
+          "oklch(37.86% 0.02281 328.53)",
+          "oklch(49.29% 0.02281 328.53)",
+          "oklch(60.71% 0.02281 328.53)",
+          "oklch(72.14% 0.02281 328.53)",
+          "oklch(83.57% 0.02281 328.53)",
+          "oklch(95.00% 0.02281 328.53)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "크림 경계",
+        "tonalRamp": [
+          "oklch(15.00% 0.03720 78.08)",
+          "oklch(26.43% 0.03720 78.08)",
+          "oklch(37.86% 0.03720 78.08)",
+          "oklch(49.29% 0.03720 78.08)",
+          "oklch(60.71% 0.03720 78.08)",
+          "oklch(72.14% 0.03720 78.08)",
+          "oklch(83.57% 0.03720 78.08)",
+          "oklch(95.00% 0.03720 78.08)"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "카드 아이보리",
+        "tonalRamp": [
+          "oklch(15.00% 0.00818 91.48)",
+          "oklch(26.43% 0.00818 91.48)",
+          "oklch(37.86% 0.00818 91.48)",
+          "oklch(49.29% 0.00818 91.48)",
+          "oklch(60.71% 0.00818 91.48)",
+          "oklch(72.14% 0.00818 91.48)",
+          "oklch(83.57% 0.00818 91.48)",
+          "oklch(95.00% 0.00818 91.48)"
+        ]
+      },
+      "card-line": {
+        "role": "neutral",
+        "displayName": "카드 경계",
+        "tonalRamp": [
+          "oklch(15.00% 0.03811 79.07)",
+          "oklch(26.43% 0.03811 79.07)",
+          "oklch(37.86% 0.03811 79.07)",
+          "oklch(49.29% 0.03811 79.07)",
+          "oklch(60.71% 0.03811 79.07)",
+          "oklch(72.14% 0.03811 79.07)",
+          "oklch(83.57% 0.03811 79.07)",
+          "oklch(95.00% 0.03811 79.07)"
+        ]
+      },
+      "button-hover": {
+        "role": "neutral",
+        "displayName": "크림 hover",
+        "tonalRamp": [
+          "oklch(15.00% 0.02278 78.21)",
+          "oklch(26.43% 0.02278 78.21)",
+          "oklch(37.86% 0.02278 78.21)",
+          "oklch(49.29% 0.02278 78.21)",
+          "oklch(60.71% 0.02278 78.21)",
+          "oklch(72.14% 0.02278 78.21)",
+          "oklch(83.57% 0.02278 78.21)",
+          "oklch(95.00% 0.02278 78.21)"
+        ]
+      },
+      "tag": {
+        "role": "neutral",
+        "displayName": "상태 태그",
+        "tonalRamp": [
+          "oklch(15.00% 0.02680 74.75)",
+          "oklch(26.43% 0.02680 74.75)",
+          "oklch(37.86% 0.02680 74.75)",
+          "oklch(49.29% 0.02680 74.75)",
+          "oklch(60.71% 0.02680 74.75)",
+          "oklch(72.14% 0.02680 74.75)",
+          "oklch(83.57% 0.02680 74.75)",
+          "oklch(95.00% 0.02680 74.75)"
+        ]
+      },
+      "rose-paper": {
+        "role": "primary",
+        "displayName": "로즈 종이",
+        "tonalRamp": [
+          "oklch(15.00% 0.01557 2.66)",
+          "oklch(26.43% 0.01557 2.66)",
+          "oklch(37.86% 0.01557 2.66)",
+          "oklch(49.29% 0.01557 2.66)",
+          "oklch(60.71% 0.01557 2.66)",
+          "oklch(72.14% 0.01557 2.66)",
+          "oklch(83.57% 0.01557 2.66)",
+          "oklch(95.00% 0.01557 2.66)"
+        ]
+      },
+      "gold-line": {
+        "role": "secondary",
+        "displayName": "오래된 금테",
+        "tonalRamp": [
+          "oklch(15.00% 0.06983 75.95)",
+          "oklch(26.43% 0.06983 75.95)",
+          "oklch(37.86% 0.06983 75.95)",
+          "oklch(49.29% 0.06983 75.95)",
+          "oklch(60.71% 0.06983 75.95)",
+          "oklch(72.14% 0.06983 75.95)",
+          "oklch(83.57% 0.06983 75.95)",
+          "oklch(95.00% 0.06983 75.95)"
+        ]
+      },
+      "ok": {
+        "role": "semantic",
+        "displayName": "성공 녹색",
+        "tonalRamp": [
+          "oklch(15.00% 0.10625 152.20)",
+          "oklch(26.43% 0.10625 152.20)",
+          "oklch(37.86% 0.10625 152.20)",
+          "oklch(49.29% 0.10625 152.20)",
+          "oklch(60.71% 0.10625 152.20)",
+          "oklch(72.14% 0.10625 152.20)",
+          "oklch(83.57% 0.10625 152.20)",
+          "oklch(95.00% 0.10625 152.20)"
+        ]
+      },
+      "warn": {
+        "role": "semantic",
+        "displayName": "주의 황갈색",
+        "tonalRamp": [
+          "oklch(15.00% 0.10890 67.33)",
+          "oklch(26.43% 0.10890 67.33)",
+          "oklch(37.86% 0.10890 67.33)",
+          "oklch(49.29% 0.10890 67.33)",
+          "oklch(60.71% 0.10890 67.33)",
+          "oklch(72.14% 0.10890 67.33)",
+          "oklch(83.57% 0.10890 67.33)",
+          "oklch(95.00% 0.10890 67.33)"
+        ]
+      },
+      "bad": {
+        "role": "semantic",
+        "displayName": "오류 적색",
+        "tonalRamp": [
+          "oklch(15.00% 0.17069 27.98)",
+          "oklch(26.43% 0.17069 27.98)",
+          "oklch(37.86% 0.17069 27.98)",
+          "oklch(49.29% 0.17069 27.98)",
+          "oklch(60.71% 0.17069 27.98)",
+          "oklch(72.14% 0.17069 27.98)",
+          "oklch(83.57% 0.17069 27.98)",
+          "oklch(95.00% 0.17069 27.98)"
+        ]
+      },
+      "info": {
+        "role": "semantic",
+        "displayName": "정보 청색",
+        "tonalRamp": [
+          "oklch(15.00% 0.14350 259.45)",
+          "oklch(26.43% 0.14350 259.45)",
+          "oklch(37.86% 0.14350 259.45)",
+          "oklch(49.29% 0.14350 259.45)",
+          "oklch(60.71% 0.14350 259.45)",
+          "oklch(72.14% 0.14350 259.45)",
+          "oklch(83.57% 0.14350 259.45)",
+          "oklch(95.00% 0.14350 259.45)"
+        ]
+      },
+      "fever": {
+        "role": "semantic",
+        "displayName": "피버 금빛",
+        "tonalRamp": [
+          "oklch(15.00% 0.15372 82.15)",
+          "oklch(26.43% 0.15372 82.15)",
+          "oklch(37.86% 0.15372 82.15)",
+          "oklch(49.29% 0.15372 82.15)",
+          "oklch(60.71% 0.15372 82.15)",
+          "oklch(72.14% 0.15372 82.15)",
+          "oklch(83.57% 0.15372 82.15)",
+          "oklch(95.00% 0.15372 82.15)"
+        ]
+      },
+      "nv-navy": {
+        "role": "neutral",
+        "displayName": "밤 남색",
+        "tonalRamp": [
+          "oklch(15.00% 0.04558 271.58)",
+          "oklch(26.43% 0.04558 271.58)",
+          "oklch(37.86% 0.04558 271.58)",
+          "oklch(49.29% 0.04558 271.58)",
+          "oklch(60.71% 0.04558 271.58)",
+          "oklch(72.14% 0.04558 271.58)",
+          "oklch(83.57% 0.04558 271.58)",
+          "oklch(95.00% 0.04558 271.58)"
+        ]
+      },
+      "nv-gold": {
+        "role": "secondary",
+        "displayName": "라이트노벨 금빛",
+        "tonalRamp": [
+          "oklch(15.00% 0.13798 89.73)",
+          "oklch(26.43% 0.13798 89.73)",
+          "oklch(37.86% 0.13798 89.73)",
+          "oklch(49.29% 0.13798 89.73)",
+          "oklch(60.71% 0.13798 89.73)",
+          "oklch(72.14% 0.13798 89.73)",
+          "oklch(83.57% 0.13798 89.73)",
+          "oklch(95.00% 0.13798 89.73)"
+        ]
+      },
+      "nv-gold-soft": {
+        "role": "secondary",
+        "displayName": "부드러운 금빛",
+        "tonalRamp": [
+          "oklch(15.00% 0.11701 87.43)",
+          "oklch(26.43% 0.11701 87.43)",
+          "oklch(37.86% 0.11701 87.43)",
+          "oklch(49.29% 0.11701 87.43)",
+          "oklch(60.71% 0.11701 87.43)",
+          "oklch(72.14% 0.11701 87.43)",
+          "oklch(83.57% 0.11701 87.43)",
+          "oklch(95.00% 0.11701 87.43)"
+        ]
+      },
+      "nv-ink": {
+        "role": "neutral",
+        "displayName": "밤 대화 잉크",
+        "tonalRamp": [
+          "oklch(15.00% 0.01535 90.24)",
+          "oklch(26.43% 0.01535 90.24)",
+          "oklch(37.86% 0.01535 90.24)",
+          "oklch(49.29% 0.01535 90.24)",
+          "oklch(60.71% 0.01535 90.24)",
+          "oklch(72.14% 0.01535 90.24)",
+          "oklch(83.57% 0.01535 90.24)",
+          "oklch(95.00% 0.01535 90.24)"
+        ]
+      },
+      "nv-glass": {
+        "role": "neutral",
+        "displayName": "밤 유리",
+        "tonalRamp": [
+          "oklch(15.00% 0.03107 274.24)",
+          "oklch(26.43% 0.03107 274.24)",
+          "oklch(37.86% 0.03107 274.24)",
+          "oklch(49.29% 0.03107 274.24)",
+          "oklch(60.71% 0.03107 274.24)",
+          "oklch(72.14% 0.03107 274.24)",
+          "oklch(83.57% 0.03107 274.24)",
+          "oklch(95.00% 0.03107 274.24)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "타이틀",
+        "purpose": "타이틀 대화상자의 제목"
+      },
+      "body": {
+        "displayName": "운영 본문",
+        "purpose": "자원·주문·안내를 빠르게 읽는 글"
+      },
+      "dialogue": {
+        "displayName": "대화 본문",
+        "purpose": "라이트노벨 감정과 이야기를 읽는 명조"
+      }
+    },
+    "shadows": [
+      {
+        "name": "app",
+        "value": "0 8px 40px #37263825",
+        "purpose": "앱 외곽"
+      },
+      {
+        "name": "sheet",
+        "value": "0 -10px 38px #30213826",
+        "purpose": "바텀시트"
+      },
+      {
+        "name": "dialog",
+        "value": "0 12px 45px #24192940",
+        "purpose": "대화상자"
+      },
+      {
+        "name": "novel",
+        "value": "0 10px 40px rgba(0, 0, 0, 0.45)",
+        "purpose": "어두운 대화 유리"
+      }
+    ],
+    "motion": [
+      {
+        "name": "button-state",
+        "value": "background-color .16s ease",
+        "purpose": "버튼 색 전환"
+      },
+      {
+        "name": "novel-ease",
+        "value": "cubic-bezier(.22, 1, .36, 1)",
+        "purpose": "이야기 장면 전환"
+      },
+      {
+        "name": "sheet-enter",
+        "value": "up .18s ease-out",
+        "purpose": "시트 진입"
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation:none!important;transition:none!important",
+        "purpose": "prefers-reduced-motion:reduce에서 적용"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact",
+        "value": "(max-width:359px)"
+      },
+      {
+        "name": "banner-mobile",
+        "value": "(max-width:480px)"
+      },
+      {
+        "name": "wide",
+        "value": "(min-width:700px)"
+      },
+      {
+        "name": "short",
+        "value": "(max-height:700px)"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "영업 시작",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "실제 공통 버튼의 색·조작 크기·상태를 추출했다.",
+      "html": "<button type=\"button\" class=\"ds-primary\">영업 시작</button>",
+      "css": ".ds-primary{font-family:\"Noto Sans KR\",system-ui,\"Malgun Gothic\",sans-serif;font-size:14px;line-height:1.35;min-width:var(--tap,44px);min-height:var(--tap,44px);padding:6px 10px;border:0;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;transition:background-color .16s ease;background:var(--accent,#33446a);color:var(--accent-ink,#ffffff);font-weight:700;box-shadow:none;}.ds-primary:hover:not([aria-disabled=\"true\"]){background-color:#455d83}.ds-primary:focus-visible{outline:3px solid var(--info,#3f74c9);outline-offset:2px}.ds-primary:active{transform:translateY(1px);filter:brightness(.96)}.ds-primary[aria-disabled=\"true\"]{opacity:.55;cursor:default}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
+    },
+    {
+      "name": "인테리어",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "실제 공통 버튼의 색·조작 크기·상태를 추출했다.",
+      "html": "<button type=\"button\" class=\"ds-default\">인테리어</button>",
+      "css": ".ds-default{font-family:\"Noto Sans KR\",system-ui,\"Malgun Gothic\",sans-serif;font-size:14px;line-height:1.35;min-width:var(--tap,44px);min-height:var(--tap,44px);padding:6px 10px;border:0;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;transition:background-color .16s ease;background:var(--paper,#fffaf1);color:var(--ink,#302c36);box-shadow:0 1px 0 var(--line,#d5c5ad),inset 0 0 0 1px var(--line,#d5c5ad);}.ds-default:hover:not([aria-disabled=\"true\"]){background-color:#f0e6d7}.ds-default:focus-visible{outline:3px solid var(--info,#3f74c9);outline-offset:2px}.ds-default:active{transform:translateY(1px);filter:brightness(.96)}.ds-default[aria-disabled=\"true\"]{opacity:.55;cursor:default}@media(prefers-reduced-motion:reduce){.ds-default{transition:none}}"
+    },
+    {
+      "name": "닫기",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "실제 공통 버튼의 색·조작 크기·상태를 추출했다.",
+      "html": "<button type=\"button\" class=\"ds-ghost\">닫기</button>",
+      "css": ".ds-ghost{font-family:\"Noto Sans KR\",system-ui,\"Malgun Gothic\",sans-serif;font-size:14px;line-height:1.35;min-width:var(--tap,44px);min-height:var(--tap,44px);padding:6px 10px;border:0;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;transition:background-color .16s ease;background:transparent;color:var(--ink,#302c36);box-shadow:inset 0 0 0 1px var(--line,#d5c5ad);}.ds-ghost:hover:not([aria-disabled=\"true\"]){background-color:#f0e6d7}.ds-ghost:focus-visible{outline:3px solid var(--info,#3f74c9);outline-offset:2px}.ds-ghost:active{transform:translateY(1px);filter:brightness(.96)}.ds-ghost[aria-disabled=\"true\"]{opacity:.55;cursor:default}@media(prefers-reduced-motion:reduce){.ds-ghost{transition:none}}"
+    },
+    {
+      "name": "시트 카드",
+      "kind": "card",
+      "refersTo": "sheet-card",
+      "description": "시트 내부의 정보 묶음. 행동 없는 카드는 hover 효과를 추가하지 않는다.",
+      "html": "<article class=\"ds-card\"><h3>주문</h3><p>주문한 음식을 만들어 테이블로 가져다주세요.</p></article>",
+      "css": ".ds-card{font-family:\"Noto Sans KR\",system-ui,\"Malgun Gothic\",sans-serif;font-size:14px;line-height:1.55;color:var(--ink,#302c36);background:#fffdf7;border:1px solid #ddcdb4;border-radius:12px;padding:14px;margin:6px 0;box-shadow:inset 0 0 0 1px var(--line,#d5c5ad)}.ds-card h3{font-size:16px;margin:24px 0 10px}.ds-card p{line-height:1.65}"
+    },
+    {
+      "name": "상태 태그",
+      "kind": "chip",
+      "refersTo": "status-tag",
+      "description": "짧은 상태를 읽는 비상호작용 태그.",
+      "html": "<span class=\"ds-tag\">영업 준비</span>",
+      "css": ".ds-tag{font-family:\"Noto Sans KR\",system-ui,\"Malgun Gothic\",sans-serif;display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:999px;font-size:12px;font-weight:700;line-height:1.55;background:#efe2d1;color:var(--ink,#302c36)}"
+    },
+    {
+      "name": "하단 메뉴",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "네 칸 메뉴의 실제 간격과 조작 크기. 그림 파일을 요구하지 않는 텍스트 예시.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"카페 메뉴\"><button type=\"button\">주방</button><button type=\"button\">긴급 배달</button><button type=\"button\">퀘스트</button><button type=\"button\">기타</button></nav>",
+      "css": ".ds-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.ds-nav button{font-family:\"Noto Sans KR\",system-ui,\"Malgun Gothic\",sans-serif;font-size:14px;line-height:1.35;min-width:var(--tap,44px);min-height:var(--tap,44px);padding:6px 10px;border:0;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;transition:background-color .16s ease;font-size:12px;padding:4px 2px;background:var(--paper,#fffaf1);color:var(--ink,#302c36);box-shadow:0 1px 0 var(--line,#d5c5ad),inset 0 0 0 1px var(--line,#d5c5ad)}.ds-nav button:hover{background:#f0e6d7}.ds-nav button:focus-visible{outline:3px solid var(--info,#3f74c9);outline-offset:2px}.ds-nav button:active{transform:translateY(1px);filter:brightness(.96)}@media(prefers-reduced-motion:reduce){.ds-nav button{transition:none}}"
+    },
+    {
+      "name": "사냥 단계 입력",
+      "kind": "input",
+      "refersTo": "stage-range",
+      "description": "기본 브라우저 range와 명시적 label을 사용한다. 범위 숫자는 미리보기용 예시다.",
+      "html": "<label class=\"ds-range-label\">도전할 단계<input class=\"ds-range\" type=\"range\" min=\"1\" max=\"100\" value=\"1\" aria-label=\"사냥 단계\"></label>",
+      "css": ".ds-range-label{font-family:\"Noto Sans KR\",system-ui,\"Malgun Gothic\",sans-serif;font-size:14px;line-height:1.55;color:var(--ink,#302c36);display:block}.ds-range{display:block;width:100%;min-height:44px;accent-color:#33446a}.ds-range:focus-visible{outline:3px solid #2a639e;outline-offset:3px}"
+    },
+    {
+      "name": "라이트노벨 대화",
+      "kind": "custom",
+      "refersTo": "dialogue-box",
+      "description": "어두운 유리와 금테, 명조 본문. 초상화 파일 없이 대화창 표면만 제시한다.",
+      "html": "<div class=\"ds-story\"><div class=\"ds-dialogue\" tabindex=\"0\" aria-label=\"대화\"><p>잠깐 쉬었다 가도 괜찮아.</p></div></div>",
+      "css": ".ds-story{background:var(--nv-navy,#0B1026);padding:24px 12px}.ds-dialogue{position:relative;padding:22px 18px 26px;min-height:104px;border-radius:24px 24px 24px 10px;background:var(--nv-glass,rgba(6,8,22,.86));color:var(--nv-ink,rgba(232,228,217,.92));border:1px solid rgba(233,196,106,.4);box-shadow:0 10px 40px rgba(0,0,0,.45);backdrop-filter:blur(6px);transition:opacity .3s cubic-bezier(.22,1,.36,1);outline:none}.ds-dialogue::before{content:\"\";position:absolute;inset:9px;border-radius:18px 18px 18px 6px;border:1px solid rgba(233,196,106,.16);pointer-events:none}.ds-dialogue p{margin:0;font:500 16px/1.7 \"Noto Serif KR\",\"Nanum Myeongjo\",serif;word-break:keep-all;user-select:text}.ds-dialogue:focus-visible{box-shadow:0 0 0 3px var(--nv-gold-soft,#e9c46a)}@media(prefers-reduced-motion:reduce){.ds-dialogue{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Code Destiny 일러스트 호스트 카페",
+    "overview": "크림빛 카페의 따뜻함에 남색, 로즈, 절제된 금빛을 더한다. 가구와 인물이 주인공인 부드러운 일러스트 세계를 유지하고, 운영 정보는 짧고 선명한 HTML 조작부에 담는다. 소박한 시작과 고급스러운 성장 과정은 같은 세계 안에서 이어진다.\n\n이 문서는 PRODUCT.md와 사용자 확정 방향을 바탕으로 현재 구현을 추출한 기록이다. 기준은 index.html의 styles.css → novel.css → game-ui.css 적용 순서와 src/ui의 실제 요소다. 초기 스타일에 남은 로즈색 accent 대신 마지막 스타일의 남색 accent를 따른다. 브라우저 측정이나 새로운 시각 승인 결과를 주장하지 않는다.",
+    "keyCharacteristics": [
+      "크림 표면, 남색 행동 버튼, 로즈와 금빛의 작은 강조.",
+      "부드러운 일러스트와 투명 치비, 고정된 대화 초상화.",
+      "세로 모바일 운영 화면과 손가락으로 누르기 쉬운 조작부.",
+      "명료한 운영용 산세리프와 감정적인 대화용 명조의 분리."
+    ],
+    "rules": [
+      {
+        "name": "The Operational Contrast Rule",
+        "body": "일러스트 위 문장은 크림 보호 면이나 어두운 대화창 위에 놓아 인물과 글을 함께 읽을 수 있게 한다.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Reading Speeds Rule",
+        "body": "행동을 고르는 UI는 짧게, 감정을 읽는 대화는 명조와 충분한 행간으로 구분한다.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "**Do** 크림·남색·로즈·금빛의 기존 역할을 유지한다.",
+      "**Do** 캐릭터의 원본 모습, 투명 경계와 전체 실루엣을 보존한다.",
+      "**Do** 작은 모바일에서도 손님·가구·주문 상태를 구분하고 44px 조작 영역을 확보한다.",
+      "**Do** UI와 대화의 읽기 속도를 구분하고 감소된 모션 설정을 존중한다."
+    ],
+    "donts": [
+      "**Don't** 일러스트를 도트나 강제 정수 배율 스타일로 되돌린다.",
+      "**Don't** 장식이나 인물 그림이 버튼 이름과 운영 상태를 가리게 한다.",
+      "**Don't** 초기 CSS의 덮어쓴 색을 현재 토큰으로 재도입한다.",
+      "**Don't** 에셋 정렬을 위해 캐릭터 외형이나 실제 게임·결제 정책을 바꾼다."
+    ]
+  }
+}

@@ -10,3 +10,5 @@ Thumbs.db
 /scratch/
 tools/*.local.json
 tools/*.local.html
+.impeccable/review/
+__pycache__/

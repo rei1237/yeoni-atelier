@@ -1,168 +1,46 @@
-# 개발 문서
+# 개발 안내
 
-## 구조
+## 실행·구조
+Node 20+, `npm start`, http://127.0.0.1:5280. 빌드 없는 ES module 게임. `npm test`, `node tools/check-assets.mjs`로 검사한다.
 
-```
-index.html, styles.css        세로형 모바일 화면(320px~), 터치 대상 44px 이상
-src/config/
-  rules.js                    확정 규칙(바꾸지 않음)
-  balance.pdf.js              기획서 v2.0 제안 수치(쪽수 표기)
-  balance.temp.js             이번 프로토타입이 정한 임시값
-src/core/                     프레임 루프·풀(이식), 조이스틱(변형 이식), 시드 난수, 저장
-src/data/                     동료·개발용 임시 동료·배치·대사·메뉴/재료·의상·퀘스트·사냥 무기/적(hunt-kit)·영냥이 장비(gear)·개그 대사(lines)·친밀도 능력(bonds)
-src/story/                    프롤로그(prologue.js)·달 이야기와 결말(months.js)·인연 이야기(bonds.js)
-src/game/                     게임 규칙(순수 JS, DOM 없음)
-  engine.js                   dispatch(명령) / tick(시간 진행)
-  state.js                    createGame, 명단·인물 잠금 도우미, 이벤트
-  shift.js                    영업 시작·마감·정산
-  cafe.js                     손님·주문·조리·서빙·정리·직원 이동
-  nomination.js               지명 요청·수락·60초 잠금·도움 요청·피버
-  satisfaction.js             M/H/상한/판정/팁/피버 적립 공식(순수 함수)
-  auto.js                     자동 운영(플레이어와 같은 명령 사용)
-  economy.js                  구매(모카 식재료점/긴급 배달)·상환·퀘스트·영입·의상
-  hunt.js                     영냥이 월정석 사냥(뱀서식: 자동 공격·레벨업 카드·진화·사건·보스)
-  town.js                     마을: 루나의 저울 환전·무인 장비 좌판·가게 확장(테이블·장식·구역 증축)
-  calendar.js                 달력(순·달)·월 이자·행동력·결말·볼 이야기 순서(달 → 인연)
-  bonds.js                    친밀도: 대화·선물·함께 일하기, 단계가 열리면 능력
-  recipe.js                   조합대(재료 조합 → 레시피 발견 / 영업 중 조리 / 힌트)
-  interior.js, space.js       인테리어 편집, 겹침·입구·경로 검사
-  offline.js                  오프라인 수익 인터페이스(지급 없음)
-src/render/                   에셋 레지스트리, 도형 스프라이트, 카페·사냥 화면
-src/ui/                       DOM 패치(morph), HUD, 시트, 앱 연결, 라이트노벨 대화 화면(novel.js, 게임 상태를 바꾸지 않음)
-tests/                        node:test
-tools/serve.mjs               정적 서버
-```
+| 경로 | 책임 |
+| --- | --- |
+| src/config/rules.js, balance.pdf.js, balance.temp.js | 원래 규칙·PDF 제안·최신 결정 및 조정 수치 |
+| src/core/ | 시계·입력·풀·시드 난수·저장 |
+| src/data/ | 캐릭터·복장·가구·메뉴·농장·적·무기·인연 |
+| src/game/engine.js | dispatch 명령과 tick 라우팅 |
+| cafe.js, nomination.js | 주문·조리·서빙·포장·계산·접대·도움·피버 |
+| cafe-growth.js, reputation.js | 레벨·분위기·인기·손님 구성·가격 |
+| finance.js, payroll.js | 대출·환전·상환·이자·급여 원장 |
+| hunt.js, hunt-growth.js, hunt-rewards.js, moka-armory.js | 전투·영구 성장·생존 보상·개별 강화 |
+| hidden-guest.js, bonds.js | 서한비 히든 조건·선택지 인연 |
+| src/story/ | 프롤로그·월별 합류·5년 진행·인연 이야기 |
+| src/render/ | 에셋 등록·방향별 배우·카페·사냥 캔버스 |
+| src/ui/ | HUD·시트·조리 단계·음악·튜토리얼 |
+| styles.css, game-ui.css, novel.css | 기본 레이아웃·현재 모바일 UI·대화창 |
 
-## 핵심 원칙
+## 상태·명령
+게임 상태는 JSON 객체다. 제품 UI는 dispatch(state, command)로만 게임 상태를 바꾼다. 조리 단계·시트·카메라·배속은 UI 상태다. tick은 100ms 이하로 나누고 숨김·일시정지에서는 진행하지 않는다. 1/2/3배속은 영업에만 적용하며 SOS·직접 조리에 진입하면 1배로 돌아간다.
 
-### 상태와 명령
+hostbar.open은 5월 개장 이야기 완료 후 열린다. neoStress는 도움·접대·정산으로 변하며 기존 네오 능력치를 바꾸지 않는다. outfits는 캐릭터별 소유·장착 상태다. outfit.unlock/outfit.equip는 캐릭터·영입·가격을 검증한다.
 
-- 상태는 JSON 하나다. 저장도 이 객체를 그대로 직렬화한다. 클래스나 순환 참조를 쓰지 않는다.
-- UI는 상태를 직접 바꾸지 않는다. 모든 변경은 `dispatch(state, cmd)` 를 거친다.
-  - 반환값은 `{ ok, reason, reasons, events }` 다.
-  - `reason` 은 버튼 아래에 그대로 보여 줄 수 있는 문장이다.
-  - 예: `2번 테이블 접대 중 · 02:40 남음`
-- 시간은 `tick(state, dtMs)` 만 진행한다.
-  - 내부에서 100ms 단위로 쪼갠다.
-  - `paused`, 영업 전, 정산 화면에서는 아무것도 진행하지 않는다.
-  - 프레임 루프는 숨김·BFCache 상태에서 멈춘다. 복귀하면 시계를 리셋해서 다른 앱에 있던 시간을 시뮬레이션하지 않는다.
+state.people는 접대와 사냥 잠금을 공유한다. 영냥이는 네오의 사냥 모습이다. 서한비는 영입 후 선택 가능하다. 탐사 중 빌드·지속 성장·사냥꾼별 영구 강화는 별개다.
 
-### 인물 잠금
+visit.bill은 계산대에서 650ms 후 한 번만 지급한다. 포장도 결제 경로는 같지만 서버 작업·테이블을 점유하지 않는다. 프리미엄 주문 자격은 생산 자격과 분리한다. 서빙 소품은 실제 task/order/menuId로 선택하고 방향별 트레이에 해당 메뉴 아이콘을 합성한다.
 
-- 네오와 영냥이는 같은 인물 id `neo` 를 쓴다.
-- `state.people.neo = { activity, form, visitId, tableNo, endAt }`
-  - `activity`: `idle` | `hosting` | `hunting`
-  - `form`: `human` | `cat`
-- 접대 중에는 다른 지명과 사냥을 막는다. 사냥 중에는 영업 시작과 지명을 막는다.
+급여는 payroll.months의 shift ID로 중복을 막고 하순 한 번 정산한다. 대출은 request ID, 이자는 월, 사냥은 탐사 ID로 중복 지급을 막는다. 난수는 state.rng를 사용하며 Math.random()은 표현에만 허용한다.
 
-### 1회 지급 장부
+## 저장·호환
+저장 버전 3. 키는 yeoni-atelier.save.v1 / yeoni-atelier.dev-save.v1로 분리한다. 이전 저장에 없는 농장·금융·급여·강화 데이터를 보충하고 기존 잔액·빚은 유지한다. 이어하기는 일시정지로 시작한다. 인테리어 초안은 저장하지 않고 사냥 전장은 복귀 시 새로 구성한다. 오프라인 보상과 사용자 확인 없는 초기화는 없다.
 
-- `state.ledger` 의 `sales`, `tips`, `settlements`, `rewards`, `consumes`, `repay` 는 모두 id 를 키로 쓴다.
-- 저장 후 다시 불러와도 같은 정산이나 보상이 두 번 들어가지 않는다.
+## 이미지·오디오
+manifest.ready만 로드한다. asset-updates.js가 새 그림 경로·규격을 등록하며 누락 시 표시 대체만 쓴다. tools/register-illustrated.mjs는 저장소의 docs/art-prompts.json에서 manifest·ASSETS 표를 재생성한다.
 
-### 무작위
+런타임 배우는 4×4, 셀128px, 방향 앞/왼쪽/오른쪽/뒤, 고정 발 기준. 의상 미리보기는 4×1 셀256px다. 대화 초상화는 정적이다. drawWorkProps는 운반·정리 소품과 메뉴를 합성한다. 세부 규격은 ASSETS 표가 우선한다.
 
-- `state.rng` 에 시드를 저장한다. 저장 후 이어가도 결과가 같다(테스트로 확인).
+오디오는 사용자 입력 후 재생하고 숨김 시 멈춘다. 기본 음악 꺼짐/효과음 켜짐. 공개 OST만 스트리밍하며 다운로드·결제 권한을 처리하지 않는다. 연결 오류가 게임 진행을 막지 않는다.
 
-## 주요 상태 위치
+## 검증
+84개 자동 테스트: 5월 개장·접대·중복 정산·세이브·농장·인연·숨은 영입·100단계·강화·수동/자동·포장 결제·프리미엄 판매·대출·급여·주문 카드 포함. 화면은 DEV fixture로 360/375/390/430/1280px에서 확인했다. tools/sim-year.mjs와 sim-hunt.mjs는 자동 시계 도구이며 실제 사람 플레이로 표현하지 않는다. 실제 모바일 기기 성능과 사람의 5년 운영은 추가 검증 대상이다.
 
-| 상태 | 위치 | 코드 |
-| --- | --- | --- |
-| 영업 경과 시간 | `state.shift.elapsedMs` | [shift.js](../src/game/shift.js) |
-| 지명 60초 | `state.visits[vid].hosting.endAt`, `state.people.neo.endAt` | [nomination.js](../src/game/nomination.js) |
-| 만족도 | `hostingScore()` | [satisfaction.js](../src/game/satisfaction.js) |
-| 피버 | `state.fever = { gauge, activeUntil }` | [nomination.js](../src/game/nomination.js) |
-| 금화·빚 | `state.gold`, `state.debt`, `state.ledger` | [economy.js](../src/game/economy.js) |
-| 명단·영입 | `state.roster`, `state.recruitment` | [state.js](../src/game/state.js), [economy.js](../src/game/economy.js) |
-| 사냥 | `state.hunt` (레벨·경험치·무기·보조 능력·대기 중인 레벨업 카드 `picks` 포함) | [hunt.js](../src/game/hunt.js) |
-| 레시피 | `state.learned` (조합대 발견도 여기에 기록) | [recipe.js](../src/game/recipe.js) |
-| 월정석·장비 | `state.moonstone`, `state.gear = { owned, equipped: { weapon, armor, charm } }` | [town.js](../src/game/town.js) |
-| 달력·결말 | `state.day`(순 번호), `state.calendar = { ended, endingId, endedDebt }`, `state.ledger.interest`, `state.ledger.story` | [calendar.js](../src/game/calendar.js) |
-| 행동력 | `state.ap = { left, talked, gifted, shopped }` (결산을 닫으면 다시 채움) | [calendar.js](../src/game/calendar.js) |
-| 친밀도 | `state.affinity` (능력은 저장하지 않고 `bondFx(affinity)` 로 계산) | [bonds.js](../src/game/bonds.js), [data/bonds.js](../src/data/bonds.js) |
-| 주방 자동 | `state.autoKitchen` (기본 켬: 조리·서빙·정리) / `state.auto` (전체 자동) | [auto.js](../src/game/auto.js) |
-
-사냥 전장(적·탄 위치)은 WeakMap 에만 두고 저장하지 않는다.
-
-- `hunt.pick {index}`: 레벨업 카드 고르기. 고를 카드가 남아 있는 동안 사냥 시간이 흐르지 않는다.
-- `moonstone.exchange {qty}`, `gear.buy {id}`, `expand.table`, `expand.decor {defId}`, `expand.area {id}`: 마을 명령. 영업 준비 중에만.
-- `bond.talk {id}`, `bond.gift {id, giftId}`: 친밀도. 영업 준비 중에만, 대화는 행동력 1, 둘 다 순마다 동료 한 명에 한 번.
-- `story.seen {id}`: 달 이야기·인연 이야기·결말을 본 기록(`m<달>`, `bond:<동료>:<단계>`, `ending:<id>`). 화면은 `pendingStory()` 가 고른 것만 튼다.
-- `gear.equip {slot, id|null}`: 사냥 중에는 못 바꾼다(출발할 때 효과를 고정).
-- `kitchen.toggle {on?}`: 주방 자동 켜기/끄기. 일시정지 중에도 쓸 수 있다.
-- `shop.buy {ingredientId, qty}`: 영업 준비 중엔 재료값만, 영업 중엔 긴급 배달비가 붙는다.
-- `recipe.try {ingredients}`: 영업 전·영업 중에만. 발견은 재료를 쓰지 않고, 영업 중 아는 조합은 `cook` 과 같은 규칙으로 조리한다.
-- 조합대에서 고른 재료 목록은 화면 상태(`ui.combo`)일 뿐이고 저장하지 않는다.
-
-## 저장
-
-- 일반 저장 키: `yeoni-atelier.save.v1`
-- 개발 저장 키: `yeoni-atelier.dev-save.v1`
-- 다른 게임의 키(`kfp.*` 등)는 읽지도 쓰지도 않는다.
-- 자동 저장
-  - 영업 중 활성 5초마다
-  - 주요 명령 뒤
-  - 탭을 숨길 때
-- 불러오기
-  - 영업이나 사냥 중 저장은 **일시정지 상태로** 복원한다.
-  - 지원하지 않는 버전이나 손상된 저장은 거절한다.
-- 초기화는 `resetSave(storage, key, { confirmed: true })` 일 때만 실행한다.
-  - UI에서는 확인 화면을 거친다.
-
-## 개발 모드 (`?dev=1`)
-
-- 별도 저장 키를 쓴다.
-- 배속은 저장하지 않는다. 정규 시간 규칙(600초·60초)은 그대로이고, 시뮬레이션 진행 속도만 빨라진다.
-- `+60초 진행` 버튼이 있다.
-- 개발용 임시 동료 `dev_temp_01` 로 영입 흐름을 검증한다.
-  - 정식 멤버가 아니다.
-  - 일반 게임에는 나타나지 않는다.
-- `window.__yeoni` 로 상태를 읽을 수 있다(디버그 전용).
-
-## 영입 흐름
-
-1. 잠금
-2. 조건 충족: 임시 조건은 정규 영업 2회 + 첫 상환
-3. 만남 이벤트(영업 전에만)
-4. 보상 1회 지급
-5. 명단 추가(`usableFrom = 다음 영업`)
-6. 다음 영업부터 지명 제안 가능
-7. 저장 유지
-
-정식 등장 동료 데이터는 [companions.js](../src/data/companions.js)의 `RECRUITABLE`에 있다. 윤달·모카·서한비·무성·솔브·밤비·루네·레이븐은 월별 만남 및 후속 이야기를 가지며, 사용자 요청으로 창작한 임시 프로필과 능력치는 WORLD.md에 구분했다.
-
-## 테스트
-
-```bash
-npm test
-```
-
-결과: 72개 통과·0개 실패. 2026-10-25에 `npm test`로 실행했다. 최신 검증 기록은 QA.md 참조.
-
-- `[자동 시계]` 가 붙은 테스트는 엔진 `tick` 으로 10분 영업이나 3분 사냥을 수 초 안에 진행한 것이다.
-- **실제 사용자의 10분 플레이테스트가 아니다.** 사람이 10분 동안 직접 플레이하는 테스트는 아직 하지 않았다.
-
-시작 가게는 2인 테이블 세트 5개다. 6번째부터 2,500G로 시작해 구매가가 증가한다(임시). 기존 저장의 가구·구매 내역은 유지한다.
-
-## 모바일 개편 상태 (2026-10-25)
-
-저장 버전 2. `hostbar.open/openedDay`, `huntUnlocked`, `neoStress`를 저장한다. `story.seen`은 현재 pendingStory만 기록하며 중복은 무지급 성공으로 처리한다. 순서는 달 → ev:hunt → 인연이다. 5월 개시 정장은 `outfit:host_first` 원장으로 1회 지급한다. 기존 v1의 5월 이후 저장은 개시, 첫 순 이후나 사냥 이력이 있으면 사냥을 해금한다. 진행 중 v1 영업은 durationMs=1800000/nominationMs=300000을 보존하고 다음 영업부터 600000/60000을 쓴다.
-
-## 농장 명령
-state.farm: xp, seed, greenhouse, lastAdvancedDay, harvests, plots. 작물 인스턴스 id로 `ledger.rewards['farm:<id>']`에 수확 재료/수량/XP를 기록한다. 오래된 저장은 빈 4밭을 추가하며 이전 날짜 성장·보상을 소급하지 않는다.
-`farm.plant {cropId,index}`, `farm.water {index}`, `farm.tend {index}`, `farm.careAll`, `farm.harvest {index,cropInstanceId}`, `farm.expand`, `farm.greenhouse` — 전부 준비 중에만 dispatch. 수확은 stock과 learned를 갱신하므로 실제 조리에 사용된다. `advanceFarm`은 결산 후 달력 진행에서 한 번 호출한다.
-
-
-## 영냥이 영구 성장
-`state.hunter {xp,kills}`는 사냥 사이에 유지한다. `hunt.careerLevel/depth/scale`는 출발 스냅샷, `careerXP`는 처치로 쌓인 이번 사냥 보상. `hunt.finish`의 기존 hunt:<id> 원장 안에서 경험치·처치 수·월정석을 한 번에 지급한다. 옛 저장에 누적 성장은 0으로 추가하고 과거 보상은 소급하지 않는다. `hunt.start {depth}`는 해금 깊이와 정수를 검증한 뒤 AP를 쓴다. 사냥 내 무기 레벨은 기존처럼 매번 초기화한다.
-
-## 편한 수동 (2026-10-25 사용자 선택)
-새 게임 autoKitchen=false. 주문 말풍선 또는 주문 카드 한 번으로 조리 예약, 완성 트레이 한 번으로 맞는 테이블에 운반 요청. 루나 이동·마감 정리는 보조하며 자동 조리·서빙과 전체 자동은 별도 선택이다. 기존 저장의 autoKitchen 선택은 유지한다. `order.quick {orderId}`는 영업 중 대기 주문만 받고 반복 탭으로 동일 주문의 조리 예약을 중복하지 않는다.
-
-## 의상·대화·그림
-`outfit.unlock {id}`는 준비 중에만 정해진 월정석 가격을 지불하고 보유 목록에 1회 추가한다. `outfit.equip`는 소유·인물·슬롯을 확인한다. 이야기 의상은 story.seen의 기존 원장과 grantEventOutfits로 지급한다. 외형 전용이며 네오 능력·만족도 공식·스트레스에 영향 없음.
-말하기 초상화는 4열(입 닫음/눈감음/작게 열기/크게 열기) × 표정 행이다. 110ms 입 움직임, 2–5초 깜빡임, 문장 부호 정지, reduced-motion 지원. 기존 가로형 초상화는 manifest.legacyPortraits로 읽을 수 있다.
-HTML과 Canvas는 manifest.ready에서 로드 성공한 파일만 사용한다. 시트·소설은 초점을 가두고 닫으면 열었던 버튼에 복귀한다. 변신·숫자 카운트·대사 연출은 엔진 상태를 변경하지 않는다.
-
-## 일러스트 전환
-런타임은 WebP를 읽는다. 배우 시트는 4열 × 방향별 3행(idle/walk/action), 방향 down/left/right/up. 상태별 행은 stateRows로 정의하며 cook/serve/host/react/attack/hurt는 인물의 대표 행동을 재사용한다. 초상화는 192px 셀, 기존 입/눈 프레임 계약을 유지한다. Canvas 고품질 보간과 CSS image-rendering:auto를 사용하며 작은 셀에도 실제 요청 크기로 축소한다. 원본·시트 정렬·품질 기록은 ASSETS.md와 art-prompts.json 참조.
+카페 대기 인물은 발 위치를 고정한 호흡·기울임을 인물별 위상으로 재생한다. 보행·대화 초상화에는 추가하지 않고 prefers-reduced-motion/일시정지/배치 편집에서는 끈다. tools/check-sprites.py는 개발 검증용 Pillow12.3.0·NumPy2.3.5로 80시트868프레임의 경계·알파를 검사하며 게임 실행 의존성은 아니다.
