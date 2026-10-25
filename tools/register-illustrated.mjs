@@ -16,4 +16,3 @@ doc+='\n\n## 2026-10-26 검증 가능한 실제 출고 규격\n\n새 일러스�
 for(const id of m.ready){const[g,k]=id.split('/'),d=ASSETS[g]?.[k];if(!d)continue;const z=d.dimensions||(d.kind==='actor'?[d.frame.w*d.columns,d.frame.h*d.directionRows*d.directions.length]:d.kind==='portrait'?[4*d.px,d.px*d.expressions.length]:d.kind==='object'?[128*d.size.w,128*d.size.h]:d.kind==='tile'?[ART.TILE,ART.TILE]:[d.px,d.px]);doc+=`| ${id} | ${d.path} | ${z.join('×')} | 완료 |\n`;}
 fs.writeFileSync('docs/ASSETS.md',doc+cropNotes);
 console.log(`Registered ${m.ready.length} asset keys`);
-
