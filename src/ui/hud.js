@@ -4,7 +4,8 @@ import {waitingSatisfaction} from '../game/reputation.js';
 import {popularity} from '../game/reputation.js';
 import {cafeProgress,cafeStyle,atmosphere} from '../game/cafe-growth.js';
 import { SUPPLIES } from '../game/moka-armory.js';
-import { stressLabel, stressStage } from '../game/stress.js';
+import { stressLabel, stressStage, stressOf } from '../game/stress.js';
+import { automationOn } from '../game/permissions.js';
 import { assetIcon } from './asset-html.js';
 // 상단 바·하단 패널·테이블 말풍선·테이블 터치 영역의 HTML. 상태를 읽기만 한다.
 // 모든 표시는 글자 + 아이콘 + 시간으로 쓴다(색만으로 구분하지 않는다).
@@ -33,7 +34,7 @@ const won = n => n === 100_000_000 ? '1억 골드' : `${Math.floor(n).toLocaleSt
 export function topbarHtml(state, ui) {
   const dev = ui.dev ? '<span class="tag dev">DEV</span>' : '';
   if (!state) return `<div class="tb-col"><span class="clock">연이의 아틀리에</span></div>${dev}`;
-  const stress = state.hostbar.open ? `<span class="stress-chip ${stressStage(state)}" aria-label="네오 스트레스 ${state.neoStress}/100">${assetIcon(`ui/stress-${stressStage(state)}`)}네오 · ${stressLabel(state)}<meter min="0" max="100" value="${state.neoStress}">${state.neoStress}</meter></span>` : '';
+  const stress = state.hostbar.open ? `<span class="stress-chip ${stressStage(state)}" aria-label="네오 스트레스 ${Math.round(stressOf(state))}/100">${assetIcon(`ui/stress-${stressStage(state)}`)}네오 · ${stressLabel(state)}<meter min="0" max="100" value="${stressOf(state)}">${Math.round(stressOf(state))}</meter></span>` : '';
   const cp=cafeProgress(state);
   const gold = `<div class="cafe-scores"><span class="level-badge" aria-label="카페 레벨 ${cp.level}"><b>Lv.${cp.level}</b><progress max="${cp.next}" value="${cp.xp}" aria-label="다음 카페 레벨 경험치">${cp.xp}/${cp.next}</progress></span><span class="reputation-score" title="주문을 빨리 챙기고 만족스럽게 응대하면 올라요"><small>평판</small><b>${Math.round(popularity(state))}<em>/100</em></b></span><span class="atmosphere-score"><small>분위기</small><b>${atmosphere(state)}</b></span></div><span class="gold" aria-label="골드">🪙 <span data-count-to="${Math.floor(state.gold)}" data-count-suffix="G">${won(state.gold)}</span></span>`;
   if (state.mode === 'shift') {
@@ -42,7 +43,7 @@ export function topbarHtml(state, ui) {
     if (state.paused) st.push('⏸ 일시정지');
     if (state.fever.activeUntil != null) st.push(`🔥 피버 ${fmtTime(state.fever.activeUntil - sh.elapsedMs)}`);
     if (state.auto) st.push('🤖 자동 운영');
-    else if (state.autoKitchen) st.push('🍳 주방 자동');
+    else { if (automationOn(state, 'hall')) st.push('🐰 홀 자동'); if (automationOn(state, 'kitchen')) st.push('🍳 주방 자동'); }
     if (state.hostbar.open && sh.elapsedMs > lastAcceptAt(state)) st.push('지명 수락 마감');
     if (!st.length) st.push('영업 중');
     if (ui.dev && ui.speed !== 1) st.push(`×${ui.speed}`);
@@ -131,8 +132,6 @@ function shiftPanel(state, ui) {
   const flabel = active ? `🔥 피버 ${fmtTime(fv.activeUntil - state.shift.elapsedMs)}` : fv.gauge >= RULES.FEVER_GAUGE_MAX ? '🔥 피버!' : `피버 ${fv.gauge}/100`;
   const fever = btn({ action: 'fever.activate', cls: fcls, disabled: !chk.ok, title: chk.ok ? '피버 발동 (20초, 대상 팁 2배)' : chk.reason,
     label: `<span>${flabel}</span><span class="gauge" aria-hidden="true"><i style="width:${active ? 100 : fv.gauge}%"></i></span>` });
-  const kitchen = btn({ action: 'kitchen.toggle', cls: `autobtn${state.autoKitchen ? ' on' : ''}`, title: '주방 자동(루나 언니 굽기·루나 서빙) 켜기/끄기', label: `<span>🍳 주방</span><span>${state.autoKitchen ? '자동' : '수동'}</span>` });
-  const auto = btn({ action: 'auto.toggle', cls: `autobtn${state.auto ? ' on' : ''}`, title: state.hostbar.open ? '전체 자동(지명 수락·도움 응답·피버까지) 켜기/끄기' : '조리·서빙·정리를 자동으로 돕기', label: `<span>🤖 전체</span><span>${state.auto ? '켜짐' : '꺼짐'}</span>` });
 
   return `${customerOrders(state)}<div class="tray" role="group" aria-label="완성 트레이 3칸">${slots || '<p class="tray-guide">완성 서빙대 · 주문 메뉴를 눌러 조리해 주세요.</p>'}</div>
     ${held.length ? `<div class="small warn">${esc(held.join(' / '))}</div>` : ''}${hint}

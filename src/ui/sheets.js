@@ -5,8 +5,10 @@ import {creditView,exchangeRate} from '../game/finance.js';
 import {menuPrice,cafeProgress} from '../game/cafe-growth.js';
 import {payrollView} from '../game/payroll.js';
 import { armorySheet, supplyShop } from './armory.js';
-import { bondChoiceSheet } from './bond-choice.js';
 import { tutorialSheet } from './tutorials.js';
+import { automationStatus } from '../game/auto.js';
+import { ABILITIES } from '../game/permissions.js';
+import { stressCrew, stressOf, stressStage, stressLabel, isResting } from '../game/stress.js';
 import { audioSheet,audioQuickButton } from './audio.js';
 import { HELP_SCENES } from '../data/help.js';
 import { farmSheet } from './farm.js';
@@ -67,7 +69,6 @@ function sheetBody(state, ui) {
     case 'farm': return farmSheet(state, ui);
     case 'hunt': return huntPrepSheet(state,ui);
     case 'armory': return armorySheet(state,ui);
-    case 'bond-choice': return bondChoiceSheet(state,s.id);
     case 'tutorial': return tutorialSheet(ui);
     case 'audio': return audioSheet();
     default: return '';
@@ -238,7 +239,7 @@ function kitchenSheet(state, ui) {
       ${state.mode !== 'shift' ? '' : btn({ action: 'cook', args: { menu: id }, cls: waitingBy[id] ? 'primary' : '', disabled: !sc.ok, title: sc.ok ? `${m.name} 만들기` : sc.reason, label: '만들기' })}</div>`;
   }).join('');
   const found = MENU_ORDER.filter(id => state.learned[id]).length;
-  const autoLine = `<div class="row"><span class="grow small">${state.autoKitchen ? '🍳 주방 자동 · 루나 언니가 굽고 루나와 네오가 서빙해요' : '✋ 주방 수동 · 직접 만들고 트레이로 서빙해요'}</span>${btn({ action: 'kitchen.toggle', cls: state.autoKitchen ? 'on' : '', label: state.autoKitchen ? '자동 켜짐' : '자동 꺼짐' })}</div>`;
+  const autoLine = automationRow(state, 'hall') + automationRow(state, 'kitchen');
   if (state.mode !== 'shift') return `${head('주방 · 루나 언니')}<p class="small">카페 Lv.${cafeProgress(state).level} · 레벨에 맞춰 메뉴 판매가가 올라가요.</p>${serviceBanner('kitchen','LUNA’S KITCHEN','따끈한 한 잔, 한 접시','재료를 고르면 제가 맛있게 준비할게요.')}${autoLine}${comboBench(state, ui)}<h3>레시피 노트 ${found}/${MENU_ORDER.length}</h3><div class="list">${menus}</div>`;
   return `${head('주방 · 루나 언니')}<p class="small">카페 Lv.${cafeProgress(state).level} · 레벨에 맞춰 메뉴 판매가가 올라가요.</p>${serviceBanner('kitchen','LUNA’S KITCHEN','따끈한 한 잔, 한 접시','포장 주문은 더 빠르게 준비해요.')}${autoLine}${comboBench(state, ui)}${stations}<h3>레시피 노트 ${found}/${MENU_ORDER.length} (재료는 조리 시작 때 사용)</h3><div class="list">${menus}</div>`;
 }
@@ -298,7 +299,7 @@ function townSheet(state, tab = 'atelier') {
 function placeBody(state, id) {
   switch (id) {
     case 'moka': return mokaShop(state);
-    case 'luna': return '<p>루나 자매와 쉬어 가세요. 월정석 환전과 빚 상환은 청토끼 금융 센터에서 도와줘요.</p>';
+    case 'luna': return lunaShelter(state);
     case 'finance': return financeCenter(state);
     case 'gear': return gearStall(state);
     case 'expand': return expandShop(state);
@@ -429,13 +430,40 @@ function debtSheet(state) {
 
 // ── 동료
 const companionPortrait = id => `<canvas class="companion-portrait" data-talking-portrait="${esc(id)}" width="192" height="192" aria-hidden="true"></canvas>`;
+// 루나의 쉼터: 골드로 한 사람씩 쉬게 한다(마을 행동력 안 씀, 순마다 한 사람 한 번). 판정은 엔진 stress.shelter.
+function lunaShelter(state) {
+  const rows = stressCrew(state).map(id => {
+    const v = Math.round(stressOf(state, id)), used = !!state.ap.sheltered?.[id];
+    const why = used ? '이번 순에 이미 쉬었어요' : v <= 0 ? '지금 충분히 편안해요' : state.gold < TEMP.SHELTER_COST ? `골드가 모자라요 (${won(TEMP.SHELTER_COST)})` : '';
+    return `<div class="item">${companionPortrait(id)}<div class="meta grow"><b>${esc(personName(state, id))}</b><span class="stress-line ${stressStage(state, id)}">스트레스 <meter min="0" max="100" value="${v}">${v}</meter> ${v}/100</span></div>${btn({ action: 'stress.shelter', args: { id }, cls: why ? '' : 'primary', disabled: !!why, title: why || `${won(TEMP.SHELTER_COST)} · 스트레스 ${Math.abs(TEMP.NEO_STRESS.shelter)} 회복`, label: used ? '쉬었어요' : `쉬게 하기 · ${won(TEMP.SHELTER_COST)}` })}</div>`;
+  }).join('');
+  return `<p>루나 자매가 차를 내리고 담요를 덮어 줘요. 지친 동료를 쉬게 하면 스트레스가 ${Math.abs(TEMP.NEO_STRESS.shelter)} 줄어요. 마을 행동력은 쓰지 않아요.</p><div class="list">${rows}</div><p class="small muted">월정석 환전과 빚 상환은 청토끼 금융 센터에서 도와줘요.</p>`;
+}
+
+// 인연으로 여는 자동화 한 줄: 잠겼으면 무엇을 해야 열리는지, 열렸으면 켜기/끄기와 멈춘 사유
+export function automationRow(state, ability) {
+  const st = automationStatus(state, ability), a = ABILITIES[ability];
+  const state_ = st.locked ? '🔒 잠김' : st.on ? (st.running ? '켜짐' : '멈춤') : '꺼짐';
+  const control = st.locked ? '<span class="small muted">🔒</span>'
+    : btn({ action: 'automation.toggle', args: { ability }, cls: st.on ? 'on' : '', title: st.on ? '끄고 직접 하기' : '켜기', label: st.on ? '자동 켜짐' : '자동 꺼짐' });
+  return `<div class="row automation-row${st.locked ? ' locked' : ''}"><span class="grow small"><b>${esc(a.label)}</b> · ${state_}${st.reason && !(st.on && st.running && st.reason === '돌아가는 중') ? ` · ${esc(st.reason)}` : ''}</span>${control}</div>`;
+}
+
+// 직원 한 명의 스트레스 막대와 다음 영업 휴무(준비 중에만)
+function stressLine(state, id) {
+  if (!stressCrew(state).includes(id)) return '';
+  const v = Math.round(stressOf(state, id)), stage = stressStage(state, id);
+  const off = state.mode === 'prep' ? btn({ action: 'staff.dayOff', args: { id }, cls: state.dayOff?.[id] ? 'on' : '', title: '다음 영업 하루 쉬게 하기 · 결산 때 크게 회복', label: state.dayOff?.[id] ? '휴무 예정' : '휴무 주기' }) : '';
+  return `<span class="stress-line ${stage}">스트레스 <meter min="0" max="100" value="${v}">${v}</meter> ${v}/100 · ${esc(isResting(state, id) ? '쉬는 중' : stressLabel(state, id))}</span>${off}`;
+}
+
 function companionSheet(state) {
   const neoStats = STAT_KEYS.map(k => `${STAT_LABELS[k]} ${PEOPLE.neo.stats[k]}`).join(' · ');
   const neoStatus = personBusyReason(state, 'neo') || (state.mode === 'shift' ? staffStatusText(state, 'neo') : state.people.neo.activity === 'hunting' ? '영냥이 모습으로 월정석 사냥 중' : '대기');
   const rows = [
     `<div class="item">${companionPortrait('yeoni')}<div class="meta grow"><b>연이 · 사장</b><span>계산·농장 담당 · 동료들과 함께 가게를 꾸려요${state.mode === 'shift' ? ` · ${esc(staffStatusText(state, 'yeoni'))}` : ''}</span></div></div>`,
-    `<div class="item">${companionPortrait('neo')}<div class="meta grow"><b>네오 · ${state.hostbar.open ? '대화 담당' : '손님맞이 담당'}</b>${state.hostbar.open ? `<span>${neoStats}</span>` : ''}<span>${esc(PEOPLE.neo.profile)}</span><span>${esc(PEOPLE.neo.specialty)}</span><span>상태: ${esc(neoStatus)} · 고양이 모습일 때 이름은 영냥이(같은 사람)</span></div></div>`,
-    ...STAFF_CREW.map(id => `<div class="item">${companionPortrait(id)}<div class="meta grow"><b>${PEOPLE[id].name} · ${PEOPLE[id].work === 'baker' ? '굽기 담당' : '서빙·정리 담당'}</b><span>빚을 갚을 때까지 처음부터 일을 돕는다${state.mode === 'shift' ? ` · ${esc(staffStatusText(state, id))}` : ''}</span></div></div>`),
+    `<div class="item">${companionPortrait('neo')}<div class="meta grow"><b>네오 · ${state.hostbar.open ? '대화 담당' : '손님맞이 담당'}</b>${state.hostbar.open ? `<span>${neoStats}</span>` : ''}<span>${esc(PEOPLE.neo.profile)}</span><span>${esc(PEOPLE.neo.specialty)}</span><span>상태: ${esc(neoStatus)} · 고양이 모습일 때 이름은 영냥이(같은 사람)</span>${stressLine(state, 'neo')}</div></div>`,
+    ...STAFF_CREW.map(id => `<div class="item">${companionPortrait(id)}<div class="meta grow"><b>${PEOPLE[id].name} · ${PEOPLE[id].work === 'baker' ? '굽기 담당' : '서빙·정리 담당'}</b><span>빚을 갚을 때까지 처음부터 일을 돕는다${state.mode === 'shift' ? ` · ${esc(staffStatusText(state, id))}` : ''}</span>${stressLine(state, id)}</div></div>`),
   ];
   for (const r of recruitView(state)) {
     const def = personDef(state, r.id);

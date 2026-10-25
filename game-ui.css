@@ -61,3 +61,7 @@ button[aria-disabled="true"]{opacity:.55;cursor:default}
 .service-banner>div{background:linear-gradient(90deg,rgba(255,250,239,.97),rgba(255,250,239,.88) 85%,rgba(255,250,239,0));min-height:210px}.service-banner p{color:#44384b}.farm-scene canvas{display:none}
 
 .lv-icon{width:76px;height:76px;flex:0 0 76px;background:transparent}.lv-body{flex:1}.lv-card{justify-content:flex-start}.nav .pixel-icon{width:22px;height:22px;object-fit:contain;vertical-align:middle;margin-right:5px}
+
+/* 인연 자동화 줄·직원 스트레스(Phase 3) */
+.automation-row{gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed rgba(120,90,60,.25)}.automation-row.locked{opacity:.78}.automation-row .small b{color:#5a3b2a}
+.stress-line{display:flex;align-items:center;gap:6px;font-size:12px;color:#5b4a3f;flex-wrap:wrap}.stress-line meter{width:84px;height:8px}.stress-line.tired{color:#74450b}.stress-line.limit{color:#9b263c}

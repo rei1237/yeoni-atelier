@@ -1,4 +1,5 @@
 import { bondQuestion } from '../data/bond-dialogues.js';
+import { talkCheck } from '../game/bonds.js';
 import {CAFE_LINES,selectLine} from '../data/cafe-dialogue.js';
 import {newCraft,mixCraft,craftHeat,craftQuality,craftShortage,deliverable} from './crafting.js';
 import {findRecipe} from '../game/recipe.js';
@@ -31,6 +32,7 @@ import { sheetHtml, overlayHtml } from './sheets.js';
 import { drawDressroom, drawInlinePortraits } from './dressroom.js';
 import { outfitLine } from '../data/outfit-lines.js';
 import { stressStage } from '../game/stress.js';
+import { automationOn, ABILITIES } from '../game/permissions.js';
 import { drawFarm } from './farm.js';
 import { drawNumbers } from './number-motion.js';
 import { installDialogFocus } from './dialog-focus.js';
@@ -208,7 +210,7 @@ const ACTIONS = {
   'combo.clear': () => { ui.combo = []; },
   'combo.mix': () => {
     const known=findRecipe(ui.combo);
-    if(state.mode==='shift'&&!state.autoKitchen&&!state.auto&&known&&state.learned[known]){ui.combo=[];beginCraft(known);return;}
+    if(state.mode==='shift'&&!automationOn(state,'kitchen')&&known&&state.learned[known]){ui.combo=[];beginCraft(known);return;}
     const r = run({ type: 'recipe.try', ingredients: ui.combo.slice() });
     if (!r.ok) return;
     if (r.match === false) { shake(document.getElementById('combo-bench')); return; }
@@ -299,15 +301,30 @@ const ACTIONS = {
   'gear.equip': d => run({ type: 'gear.equip', slot: d.slot, id: d.id || null }),
   'expand.decor': d => run({ type: 'expand.decor', defId: d.def }),
   'expand.area': d => run({ type: 'expand.area', id: d.id }),
-  'kitchen.toggle': () => { const r = run({ type: 'kitchen.toggle' }); if (r.ok) toast(r.autoKitchen ? '🍳 주방 자동 켬 · 루나 언니가 굽고 루나가 서빙해요' : '편한 수동 · 주문을 눌러 조리하고 완성된 음식을 눌러 서빙해요'); },
-  'auto.toggle': () => { const r = run({ type: 'auto.toggle' }); if (r.ok) toast(r.auto ? '🤖 자동 운영 켬 (플레이어와 같은 명령만 사용)' : '자동 운영 끔'); },
+  // 자동화는 인연으로 열린 것만 켜진다(엔진이 거절하면 사유 토스트). 전체 자동은 플레이어 화면에 없다(시뮬 전용).
+  'automation.toggle': d => { const r = run({ type: 'automation.toggle', ability: d.ability }); if (r.ok) toast(r.on ? `${ABILITIES[r.ability].label} 켬` : `${ABILITIES[r.ability].label} 끔 · 직접 할게요`, r.on ? 'good' : ''); },
+  'staff.dayOff': d => { const r = run({ type: 'staff.dayOff', id: d.id }); if (r.ok) toast(r.on ? `${personName(state, r.id)}은(는) 다음 영업에 쉬어요 · 결산 때 크게 회복` : `${personName(state, r.id)} 휴무 취소`); },
+  'stress.shelter': d => run({ type: 'stress.shelter', id: d.id }),
 };
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
   'hunt.retreat', 'hunt.finish', 'expand.table']) ACTIONS[t] = () => run({ type: t });
 ACTIONS['hunt.pick'] = d => run({ type: 'hunt.pick', index: n(d.index) });
 ACTIONS['yun.quest']=()=>run({type:'yun.quest'});
-ACTIONS['bond.talk'] = d => {const q=bondQuestion(state,d.id);if(!q)return;ui.sheet=null;playNovel([{chapter:[BONDS[d.id].name+' · '+q.phase,q.title],bg:'atelier_dark',l:'yeoni:normal',c:d.id+':normal',r:null},{s:'nar',t:q.intro},{s:d.id,t:q.question}],{onEnd:()=>{ui.sheet={kind:'bond-choice',id:d.id};render(true);}});};
-ACTIONS['bond.answer'] = d => {const r=run({type:'bond.talk',id:d.id,choiceId:d.choice,token:d.token});if(!r.ok)return;ui.sheet=null;playNovel([{bg:'atelier_lit',l:'yeoni:smile',c:d.id+':smile',r:null,s:d.id,t:r.line},{s:'sys',t:'인연 +'+r.gain+' · 오늘의 대화가 마음에 남았습니다.'}],{onEnd:()=>{ui.sheet={kind:'companions'};render(true);}});};
+ACTIONS['farm.delegate']=()=>run({type:'farm.delegate'});
+// 인연 대화: 질문 장면 안에서 바로 답을 고른다(별도 선택 창 없음). 답을 고르기 전에 닫으면 행동력을 쓰지 않는다.
+ACTIONS['bond.talk'] = d => {
+  const chk=talkCheck(state,d.id);if(!chk.ok){toast(chk.reason,'bad');return;}
+  const q=bondQuestion(state,d.id);if(!q)return;
+  const back=ui.sheet,name=BONDS[d.id].name;ui.sheet=null;render(true);
+  const reopen=()=>{ui.sheet=back||{kind:'companions'};render(true);};
+  playNovel([{chapter:[name+' · '+q.phase,q.title],bg:'atelier_dark',l:'yeoni:normal',c:d.id+':normal',r:null},{s:'nar',t:q.intro},
+    {s:d.id,t:q.question,choices:q.answers.map(x=>({id:x.id,text:x.text})),guide:!state.tutorials?.bondtalk}],{
+    onGuideSeen:()=>run({type:'tutorial.seen',id:'bondtalk'},{keepQuiet:true}),
+    onChoose:choiceId=>{const r=run({type:'bond.talk',id:d.id,choiceId,token:q.token},{keepQuiet:true});if(!r.ok)return r;
+      return {ok:true,beats:[{bg:'atelier_lit',l:'yeoni:smile',c:d.id+':smile',s:d.id,t:r.line},{s:'sys',t:'인연 +'+r.gain+' · 오늘의 대화가 마음에 남았습니다.'}]};},
+    onEnd:reopen,
+    onCancel:()=>{reopen();toast('대화를 다음으로 미뤘어요 · 행동력은 쓰지 않았어요');}});
+};
 ACTIONS['bond.gift'] = d => run({ type: 'bond.gift', id: d.id, giftId: d.gift });
 
 document.addEventListener('click', e => {
@@ -424,8 +441,13 @@ function handleEvents(events) {
       case 'huntPower': toast(ev.label, 'good', 1800); break;
       case 'payrollPaid': toast(`동료 급여 ${ev.paid.toLocaleString('ko-KR')}G 지급${ev.arrears?` · 미지급 ${ev.arrears.toLocaleString('ko-KR')}G`:''}`);break;
       case 'interestCharged': toast(`💸 ${ev.month}월 이자 ${ev.due.toLocaleString('ko-KR')}G${ev.added ? ` · 골드가 모자라 ${ev.added.toLocaleString('ko-KR')}G는 빚에 붙었어요` : ' 납부'}`, ev.added ? 'bad' : '', 3600); break;
-      case 'bondTalk': toast(`${SPEAKERS[ev.speaker]?.name || ''}: ${ev.line} (친밀도 +${ev.gain})`, 'gag', 3600); break;
+      case 'bondTalk': if (!novelActive()) toast(`${SPEAKERS[ev.speaker]?.name || ''}: ${ev.line} (친밀도 +${ev.gain})`, 'gag', 3600); break;
       case 'bondGift': toast(`🎁 ${BONDS[ev.id].name} 친밀도 +${ev.gain}${ev.liked ? ' · 좋아하는 선물이에요!' : ''}`, 'good'); break;
+      case 'staffResting': toast(`😮‍💨 ${ev.name}이(가) 한계예요 · 이번 영업은 쉬고, 하던 일은 다른 사람에게 넘겨요`, 'bad', 3600); break;
+      case 'handOver': toast(`${personName(state, ev.id)}이(가) 하던 ${ev.kind === 'deliver' ? '서빙' : '정리'}을 다른 사람에게 넘겼어요`, '', 2400); break;
+      case 'shelterRest': toast(`🐰 루나의 쉼터 · ${ev.name} 스트레스 −${Math.round(ev.recovered)}`, 'good'); break;
+      case 'farmDelegated': toast(`🐾 네오가 밭일을 마쳤어요 · 수확 ${ev.harvested} · 다시 심기 ${ev.planted} · 돌봄 ${ev.cared}${ev.stopped ? ' · ' + ev.stopped : ''}`, 'good', 3600); break;
+      case 'farmDelegateSkipped': toast(`농장 맡기기는 이번엔 쉬어요 · ${ev.reason}`, '', 3000); break;
       case 'bondUp': toast(`💗 ${BONDS[ev.id].name} ♥${ev.tier} · ${ev.label}`, 'good', 4000); break;
       case 'gameEnded': toast('📜 마지막 결산 완료 · 결말이 열립니다', 'good', 3200); break;
       case 'shiftClosed': ui.sheet = null; ui.selectedSlot = null; save(); break;
@@ -528,7 +550,7 @@ el.stage.addEventListener('pointermove',e=>{if(!cameraDrag)return;ui.camera.x=ca
 el.stage.addEventListener('pointerup',()=>cameraDrag=null);el.stage.addEventListener('pointercancel',()=>cameraDrag=null);
 
 function beginCraft(menuId,orderId=null){
- if(state.autoKitchen||state.auto){run(orderId?{type:'order.quick',orderId}:{type:'cook',menuId});return;}
+ if(automationOn(state,'kitchen')){run(orderId?{type:'order.quick',orderId}:{type:'cook',menuId});return;}
  const order=state.orders[orderId];if(order&&Object.values(state.stations).some(st=>[st.current,st.next].some(j=>j?.orderId===orderId))){toast('이 주문은 조리 중이에요.');return;}
  ui.playSpeed=1;ui.craft=newCraft(menuId,orderId);ui.sheet={kind:'craft'};
 }

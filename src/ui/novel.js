@@ -78,7 +78,10 @@ export function playNovel(input,{onEnd,onChoose,onGuideSeen,onCancel}={}){
    const tick=()=>{shown++;text.textContent=full.slice(0,shown);if(shown>=full.length)return finish();const punct=/[,，.。!?…]/.test(full[shown-1]);if(punct)pauseUntil=performance.now()+180;timer=setTimeout(tick,punct?210:TYPE_MS);};
    timer=setTimeout(tick,TYPE_MS);
   };
-  if(b.transform&&!instant){typing=false;transformCancel=playTransformation(root,b.transform,start);}else start();
+  // fx:'transform' 은 장면의 가운데 인물(c)로 방향을 정한다: 영냥이가 나오면 고양이로, 아니면 사람으로
+  const tf=b.transform||(b.fx==='transform'?(/^neo_cat/.test(b.c||'')?'cat':'human'):null);
+  if(b.fx&&b.fx!=='transform'&&!instant&&!reduced()){root.classList.add('fx-'+b.fx);setTimeout(()=>root.classList.remove('fx-'+b.fx),700);}
+  if(tf&&!instant){typing=false;transformCancel=playTransformation(root,tf,start);}else start();
  }
  function advance(){if(idx+1>=beats.length)return close(true);show(idx+1);}
  function tap(){if(transformCancel?.running||!q('.nv-log').hidden||!q('.nv-chapter').hidden||beats[idx]?.choices)return;if(typing)finish();else advance();}
