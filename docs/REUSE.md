@@ -44,3 +44,7 @@
 
 - 이식한 `frame-loop`, `pool` 은 이 프로젝트의 테스트와 브라우저 확인에서 동작했다.
 - 원본 게임의 테스트는 실행하지 않았다.
+
+## 추가 참조 (2026-10-25)
+- https://github.com/rei1237/killerflowerpig/blob/main/src/core/character-progression.js (파일 blob ad26294fc5c259b60a2a165a55a4ca1783e0c720): 영구 캐릭터 성장과 일회성 사냥 빌드를 분리하고 보상을 원장으로 보호하는 구조만 참고. 원본 파일 복사 없음. 이 게임은 사용자 요청대로 50레벨 상한 없이 성장하며 자체 깊이/보상/능력 수치를 사용한다.
+- 같은 저장소 src/core/progression-store.js: 저장 버전 이전과 별도 characterXP 저장 구조를 읽기 전용 참고. 원본 저장 키·진행 데이터에 접근하거나 수정하지 않는다.

@@ -117,4 +117,5 @@ export const TEMP = Object.freeze({
 
   // ── 자동 운영
   AUTO_DECIDE_MS: 600,
+  HUNT_CAREER: Object.freeze({ xpBase: 100, xpStep: 20, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.5, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100 }),
 });

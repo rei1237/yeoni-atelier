@@ -79,7 +79,7 @@ function route(state, cmd) {
     case 'bond.talk': return bonds.talk(state, cmd.id);
     case 'bond.gift': return bonds.gift(state, cmd.id, cmd.giftId);
     case 'story.seen': return calendar.markStory(state, cmd.id);
-    case 'hunt.start': return hunt.startHunt(state);
+    case 'hunt.start': return hunt.startHunt(state, cmd.depth);
     case 'hunt.retreat': return hunt.retreat(state);
     case 'hunt.finish': return hunt.finishHunt(state);
     case 'hunt.pick': return hunt.pick(state, cmd.index);

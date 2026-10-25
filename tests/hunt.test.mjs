@@ -29,7 +29,7 @@ test('달 배율: 늦은 달 사냥은 같은 적도 HP 가 높고, 보스 월�
     return { s, hp: e.maxHp };
   };
   const a = hpOf(1), b = hpOf(TEMP.CALENDAR.TOTAL_TURNS - 1);
-  assert.deepEqual(a.s.hunt.scale, { hp: 1, dmg: 1 });
+  assert.deepEqual(a.s.hunt.scale, { hp: 1, dmg: 1, reward: 1 });
   assert.equal(b.s.hunt.scale.hp, 1 + H.MONTH_HP * 11);
   assert.ok(b.hp > a.hp * 1.5, `${b.hp} vs ${a.hp}`);
   // 후일담(마지막 달 넘어)에는 더 오르지 않는다

@@ -190,7 +190,7 @@ function huntPanel(state) {
   const kit = (h.weapons || []).map(w => `<span class="chip${w.evo ? ' evo' : ''}" title="${esc(w.evo ? WEAPONS[w.id].evo.name : WEAPONS[w.id].name)}">${esc(WEAPONS[w.id].icon)} ${w.evo ? '★' : `Lv${w.level}`}</span>`).join('')
     + Object.entries(h.passives || {}).map(([id, lv]) => `<span class="chip" title="${esc(PASSIVES[id].name)}">${PASSIVES[id].icon} ${lv}</span>`).join('');
   return `<div class="prep">
-    <div class="row"><span class="grow">🎒 ${esc(bag || '아직 없음')} · 처치 ${h.kills}</span></div>
+    <div class="row"><span class="grow">영냥이 Lv.${h.careerLevel || 1} · 깊이 ${h.depth || 1} · 성장 +${h.careerXP || 0}<br>🎒 ${esc(bag || '아직 없음')} · 처치 ${h.kills}</span></div>
     <div class="row chips">${kit}</div>
     ${gear ? `<div class="small muted">🗡 장비: ${esc(gear)}</div>` : ''}
     <div class="row"><span class="small muted grow">화면을 끌어서 이동 · 공격은 자동 · 별조각을 모으면 레벨업</span>

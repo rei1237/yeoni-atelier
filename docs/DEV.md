@@ -147,3 +147,11 @@ npm test
 ## 모바일 개편 상태 (2026-10-25)
 
 저장 버전 2. `hostbar.open/openedDay`, `huntUnlocked`, `neoStress`를 저장한다. `story.seen`은 현재 pendingStory만 기록하며 중복은 무지급 성공으로 처리한다. 순서는 달 → ev:hunt → 인연이다. 5월 개시 정장은 `outfit:host_first` 원장으로 1회 지급한다. 기존 v1의 5월 이후 저장은 개시, 첫 순 이후나 사냥 이력이 있으면 사냥을 해금한다. 진행 중 v1 영업은 durationMs=1800000/nominationMs=300000을 보존하고 다음 영업부터 600000/60000을 쓴다.
+
+## 농장 명령
+state.farm: xp, seed, greenhouse, lastAdvancedDay, harvests, plots. 작물 인스턴스 id로 `ledger.rewards['farm:<id>']`에 수확 재료/수량/XP를 기록한다. 오래된 저장은 빈 4밭을 추가하며 이전 날짜 성장·보상을 소급하지 않는다.
+`farm.plant {cropId,index}`, `farm.water {index}`, `farm.tend {index}`, `farm.careAll`, `farm.harvest {index,cropInstanceId}`, `farm.expand`, `farm.greenhouse` — 전부 준비 중에만 dispatch. 수확은 stock과 learned를 갱신하므로 실제 조리에 사용된다. `advanceFarm`은 결산 후 달력 진행에서 한 번 호출한다.
+
+
+## 영냥이 영구 성장
+`state.hunter {xp,kills}`는 사냥 사이에 유지한다. `hunt.careerLevel/depth/scale`는 출발 스냅샷, `careerXP`는 처치로 쌓인 이번 사냥 보상. `hunt.finish`의 기존 hunt:<id> 원장 안에서 경험치·처치 수·월정석을 한 번에 지급한다. 옛 저장에 누적 성장은 0으로 추가하고 과거 보상은 소급하지 않는다. `hunt.start {depth}`는 해금 깊이와 정수를 검증한 뒤 AP를 쓴다. 사냥 내 무기 레벨은 기존처럼 매번 초기화한다.

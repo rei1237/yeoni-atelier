@@ -1,5 +1,6 @@
 import { HELP_SCENES } from '../data/help.js';
 import { farmSheet } from './farm.js';
+import { huntPrepSheet } from './hunt-prep.js';
 // 바텀시트(테이블·주방·재료·마을·퀘스트·기타·부채·동료·의상)와 전면 오버레이(타이틀·확인·일시정지·결산·사냥 결과·만남 이벤트).
 // 상태를 읽기만 하고, 버튼은 data-action 으로 명령을 요청한다.
 
@@ -48,6 +49,7 @@ export function sheetHtml(state, ui) {
     case 'companions': return companionSheet(state);
     case 'outfits': return outfitSheet(state);
     case 'farm': return farmSheet(state, ui);
+    case 'hunt': return huntPrepSheet(state);
     default: return '';
   }
 }
@@ -555,7 +557,7 @@ function huntResult(state) {
   const head2 = h.status === 'down' ? '😿 영냥이가 지쳤어요' : h.status === 'retreat' ? '🏠 일찍 돌아왔어요' : '🎉 사냥 완료';
   const bag = Object.entries(h.bag).filter(([id, n]) => id === 'moonstone' || n > 0).map(([id, n]) => `<span>${id === 'moonstone' ? '🌙 월정석' : esc(INGREDIENTS[id]?.name || id)}</span><b>${n}</b>`).join('');
   return `<div class="dialog" role="dialog" aria-modal="true"><h2>${head2}</h2>
-    <div class="kv">${bag}<span>처치</span><b>${h.kills}</b><span>레벨</span><b>${h.level ?? 1}</b><span>거대한 검은 손</span><b>${h.bossDown ? '물리침' : '-'}</b><span>사냥 시간</span><b>${fmtTime(h.elapsedMs)}</b></div>
+    <div class="kv">${bag}<span>처치</span><b>${h.kills}</b><span>이번 사냥 레벨</span><b>${h.level ?? 1}</b><span>영냥이 성장 경험치</span><b>+${h.careerXP || 0}</b><span>거대한 검은 손</span><b>${h.bossDown ? '물리침' : '-'}</b><span>사냥 시간</span><b>${fmtTime(h.elapsedMs)}</b></div>
     <p class="small muted">월정석은 한 번만 들어갑니다. 쓰러져도 모은 월정석은 가져와요. 마을 「루나의 저울」에서 골드로 바꿀 수 있어요.</p>
     <div class="stack">${btn({ action: 'hunt.finish', cls: 'primary', label: '월정석 받고 가게로' })}</div></div>`;
 }

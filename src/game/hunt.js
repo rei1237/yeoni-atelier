@@ -20,6 +20,7 @@ import { personBusyReason } from './nomination.js';
 import { apCheck, spendAp, calendarOf, totalMonths } from './calendar.js';
 import { bondFx } from '../data/bonds.js';
 import { workHunt } from './bonds.js';
+import { hunterProgress, maxHuntDepth, depthScale, huntMoonReward } from './hunt-growth.js';
 
 const H = TEMP.HUNT;
 const worlds = new WeakMap(); // state.hunt 객체 → 실행 중 전장(저장 안 함)
@@ -44,9 +45,10 @@ export function huntCheck(state) {
   return { ok: reasons.length === 0, reasons };
 }
 
-export function startHunt(state) {
+export function startHunt(state, depth = 1) {
   const chk = huntCheck(state);
   if (!chk.ok) return { ok: false, reason: chk.reasons[0], reasons: chk.reasons };
+  if (!Number.isInteger(depth) || depth < 1 || depth > maxHuntDepth(state)) return { ok: false, reason: '아직 갈 수 없는 깊이입니다' };
   spendAp(state, 1);
   state.mode = 'hunt';
   state.paused = false;
@@ -57,10 +59,14 @@ export function startHunt(state) {
   gear.hp += fx.huntHp;
   gear.dmg += fx.huntDmg;
   gear.bossMoon = fx.bossMoon;
+  const careerLevel = hunterProgress(state.hunter.xp).level;
+  gear.hp += (careerLevel - 1) * TEMP.HUNT_CAREER.hpPerLevel;
+  gear.dmg += (careerLevel - 1) * TEMP.HUNT_CAREER.damagePerLevel;
   const hp = H.PLAYER_HP + gear.hp;
   state.hunt = normalizeHunt({
     id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: PDF.HUNT_MS, hp, maxHp: hp, gear,
-    bag: { moonstone: 0 }, kills: 0, status: 'running', scale: monthScale(state.day),
+    bag: { moonstone: 0 }, kills: 0, status: 'running', depth, careerLevel, careerXP: 0,
+    scale: depthScale(depth, monthScale(state.day), calendarOf(state.day).monthIdx),
   });
   emit('huntStart', {});
   return { ok: true };
@@ -79,6 +85,7 @@ export function normalizeHunt(hs) {
   hs.fired ??= [];
   hs.bossDown ??= false;
   hs.scale ??= { hp: 1, dmg: 1 };
+  hs.depth ??= 1; hs.careerLevel ??= 1; hs.careerXP ??= 0;
   return hs;
 }
 
@@ -308,13 +315,14 @@ function dropFrom(state, w, e) {
   const def = ENEMIES[e.type];
   addDrop(w, 'gem', '', def.xp, e.x, e.y);
   if (def.chest) {
-    addDrop(w, 'moon', 'moonstone', def.boss ? Math.round(H.MOON_DROP.boss * (1 + (state.hunt?.gear?.bossMoon || 0))) : H.MOON_DROP.elite, e.x - 14, e.y);
+    const base = def.boss ? Math.round(H.MOON_DROP.boss * (1 + (state.hunt?.gear?.bossMoon || 0))) : H.MOON_DROP.elite;
+    addDrop(w, 'moon', 'moonstone', huntMoonReward(base, state.hunt.scale), e.x - 14, e.y);
     addDrop(w, 'chest', 'chest', 0, e.x + 14, e.y);
     return;
   }
   let r = nextRandom(state.rng);
   for (const d of H.POWER_DROP) { if (r < d.chance) { addDrop(w, d.id, d.id, 0, e.x - 10, e.y + 8); break; } r -= d.chance; }
-  if (nextRandom(state.rng) < H.MOON_DROP.chance) addDrop(w, 'moon', 'moonstone', 1, e.x + 10, e.y - 6);
+  if (nextRandom(state.rng) < H.MOON_DROP.chance) addDrop(w, 'moon', 'moonstone', huntMoonReward(1, state.hunt.scale), e.x + 10, e.y - 6);
 }
 
 function killEnemy(state, w, i) {
@@ -324,6 +332,8 @@ function killEnemy(state, w, i) {
   if (def.boss) { state.hunt.bossDown = true; w.banner = { label: '거대한 검은 손을 물리쳤다!', warn: false, until: state.hunt.elapsedMs + 2000 }; emit('huntEvent', { kind: 'bossDown', label: '거대한 검은 손을 물리쳤다!', warn: false }); }
   w.enemies.release(i);
   state.hunt.kills += 1;
+  const c = TEMP.HUNT_CAREER;
+  state.hunt.careerXP += Math.ceil((def.boss ? c.xpBoss : def.elite ? c.xpElite : c.xpNormal) * (state.hunt.scale.reward ?? 1));
 }
 
 // 피해를 주고 죽었으면 true. kb = 밀어낼 방향(정규화 전 벡터)
@@ -611,9 +621,11 @@ export function finishHunt(state) {
     }
     state.stats.nightDewObtained += hs.bag.night_dew || 0;
     state.stats.huntsCompleted += 1;
+    state.hunter.xp += hs.careerXP || 0;
+    state.hunter.kills += hs.kills;
     workHunt(state, hs.status === 'done');
   }
-  state.lastHunt = { id: hs.id, status: hs.status, bag: { ...hs.bag }, kills: hs.kills, elapsedMs: hs.elapsedMs, level: hs.level ?? 1, bossDown: !!hs.bossDown };
+  state.lastHunt = { id: hs.id, status: hs.status, bag: { ...hs.bag }, kills: hs.kills, elapsedMs: hs.elapsedMs, level: hs.level ?? 1, bossDown: !!hs.bossDown, depth: hs.depth, careerXP: hs.careerXP || 0, careerLevel: hunterProgress(state.hunter.xp).level };
   worlds.delete(hs);
   state.hunt = null;
   state.mode = 'prep';

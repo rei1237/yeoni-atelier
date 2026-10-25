@@ -129,6 +129,8 @@ function replayStory() {
 const n = v => Number(v);
 // data-action → 처리. 엔진 명령은 같은 이름을 쓰고, 화면 전용 동작(시트·확인창·저장)은 여기서만 처리한다.
 const ACTIONS = {
+  'hunt.start': () => { ui.sheet = { kind: 'hunt' }; },
+  'hunt.depart': d => { if (run({ type: 'hunt.start', depth: n(d.depth) }).ok) ui.sheet = null; },
   'farm.select': d => { ui.farmCrop = d.id; },
   'farm.plant': d => run({ type: 'farm.plant', cropId: d.id, index: n(d.index) }),
   'farm.water': d => run({ type: 'farm.water', index: n(d.index) }),
@@ -233,7 +235,7 @@ const ACTIONS = {
   'auto.toggle': () => { const r = run({ type: 'auto.toggle' }); if (r.ok) toast(r.auto ? '🤖 자동 운영 켬 (플레이어와 같은 명령만 사용)' : '자동 운영 끔'); },
 };
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
-  'hunt.start', 'hunt.retreat', 'hunt.finish', 'expand.table']) ACTIONS[t] = () => run({ type: t });
+  'hunt.retreat', 'hunt.finish', 'expand.table']) ACTIONS[t] = () => run({ type: t });
 ACTIONS['hunt.pick'] = d => run({ type: 'hunt.pick', index: n(d.index) });
 ACTIONS['bond.talk'] = d => run({ type: 'bond.talk', id: d.id });
 ACTIONS['bond.gift'] = d => run({ type: 'bond.gift', id: d.id, giftId: d.gift });
