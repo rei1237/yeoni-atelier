@@ -56,10 +56,13 @@ export const TEMP = Object.freeze({
     DENSITY_START: 5,         // 이 수보다 적으면 생성 속도 2배
     DENSITY_END: 45,
     MAX_ENEMIES: 90,
-    HP_GROWTH: 1.3,           // 3분 끝에서 적 HP 배율 +130%
+    HP_GROWTH: 1.7,           // 3분 끝에서 적 HP 배율 +170%
+    MONTH_HP: 0.08,           // 달이 지날 때마다 적 HP +8% (3월 0, 다음 해 2월 +88%)
+    MONTH_DMG: 0.04,          // 달마다 접촉 피해 +4%
     SPAWN_DIST: Object.freeze([380, 470]),
-    XP_BASE: 3,               // 다음 레벨 필요 경험치 = XP_BASE + (레벨-1) × XP_STEP
+    XP_BASE: 5,               // 다음 레벨 필요 경험치 = XP_BASE + (L-1)×XP_STEP + (L-1)²×XP_CURVE (반올림)
     XP_STEP: 3,
+    XP_CURVE: 0.6,
     CRIT_BASE: 0.05,
     CRIT_MULT: 2,
     KNOCKBACK: 140,
@@ -74,7 +77,7 @@ export const TEMP = Object.freeze({
       { id: 'magnet', chance: 0.005 },
       { id: 'bomb', chance: 0.005 },
     ]),
-    MOON_DROP: Object.freeze({ chance: 0.1, elite: 5, boss: 20 }), // 일반 적 확률 1개, 정예·보스는 고정 개수(임시)
+    MOON_DROP: Object.freeze({ chance: 0.06, elite: 10, boss: 60 }), // 일반 적 확률 1개, 정예·보스는 고정 개수(임시)
     FIELD_W: 1400,
     FIELD_H: 1800,
   }),

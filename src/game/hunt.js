@@ -17,13 +17,15 @@ import { Pool } from '../core/pool.js';
 import { nextRandom, randRange } from '../core/rng.js';
 import { emit, nextId } from './state.js';
 import { personBusyReason } from './nomination.js';
-import { apCheck, spendAp } from './calendar.js';
+import { apCheck, spendAp, calendarOf, totalMonths } from './calendar.js';
 
 const H = TEMP.HUNT;
 const worlds = new WeakMap(); // state.hunt 객체 → 실행 중 전장(저장 안 함)
 const POWER_NAMES = { fish: '구운 생선', magnet: '수염 자석', bomb: '달빛 폭탄', chest: '별 상자' };
 
-export const xpNeeded = level => H.XP_BASE + (level - 1) * H.XP_STEP;
+export const xpNeeded = level => Math.round(H.XP_BASE + (level - 1) * H.XP_STEP + (level - 1) ** 2 * H.XP_CURVE);
+// 달력이 흐를수록 그늘이 짙어진다: 사냥 시작 때 정해 사냥 내내 쓴다
+export const monthScale = day => { const m = Math.min(calendarOf(day).monthIdx, totalMonths() - 1); return { hp: 1 + H.MONTH_HP * m, dmg: 1 + H.MONTH_DMG * m }; };
 export const gemTier = v => (v < 4 ? 0 : v < 20 ? 1 : 2);
 
 export function huntCheck(state) {
@@ -50,7 +52,7 @@ export function startHunt(state) {
   const hp = H.PLAYER_HP + gear.hp;
   state.hunt = normalizeHunt({
     id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: PDF.HUNT_MS, hp, maxHp: hp, gear,
-    bag: { moonstone: 0 }, kills: 0, status: 'running',
+    bag: { moonstone: 0 }, kills: 0, status: 'running', scale: monthScale(state.day),
   });
   emit('huntStart', {});
   return { ok: true };
@@ -68,6 +70,7 @@ export function normalizeHunt(hs) {
   hs.gear ??= gearBonus();
   hs.fired ??= [];
   hs.bossDown ??= false;
+  hs.scale ??= { hp: 1, dmg: 1 };
   return hs;
 }
 
@@ -215,7 +218,8 @@ function spawnEnemy(state, w, type, x, y) {
   if (w.enemies.count >= H.MAX_ENEMIES && !ENEMIES[type].elite) return null;
   const def = ENEMIES[type];
   const hs = state.hunt;
-  const grow = 1 + H.HP_GROWTH * (hs.elapsedMs / hs.durationMs);
+  // 정예·보스는 시간 성장 없이 달 배율만(늦게 나와도 잡을 수 있게)
+  const grow = (def.elite ? 1 : 1 + H.HP_GROWTH * (hs.elapsedMs / hs.durationMs)) * hs.scale.hp;
   const e = w.enemies.spawn();
   Object.assign(e, {
     uid: ++w.uidSeq, type, hp: Math.round(def.hp * grow), speed: def.speed * randRange(state.rng, 0.85, 1.15),
@@ -467,7 +471,7 @@ function stepEnemies(state, w, t, dt, auraSlow) {
     }
     e.x += e.kx * sec; e.y += e.ky * sec; e.kx *= decay; e.ky *= decay;
     if (d < def.r + 14 && t >= p.hurtUntil) {
-      hs.hp = Math.max(0, hs.hp - def.dmg);
+      hs.hp = Math.max(0, hs.hp - Math.round(def.dmg * hs.scale.dmg));
       p.hurtUntil = t + H.HURT_IFRAME_MS;
       p.action = 'hurt'; p.actionUntil = t + 300;
       w.shakeUntil = t + 220;

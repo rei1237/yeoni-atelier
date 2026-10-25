@@ -55,12 +55,14 @@
 | | 재료 가격·메뉴 가격 | [menus.js](../src/data/menus.js) |
 | 영입 조건 | `RECRUIT_CONDITION` | 영업 2회 + 상환 1회 |
 | 사냥 | `HUNT.PLAYER_*`, `HURT_IFRAME_MS` | 속도 165, HP 100, 무적 0.7초 |
-| | `HUNT.SPAWN_RATE_*`, `DENSITY_*`, `MAX_ENEMIES`, `HP_GROWTH` | 생성 0.7→3.2/초, 화면 밀도 5→45, 최대 90, 적 HP 3분에 걸쳐 ×1.3 |
-| | `HUNT.XP_BASE`, `XP_STEP` | 레벨업에 필요한 별조각 3 + 3×(레벨−1) |
+| | `HUNT.SPAWN_RATE_*`, `DENSITY_*`, `MAX_ENEMIES`, `HP_GROWTH` | 생성 0.7→3.2/초, 화면 밀도 5→45, 최대 90, 일반 적 HP 3분에 걸쳐 ×2.7(정예·보스는 시간 성장 없음) |
+| | `HUNT.MONTH_HP`, `MONTH_DMG` | 달이 지날 때마다 적 HP +8%·접촉 피해 +4% (3월 기준, 다음 해 2월 HP ×1.88). 사냥 시작 때 정해짐 |
+| | `HUNT.XP_BASE`, `XP_STEP`, `XP_CURVE` | 레벨업에 필요한 별조각 5 + 3×(L−1) + 0.6×(L−1)² (반올림) |
 | | `HUNT.CRIT_*`, `KNOCKBACK` | 치명타 5% ×2, 밀쳐내기 140 |
 | | `HUNT.MAGNET_RADIUS`, `PICKUP_RADIUS`, `GEM_CAP` | 흡수 95, 줍기 26, 별조각 140개 넘으면 합침 |
 | | `HUNT.POWER_DROP`, `HEAL_FISH`, `BOMB_*` | 생선(회복 30) 1.2%, 자석 0.5%, 폭탄(반경 280·피해 200) 0.5% |
-| | `HUNT.MOON_DROP` | 월정석: 일반 적 10% 확률로 1개, 정예 5개, 보스 20개 |
+| | `HUNT.MOON_DROP` | 월정석: 일반 적 6% 확률로 1개, 정예 10개, 보스 60개 |
+| | 정예·보스 HP | 정예 400, 보스 1,200 (× 달 배율) · [hunt-kit.js](../src/data/hunt-kit.js) |
 | | 무기·보조 능력·적·사건 | [hunt-kit.js](../src/data/hunt-kit.js) (전부 임시) |
 | 조합 메뉴 | 달빛 밀크티 160G·15초, 별가루 카스텔라 200G·24초, 꿀꿀 크림 라테 170G·16초 | [menus.js](../src/data/menus.js) (임시) |
 | 마을 | `MOONSTONE_GOLD` | 루나의 저울 환율: 월정석 1개 = 35G |
