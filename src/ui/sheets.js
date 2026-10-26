@@ -12,7 +12,7 @@ import { stressCrew, stressOf, stressStage, stressLabel, isResting } from '../ga
 import { audioSheet,audioQuickButton } from './audio.js';
 import { HELP_SCENES } from '../data/help.js';
 import { farmSheet } from './farm.js';
-import { huntPrepSheet } from './hunt-prep.js';
+import { huntPrepSheet, NIGHT_ORN } from './hunt-prep.js';
 import { dressroomSheet } from './dressroom.js';
 import { assetStyle, assetIcon } from './asset-html.js';
 // 바텀시트(테이블·주방·재료·마을·퀘스트·기타·부채·동료·의상)와 전면 오버레이(타이틀·확인·일시정지·결산·사냥 결과·만남 이벤트).
@@ -587,7 +587,6 @@ function endingDialog(state, id) {
 }
 
 // 사냥 대화상자 제목 위 장식(초승달·꽃잎·금 가는 선). 이미지 에셋 없이 인라인 SVG
-const NIGHT_ORN = '<svg class="night-orn" viewBox="0 0 160 20" aria-hidden="true"><path d="M8 10H60M100 10H152" stroke="#D9B26A" stroke-opacity=".75" stroke-width="1"/><circle cx="56" cy="10" r="1.4" fill="#D9B26A"/><circle cx="104" cy="10" r="1.4" fill="#D9B26A"/><ellipse cx="68" cy="10" rx="4.5" ry="1.9" fill="#E7A3B5"/><ellipse cx="92" cy="10" rx="4.5" ry="1.9" fill="#E7A3B5"/><path d="M83 3A7 7 0 1 0 83 17A8 8 0 0 1 83 3Z" fill="#F6E3B4"/></svg>';
 
 // 레벨업 카드 3장. 고르는 동안 사냥 시간이 멈춘다(엔진이 멈춤, UI는 고른 번호만 보낸다).
 function levelUpDialog(state) {

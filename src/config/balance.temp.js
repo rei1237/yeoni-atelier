@@ -145,4 +145,6 @@ export const TEMP = Object.freeze({
     TRAIN_MULT: Object.freeze([1, 1.6, 2.6, 4.2]),    // 1·2·3·4단계 값 = 기준값 × 배율
     POUCH: 3,                                         // 상한에 다 닿았을 때 레벨업 카드 「월정석 주머니」
   }),
+  // 사냥터 업적 보상 월정석(1회, ledger.achievements). 모두 임시
+  HUNT_ACHIEVE_MOON: Object.freeze({ first_boss: 30, triple: 60, no_tonic: 60, stage10: 60, stage30: 120, stage50: 200, stage100: 400, kills1000: 50, kills10000: 150, evolve: 80, evolve_all: 300, bestiary10: 50, hanbi: 100 }),
 });

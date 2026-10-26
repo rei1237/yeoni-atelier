@@ -41,3 +41,38 @@ test('사냥 성장 보상은 저장 왕복·재처리에도 1회, 다음 사냥
   const old = JSON.parse(serialize(s)); delete old.hunter;
   assert.deepEqual(deserialize(JSON.stringify(old)).state.hunter, { xp: 0, kills: 0, maxStage:1 });
 });
+
+test('사냥터 업적은 귀환 정산 때 1회만 기록·지급되고 도감은 사냥마다 쌓인다', async () => {
+  const { checkAchievements } = await import('../src/game/hunt-codex.js');
+  const { achievementMoon } = await import('../src/data/hunt-achievements.js');
+  let s = createGame(); s.huntUnlocked = true; s.ap.left = 9;
+  assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
+  // 전투 결과 fixture: 보스 1회 처치·회복 수프 없이 1단계 클리어
+  Object.assign(s.hunt, { bossKills: 1, cleared: 1, seen: { shade_hand: 5, boss_hand: 1 } });
+  dispatch(s, { type: 'hunt.retreat' });
+  const before = s.moonstone;
+  assert.ok(dispatch(s, { type: 'hunt.finish' }).ok);
+  assert.equal(s.ledger.achievements.first_boss, true); assert.equal(s.ledger.achievements.no_tonic, true);
+  assert.equal(s.moonstone, before + s.lastHunt.bag.moonstone + achievementMoon('first_boss') + achievementMoon('no_tonic'));
+  const paid = s.moonstone;
+  assert.deepEqual(checkAchievements(s), []);
+  s = deserialize(serialize(s)).state;
+  assert.equal(s.moonstone, paid, '불러오기 소급도 다시 주지 않는다');
+  assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
+  s.hunt.seen = { shade_hand: 3 }; s.hunt.weapons.push({ id: 'orbit', level: 5, evo: true }); s.hunt.tonicsUsed = 1;
+  dispatch(s, { type: 'hunt.retreat' }); dispatch(s, { type: 'hunt.finish' });
+  assert.equal(s.huntCodex.enemies.shade_hand, 8); assert.equal(s.huntCodex.evolved.orbit, true);
+  assert.equal(s.ledger.achievements.evolve, true);
+});
+
+test('도감 이전 저장은 깬 단계로 도감·업적을 소급하고 보상은 한 번만 준다', () => {
+  const s = createGame(); s.hunter.maxStage = 12; s.stats.huntBosses = 11;
+  const old = JSON.parse(serialize(s)); delete old.huntCodex; delete old.ledger.achievements;
+  const a = deserialize(JSON.stringify(old)).state;
+  assert.equal(a.huntCodex.enemies.boss_hand, 0, '만남(처치 수는 모름)');
+  assert.ok(a.ledger.achievements.first_boss && a.ledger.achievements.stage10);
+  assert.equal(a.ledger.achievements.stage30, undefined);
+  const b = deserialize(serialize(a)).state;
+  assert.equal(b.moonstone, a.moonstone);
+  assert.ok(a.moonstone > s.moonstone);
+});

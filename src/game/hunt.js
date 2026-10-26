@@ -29,6 +29,7 @@ import { apCheck, spendAp, calendarOf, totalMonths } from './calendar.js';
 import { bondFx } from '../data/bonds.js';
 import { placeLock, PLACE_NAMES } from './unlocks.js';
 import { workHunt } from './bonds.js';
+import { recordHunt, checkAchievements } from './hunt-codex.js';
 import { hunterProgress, maxHuntDepth, depthScale, huntMoonReward } from './hunt-growth.js';
 
 const H = TEMP.HUNT;
@@ -383,6 +384,7 @@ function dropFrom(state, w, e) {
 function killEnemy(state, w, i) {
   const e = w.enemies.items[i];
   const def = ENEMIES[e.type];
+  const seen = state.hunt.seen ??= {}; seen[e.type] = (seen[e.type] || 0) + 1; // 도감용 처치 수
   dropFrom(state, w, e);
   if (def.boss) clearStage(state, w, def);
   if(state.hunt.elapsedMs-(w.lastDeathSound||-1000)>140){emit('huntDeath',{});w.lastDeathSound=state.hunt.elapsedMs;}
@@ -714,6 +716,7 @@ function applyChest(state, c) {
   const label = still ? describeOption(hs, c.upgrade).name : null;
   if (still) applyOption(state, c.upgrade);
   const moon = c.moon + (still ? 0 : CHEST_FALLBACK);
+  hs.chestsOpened = (hs.chestsOpened || 0) + 1;
   hs.bag.moonstone = (hs.bag.moonstone || 0) + moon;
   return { upgraded: still ? c.upgrade : null, moon, label };
 }
@@ -767,6 +770,8 @@ export function finishHunt(state) {
     workHunt(state, (hs.cleared || 0) > 0, hs.hunterId);
     // 윤달의 부탁: 영냥이로 보스를 쓰러뜨리고 돌아와 정산하면 완료
     if(hs.bossKills>0 && hs.hunterId==='neo' && state.yunQuest?.status==='active'){state.yunQuest.status='complete';emit('questProgress',{label:'윤달의 부탁 · 보스 토벌 완료'});}
+    recordHunt(state, hs, totalBag);
+    checkAchievements(state);
   }
   state.lastHunt = { id: hs.id, status: hs.status, hunterId:hs.hunterId, bonus, fieldBag:{...hs.bag}, bag: totalBag, kills: hs.kills, elapsedMs: hs.elapsedMs, level: hs.level ?? 1, bossDown: !!hs.bossDown, depth: hs.depth, startDepth: hs.startDepth ?? hs.depth, cleared: hs.cleared || 0, maxStage: state.hunter.maxStage || 1, careerXP: hs.careerXP || 0, careerLevel: hunterProgress(state.hunter.xp).level };
   worlds.delete(hs);
@@ -784,7 +789,7 @@ export function useSupply(state,id) {
  if(!d || !(state.armory?.supplies?.[id]>0))return {ok:false,reason:'먼저 모카 식재료점에서 준비해 주세요'};
  if(id==='tonic' && hs.hp>=hs.maxHp)return {ok:false,reason:'이미 체력이 가득해요'};
  const w=getHuntWorld(state);state.armory.supplies[id]-=1;
- if(id==='tonic')hs.hp=Math.min(hs.maxHp,hs.hp+Math.ceil(hs.maxHp*.35));
+ if(id==='tonic'){hs.hp=Math.min(hs.maxHp,hs.hp+Math.ceil(hs.maxHp*.35));hs.tonicsUsed=(hs.tonicsUsed||0)+1;}
  if(id==='shield')hs.shieldUntil=hs.elapsedMs+8000;
  if(id==='magnet')for(let i=0;i<w.drops.count;i++)w.drops.items[i].magnet=true;
  if(id==='nova')for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(Math.hypot(e.x-w.player.x,e.y-w.player.y)<300)hurt(state,w,i,240*mods(hs).dmg,mods(hs),0,0);}
