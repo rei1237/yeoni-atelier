@@ -25,6 +25,8 @@ export const MONTH_STORIES = Object.freeze([
     { s: 'moka', t: '마을 공방에 가 봐. 테이블도 들이고 막힌 벽도 터 줘. 돈은 점점 비싸지지만.', c: 'moka:normal' },
     { s: 'luna_sis', t: '창가 자리를 열면… 꽃 보는 손님이 오래 앉아 있을 거예요.', r: 'luna_sis:normal' },
     { s: 'yeoni', t: '(투자는 빚을 늘리는 게 아니라 빚 갚는 속도를 늘리는 거다. 아마도.)', l: 'yeoni:normal' },
+    { s: 'yeoni', t: '꽃 피는 철이니까… 가게 뒤 빈 밭에 나도 뭔가 심어 볼까?', l: 'yeoni:smile' },
+    { s: 'sys', t: '[ 꽃돼지 연이의 농장이 열렸습니다 · 준비 화면의 농장에서 씨앗을 심어요 ]' },
   ],
   // m2 · 5월: 게임 오리지널 호스트 카페 개장
   [

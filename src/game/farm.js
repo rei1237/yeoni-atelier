@@ -2,11 +2,13 @@ import { CROPS, FARM, farmLevel, farmSeason, farmWeather, maxFarmEnergy } from '
 export function farmEnergyCheck(state,cost=1){return state.farm.energy>=cost?{ok:true}:{ok:false,reason:`농장 행동력이 부족해요 (${state.farm.energy}/${maxFarmEnergy(state.farm)}) · 영업을 마치면 다시 채워져요`};}
 export function spendFarmEnergy(state,cost=1){state.farm.energy-=cost;}
 import { emit, nextId } from './state.js';
+import { placeLock } from './unlocks.js';
 
 const fail = reason => ({ ok: false, reason });
 export function farmCheck(state) {
   if (state.mode !== 'prep') return fail('연이가 가게를 비울 수 있는 영업 준비 중에 농장에 가요');
   if (state.interior.draft) return fail('인테리어 편집을 먼저 마쳐 주세요');
+  const lock = placeLock(state, 'farm'); if (lock) return fail(lock);
   return { ok: true };
 }
 export function plantCheck(state, cropId, index) {

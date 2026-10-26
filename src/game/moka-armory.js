@@ -3,6 +3,7 @@ import {recordYunTrade} from './yun-quest.js';
 import { emit } from './state.js';
 import { bondTier } from '../data/bonds.js';
 import { workShop } from './bonds.js';
+import { placeLock } from './unlocks.js';
 export const HUNTERS = ['neo', 'seohanbi'];
 // 강화·소모품 월정석 값은 임시(TEMP). 10-26: 단계 사냥 월정석 수급에 맞춰 두 배로 올림
 export const UPGRADES = Object.freeze({
@@ -25,6 +26,7 @@ function check(state,where) { return state.mode==='prep' && !state.interior.draf
 function ensure(state) { state.armory ||= {upgrades:{},supplies:{}}; state.armory.upgrades ||= {}; state.armory.supplies ||= {}; return state.armory; }
 export function enhance(state,who,id) {
   const chk=check(state,'윤달의 무기 공방'); if(!chk.ok)return chk;
+  const lock=placeLock(state,'gear'); if(lock)return {ok:false,reason:lock};
   if(!HUNTERS.includes(who) || !state.roster[who] || !UPGRADES[id])return {ok:false,reason:'함께하는 사냥꾼과 강화 항목을 골라 주세요'};
   const cost=upgradeCost(state,who,id); if(!Number.isSafeInteger(cost)||state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
   const a=ensure(state), n=upgradeLevel(state,who,id); if(!Number.isSafeInteger(n+1))return {ok:false,reason:'저장할 수 있는 수치 범위를 넘었습니다'};

@@ -10,6 +10,7 @@ import { advanceFarm } from './farm.js';
 import { cafeProgress } from './cafe-growth.js';
 import { grantEventOutfits } from './outfits.js';
 import { HANBI_STAGES } from '../data/hunt-stages.js';
+import { placeLock, PLACE_NAMES } from './unlocks.js';
 
 const C = TEMP.CALENDAR;
 export const PARTS = Object.freeze(['상순', '중순', '하순']);
@@ -132,7 +133,9 @@ export function markStory(state, id) {
   if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+|hanbi:\d+)$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
   if (state.ledger.story[id]) return { ok: true, duplicate: true };
   if (state.mode !== 'prep' || pendingStory(state) !== id) return { ok: false, reason: '지금 볼 수 있는 이야기가 아닙니다' };
+  const farmLocked = id === 'm1' && !!placeLock(state, 'farm');
   state.ledger.story[id] = true;
+  if (farmLocked) emit('placeUnlocked', { id: 'farm', name: PLACE_NAMES.farm });
   if (id === 'm2') {
     state.hostbar = { open: true, openedDay: state.day };
     if (!state.ledger.rewards['outfit:host_first']) {

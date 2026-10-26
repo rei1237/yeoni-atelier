@@ -10,6 +10,7 @@ import { FURNITURE, GRID, AREAS } from '../data/layout.js';
 import { validateLayout } from './space.js';
 import { emit, nextId } from './state.js';
 import { bondFx } from '../data/bonds.js';
+import { placeLock } from './unlocks.js';
 
 export function townCheck(state) {
   if (state.mode === 'shift') return { ok: false, reason: '영업 중에는 가게를 비울 수 없습니다 (재료는 모카 긴급 배달로 살 수 있어요)' };
@@ -24,6 +25,7 @@ export function markVisit(state, place) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;
   if (!VISIT_PLACES.includes(place)) return { ok: false, reason: '없는 장소입니다' };
+  const lock = placeLock(state, place); if (lock) return { ok: false, reason: lock };
   const key = `visit:${place}`;
   if (state.ledger.story[key]) return { ok: true, duplicate: true };
   state.ledger.story[key] = true;
@@ -50,6 +52,7 @@ export function exchange(state, qty) {
 export function buyGear(state, id) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;
+  const lock = placeLock(state, 'gear'); if (lock) return { ok: false, reason: lock };
   const g = GEAR[id];
   if (!g) return { ok: false, reason: '없는 장비입니다' };
   if (state.gear.owned.includes(id)) return { ok: false, reason: '이미 가진 장비입니다' };

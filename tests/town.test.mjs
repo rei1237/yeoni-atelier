@@ -10,6 +10,7 @@ import { validateLayout } from '../src/game/space.js';
 import { tablePrice, areaPrice, VISIT_PLACES } from '../src/game/town.js';
 import { VISIT_STORIES } from '../src/story/visits.js';
 import { AREAS } from '../src/data/layout.js';
+import { placeLock } from '../src/game/unlocks.js';
 import { DECOR_CATALOG } from '../src/data/decor-catalog.js';
 import { serialize, deserialize } from '../src/core/save.js';
 import { quietShift, seat } from './helpers.mjs';
@@ -39,7 +40,7 @@ test('마을은 영업 준비 중에만: 영업 중에는 환전·장비·확장
 
 test('무인 장비 좌판: 사면 빈 칸에 장착되고, 사냥 시작 때 효과가 적용된다', () => {
   const s = createGame();
-  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
+  s.hostbar.open = true; s.huntUnlocked = true; s.stats.huntsCompleted = 1; // 테스트 준비: 기능 개시·첫 사냥 후 동작
   s.gold = 5000; // 테스트 준비
   assert.ok(dispatch(s, { type: 'gear.buy', id: 'scale_vest' }).ok);
   assert.equal(s.gold, 5000 - GEAR.scale_vest.cost.gold);
@@ -117,7 +118,7 @@ test('공방 증축: 잠긴 구역에는 가구를 못 놓고, 열 때마다 다
 
 test('장식 들이기는 보관함으로 오고, 월정석·장비는 저장 후에도 그대로', () => {
   const s = createGame();
-  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
+  s.hostbar.open = true; s.huntUnlocked = true; s.stats.huntsCompleted = 1; // 테스트 준비: 기능 개시·첫 사냥 후 동작
   s.gold = 2000;
   s.moonstone = GEAR.crescent_wand.cost.moonstone;
   const n0 = s.interior.furniture.length;
@@ -156,7 +157,7 @@ test('가게 첫 방문 이야기는 준비 중에 한 번만 기록되고, 행�
 });
 
 test('마을 구매·강화·환전은 행동력을 쓰지 않고, 강화는 윤달의 공방 소관이다', () => {
-  const s = createGame(); s.gold = 100000; s.moonstone = 500;
+  const s = createGame(); s.gold = 100000; s.moonstone = 500; s.stats.huntsCompleted = 1; // 테스트 준비: 공방 개방
   const ap = s.ap.left;
   assert.ok(dispatch(s, { type: 'gear.buy', id: Object.keys(GEAR).find(id => GEAR[id].cost.gold) }).ok);
   assert.ok(dispatch(s, { type: 'expand.decor', defId: 'lotus_pot' }).ok);
@@ -167,4 +168,28 @@ test('마을 구매·강화·환전은 행동력을 쓰지 않고, 강화는 윤
   const sh = quietShift(); sh.moonstone = 500;
   assert.match(dispatch(sh, { type: 'armory.enhance', who: 'neo', id: 'power' }).reason, /윤달/);
   assert.match(dispatch(sh, { type: 'armory.buy', id: 'tonic' }).reason, /모카/);
+});
+
+test('열리기 전 장소: 엔진이 거절하고, 첫 사냥 뒤 윤달 공방·4월 이야기 뒤 농장이 열린다', () => {
+  const s = createGame(); s.gold = 100000; s.moonstone = 500;
+  const gearId = Object.keys(GEAR).find(id => GEAR[id].cost.gold);
+  for (const [cmd, place] of [[{ type: 'farm.plant', cropId: 'wheat', index: 0 }, 'farm'], [{ type: 'gear.buy', id: gearId }, 'gear'], [{ type: 'armory.enhance', who: 'neo', id: 'power' }, 'gear'], [{ type: 'town.visit', place: 'gear' }, 'gear']]) {
+    const r = dispatch(s, cmd);
+    assert.equal(r.ok, false); assert.equal(r.reason, placeLock(s, place));
+  }
+  assert.equal(s.moonstone, 500); assert.equal(s.gold, 100000);
+  // 첫 사냥 귀환 때 공방이 열리고 알림은 한 번
+  s.huntUnlocked = true; // 테스트 준비: 사냥 이야기 본 상태
+  dispatch(s, { type: 'hunt.start' }); dispatch(s, { type: 'hunt.retreat' });
+  const fin = dispatch(s, { type: 'hunt.finish' });
+  assert.equal(fin.events.filter(e => e.type === 'placeUnlocked' && e.id === 'gear').length, 1);
+  assert.ok(dispatch(s, { type: 'gear.buy', id: gearId }).ok);
+  // 4월 이야기(m1)를 보면 농장이 열린다
+  s.day = 4; for (const k of ['m0', 'ev:hunt']) s.ledger.story[k] = true;
+  const m1 = dispatch(s, { type: 'story.seen', id: 'm1' });
+  assert.ok(m1.ok); assert.ok(m1.events.some(e => e.type === 'placeUnlocked' && e.id === 'farm'));
+  assert.ok(dispatch(s, { type: 'farm.plant', cropId: 'wheat', index: 0 }).ok);
+  // 기존 저장: 농사 경험이 있으면 열린 상태 유지
+  const old = createGame(); old.farm.xp = 3;
+  assert.equal(placeLock(old, 'farm'), '');
 });

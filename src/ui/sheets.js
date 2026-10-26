@@ -39,6 +39,7 @@ import { survivalReward } from '../game/hunt-rewards.js';
 import { BONDS, BOND_IDS, COMMON_GIFT, bondTier } from '../data/bonds.js';
 import { SPEAKERS } from '../story/prologue.js';
 import { townCheck, nextExpansion, areaPrice } from '../game/town.js';
+import { placeLock, PLACE_NAMES } from '../game/unlocks.js';
 import { COMBO_MAX } from '../game/recipe.js';
 import { dateLabel, isEnded, calendarOf } from '../game/calendar.js';
 import { ENDINGS } from '../story/months.js';
@@ -67,9 +68,9 @@ function sheetBody(state, ui) {
     case 'debt': return debtSheet(state);
     case 'companions': return companionSheet(state);
     case 'outfits': return state.hostbar.open?dressroomSheet(state, ui):`${head('아직 닫힌 드레스룸')}<div class="locked-room"><b>옷걸이에 초대장이 걸려 있어요</b><p>첫해 5월의 호스트 카페 개업 이야기를 마치면 동료들과 새 의상을 골라요.</p></div>`;
-    case 'farm': return farmSheet(state, ui);
+    case 'farm': return placeLock(state,'farm')?`${head(PLACE_NAMES.farm)}${lockedRoom(placeLock(state,'farm'))}`:farmSheet(state, ui);
     case 'hunt': return huntPrepSheet(state,ui);
-    case 'armory': return armorySheet(state,ui);
+    case 'armory': return placeLock(state,'gear')?`${head(PLACE_NAMES.gear)}${lockedRoom(placeLock(state,'gear'))}`:armorySheet(state,ui);
     case 'tutorial': return tutorialSheet(ui);
     case 'audio': return audioSheet();
     default: return '';
@@ -286,16 +287,21 @@ function townSheet(state, tab = 'atelier') {
     const bid = bondAt(p.id);
     const canTalk = bid && !state.ap.talked[bid] && state.ap.left > 0;
     const badge = bid ? `<em class="tn-bond">${esc(BONDS[bid].name)} ♥${bondTier(state.affinity[bid] || 0)}${canTalk ? ' 💬' : ''}</em>` : '';
-    return `<button type="button" class="tn${p.id === here.id ? ' on' : ''}" data-action="town.tab" data-tab="${p.id}" style="left:${p.x}%;top:${p.y}%" aria-label="${esc(p.name)}"><i>${assetIcon(`ui/town-node-${p.id}`,p.icon)}</i><b>${esc(p.name)}</b>${badge}</button>`;
+    const lock = placeLock(state, p.id);
+    return `<button type="button" class="tn${p.id === here.id ? ' on' : ''}${lock ? ' locked' : ''}" data-action="town.tab" data-tab="${p.id}" style="left:${p.x}%;top:${p.y}%" aria-label="${esc(p.name)}${lock ? ' (잠김)' : ''}"><i>${assetIcon(`ui/town-node-${p.id}`,p.icon)}</i><b>${esc(p.name)}</b>${lock ? '<em class="tn-lock" aria-hidden="true">🔒</em>' : badge}</button>`;
   }).join('');
   const map = `<div class="town-map ${SEASON(calendarOf(state.day).month)}" style="${assetStyle(`ui/town-map-${SEASON(calendarOf(state.day).month)}`)}" role="group" aria-label="마을 지도">
     <svg class="tm-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${paths}</svg>
     ${nodes}<span class="tm-me" style="left:${here.x}%;top:${here.y}%" aria-hidden="true">🐷</span></div>`;
   const bid = bondAt(here.id);
-  const body = !chk.ok ? `<p class="warn">${esc(chk.reason)}</p>`
+  const lock = placeLock(state, here.id);
+  const body = !chk.ok ? `<p class="warn">${esc(chk.reason)}</p>` : lock ? lockedRoom(lock)
     : (bid ? bondCard(state, bid) : '') + placeBody(state, here.id);
   return `${head('🏘 마을')}<p class="small">보유 ${won(state.gold)} · 🌙 월정석 ${state.moonstone || 0}개 · 마을 행동력 ${state.ap.left}</p><p class="small muted">대화와 사냥 출발에만 행동력 1을 써요. 구매·강화·환전은 자유롭게 이용해요.</p>${map}<h3>${here.icon} ${esc(here.name)}</h3>${body}`;
 }
+
+// 열리기 전 장소 안내(잠금 이유만 보이고 조작은 없다)
+const lockedRoom = reason => `<div class="locked-room"><b>🔒 아직 닫혀 있어요</b><p>${esc(reason)}</p></div>`;
 
 function placeBody(state, id) {
   switch (id) {

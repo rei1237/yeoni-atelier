@@ -19,7 +19,8 @@ import {TEMP} from '../src/config/balance.temp.js';
 import {farmForecast} from '../src/game/farm.js';
 const cmd=(s,type,args={})=>dispatch(s,{type,...args});
 test('구매는 무료 행동, 농장은 별도 행동력과 순마다 한 번 동료 대행',()=>{
- const s=createGame();assert.equal(maxActionPoints(s),3);assert.equal(s.ap.left,3);assert.equal(s.farm.energy,6);
+ const s=createGame();s.ledger.story.m1=true; // 테스트 준비: 농장 개방
+ assert.equal(maxActionPoints(s),3);assert.equal(s.ap.left,3);assert.equal(s.farm.energy,6);
  assert.ok(cmd(s,'shop.buy',{ingredientId:'bean',qty:1}).ok);assert.equal(s.ap.left,3);assert.equal(s.farm.energy,6);
  assert.ok(cmd(s,'farm.plant',{cropId:'wheat',index:0}).ok);assert.equal(s.farm.energy,5);assert.equal(s.ap.left,3);
  s.affinity.neo=60;s.ap.left=0;s.farm.energy=0;
@@ -29,7 +30,7 @@ test('구매는 무료 행동, 농장은 별도 행동력과 순마다 한 번 �
  s.stats.served=300;assert.ok(maxActionPoints(s)>3);
 });
 test('농장 행동력 저장·이전 저장 이전·마감 회복은 마을 행동력과 독립적',()=>{
- let s=createGame();cmd(s,'farm.plant',{cropId:'wheat',index:0});s=deserialize(serialize(s)).state;
+ let s=createGame();s.ledger.story.m1=true;cmd(s,'farm.plant',{cropId:'wheat',index:0});s=deserialize(serialize(s)).state;
  assert.equal(s.farm.energy,5);assert.equal(s.ap.left,3);
  const legacy=JSON.parse(serialize(s));delete legacy.farm.energy;assert.equal(deserialize(JSON.stringify(legacy)).state.farm.energy,6);
  s.farm.energy=0;const gold=s.gold;assert.equal(cmd(s,'farm.plant',{cropId:'wheat',index:1}).ok,false);assert.equal(s.gold,gold);

@@ -50,6 +50,7 @@ import { BOND_STORIES } from '../story/bonds.js';
 import { BONDS } from '../data/bonds.js';
 import { SPEAKERS } from '../story/prologue.js';
 import { pendingStory, calendarOf, isEnded, dateLabel } from '../game/calendar.js';
+import { placeLock } from '../game/unlocks.js';
 import { GAG_SHIFT_START, GAG_KITCHEN, GAG_MOKA_BUY, GAG_MOKA_DELIVERY, GAG_LUNA_EXCHANGE, GAG_GEAR_STALL, GAG_CHEONGTOKKI_REPAY, GAG_HUNT_RETURN, pickLine } from '../data/lines.js';
 
 // ── 부팅
@@ -152,7 +153,7 @@ function maybeStory() {
 // 마을 가게를 처음 찾으면 그 가게 이야기를 한 번 튼다. 끝내든 건너뛰든 town.visit 으로만 기록한다.
 function maybeVisit(place) {
   const beats = VISIT_STORIES[place];
-  if (!beats || !state || state.mode !== 'prep' || state.ledger.story[`visit:${place}`] || novelActive()) return;
+  if (!beats || !state || state.mode !== 'prep' || state.ledger.story[`visit:${place}`] || placeLock(state, place) || novelActive()) return;
   const done = () => { run({ type: 'town.visit', place }, { keepQuiet: true }); render(true); };
   playNovel(beats, { onEnd: done, onCancel: done });
 }
@@ -443,6 +444,7 @@ function handleEvents(events) {
       case 'repaid': toast(`💳 ${ev.amount}G 상환 · 남은 빚 ${ev.debt}G`, 'good'); gagOnce('repay', pickLine(GAG_CHEONGTOKKI_REPAY), 0); break;
       case 'bought': if (ev.delivery) { toast(`🛵 모카 긴급 배달 · 배달비 ${ev.fee}G 포함 ${ev.cost}G`); gagOnce('delivery', pickLine(GAG_MOKA_DELIVERY), 20000); } else gagOnce('moka', pickLine(GAG_MOKA_BUY), 12000); break;
       case 'exchanged': toast(`⚖ 월정석 ${ev.qty}개 → ${ev.gold}G`, 'good'); gagOnce('luna', pickLine(GAG_LUNA_EXCHANGE), 8000); break;
+      case 'placeUnlocked': toast(`🔓 ${ev.name}이 열렸어요`, 'good', 3600); break;
       case 'gearBought': toast(`🗡 ${ev.name} 구입 · 윤달의 무기 공방`, 'good'); gagOnce('stall', pickLine(GAG_GEAR_STALL), 8000); break;
       case 'expanded': toast(`🪑 ${ev.tableNo}번 테이블을 들였어요 · 다음 영업부터 손님 자리가 늘어요`, 'good', 3600); break;
       case 'areaOpened': resize(); toast(`🔓 ${ev.name} 증축 완료 · 인테리어에서 테이블과 장식을 놓아 보세요`, 'good', 3600); break;
@@ -488,7 +490,9 @@ function render(force = false) {
   const bossAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>ENEMIES[e.type]?.boss);
   setAudioScene(novelActive()?'story':hunting?(h.status!=='running'?'huntResult':bossAlive?'huntBoss':h.depth>=55?'huntDeep':'hunt'):state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind==='hunt'?'huntPrep':ui.sheet?.kind||(state?'cafe':'title'));
   const guide=({kitchen:'cook',craft:'cook',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop'})[ui.sheet?.kind] || (state?.interior.draft?'interior':null);
-  if(state && guide && (guide!=='outfits'||state.hostbar.open) && !state.tutorials?.[guide] && !novelActive()){
+  // 잠긴 농장·공방에서는 안내를 띄우지 않는다
+  const guideLocked=guide==='farm'?placeLock(state,'farm'):guide==='armory'?placeLock(state,'gear'):'';
+  if(state && guide && !guideLocked && (guide!=='outfits'||state.hostbar.open) && !state.tutorials?.[guide] && !novelActive()){
     ui.guideReturn=ui.sheet;ui.guideId=guide;ui.guideStep=0;ui.sheet={kind:'tutorial'};
   }
   const sh = sheetHtml(state, ui);
