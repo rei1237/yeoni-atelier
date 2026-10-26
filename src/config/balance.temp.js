@@ -90,7 +90,6 @@ export const TEMP = Object.freeze({
     BOMB_RADIUS: 280,
     BOMB_DAMAGE: 200,
     POWER_DROP: Object.freeze([ // 일반 적 처치 시 확률
-      { id: 'fish', chance: 0.012 },
       { id: 'magnet', chance: 0.005 },
       { id: 'bomb', chance: 0.005 },
     ]),
@@ -133,5 +132,13 @@ export const TEMP = Object.freeze({
 
   // ── 자동 운영
   AUTO_DECIDE_MS: 600,
-  HUNT_CAREER: Object.freeze({ xpBase: 1100, xpStep: 350, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.1, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100 }),
+  HUNT_CAREER: Object.freeze({ xpBase: 1100, xpStep: 350, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.1, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100, statCap: 10 }), // statCap: 이 레벨 뒤로는 체력·피해 보너스가 오르지 않는다(레벨·경험치는 계속)
+  // 기술 단련(윤달 공방). 단련 단계가 사냥 중 오를 수 있는 레벨 상한을 정한다. 가격은 월정석, 모두 임시
+  HUNT_SKILLS: Object.freeze({
+    START: Object.freeze(['bolt', 'orbit', 'paw', 'fish_stock']), // 처음부터 1단계
+    LEARN: Object.freeze({ hat: 800, whisker: 800, crescent: 1500, bell: 1500, aura: 2500, luck: 2500, tarot: 4000 }), // 배우기(1단계) 값
+    TRAIN_BASE: 600,                                  // 기본 4종의 단련 기준값
+    TRAIN_MULT: Object.freeze([1, 1.6, 2.6, 4.2]),    // 1·2·3·4단계 값 = 기준값 × 배율
+    POUCH: 3,                                         // 상한에 다 닿았을 때 레벨업 카드 「월정석 주머니」
+  }),
 });

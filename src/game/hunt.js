@@ -9,7 +9,7 @@ import {stepEnemyBehaviors,addBattleFx} from './enemy-behaviors.js';
 // killerflowerpig 에서 가져온 것: Pool(그대로), 조이스틱 입력(변형). 무기 레벨 누적·진화 배율·
 // 밀도 목표 생성기·별조각 등급/합치기는 개념만 참고해 이 파일에서 새로 썼다(전투 로직 이식 아님).
 
-import { enhancementBonus, SUPPLIES } from './moka-armory.js';
+import { enhancementBonus, SUPPLIES, SKILL_IDS, skillCap, skillRank } from './moka-armory.js';
 import { survivalReward } from './hunt-rewards.js';
 import { PDF } from '../config/balance.pdf.js';
 import { TEMP } from '../config/balance.temp.js';
@@ -77,13 +77,15 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
   if(hunterId === 'seohanbi') { gear.hp += 120; gear.dmg += .8; gear.speed += .12; gear.magnet += .3; }
   const enhancement = enhancementBonus(state,hunterId); gear.hp += enhancement.hp; gear.dmg += enhancement.dmg; gear.magnet += enhancement.magnet;
   const careerLevel = hunterProgress(state.hunter.xp).level;
-  gear.hp += (careerLevel - 1) * TEMP.HUNT_CAREER.hpPerLevel;
-  gear.dmg += (careerLevel - 1) * TEMP.HUNT_CAREER.damagePerLevel;
+  const statLevel = Math.min(careerLevel, TEMP.HUNT_CAREER.statCap); // 성장 보너스는 Lv10에서 멈춘다
+  gear.hp += (statLevel - 1) * TEMP.HUNT_CAREER.hpPerLevel;
+  gear.dmg += (statLevel - 1) * TEMP.HUNT_CAREER.damagePerLevel;
   const saved=state.hunter.builds?.[hunterId];
   const hp = H.PLAYER_HP + gear.hp + (saved?.passives?.fish_stock||0)*20;
   state.hunt = normalizeHunt({
     id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: null, hunterId, hp, maxHp: hp, gear,
     bag: { moonstone: 0 }, kills: 0, status: 'running', depth, careerLevel, careerXP: 0,
+    caps: Object.fromEntries(SKILL_IDS.map(id => [id, skillCap(id, skillRank(state, id))])), // 출발 때 고정한 단련 상한
     scale: depthScale(depth, monthScale(state.day), calendarOf(state.day).monthIdx),
     fieldSeed:Math.floor(nextRandom(state.rng)*2147483647),brokenProps:{},propDamage:{},
     ...(saved?{level:saved.level,xp:saved.xp,weapons:structuredClone(saved.weapons),passives:{...saved.passives},picks:structuredClone(saved.picks||[])}:{}),
@@ -109,6 +111,7 @@ export function normalizeHunt(hs) {
   hs.depth ??= 1; hs.careerLevel ??= 1; hs.careerXP ??= 0;
   hs.startDepth ??= hs.depth; hs.stageMs ??= 0; hs.boss ??= null; hs.bossSpawned ??= false;
   hs.cleared ??= 0; hs.stageChoice ??= null; hs.chests ??= [];
+  hs.caps ??= Object.fromEntries(SKILL_IDS.map(id => [id, WEAPONS[id] ? WEAPON_MAX_LV : PASSIVE_MAX_LV])); // 단련 이전 사냥은 그대로
   return hs;
 }
 
@@ -179,13 +182,14 @@ export function weaponStats(wp, m) {
 }
 
 // ── 레벨업 카드
-function optionsFor(hs) {
-  const out = [];
-  for (const wp of hs.weapons) if (wp.level < WEAPON_MAX_LV) out.push({ kind: 'weapon', id: wp.id });
-  if (hs.weapons.length < MAX_WEAPONS) for (const id of Object.keys(WEAPONS)) if (!hs.weapons.some(w => w.id === id)) out.push({ kind: 'weapon', id });
+// 윤달 공방 단련 상한(hs.caps) 아래 기술만 나온다. 못 배운 기술은 상한 0
+export function optionsFor(hs) {
+  const out = [], cap = id => hs.caps[id] || 0;
+  for (const wp of hs.weapons) if (wp.level < Math.min(WEAPON_MAX_LV, cap(wp.id))) out.push({ kind: 'weapon', id: wp.id });
+  if (hs.weapons.length < MAX_WEAPONS) for (const id of Object.keys(WEAPONS)) if (cap(id) && !hs.weapons.some(w => w.id === id)) out.push({ kind: 'weapon', id });
   const owned = Object.keys(hs.passives);
-  for (const id of owned) if (hs.passives[id] < PASSIVE_MAX_LV) out.push({ kind: 'passive', id });
-  if (owned.length < MAX_PASSIVES) for (const id of Object.keys(PASSIVES)) if (!owned.includes(id)) out.push({ kind: 'passive', id });
+  for (const id of owned) if (hs.passives[id] < Math.min(PASSIVE_MAX_LV, cap(id))) out.push({ kind: 'passive', id });
+  if (owned.length < MAX_PASSIVES) for (const id of Object.keys(PASSIVES)) if (cap(id) && !owned.includes(id)) out.push({ kind: 'passive', id });
   return out;
 }
 
@@ -193,24 +197,27 @@ function rollOffer(state, n = 3) {
   const all = optionsFor(state.hunt);
   for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(nextRandom(state.rng) * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; }
   const pick = all.slice(0, n);
-  return pick.length ? pick : [{ kind: 'heal' }];
+  return pick.length ? pick : [{ kind: 'pouch' }]; // 모두 단련 상한이면 회복 대신 월정석
 }
 
 export function describeOption(hs, o) {
-  if (o.kind === 'heal') return { icon: '🐟', name: '간식 시간', text: `HP ${H.HEAL_FISH} 회복`, tag: '회복' };
+  if (o.kind === 'heal') return { icon: '🐟', name: '간식 시간', text: `HP ${H.HEAL_FISH} 회복`, tag: '회복' }; // 옛 저장의 남은 카드
+  if (o.kind === 'pouch') return { icon: '☾', name: '월정석 주머니', text: `모든 기술이 단련 상한이에요 · 월정석 +${TEMP.HUNT_SKILLS.POUCH}`, tag: '보너스' };
+  const cap = hs.caps?.[o.id];
   if (o.kind === 'passive') {
     const d = PASSIVES[o.id], lv = hs.passives[o.id] || 0;
-    return { icon: d.icon, name: d.name, text: d.desc, tag: lv ? `Lv ${lv} → ${lv + 1}` : '새 보조 능력' };
+    return { icon: d.icon, name: d.name, text: d.desc, tag: lv ? `Lv ${lv} → ${lv + 1}` : '새 보조 능력', cap };
   }
   const d = WEAPONS[o.id], wp = hs.weapons.find(w => w.id === o.id);
   const tag = wp ? `Lv ${wp.level} → ${wp.level + 1}` : '새 무기';
   const evoHint = wp && wp.level + 1 === WEAPON_MAX_LV ? ` · ${PASSIVES[d.evo.pair].name}와 함께면 진화` : '';
-  return { icon: d.icon, name: d.name, text: d.desc + evoHint, tag };
+  return { icon: d.icon, name: d.name, text: d.desc + evoHint, tag, cap };
 }
 
 function applyOption(state, o) {
   const hs = state.hunt;
   if (o.kind === 'heal') hs.hp = Math.min(hs.maxHp, hs.hp + H.HEAL_FISH);
+  else if (o.kind === 'pouch') hs.bag.moonstone = (hs.bag.moonstone || 0) + TEMP.HUNT_SKILLS.POUCH;
   else if (o.kind === 'passive') {
     hs.passives[o.id] = Math.min(PASSIVE_MAX_LV, (hs.passives[o.id] || 0) + 1);
     if (o.id === 'fish_stock') { hs.maxHp += 20; hs.hp += 20; }
@@ -682,10 +689,12 @@ export function nextStage(state) {
 }
 
 // ── 희귀 상자: 줍는 순간 결과를 정해 저장하고(재접속해도 같은 결과), 화면은 룰렛으로 보여 주기만 한다
+// 상자 강화도 단련 상한까지만
 function chestTargets(hs) {
+  const cap = id => hs.caps?.[id] || 0;
   return [
-    ...hs.weapons.filter(x => x.level < WEAPON_MAX_LV).map(x => ({ kind: 'weapon', id: x.id })),
-    ...Object.entries(hs.passives).filter(([, lv]) => lv < PASSIVE_MAX_LV).map(([id]) => ({ kind: 'passive', id })),
+    ...hs.weapons.filter(x => x.level < Math.min(WEAPON_MAX_LV, cap(x.id))).map(x => ({ kind: 'weapon', id: x.id })),
+    ...Object.entries(hs.passives).filter(([id, lv]) => lv < Math.min(PASSIVE_MAX_LV, cap(id))).map(([id]) => ({ kind: 'passive', id })),
   ];
 }
 function queueChest(state) {

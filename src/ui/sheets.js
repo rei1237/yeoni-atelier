@@ -592,9 +592,10 @@ function levelUpDialog(state) {
   const cards = h.picks[0].map((o, i) => {
     const d = describeOption(h, o);
     return btn({ action: 'hunt.pick', args: { index: i }, cls: `lv-card k-${o.kind}`,
-      label: `<span class="lv-icon" aria-hidden="true">${assetIcon(`skills/${o.id || 'heal'}`,esc(d.icon))}</span><span class="lv-body"><b>${esc(d.name)}</b><span class="lv-tag">${esc(d.tag)}</span><span class="small">${esc(d.text)}</span></span>` });
+      label: `<span class="lv-icon" aria-hidden="true">${assetIcon(o.kind === 'pouch' ? 'icons/moonstone' : `skills/${o.id || 'heal'}`,esc(d.icon))}</span><span class="lv-body"><b>${esc(d.name)}</b><span class="lv-tag">${esc(d.tag)}${d.cap ? ` · 단련 상한 Lv ${d.cap}` : ''}</span><span class="small">${esc(d.text)}</span></span>` });
   }).join('');
-  const more = h.picks.length > 1 ? `<p class="small muted">남은 선택 ${h.picks.length - 1}번</p>` : '';
+  const more = (h.picks.length > 1 ? `<p class="small muted">남은 선택 ${h.picks.length - 1}번</p>` : '')
+    + (Object.values(h.caps || {}).some(c => !c) ? '<p class="small muted">윤달 공방에서 기술을 더 배울 수 있어요</p>' : '');
   return `<div class="dialog levelup" role="dialog" aria-modal="true"><h2>✨ 레벨 ${h.level}! 하나를 고르세요</h2>
     <p class="small muted">고르는 동안 시간이 멈춰 있어요.</p><div class="lv-cards">${cards}</div>${more}</div>`;
 }

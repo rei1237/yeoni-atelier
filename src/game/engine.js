@@ -116,6 +116,7 @@ function execute(state, cmd) {
     case 'yun.quest': return acceptYunQuest(state);
     case 'armory.enhance': return armory.enhance(state,cmd.who,cmd.id);
     case 'armory.buy': return armory.buySupply(state,cmd.id);
+    case 'armory.learn': return armory.learnSkill(state,cmd.id);
     case 'hunt.supply': return hunt.useSupply(state,cmd.id);
     case 'bond.gift': return bonds.gift(state, cmd.id, cmd.giftId);
     case 'story.seen': return calendar.markStory(state, cmd.id);

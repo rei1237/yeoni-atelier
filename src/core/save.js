@@ -3,6 +3,7 @@
 
 import { SAVE_VERSION, createGame } from '../game/state.js';
 import { newFarm, maxFarmEnergy } from '../data/farm.js';
+import { legacySkillRanks } from '../game/moka-armory.js';
 
 export const SAVE_KEYS = Object.freeze({ normal: 'yeoni-atelier.save.v1', dev: 'yeoni-atelier.dev-save.v1' });
 
@@ -38,6 +39,7 @@ function migrate(data) {
     if (data.shift) { data.shift.durationMs ??= 1800000; data.shift.nominationMs ??= 300000; }
   }
   data.startingDebt ??= 120000; // 이전 저장의 원금과 상환 진척은 보존
+  if (data.armory && !data.armory.skills) data.armory.skills = legacySkillRanks(data); // 기술 단련 이전 저장
   const base = createGame({ dev: !!data.meta?.devData });
   if (!data.farm) data.farm = { ...newFarm(data.rng?.seed), lastAdvancedDay: data.day };
   data.farm.energy = Number.isFinite(data.farm.energy) ? Math.max(0,Math.min(data.farm.energy,maxFarmEnergy(data.farm))) : maxFarmEnergy(data.farm);

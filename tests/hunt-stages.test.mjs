@@ -5,7 +5,11 @@ import { ENEMIES } from '../src/data/hunt-kit.js';
 import { stageDef, stageAllows, bossFor } from '../src/data/hunt-stages.js';
 import { createGame } from '../src/game/state.js';
 import { dispatch, tick } from '../src/game/engine.js';
-import { getHuntWorld, spawnEnemy, findBoss } from '../src/game/hunt.js';
+import { getHuntWorld, spawnEnemy, findBoss, optionsFor } from '../src/game/hunt.js';
+import { skillCost, skillRank, skillMaxRank } from '../src/game/moka-armory.js';
+import { placeLock } from '../src/game/unlocks.js';
+import { hunterProgress } from '../src/game/hunt-growth.js';
+import { TEMP } from '../src/config/balance.temp.js';
 import { stepBoss, initBoss } from '../src/game/hunt-boss.js';
 import { serialize, deserialize } from '../src/core/save.js';
 import { pendingStory, calendarOf } from '../src/game/calendar.js';
@@ -181,4 +185,64 @@ test('검은 호랑이 사건은 네오 클리어 순서대로만 열리고, 100
   assert.ok(s.roster.seohanbi);
   assert.equal(pendingStory(s)?.startsWith('hanbi:') ?? false, false);
   assert.equal(bossFor(100, 'neo', true), 'boss_core', '합류 뒤 100단계는 흑월의 핵');
+});
+
+test('기술 단련: 새 게임은 기본 4종만, 단련 상한까지만 오르고 상한이면 회복 대신 월정석 주머니', () => {
+  const s = start(1);
+  const ids = optionsFor(s.hunt).map(o => o.id);
+  assert.ok(ids.length && ids.every(id => ['bolt', 'orbit', 'paw', 'fish_stock'].includes(id)), ids.join());
+  assert.equal(s.hunt.caps.bolt, 2, '무기 1단계 → Lv2까지');
+  s.hunt.weapons = [{ id: 'bolt', level: 2, evo: false }, { id: 'orbit', level: 2, evo: false }];
+  s.hunt.passives = { paw: 1, fish_stock: 1 }; // 테스트 준비: 모두 상한
+  assert.deepEqual(optionsFor(s.hunt), []);
+  s.hunt.xp = s.hunt.xpNext - 1; const w = getHuntWorld(s);
+  w.drops.items[w.drops.count++] = { kind: 'gem', id: '', v: 5, x: w.player.x, y: w.player.y, speed: 0, magnet: false };
+  tick(s, 200, { input: { x: 0, y: 0 } });
+  assert.deepEqual(s.hunt.picks[0], [{ kind: 'pouch' }]);
+  const m = s.hunt.bag.moonstone, hp = s.hunt.hp;
+  assert.ok(dispatch(s, { type: 'hunt.pick', index: 0 }).ok);
+  assert.equal(s.hunt.bag.moonstone, m + TEMP.HUNT_SKILLS.POUCH);
+  assert.ok(s.hunt.hp <= hp, '회복하지 않는다');
+  assert.ok(!TEMP.HUNT.POWER_DROP.some(d => d.id === 'fish'), '필드에 회복 생선 없음');
+});
+
+test('기술 단련: armory.learn은 잠김·부족·끝까지 단련을 거절하고, 값만큼 빼고 다음 사냥 상한을 올린다', () => {
+  const s = createGame({ seed: 5 }); s.huntUnlocked = true;
+  s.moonstone = 99999;
+  assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).reason, placeLock(s, 'gear'));
+  s.stats.huntsCompleted = 1; s.moonstone = skillCost('crescent', 1) - 1;
+  assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).ok, false);
+  assert.equal(s.moonstone, skillCost('crescent', 1) - 1, '실패 시 차감 없음');
+  s.moonstone += 1;
+  const r = dispatch(s, { type: 'armory.learn', id: 'crescent' });
+  assert.ok(r.ok && r.rank === 1 && s.moonstone === 0 && r.cost === TEMP.HUNT_SKILLS.LEARN.crescent);
+  assert.ok(r.events.some(e => e.type === 'skillLearned'));
+  s.moonstone = 1e6;
+  while (skillRank(s, 'bell') < skillMaxRank('bell')) assert.ok(dispatch(s, { type: 'armory.learn', id: 'bell' }).ok);
+  assert.equal(dispatch(s, { type: 'armory.learn', id: 'bell' }).ok, false, '끝까지 단련');
+  assert.ok(dispatch(s, { type: 'hunt.start', depth: 1 }).ok);
+  assert.equal(s.hunt.caps.crescent, 2); assert.equal(s.hunt.caps.bell, 3); assert.equal(s.hunt.caps.tarot, 0);
+  assert.ok(optionsFor(s.hunt).some(o => o.id === 'crescent') && !optionsFor(s.hunt).some(o => o.id === 'tarot'));
+});
+
+test('기술 단련 이전 저장: 빌드에 있던 기술·레벨은 그만큼 단련된 것으로 남고, 성장 보너스는 Lv10에서 멈춘다', () => {
+  const s = createGame({ seed: 6 }); s.huntUnlocked = true;
+  s.hunter.builds = { neo: { level: 9, xp: 0, weapons: [{ id: 'bolt', level: 5, evo: true }, { id: 'tarot', level: 3, evo: false }], passives: { bell: 2 }, picks: [], stage: 4 } };
+  delete s.armory.skills; // 테스트 준비: 단련 이전 저장
+  const r = deserialize(serialize(s)).state;
+  assert.equal(skillRank(r, 'bolt'), 4); assert.equal(skillRank(r, 'tarot'), 2); assert.equal(skillRank(r, 'bell'), 2); assert.equal(skillRank(r, 'orbit'), 1);
+  assert.ok(dispatch(r, { type: 'hunt.start', depth: 1 }).ok);
+  assert.equal(r.hunt.weapons.find(w => w.id === 'tarot').level, 3, '빼앗지 않음');
+  const gearAt = xp => { const g = createGame({ seed: 6 }); g.huntUnlocked = true; g.hunter.xp = xp; dispatch(g, { type: 'hunt.start', depth: 1 }); return g.hunt.maxHp; };
+  const xpFor = lv => { let x = 0; while (hunterProgress(x).level < lv) x += 50; return x; };
+  assert.equal(gearAt(xpFor(20)), gearAt(xpFor(10)));
+  assert.ok(gearAt(xpFor(10)) > gearAt(0));
+});
+
+test('모카의 회복 수프는 3개까지만 챙긴다', () => {
+  const s = createGame({ seed: 8 }); s.moonstone = 1000;
+  for (let i = 0; i < 3; i++) assert.ok(dispatch(s, { type: 'armory.buy', id: 'tonic' }).ok);
+  const m = s.moonstone, r = dispatch(s, { type: 'armory.buy', id: 'tonic' });
+  assert.equal(r.ok, false); assert.equal(r.reason, '회복 수프는 3개까지만 챙길 수 있어요');
+  assert.equal(s.moonstone, m); assert.equal(s.armory.supplies.tonic, 3);
 });

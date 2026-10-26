@@ -45,7 +45,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     moonstone: 0,          // 월정석: 사냥에서 얻고 청토끼 금융 센터에서 골드로 바꾼다
     farm: newFarm(seed),
     hunter: { xp: 0, kills: 0, maxStage:1 },
-    armory: {upgrades:{},supplies:{}},
+    armory: {upgrades:{},supplies:{},skills:Object.fromEntries(TEMP.HUNT_SKILLS.START.map(id=>[id,1]))},
     gear: { owned: [], equipped: { weapon: null, armor: null, charm: null } }, // 영냥이 장비(data/gear.js)
     learned,
     // 접대 가능한 명단: 새 게임은 네오 한 명
