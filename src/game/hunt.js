@@ -211,7 +211,7 @@ export function describeOption(hs, o) {
   const d = WEAPONS[o.id], wp = hs.weapons.find(w => w.id === o.id);
   const tag = wp ? `Lv ${wp.level} → ${wp.level + 1}` : '새 무기';
   const evoHint = wp && wp.level + 1 === WEAPON_MAX_LV ? ` · ${PASSIVES[d.evo.pair].name}와 함께면 진화` : '';
-  return { icon: d.icon, name: d.name, text: d.desc + evoHint, tag, cap };
+  return { icon: d.icon, name: d.name, text: d.desc + evoHint, tag, cap, evo: !!evoHint };
 }
 
 function applyOption(state, o) {
