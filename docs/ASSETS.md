@@ -496,3 +496,29 @@
 윤달과 서한비는 독립된2×2 원화부터 다시 그렸다. 윤달은 정면에 가까운 자세, 서한비는 사용자 확정 여성·검은 드레스 모습이다. 나머지14종은 원본의 실제 인물 경계로 다시 잘랐다.16종 모두320×384 셀4열(1280×384)이며 프레임0 중립,1 눈감음,2 작은 입,3 열린 입이다. 기준점160,368과 알파 외곽을 고정하고 눈·입 영역만 바꿔 머리·몸의 흔들림을 줄였다. 기존 talking 경로에 손실 없는 WebP로 교체했다.
 
 개별 프레임·원본PNG·미리보기·해시는 이 채팅의 outputs/claude-handoff에 보존했다. 생성 프롬프트와 원본 경계는 docs/art-prompts.json 및 각 WebP의 JSON에 기록한다. 텍스트 진행 기반 발화이며 음성에 맞춘 음소 립싱크는 아니다. 작은 대사용 얼굴 배지와 새 서빙 소품은 인계 패키지에만 있으며 UI/손 위치 연결은 후속 작업이다. 이동·공격·의상별 배우 시트의 검수 완료를 뜻하지 않는다.
+
+## 카페 손님 옷색 (2026-10-26)
+
+| 키 | 경로 | 크기 | 상태 |
+|---|---|---|---|
+| service/customer-clothes-mask | assets/illustrated/service/customer-clothes-mask.webp | 512×512 | 완료 |
+| actors/customer@look0 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
+| actors/customer@look1 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
+| actors/customer@look2 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
+| actors/customer@look3 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
+| actors/customer@look4 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
+| actors/customer@look5 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
+| actors/customer@look6 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
+| actors/customer@look7 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
+
+8색은 같은 원본과 치마 마스크를 재사용한다. 후드티·정장·노신사 신규 시트 및 앉기·먹기·마시기 전용 자세는 미완료다.
+
+
+## 2026-10-26 카페 개선 용량 검증 (현재)
+이 절은 위 이전 용량·무손실 메모보다 최신이다. 235개 WebP를 원래 가로·세로와 알파를 유지해 재인코딩했다. 대화 시트도 일부 손실 인코딩으로 바뀌었다. 변경 부분 합계는 14,261,046 → 10,828,316바이트이며 원본은 D:/yeoni-qa/cafe-ux/asset-review/originals에 보존했다.
+
+등록 419개 키의 중복 경로를 한 번만 합산하고 로컬 글꼴을 더한 전송 대상은 394개 파일, **14,937,208바이트(14.94MB)**다. 최대 파일은 글꼴 432,504바이트로 1.5MB 미만이다. 15,000,000바이트 예산을 올리지 않았으며 여유는 62,792바이트다. 신규 아트 추가 시 다른 그림을 다시 검토해야 한다.
+
+comparison-00~19.jpg를 직접 열어 변경 전후를 비교했다. 마을 4계절 지도·타이틀·농장·대화 시트·대표 얼굴에서 비교 이미지 크기상 뚜렷한 추가 압축 손상은 찾지 못했다. 원래 시트의 잘못된 크롭이나 자세까지 해결했다는 뜻은 아니다. 의뢰의 루나는 대화 시트의 올바른 320×384 프레임을 써서 다른 프레임의 귀 조각을 제외한다.
+
+글꼴: assets/fonts/YeoniUI-Subset.woff2, 이름 Yeoni UI, OFL은 assets/fonts/OFL.txt. 출처와 수정 기록은 REUSE.md 참조.

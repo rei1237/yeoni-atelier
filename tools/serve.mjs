@@ -10,7 +10,7 @@ const PORT = Number(process.env.PORT) || 5280;
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png',
-  '.md': 'text/markdown; charset=utf-8', '.webp': 'image/webp', '.gif': 'image/gif',
+  '.woff2':'font/woff2', '.md': 'text/markdown; charset=utf-8', '.webp': 'image/webp', '.gif': 'image/gif',
 };
 
 createServer(async (req, res) => {

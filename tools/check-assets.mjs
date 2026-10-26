@@ -32,6 +32,8 @@ for(const id of manifest.ready) {
   count++;
  }catch(e){errors.push(id+': '+e.message);}
 }
-if(totalBytes>15_000_000)errors.push('전체 에셋 15MB 전송 예산 초과');
+const font=await readFile(new URL('assets/fonts/YeoniUI-Subset.woff2',root));totalBytes+=font.length;
+if(font.length>1_500_000)errors.push('글꼴 1.5MB 초과');
+if(totalBytes>=15_000_000)errors.push('전체 에셋 15MB 전송 예산 초과');
 console.log('에셋 '+count+'/'+manifest.ready.length+' 통과 · '+(totalBytes/1e6).toFixed(2)+'MB');
 if(errors.length){console.error(errors.join('\n'));process.exitCode=1;}

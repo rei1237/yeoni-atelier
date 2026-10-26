@@ -69,3 +69,12 @@ Code Destiny 로컬 원본의 공개 프로필·라이트노벨 이미지·운�
 - 단계 정의(src/data/hunt-stages.js), 보스 예고→행동→회복 패턴(src/game/hunt-boss.js), 희귀 상자 저장 결과·룰렛 표시, 클리어 선택 화면은 원본 코드 없이 새로 썼다. killerflowerpig의 밀도 목표+누적기 개념(위 표)만 이어 쓴다.
 - 인계에 첨부된 상용 게임 스크린샷·ISO는 보스 체력바·예고 장판·클리어 선택 같은 정보 구조만 참고했다. 실행 파일·이미지·음악·데이터를 복사하지 않았다.
 - 보스 곡: code-destiny 음악 목록(app/music/_data/musicManifest.ts)을 읽기 전용으로 확인했다. 네오 곡은 앨범 수록곡뿐이고 전투곡·서한비 곡은 없어 새로 연결하지 않았다. 보스 장면은 기존 DestinyWar/The Moonlit War Room.mp3를 그대로 쓴다.
+
+
+## 2026-10-26 카페 UI 글꼴·무료 아트 검토
+- 글꼴 원본: [Pretendard](https://github.com/orioncactus/pretendard), SIL Open Font License 1.1. 원본 가변 글꼴을 KS X 1001 완성형 한글·ASCII 중심으로 서브셋한 기존 작업물을 이어받았다. 실제 cmap은 2,487개(한글 2,351개), 파일은 432,504바이트다.
+- 수정 글꼴의 내부 family/full/PostScript 이름은 `Yeoni UI` / `YeoniUI-Subset`으로 바꿨다. 예약 이름을 수정본 이름으로 사용하지 않는다. 원본 저작권·OFL 전문은 `assets/fonts/OFL.txt`에 함께 배포한다. CSS는 로컬 WOFF2와 font-display:swap을 쓴다.
+- [Kenney Roguelike Indoors](https://kenney.nl/assets/roguelike-indoors)는 CC0이나 픽셀 스타일이므로 현재 부드러운 일러스트에 도입하지 않았다.
+- [sierrassets 가구 팩](https://sierrassets.itch.io/pixel-art-furniture-pack)은 픽셀 스타일 후보로 검토하고 가져오지 않았다. 사용 권한을 확보한 신규 에셋으로 기재하지 않는다.
+- [Restaurant Game Canvas JS](https://github.com/enesbabekoglu/Restaurant-Game-Canvas-JS)는 공개 게임 참고 후보로 확인했으며 코드·그림을 복사하지 않았다.
+- 고객 8색은 기존 고객 시트와 Python HSV 옷 영역 마스크를 공유하고 런타임 Canvas에서 치마 색만 회전한다. 머리·피부를 통째로 회전하지 않는다. 신규 3인물이나 앉은 자세를 생성한 결과는 아니다.

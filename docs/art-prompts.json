@@ -3383,5 +3383,49 @@
     "sourceFile": "exec-fd4602f2-4d33-4953-b327-4c562933c4f5.png",
     "prompt": "Use case: identity-preserve. Premium game character sprite atlas of Yeongnyangi, matching the attached reference images exactly: WHITE fluffy CAT, violet-gold eyes, navy wizard hat with gold stars and a gold crescent and a gold tassel, navy short cloak with gold trim and gold star pattern and purple lining, purple gem necklace. Cute dignified grumpy expression. BIPEDAL anthropomorphic chibi cat standing upright on TWO hind paws, forepaws used like arms, never quadrupedal, no humans. Smooth hand-painted light novel game art, same style as references. EXACTLY 4 columns and 4 rows, sixteen strictly separate equal cells laid out on a square canvas. Row 1 FRONT (facing viewer), row 2 facing LEFT profile, row 3 facing RIGHT profile, row 4 BACK (facing away). CRITICAL: identical character scale in all 16 cells - the head is the same size, the body is the same height (hat tip to feet), and the feet stand on the same ground line in every cell; only the limbs, cloak and tail move. True transparent background, generous transparent padding in every cell, no figure touches another or a cell edge, no detached particles, no shadows on ground, no text, no grid lines, no background. Four-frame SPELL CAST / THROW in each row, read left to right: (1) gather - both forepaws raised above the head, a tiny glowing gold crescent held between the paws (2) wind-up - leading forepaw pulls back behind the head with the crescent (3) release - leading forepaw thrust forward and open, the crescent just leaving the paw still touching it (4) recover - paws lowering back to a calm standing pose, empty. Hat tassel and cloak react to the motion. Hind paws stay planted on the same ground line; same body size as a standing pose.",
     "processing": "Alpha connected-component isolation; height-matched scale (scaleBy height, body ~113px), alpha mass-center x, feet on anchor baseline (tools/pack-sprites.py pack_height); WebP export."
+  },
+  {
+    "id": "service/customer-clothes-mask",
+    "prompt": "기존 customer WebP의 HSV 분홍 치마만 투명 마스크로 분리. Python 재색상 처리, 생성 이미지 아님. 피부·머리·가방 보존."
+  },
+  {
+    "id": "actors/customer@look0",
+    "aliasOf": "actors/customer",
+    "prompt": "기존 손님 치마 마스크에만 0도 색상 회전. 원본 시트를 공유하는 8색 중 1번째. 새 인물·앉은 자세를 생성한 것이 아님."
+  },
+  {
+    "id": "actors/customer@look1",
+    "aliasOf": "actors/customer",
+    "prompt": "기존 손님 치마 마스크에만 45도 색상 회전. 원본 시트를 공유하는 8색 중 2번째. 새 인물·앉은 자세를 생성한 것이 아님."
+  },
+  {
+    "id": "actors/customer@look2",
+    "aliasOf": "actors/customer",
+    "prompt": "기존 손님 치마 마스크에만 90도 색상 회전. 원본 시트를 공유하는 8색 중 3번째. 새 인물·앉은 자세를 생성한 것이 아님."
+  },
+  {
+    "id": "actors/customer@look3",
+    "aliasOf": "actors/customer",
+    "prompt": "기존 손님 치마 마스크에만 135도 색상 회전. 원본 시트를 공유하는 8색 중 4번째. 새 인물·앉은 자세를 생성한 것이 아님."
+  },
+  {
+    "id": "actors/customer@look4",
+    "aliasOf": "actors/customer",
+    "prompt": "기존 손님 치마 마스크에만 180도 색상 회전. 원본 시트를 공유하는 8색 중 5번째. 새 인물·앉은 자세를 생성한 것이 아님."
+  },
+  {
+    "id": "actors/customer@look5",
+    "aliasOf": "actors/customer",
+    "prompt": "기존 손님 치마 마스크에만 225도 색상 회전. 원본 시트를 공유하는 8색 중 6번째. 새 인물·앉은 자세를 생성한 것이 아님."
+  },
+  {
+    "id": "actors/customer@look6",
+    "aliasOf": "actors/customer",
+    "prompt": "기존 손님 치마 마스크에만 270도 색상 회전. 원본 시트를 공유하는 8색 중 7번째. 새 인물·앉은 자세를 생성한 것이 아님."
+  },
+  {
+    "id": "actors/customer@look7",
+    "aliasOf": "actors/customer",
+    "prompt": "기존 손님 치마 마스크에만 315도 색상 회전. 원본 시트를 공유하는 8색 중 8번째. 새 인물·앉은 자세를 생성한 것이 아님."
   }
 ]

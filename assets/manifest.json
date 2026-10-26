@@ -409,6 +409,15 @@
     "service/tray-down",
     "service/tray-left",
     "service/tray-right",
-    "service/tray-up"
+    "service/tray-up",
+    "service/customer-clothes-mask",
+    "actors/customer@look0",
+    "actors/customer@look1",
+    "actors/customer@look2",
+    "actors/customer@look3",
+    "actors/customer@look4",
+    "actors/customer@look5",
+    "actors/customer@look6",
+    "actors/customer@look7"
   ]
 }

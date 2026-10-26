@@ -9945,3 +9945,7 @@ export const ASSET_UPDATES = {
     }
   }
 };
+
+// 기존 손님과 같은 시트를 공유하고 치마 마스크에만 색을 입힌다. 8색 전송량은 한 시트+마스크다.
+ASSET_UPDATES.service['customer-clothes-mask'] = {kind:'mask',dimensions:[512,512],path:'assets/illustrated/service/customer-clothes-mask.webp'};
+for(let i=0;i<8;i++) ASSET_UPDATES.actors[`customer@look${i}`] = {...ASSET_UPDATES.actors.customer,clothesHue:i*45};
