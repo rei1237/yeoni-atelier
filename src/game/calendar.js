@@ -5,7 +5,11 @@
 import { TEMP } from '../config/balance.temp.js';
 import { PDF } from '../config/balance.pdf.js';
 import { emit } from './state.js';
-import { BOND_IDS, bondTier, bondFx } from '../data/bonds.js';
+import { BONDS, BOND_IDS, bondTier, bondFx } from '../data/bonds.js';
+import { advanceFarm } from './farm.js';
+import { cafeProgress } from './cafe-growth.js';
+import { grantEventOutfits } from './outfits.js';
+import { HANBI_STAGES } from '../data/hunt-stages.js';
 
 const C = TEMP.CALENDAR;
 export const PARTS = Object.freeze(['상순', '중순', '하순']);
@@ -27,7 +31,7 @@ export const isEnded = state => !!state.calendar?.ended;
 export function dateLabel(state, day = state.day) {
   if (isEnded(state)) return `후일담 ${day - C.TOTAL_TURNS}일째`;
   const c = calendarOf(day);
-  return `${c.year}년차 ${c.month}월(${BRANCH[c.month]}월) ${PARTS[c.part]}`;
+  return `운영 ${1 + Math.floor(c.monthIdx / 12)}년차 ${c.month}월(${BRANCH[c.month]}월) ${PARTS[c.part]}`;
 }
 
 export function monthName(monthIdx) {
@@ -36,6 +40,7 @@ export function monthName(monthIdx) {
 }
 
 // ── 행동력(AP): 순마다 채워진다. 사냥·대화에 쓴다.
+export const maxActionPoints = state => C.AP_PER_TURN + Math.floor((cafeProgress(state).level - 1) / 3) + bondFx(state.affinity).ap;
 export function apCheck(state, cost = 1) {
   if ((state.ap?.left ?? 0) < cost) return { ok: false, reason: `행동력이 부족합니다 (이번 순 남은 행동력 ${state.ap?.left ?? 0}) · 영업을 마치면 다시 채워져요` };
   return { ok: true };
@@ -66,17 +71,18 @@ export function chargeInterest(state, sh) {
 
 // ── 결말: 남은 빚과 동료 친밀도로 고른다. 청토끼·서한비·윤달의 결말은 쓰지 않는다(원작 방침).
 export function decideEnding(state) {
-  const start = PDF.INITIAL_DEBT;
+  const start = state.startingDebt || PDF.INITIAL_DEBT;
   const bonds = Object.values(state.affinity || {}).reduce((a, b) => a + b, 0);
-  if (state.debt <= 0) return bonds >= C.ENDING_BOND_BEST ? 'grand' : 'clear';
+  if (state.debt <= 0 && !(state.payroll?.arrears>0) && !(state.finance?.balance>0)) return bonds >= C.ENDING_BOND_BEST ? 'grand' : 'clear';
   if (state.debt <= start * 0.4) return 'close';
   return 'extend';
 }
 
 // 결산을 닫고 다음 순으로 넘어갈 때(shift.closeSettlement 에서 부른다)
 export function advanceTurn(state) {
+  advanceFarm(state);
   const fx = bondFx(state.affinity);
-  state.ap = { left: C.AP_PER_TURN + fx.ap, talked: {}, gifted: {}, shopped: false };
+  state.ap = { left: maxActionPoints(state), talked: {}, gifted: {}, shopped: false, delegated: {}, sheltered: {}, neoTask: null };
   // 모카 ♥3: 순마다 밤이슬
   if (fx.dailyDew > 0) {
     state.stock.night_dew = (state.stock.night_dew || 0) + fx.dailyDew;
@@ -93,15 +99,28 @@ export function advanceTurn(state) {
 export function pendingStory(state) {
   if (state.mode !== 'prep') return null;
   // 후일담: 결말을 본 뒤에도 인연 이야기는 이어진다
-  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : pendingBondStory(state);
+  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : pendingHanbiStory(state) || pendingBondStory(state);
   const c = calendarOf(state.day);
   const id = `m${c.monthIdx}`;
-  return state.ledger.story[id] ? pendingBondStory(state) : id;
+  if (!state.ledger.story[id]) return id;
+  if (!state.huntUnlocked && !state.ledger.story['ev:hunt']) return 'ev:hunt';
+  return pendingHanbiStory(state) || pendingBondStory(state);
+}
+
+// 네오가 30·40·50·70·100단계를 처음 클리어하면 귀환 뒤 검은 호랑이 사건을 순서대로 하나씩 튼다(건너뛸 수 없다)
+export function pendingHanbiStory(state) {
+  if (state.roster.seohanbi) return null;
+  for (const n of HANBI_STAGES) {
+    if (state.ledger.story[`hanbi:${n}`]) continue;
+    return state.ledger.rewards[`stage:neo:${n}`] ? `hanbi:${n}` : null;
+  }
+  return null;
 }
 
 // 아직 안 본 인연 이야기 id(낮은 단계부터). 달 이야기를 본 뒤에 나온다.
 export function pendingBondStory(state) {
   for (const id of BOND_IDS) {
+    if (BONDS[id].requiresRecruit && !state.roster[id]) continue;
     const t = bondTier(state.affinity?.[id] || 0);
     for (let k = 1; k <= t; k++) if (!state.ledger.story[`bond:${id}:${k}`]) return `bond:${id}:${k}`;
   }
@@ -109,7 +128,19 @@ export function pendingBondStory(state) {
 }
 
 export function markStory(state, id) {
-  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|bond:\w+:\d+)$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
+  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+|hanbi:\d+)$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
+  if (state.ledger.story[id]) return { ok: true, duplicate: true };
+  if (state.mode !== 'prep' || pendingStory(state) !== id) return { ok: false, reason: '지금 볼 수 있는 이야기가 아닙니다' };
   state.ledger.story[id] = true;
+  if (id === 'm2') {
+    state.hostbar = { open: true, openedDay: state.day };
+    if (!state.ledger.rewards['outfit:host_first']) {
+      state.ledger.rewards['outfit:host_first'] = true;
+      if (!state.outfits.owned.includes('host_first')) state.outfits.owned.push('host_first');
+      emit('outfitUnlocked', { id: 'host_first', name: '달빛 첫인사' });
+    }
+  }
+  if (id === 'ev:hunt') state.huntUnlocked = true;
+  grantEventOutfits(state, id);
   return { ok: true };
 }

@@ -1,17 +1,22 @@
-// 에셋 정의 레지스트리. 지금은 이미지 파일이 없다 → 모든 항목은 도형 대체 렌더링으로 그린다.
-// 도트 그림 규격: 캐릭터 프레임 32×32, 기준점 (16, 30) = 발밑 중앙. 화면에는 정수 배율로만 키운다(번짐 없음).
-// 이미지를 넣는 방법: 각 항목의 path 에 PNG 를 두고 assets/manifest.json 의 ready 배열에 "묶음/키"(예: actors/yeoni)를 적는다.
+// 에셋 정의 레지스트리. manifest.ready의 검증된 WebP만 읽고, 누락·실패한 항목은 도형으로 대체한다.
+// 일러스트 규격: 캐릭터 셀 96×96, 발 기준점 (48,90). 부드러운 축소와 확대를 사용한다.
+// 이미지를 넣는 방법: 각 항목의 path 에 WebP 를 두고 assets/manifest.json 의 ready 배열에 "묶음/키"(예: actors/yeoni)를 적는다.
 //   매니페스트에 적힌 키만 불러오므로, 아직 없는 파일 때문에 404 가 쌓이지 않는다. 실패하면 도형으로 남는다.
-// 시트 규격: 한 방향 블록 안에서 행 = 상태(SPRITE_STATES 순서), 열 = 프레임. 방향 블록은 DIRECTIONS 순서로 세로로 잇는다.
+// 시트 규격: 한 방향 블록 안에서 행 = idle/walk/action, 열 = 프레임. 방향 블록은 DIRECTIONS 순서로 세로로 잇는다.
 // 자세한 규격과 생성 프롬프트는 docs/ASSETS.md, AGENTS.md.
 
+import { ASSET_UPDATES } from './asset-updates.js';
+import { OUTFITS } from '../data/outfits.js';
+import { RECRUITABLE } from '../data/companions.js';
+import { DECOR_CATALOG } from '../data/decor-catalog.js';
+import { MENUS, INGREDIENTS } from '../data/menus.js';
 export const SPRITE_STATES = Object.freeze(['idle', 'walk', 'cook', 'serve', 'host', 'react', 'attack', 'hurt']);
 export const DIRECTIONS = Object.freeze(['down', 'left', 'right', 'up']);
-export const PIXEL = Object.freeze({ FRAME: 32, ANCHOR_X: 16, ANCHOR_Y: 30, ICON: 16, TILE: 32, PORTRAIT: 96 });
+export const ART = Object.freeze({ FRAME: 96, ANCHOR_X: 48, ANCHOR_Y: 90, ICON: 96, TILE: 128, PORTRAIT: 192 });
 
 const actorStates = (over = {}) => ({
   idle: { frames: 4, fps: 4, loop: true },
-  walk: { frames: 6, fps: 10, loop: true },
+  walk: { frames: 4, fps: 10, loop: true },
   cook: { frames: 4, fps: 6, loop: true },
   serve: { frames: 4, fps: 8, loop: false },
   host: { frames: 4, fps: 4, loop: true },
@@ -22,24 +27,28 @@ const actorStates = (over = {}) => ({
 });
 
 const NPC_STATES = { cook: null, serve: null, host: null, attack: null, hurt: null };
+const sourceKey = key => key === 'neo@vest_night' ? 'neo' : key === 'yeoni@apron_spring' ? 'yeoni' : key;
 const actor = (key, label, fallback, over) => ({
-  kind: 'actor', label, path: `assets/sprites/actors/${key}.png`, image: null,
-  frame: { w: PIXEL.FRAME, h: PIXEL.FRAME }, anchor: { x: PIXEL.ANCHOR_X, y: PIXEL.ANCHOR_Y }, directions: DIRECTIONS,
+  kind: 'actor', label, path: `assets/sprites/actors/${sourceKey(key)}.webp`, image: null,
+  frame: { w: ART.FRAME, h: ART.FRAME }, anchor: { x: ART.ANCHOR_X, y: ART.ANCHOR_Y }, directions: DIRECTIONS,
+  columns: 4, directionRows: 3, stateRows: { idle:0, walk:1, cook:2, serve:2, host:2, react:2, attack:2, hurt:2 },
   states: actorStates(over), fallback,
 });
 // 적·보스: 방향 없이(down 블록 하나) idle·walk·hurt 만 쓴다
 const enemy = (key, label, fallback, size = 1) => ({
-  kind: 'actor', label, path: `assets/sprites/enemies/${key}.png`, image: null,
-  frame: { w: PIXEL.FRAME * size, h: PIXEL.FRAME * size }, anchor: { x: PIXEL.ANCHOR_X * size, y: PIXEL.ANCHOR_Y * size }, directions: ['down'],
+  kind: 'actor', label, path: `assets/sprites/enemies/${key}.webp`, image: null,
+  frame: { w: ART.FRAME * size, h: ART.FRAME * size }, anchor: { x: ART.ANCHOR_X * size, y: ART.ANCHOR_Y * size }, directions: ['down'], columns:4, directionRows:3, stateRows:{idle:0,walk:1,hurt:2},
   states: { idle: { frames: 4, fps: 6, loop: true }, walk: { frames: 4, fps: 8, loop: true }, hurt: { frames: 2, fps: 10, loop: false } }, fallback,
 });
-const object = (key, label, size, color) => ({ kind: 'object', label, path: `assets/sprites/objects/${key}.png`, image: null, size, fallback: { color } });
-const icon = (key, label, color) => ({ kind: 'icon', label, path: `assets/sprites/icons/${key}.png`, image: null, px: PIXEL.ICON, fallback: { color } });
-// 대화 초상화: 96×96 한 장에 표정을 가로로 이어 붙인다(expressions 순서)
-const portrait = (key, label, expressions) => ({ kind: 'portrait', label, path: `assets/portraits/${key}.png`, image: null, px: PIXEL.PORTRAIT, expressions });
+const object = (key, label, size, color) => ({ kind: 'object', label, path: `assets/sprites/objects/${key}.webp`, image: null, size, fallback: { color } });
+const icon = (key, label, color) => ({ kind: 'icon', label, path: `assets/sprites/icons/${key}.webp`, image: null, px: ART.ICON, fallback: { color } });
+// 대화 초상화: 192×192, 4열 입/눈 프레임 × 표정 행(expressions 순서). 기존 가로형도 호환한다.
+const portrait = (key, label, expressions) => ({ kind: 'portrait', label, path: `assets/sprites/portraits/${sourceKey(key)}.webp`, legacyPath: `assets/portraits/${key}.png`, image: null, px: ART.PORTRAIT, expressions });
 
-export const ASSETS = Object.freeze({
+const LEGACY_ASSETS = {
   actors: {
+    ...Object.fromEntries(RECRUITABLE.filter(c => c.id !== 'moka').map(c => [c.id, actor(c.id, c.name, { shape: 'person', body: c.color, hair: '#342b40', skin: '#ffe6da' })])),
+    ...Object.fromEntries(Object.values(OUTFITS).filter(o => o.slot === 'outfit').map(o => [`${o.who}@${o.id}`, actor(`${o.who}@${o.id}`, o.name, { shape: 'person', body: o.color, hair: o.who === 'neo' ? '#e8ebf5' : '#d98ea6', skin: '#ffe6da' })])),
     // 색은 code-destiny 원작 디자인 문서의 외형 기준(분홍 머리·연꽃·라벤더 리본 / 은발·남색 옷 / 흰 고양이·남색 마법모자)
     yeoni: actor('yeoni', '연이', { shape: 'person', body: '#e3b3bd', hair: '#d98ea6', skin: '#ffe6da', accent: '#b9a3e3' }),
     yeoni_pig: actor('yeoni_pig', '연이(꽃돼지)', { shape: 'pig', body: '#f6bccb', accent: '#f08fb0' }, { cook: null, serve: null, host: null, attack: null }),
@@ -66,6 +75,7 @@ export const ASSETS = Object.freeze({
     boss_hand: enemy('boss_hand', '거대한 검은 손(임시 보스)', { shape: 'hand', body: '#1a0f26', eye: '#ff7a8a' }, 3),
   },
   objects: {
+    ...Object.fromEntries(DECOR_CATALOG.map(d => [d.id, object(d.id, d.name, {w:d.width,h:d.height}, d.color)])),
     table: object('table', '테이블', { w: 1, h: 1 }, '#c79a6b'),
     chair: object('chair', '의자', { w: 1, h: 1 }, '#a8774c'),
     drink: object('drink', '음료 머신', { w: 2, h: 1 }, '#8fb3c9'),
@@ -78,14 +88,15 @@ export const ASSETS = Object.freeze({
     rug: object('rug', '꽃무늬 러그', { w: 2, h: 2 }, '#e9a9b6'),
     pot: object('pot', '조합 냄비', { w: 1, h: 1 }, '#b8a28a'),
   },
-  // 16×16 아이콘: 재료·메뉴·사냥 줍기·무기
+  // 96×96 아이콘: 재료·메뉴·사냥 줍기·무기
   icons: {
+    ...Object.fromEntries([...Object.values(INGREDIENTS),...Object.values(MENUS)].map(d => [d.id, icon(d.id,d.name,d.color)])),
     bean: icon('bean', '원두', '#7a4b2a'), milk: icon('milk', '우유', '#f3efe2'), tea: icon('tea', '찻잎', '#7fa65a'),
     flour: icon('flour', '밀가루', '#efe3c4'), egg: icon('egg', '달걀', '#f6d77a'), sugar: icon('sugar', '설탕', '#ffffff'),
     night_dew: icon('night_dew', '밤이슬', '#6f7fe8'),
     gem_s: icon('gem_s', '별조각(소)', '#8fd3ff'), gem_m: icon('gem_m', '별조각(중)', '#9dff9a'), gem_l: icon('gem_l', '별조각(대)', '#ffb36b'),
     fish: icon('fish', '구운 생선', '#f0a060'), magnet: icon('magnet', '수염 자석', '#e85d75'), bomb: icon('bomb', '달빛 폭탄', '#c9a227'), chest: icon('chest', '별 상자', '#d9b45a'),
-    // 월정석: 사냥에서 떨어지고 루나의 저울에서 골드로 바꾼다(게임 오리지널)
+    // 월정석: 사냥에서 떨어지고 청토끼 금융 센터에서 골드로 바꾼다(게임 오리지널)
     moonstone: icon('moonstone', '월정석', '#cfd8ff'),
     // 영냥이 장비(게임 오리지널·임시, data/gear.js). 외형은 바뀌지 않고 아이콘만 쓴다.
     claw_glove: icon('claw_glove', '고양이 발톱 장갑', '#e8d9c4'), crescent_wand: icon('crescent_wand', '초승달 방울 지팡이', '#e5c58e'),
@@ -93,6 +104,8 @@ export const ASSETS = Object.freeze({
     fishbone_charm: icon('fishbone_charm', '생선뼈 부적', '#d8d2bf'), churu_magnet: icon('churu_magnet', '자석 츄르', '#e85d75'),
   },
   portraits: {
+    ...Object.fromEntries(RECRUITABLE.filter(c => c.id !== 'moka').map(c => [c.id, portrait(c.id, c.name, ['normal','smile','serious','surprised'])])),
+    ...Object.fromEntries(Object.values(OUTFITS).filter(o => o.slot === 'outfit').map(o => [`${o.who}@${o.id}`, portrait(`${o.who}@${o.id}`, o.name, o.who === 'neo' ? ['normal','smile','serious','flustered'] : ['normal','smile','surprised','sulky','determined'])])),
     yeoni: portrait('yeoni', '연이', ['normal', 'smile', 'surprised', 'sulky', 'determined']),
     yeoni_pig: portrait('yeoni_pig', '연이(꽃돼지)', ['normal', 'smile', 'surprised', 'sulky']),
     neo: portrait('neo', '네오', ['normal', 'smile', 'serious', 'flustered']),
@@ -102,35 +115,49 @@ export const ASSETS = Object.freeze({
     cheongtokki: portrait('cheongtokki', '청토끼', ['normal', 'smile', 'smug']),
     moka: portrait('moka', '모카', ['normal', 'smug', 'angry']),
   },
-  // 32×32 타일(카페 바닥·벽, 사냥 들판)
+  // 128×128 타일(카페 바닥·벽, 사냥 들판)
   tiles: {
-    cafe_floor: { kind: 'tile', label: '카페 바닥', path: 'assets/tiles/cafe_floor.png', image: null, fallback: { color: '#f1dcc4' } },
-    cafe_wall: { kind: 'tile', label: '카페 벽', path: 'assets/tiles/cafe_wall.png', image: null, fallback: { color: '#e7c9a9' } },
-    town_street: { kind: 'tile', label: '카페 앞 마을 길(마을 화면 배경)', path: 'assets/tiles/town_street.png', image: null, fallback: { color: '#d9c7a5' } },
-    river_field: { kind: 'tile', label: '사주의 강 밤 들판', path: 'assets/tiles/river_field.png', image: null, fallback: { color: '#1f3346' } },
+    cafe_floor: { kind: 'tile', label: '카페 바닥', path: 'assets/tiles/cafe_floor.webp', image: null, fallback: { color: '#f1dcc4' } },
+    cafe_wall: { kind: 'tile', label: '카페 벽', path: 'assets/tiles/cafe_wall.webp', image: null, fallback: { color: '#e7c9a9' } },
+    town_street: { kind: 'tile', label: '카페 앞 마을 길(마을 화면 배경)', path: 'assets/tiles/town_street.webp', image: null, fallback: { color: '#d9c7a5' } },
+    river_field: { kind: 'tile', label: '사주의 강 밤 들판', path: 'assets/tiles/river_field.webp', image: null, fallback: { color: '#1f3346' } },
   },
-});
+  backgrounds: Object.fromEntries(['atelier_lit','atelier_dark','river_night','dressroom','farm'].map(key => [key, { kind:'background', label:key, path:`assets/backgrounds/${key}.webp`, dimensions:key==='farm'?[720,400]:[720,600], opaque:true }])),
+  ui: {
+    ...Object.fromEntries(['spring','summer','autumn','winter'].map(season => [`town-map-${season}`, { kind:'ui', label:`${season} 마을`, path:`assets/ui/town-map-${season}.webp`, dimensions:[720,600], opaque:true }])),
+    ...Object.fromEntries([
+      ...['atelier','expand','moka','luna','gear','hunt'].map(k=>[`town-node-${k}`,128,128]),
+      ['heart-full',128,128],['heart-empty',128,128],['sos',128,128],
+      ...['calm','tired','limit'].map(k=>[`stress-${k}`,128,128]),
+      ...['panel','button','tab','card'].map(k=>[`frame-${k}`,144,144]),
+      ['transform',1024,128],['transform-large',1536,192],['moon-glint',128,128],['push-lines',128,128],['ledger',128,128],
+    ].map(([key,w,h])=>[key,{kind:'ui',label:key,path:`assets/ui/${key}.webp`,dimensions:[w,h]}])),
+  },
+};
+export const ASSETS=Object.freeze(Object.fromEntries([...new Set([...Object.keys(LEGACY_ASSETS),...Object.keys(ASSET_UPDATES)])].map(g=>[g,{...LEGACY_ASSETS[g],...ASSET_UPDATES[g]}])));
 
 // assets/manifest.json 의 ready 에 적힌 키만 불러온다. 파일이 없거나 실패하면 도형 대체로 남는다.
-const loaded = new Map();
-// 매니페스트 id 는 '묶음/키' 형식(예: actors/yeoni, portraits/yeoni, icons/bean)
-const allEntries = () => Object.entries(ASSETS).flatMap(([g, group]) => Object.entries(group).map(([k, d]) => [`${g}/${k}`, d]));
-export async function loadAssetImages(manifestUrl = 'assets/manifest.json') {
-  let ready = [];
-  try {
-    const r = await fetch(manifestUrl, { cache: 'no-store' });
-    if (r.ok) ready = (await r.json()).ready || [];
-  } catch { /* 매니페스트가 없으면 전부 도형 */ }
-  const want = new Set(ready);
-  await Promise.all(allEntries().filter(([k]) => want.has(k)).map(([k, d]) => new Promise(res => {
-    const img = new Image();
-    img.onload = () => { loaded.set(k, img); res(); };
-    img.onerror = () => res();
-    img.src = d.image || d.path;
-  })));
-  return [...loaded.keys()];
+const loaded = new Map(), requests = new Map();
+let available = new Set(), manifestTask;
+const allEntries = () => Object.entries(ASSETS).flatMap(([g,group])=>Object.entries(group).map(([k,d])=>[`${g}/${k}`,d]));
+const definitions = new Map(allEntries());
+export const BOOT_ASSETS = ['backgrounds/title','ui/loading','actors/yeoni','actors/neo','actors/luna','actors/luna_sis','portraits/yeoni','portraits/neo','portraits/neo_cat','portraits/luna','portraits/luna_sis','backgrounds/atelier_lit','backgrounds/cafe_room','tiles/cafe_floor','tiles/cafe_wall',...allEntries().filter(([id])=>id.startsWith('objects/')||id.startsWith('icons/')).map(([id])=>id)];
+async function requestImage(id){
+ if(!available.has(id))return null;const d=definitions.get(id);if(!d)return null;const src=d.image||d.path;
+ if(!requests.has(src))requests.set(src,new Promise(resolve=>{const img=new Image();let timer=setTimeout(()=>resolve(null),12000);img.onload=()=>{clearTimeout(timer);resolve(img);};img.onerror=()=>{clearTimeout(timer);resolve(null);};img.src=src;}));
+ const img=await requests.get(src);if(img)loaded.set(id,img);return img;
 }
-export const imageFor = id => loaded.get(id) || loaded.get(`actors/${id}`) || loaded.get(`enemies/${id}`) || null;
+export async function loadAssetImages(manifestUrl='assets/manifest.json',{keys=BOOT_ASSETS,onProgress=()=>{}}={}){
+ manifestTask ||= fetch(manifestUrl).then(r=>r.ok?r.json():{ready:[]}).then(m=>{available=new Set(m.ready||[]);}).catch(()=>{});
+ await manifestTask;const wanted=[...new Set(keys)].filter(id=>available.has(id));let done=0;onProgress(0,wanted.length);
+ await Promise.all(wanted.map(id=>requestImage(id).finally(()=>onProgress(++done,wanted.length))));return [...loaded.keys()];
+}
+export function imageFor(id){
+ const key=definitions.has(id)?id:definitions.has(`actors/${id}`)?`actors/${id}`:`enemies/${id}`;
+ if(!loaded.has(key)&&available.has(key))requestImage(key);
+ return loaded.get(key)||null;
+}
+export function assetLoadStatus(){return {loaded:loaded.size,requested:requests.size,available:available.size};}
 export const actorDef = key => ASSETS.actors[key] || ASSETS.enemies[key] || null;
 
 // 상태 이름 → 실제로 그릴 상태(정의가 없으면 idle)

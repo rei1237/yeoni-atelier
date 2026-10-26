@@ -1,0 +1,4 @@
+{
+  "prompt": "Production game walking sprite sheet using the supplied canonical reference. Moka is a FEMALE OTTER chef and rapper, cocoa brown fur, cream muzzle, expressive feminine eyes and eyelashes, purple star beret, violet headphones around neck, purple jacket, white kitchen apron, broad otter tail. Animal otter, not a human man. Fine light-novel chibi illustration, crisp smooth edges, transparent background. EXACTLY 4 columns x 4 rows =16 full-body figures in uniform square cells. Row1 front/down facing, row2 facingLEFT, row3 facingRIGHT, row4 back/up facing. Four successive walking poses per row, alternate feet and small arm swings. Every figure same size and feet baseline, each fits entirely inside its cell with 15% transparent margin, no cropped ears/feet/tails. No labels, no borders, no extra rows, no shadows, no particles, no text. Square canvas. These sixteen cells must be precisely sliceable.",
+  "createdAt": "2026-10-25T17:39:28.605Z"
+}

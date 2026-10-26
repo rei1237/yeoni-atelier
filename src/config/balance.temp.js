@@ -1,7 +1,14 @@
 // 임시 구현 결정값. 기획서에 수치가 없어서 이번 프로토타입이 정한 값이다.
 // 확정 규칙도, 기획서 제안 수치도 아니다. 플레이테스트로 바꾼다.
 
+import { DECOR_CATALOG } from '../data/decor-catalog.js';
 export const TEMP = Object.freeze({
+  INITIAL_DEBT: 100_000_000, // 사용자 결정 2026-10-26: 1억 골드, 외전 속 현실 약 10억 원 규모
+  CAFE_PRICE_GROWTH: 1.45, // 레벨별 메뉴 가격 배율(임시, 5년 시뮬레이션 기준)
+  LOAN_RATE: .08, // 청토끼 신규 운영 대출: 월 8%, 미납 이자는 원금에 가산
+  PAYROLL_BASE: 1000, // 월 정액, 근무 순 비례
+  PAYROLL_SHARE: .015, // 새 동료 1인 월 매출의 1.5%
+
   // ── 시뮬레이션
   SIM_STEP_MS: 100,           // 한 틱의 최대 시뮬레이션 간격
   FRAME_DT_CAP_MS: 250,       // 프레임 끊김 시 한 번에 진행할 최대 실제 시간
@@ -10,7 +17,7 @@ export const TEMP = Object.freeze({
   // ── 손님
   SPAWN_FIRST_MS: 4000,
   SPAWN_INTERVAL_MS: Object.freeze([16000, 30000]),
-  LAST_SEATING_ELAPSED_MS: 1680 * 1000, // 28:00 이후 새 손님 입장 없음
+  LAST_SEATING_ELAPSED_MS: 520 * 1000, // 08:40 이후 새 손님 입장 없음
   NOMINATE_CHANCE: 0.38,
   ORDER_THINK_MS: 3000,       // 착석 후 주문까지
   EAT_MS: 26000,              // 일반 손님 식사 시간
@@ -23,13 +30,23 @@ export const TEMP = Object.freeze({
   WAIT_PENALTY_PER_MS: 3000,  // 유예 후 3초마다 1점
 
   // ── 접대 도움 요청(대화 보정 -5~+5 범위 안)
-  HELP_AT_MS: Object.freeze([95000, 135000, 170000]), // 수락 기준
-  HELP_WINDOW_MS: 15000,
+  HELP_AT_MS: Object.freeze([12000, 28000, 44000]), // 수락 기준
+  HELP_WINDOW_MS: 10000,
   HELP_GAIN_GOOD: 2,
   HELP_GAIN_OK: 1,
   HELP_MISS: -1,
-  EXTRA_ORDER_AT_MS: 190000,  // 추가 주문 시점(수락 기준)
-  FEVER_EVAL_AT_MS: 60000,    // 방문당 첫 유효 평가 시점(수락 기준)
+  // 직원 스트레스(0~100, 모두 임시). 접대(accept~good)는 네오·호스트, 서빙·정리·굽기는 그 일을 한 직원에게 쌓인다.
+  // 회복: 결산(settle)·하루 휴무(rest)·대화(talk)·선물(gift)·루나의 쉼터(shelter, 골드·행동력 무소모).
+  NEO_STRESS: Object.freeze({ accept: 4, missed: 12, wrong: 8, good: -10, settle: -25, talk: -8, deliver: 1, clean: 1, cook: 1, rest: -40, gift: -10, shelter: -35 }),
+  SHELTER_COST: 300,          // 루나의 쉼터 한 사람 한 번(순마다)
+  // 자동화 권한(임시): 그 동료의 인연 단계와, 같은 단계 인연 이야기(ledger.story['bond:<id>:<단계>'])를 본 기록이 함께 있어야 연다.
+  AUTOMATION: Object.freeze({
+    hall: Object.freeze({ id: 'luna', tier: 2, label: '홀 자동 · 서빙·정리' }),
+    kitchen: Object.freeze({ id: 'luna_sis', tier: 2, label: '주방 자동 · 대기 주문 조리' }),
+    farm: Object.freeze({ id: 'neo', tier: 3, label: '농장 맡기기 · 수확·재파종·물·돌봄' }),
+  }),
+  EXTRA_ORDER_AT_MS: 20000,  // 추가 주문 시점(수락 기준)
+  FEVER_EVAL_AT_MS: 10000,    // 방문당 첫 유효 평가 시점(수락 기준)
 
   // ── 이동
   WALK_TILES_PER_S: 3.2,
@@ -44,30 +61,30 @@ export const TEMP = Object.freeze({
   // ── 영입(임시 조건: 정규 영업 2회 완료 + 첫 상환)
   RECRUIT_CONDITION: Object.freeze({ shiftsCompleted: 2, repaidAtLeast: 1 }),
 
-  // ── 월정석 사냥(영냥이). 사냥은 재료가 아니라 월정석을 떨어뜨리고, 재료는 마을 모카 식재료점에서 산다.
+  // ── 월정석 사냥(영냥이). 필드 월정석과 생존 보상 재료를 얻는다. 일반 재료는 모카 상점·농장, 희귀 차 재료는 깊은 사냥.
   HUNT: Object.freeze({
     // 무기·보조 능력·적 수치는 src/data/hunt-kit.js (모두 임시)
     PLAYER_SPEED: 165,        // px/s (필드 좌표)
     PLAYER_HP: 100,
     HURT_IFRAME_MS: 700,
     SUB_STEP_MS: 34,          // 탄이 적을 뚫고 지나가지 않도록 탐색 안에서 더 잘게 나눈다
-    SPAWN_RATE_START: 0.7,    // 초당 생성 수(시간에 따라 선형 증가)
-    SPAWN_RATE_END: 3.2,
-    DENSITY_START: 5,         // 이 수보다 적으면 생성 속도 2배
-    DENSITY_END: 45,
-    MAX_ENEMIES: 90,
-    HP_GROWTH: 1.7,           // 3분 끝에서 적 HP 배율 +170%
+    // 단계별 준비 시간·밀도·동시 상한은 src/data/hunt-stages.js. 생성은 밀도 목표보다 모자랄 때만 한다
+    SPAWN_RATE_MIN: 1.056,    // 초당 생성 수 = min(MAX, MIN + PER_MISSING × 모자란 수)
+    SPAWN_RATE_MAX: 2.64,
+    SPAWN_RATE_PER_MISSING: 0.45,
+    BOSS_DENSITY: 0.35,       // 보스가 있는 동안 잡몹 밀도 배율
+    MAX_ENEMIES: 140,         // 안전 상한(단계 상한이 먼저 걸린다)
     MONTH_HP: 0.08,           // 달이 지날 때마다 적 HP +8% (3월 0, 다음 해 2월 +88%)
     MONTH_DMG: 0.04,          // 달마다 접촉 피해 +4%
     SPAWN_DIST: Object.freeze([380, 470]),
-    XP_BASE: 5,               // 다음 레벨 필요 경험치 = XP_BASE + (L-1)×XP_STEP + (L-1)²×XP_CURVE (반올림)
-    XP_STEP: 3,
-    XP_CURVE: 0.6,
+    XP_BASE: 18,               // 다음 레벨 필요 경험치 = XP_BASE + (L-1)×XP_STEP + (L-1)²×XP_CURVE (반올림)
+    XP_STEP: 10,
+    XP_CURVE: 1.8,
     CRIT_BASE: 0.05,
     CRIT_MULT: 2,
     KNOCKBACK: 140,
-    MAGNET_RADIUS: 95,
-    PICKUP_RADIUS: 26,
+    MAGNET_RADIUS: 150,
+    PICKUP_RADIUS: 42,
     GEM_CAP: 140,             // 넘으면 새 별조각을 기존 별조각에 합친다
     HEAL_FISH: 30,
     BOMB_RADIUS: 280,
@@ -77,28 +94,28 @@ export const TEMP = Object.freeze({
       { id: 'magnet', chance: 0.005 },
       { id: 'bomb', chance: 0.005 },
     ]),
-    MOON_DROP: Object.freeze({ chance: 0.06, elite: 10, boss: 60 }), // 일반 적 확률 1개, 정예·보스는 고정 개수(임시)
+    MOON_DROP: Object.freeze({ chance: 0.16, elite: 6, boss: 20 }), // 일반 적 확률 1개, 정예·보스는 고정 개수(임시). 단계마다 보스가 나와 보스 75→20·정예 14→6으로 낮춤
     FIELD_W: 1400,
     FIELD_H: 1800,
   }),
 
   // ── 마을(임시). 월정석 환전·모카 긴급 배달·가게 확장
-  MOONSTONE_GOLD: 35,         // 루나의 저울: 월정석 1개 = 35G
+  MOONSTONE_GOLD: 500,          // 청토끼 금융 센터 기본 환율(임시). 10-26: 단계 사냥 수급 증가로 1,200→500
   DELIVERY_FEE_RATE: 0.25,    // 영업 중 모카 긴급 배달 = 재료값 +25%
-  TABLE_PRICE_BASE: 2500,     // 4번 테이블 값. 한 개 들일 때마다 ×1.6 (2,500 → 4,000 → 6,400 …)
+  TABLE_PRICE_BASE: 2500,     // 6번 테이블 값. 한 개 들일 때마다 ×1.6 (2,500 → 4,000 → 6,400 …)
   TABLE_PRICE_GROWTH: 1.6,
-  MAX_TABLES: 10,
-  AREA_COSTS: Object.freeze([6000, 18000, 40000]), // 공방 증축: 연 구역 수에 따라 오른다
-  SPAWN_TABLE_BASE: 3,        // 테이블이 이보다 많으면 손님 간격이 테이블 수에 비례해 짧아진다
-  DECOR_PRICES: Object.freeze({ plant: 400, lamp: 700, bookshelf: 1200, rug: 1500 }),
+  MAX_TABLES: 24,
+  AREA_COSTS: Object.freeze([6000, 18000, 40000, 85000, 160000]), // 공방 증축: 연 구역 수에 따라 오른다
+  SPAWN_TABLE_BASE: 5,        // 시작 5테이블은 기본 입장 간격. 증축 이후에만 비례 단축(임시)
+  DECOR_PRICES: Object.freeze({ plant: 400, lamp: 700, bookshelf: 1200, rug: 1500, ...Object.fromEntries(DECOR_CATALOG.map(d => [d.id, d.price])) }),
 
-  // ── 달력·이자·행동력(임시). 영업 1회 = 한 순, 3순 = 한 달. 3월부터 12달(36순) 뒤 결말.
+  // ── 달력·이자·행동력(임시). 영업 1회 = 한 순, 3순 = 한 달. 3월부터 60개월(180순), 5년 운영 뒤 결말.
   CALENDAR: Object.freeze({
     START_MONTH: 3,
     TURNS_PER_MONTH: 3,
-    TOTAL_TURNS: 36,
+    TOTAL_TURNS: 180,
     INTEREST_RATE: 0.02,      // 하순 마감 때 남은 빚 × 2% (올림)
-    AP_PER_TURN: 2,           // 사냥 1 · 대화 1
+    AP_PER_TURN: 3,           // 사냥 1 · 대화 1
     ENDING_BOND_BEST: 520,    // 빚을 다 갚고 친밀도 합이 이 이상이면 최고 결말(일만으로는 ~320, 대화·선물이 더 필요)
   }),
 
@@ -106,7 +123,7 @@ export const TEMP = Object.freeze({
   BONDS: Object.freeze({
     TIERS: Object.freeze([40, 100, 180, 280]),
     MAX: 300,
-    TALK: 6, TALK_RAND: 2,    // 대화 1회 +6~8 (행동력 1, 순마다 한 사람 한 번)
+    TALK: 6, TALK_RAND: 2,    // 기존 저장 호환 상수. 현재 선택지 대화는 bond-dialogues.js의 +12/+6/+2
     GIFT_LIKED: 14,           // 좋아하는 선물 (순마다 한 사람 한 번)
     GIFT_COMMON: 6,           // 달빵
     WORK_SHIFT: 2,            // 영업 마감: 루나·루나 언니
@@ -116,4 +133,5 @@ export const TEMP = Object.freeze({
 
   // ── 자동 운영
   AUTO_DECIDE_MS: 600,
+  HUNT_CAREER: Object.freeze({ xpBase: 1100, xpStep: 350, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.1, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100 }),
 });

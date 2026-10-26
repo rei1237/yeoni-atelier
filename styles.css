@@ -5,10 +5,10 @@
   --ink: #3b2f2f;
   --muted: #7a6a5f;
   --line: #e2d2bf;
-  --accent: #e8778f;
+  --accent: #a94765;
   --accent-ink: #ffffff;
-  --ok: #3f9a62;
-  --warn: #c8811e;
+  --ok: #287343;
+  --warn: #925b10;
   --bad: #c9443a;
   --info: #3f74c9;
   --fever: #f2b631;
@@ -57,18 +57,20 @@ button.on { background: #2f6e4a; color: #fff; box-shadow: none; }
 
 /* ── 무대(캔버스 + 말풍선) */
 .stage { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; touch-action: none; }
-.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+.stage > #view { position: absolute; inset: 0; width: 100%; height: 100%; display: block; image-rendering: auto; }
 .hits, .bubbles, .floaters { position: absolute; inset: 0; pointer-events: none; }
 .hit { position: absolute; pointer-events: auto; background: transparent; box-shadow: none; border-radius: 10px; padding: 0; }
 .hit.target { box-shadow: inset 0 0 0 3px var(--info); background: rgba(63,116,201,0.10); }
 .bubble {
   position: absolute; pointer-events: auto; transform: translate(-50%, -100%);
-  min-height: 30px; padding: 3px 8px; border-radius: 10px; background: #fff; color: var(--ink);
+  min-height: 44px; max-width:220px; padding: 3px 8px; border-radius: 10px; background: #fff; color: var(--ink);
   box-shadow: 0 2px 6px rgba(60,40,30,0.18), inset 0 0 0 1px var(--line);
   font-size: 12px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;
   min-width: 0;
 }
-/* 보이는 말풍선은 30px 이지만 눌리는 영역은 위아래로 넓혀 44px 이상 */
+.bubble:active { transform:translate(-50%, -100%) translateY(1px); }
+.tn:active { transform:translate(-50%, -50%) translateY(1px); }
+/* 44px 버튼 바깥에도 여유 터치 영역을 둔다. */
 .bubble::before { content: ""; position: absolute; left: 0; right: 0; top: -7px; bottom: -7px; }
 .bubble::after { content: ""; position: absolute; left: 50%; bottom: -5px; margin-left: -5px; border: 5px solid transparent; border-bottom: 0; border-top-color: #fff; }
 .bubble.req { background: #fff1f4; box-shadow: 0 2px 6px rgba(232,119,143,0.35), inset 0 0 0 2px var(--accent); }
@@ -232,7 +234,7 @@ button.on { background: #2f6e4a; color: #fff; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { .disc-burst, .disc-burst i, .combo.shake { animation: none; } }
 
 /* ── 마을 월드 맵: 계절별 바탕은 임시 그라데이션(나중에 assets/ui/town-map-<계절>.png 로 교체, ASSETS.md §10) */
-.town-map { position: relative; height: 230px; margin: 6px 0 4px; border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); background: linear-gradient(180deg, #e9dcf6 0%, #fbe6ee 55%, #f3e6d6 100%); }
+.town-map { position: relative; height: 310px; margin: 6px 0 4px; border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); background: linear-gradient(180deg, #e9dcf6 0%, #fbe6ee 55%, #f3e6d6 100%); }
 .town-map.spring { background: radial-gradient(circle at 15% 20%, #ffe0ea 0 18%, transparent 19%), radial-gradient(circle at 70% 75%, #ffd9e6 0 14%, transparent 15%), linear-gradient(180deg, #f4e7fb, #fde9f0 60%, #f6eadc); }
 .town-map.summer { background: radial-gradient(circle at 80% 15%, #fff3c4 0 12%, transparent 13%), linear-gradient(180deg, #dff1f6, #f0f7e6 60%, #f6eadc); }
 .town-map.autumn { background: radial-gradient(circle at 25% 75%, #f8d9b8 0 16%, transparent 17%), linear-gradient(180deg, #f7e3d0, #f9e9dc 60%, #f3e2cf); }
@@ -256,3 +258,70 @@ button.on { background: #2f6e4a; color: #fff; box-shadow: none; }
 .bond-card .row button { flex: 1 1 auto; font-size: 12px; }
 .bar > i.bond { background: linear-gradient(90deg, #f5a3b7, var(--accent)); }
 @media (prefers-reduced-motion: reduce) { .tm-me { transition: none; animation: none; } }
+
+/* SOS와 상태는 색 외에 문구·게이지로도 알린다. */
+.stress-chip{display:flex;flex-direction:column;gap:3px;font-size:11px;max-width:140px;color:#493c56}.stress-chip meter{width:100%;height:8px}.stress-chip.tired{color:#74450b}.stress-chip.limit{color:#9b263c}.sos-card{padding:14px;background:#fff4dc;border:1px solid #b98d43;border-radius:12px}.sos-card .choice-grid{margin-top:10px}.sos-card p{margin:8px 0}
+.farm-summary { display:flex; justify-content:space-between; gap:12px; padding:14px; background:#edf1df; color:#30452e; border-radius:12px; }
+.farm-summary p { margin:4px 0 0; font-size:12px; }
+.farm-plots,.crop-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:12px 0; }
+.farm-plot { display:flex; flex-direction:column; gap:10px; padding:12px; background:#faf0dc; border:2px solid #ba9470; border-radius:10px; min-width:0; }
+.farm-plot.ripe { border-color:#5e7e4b; background:#edf4dc; }
+.plot-label { font-size:12px; color:#624833; }
+.farm-plot progress { width:100%; height:10px; accent-color:#587740; }
+.plot-care { display:flex; flex-wrap:wrap; gap:4px; }
+.plot-care button { flex:1; padding:8px 4px; min-height:44px; font-size:12px; }
+.plant-button { display:flex; flex-direction:column; align-items:center; min-height:110px; justify-content:center; white-space:normal; }
+.plant-button>span { font-size:26px; }
+.crop-card { display:flex; flex-direction:column; gap:5px; text-align:left; white-space:normal; padding:12px; min-height:88px; }
+.crop-card.selected { outline:2px solid #587740; background:#edf4dc; }
+.crop-card span,.crop-card small { font-size:12px; }
+@media(min-width:700px) { .farm-plots { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+.dress-stage { display:grid; grid-template-columns:1fr 1fr; align-items:end; gap:12px; padding:16px 8px; background:#e9ddcf; border-radius:12px; margin-block:16px; }
+.dress-stage>canvas { width:100%; max-width:192px; image-rendering:auto; }
+.dress-speech canvas,.sos-speech canvas { width:96px; height:96px; image-rendering:auto; }
+.dress-speech p { margin:8px 0; font-size:14px; line-height:1.6; }
+.dress-catalog { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-block:16px; }
+.dress-item { display:flex; flex-direction:column; gap:8px; padding:12px; border:1px solid #b8a68f; border-radius:12px; }
+.dress-item.selected { outline:2px solid #7c5d89; }
+.dress-item span { font-size:12px; }
+.sos-speech { display:flex; gap:10px; align-items:center; }
+.sos-speech canvas { flex:none; }
+.sos-speech p { min-width:0; }
+.topbar { flex-wrap:wrap; gap:4px 8px; }
+.topbar .status { white-space:normal; overflow:visible; flex-basis:100%; order:5; line-height:1.4; }
+.topbar>.ghost { margin-left:auto; }
+.stress-chip { margin-left:auto; }
+.hostrow { grid-template-columns:minmax(0,1fr) 76px 50px 50px; }
+.hostrow>.feverbtn,.hostrow>.autobtn { width:100%; }
+.hostrow .row { scrollbar-width:thin; }
+.dress-stage,.town-map,.farm-scene,.title-art { background-size:cover; background-position:center; image-rendering:auto; }
+.dress-speech { padding:8px; border-radius:10px; background:rgba(255,250,243,.94); }
+.farm-scene { position:relative; height:160px; border-radius:12px; background-color:#dbe7d0; overflow:hidden; }
+.farm-scene canvas { position:absolute; width:96px; height:96px; left:calc(50% - 48px); bottom:24px; image-rendering:auto; }
+.farm-scene>span { position:absolute; bottom:0; inset-inline:0; padding:6px; text-align:center; font-size:12px; background:#fffaf3e8; }
+.farm-scene.rain::after { content:'비가 밭을 적셔 주고 있어요'; position:absolute; top:8px; right:8px; padding:4px 8px; background:#fffaf3ed; border-radius:8px; font-size:12px; }
+.farm-plot { border:2px solid #a98063; background:#fff8e9; }
+.farm-plot.ripe { border-color:#557143; background:#edf4dc; }
+.pixel-icon { width:32px; height:32px; object-fit:contain; image-rendering:auto; }
+.title-art[style*="url"] { min-height:160px; font-size:0; border-radius:12px; margin-bottom:16px; }
+.toast.gag { display:flex; align-items:center; gap:8px; }
+.toast-badge { width:44px; height:44px; flex:none; border-radius:50%; object-fit:cover; background:#f6eee4; box-shadow:0 0 0 2px var(--accent); }
+.town-map[style*="url"]::after { display:none; }
+@media(max-height:700px) { .panel { max-height:48dvh; overflow-y:auto; } }
+:root { --frame-panel:none; --frame-button:none; --frame-tab:none; --frame-card:none; }
+.pixel-icon { width:32px; height:32px; object-fit:contain; image-rendering:auto; vertical-align:middle; flex-shrink:0; }
+.stress-chip .pixel-icon, .bubble .pixel-icon, .hearts .pixel-icon { width:16px; height:16px; }
+.tn .pixel-icon { width:48px; height:48px; }
+.sheet, .dialog { border-image:var(--frame-panel) 36 / 8px / 0 stretch; }
+.card, .farm-plot { border-image:var(--frame-card) 36 / 5px / 0 stretch; }
+.prep > .primary, .stack > .primary { border-image:var(--frame-button) 36 / 3px / 0 stretch; }
+.nav button { border-image:var(--frame-tab) 36 / 3px / 0 stretch; }
+.hit, .bubble, .nv-tools button { border-image:none; }
+.bubble.help { animation:sos-pulse 1s ease-in-out infinite alternate; }
+@keyframes sos-pulse { to { filter:brightness(1.12); } }
+@media(prefers-reduced-motion:reduce) { .bubble.help { animation:none; } }
+.pixel-fx { position:absolute; left:50%; top:38%; transform:translate(-50%,-50%); pointer-events:none; z-index:8; image-rendering:auto; }
+.decor-theme summary { min-height:44px; padding:12px 4px; cursor:pointer; font-weight:700; }
+
+.hostrow.cafe-only { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.companion-portrait { width:72px; height:72px; flex:0 0 72px; object-fit:contain; border-radius:16px; background:linear-gradient(140deg,#f7ece6,#e8dfef); }

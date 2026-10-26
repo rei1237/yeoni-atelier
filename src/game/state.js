@@ -8,8 +8,9 @@ import { START_FURNITURE } from '../data/layout.js';
 import { PEOPLE, RECRUITABLE } from '../data/companions.js';
 import { DEV_RECRUITABLE } from '../data/dev-companions.js';
 import { START_OUTFITS, OUTFIT_WEARERS } from '../data/outfits.js';
+import { newFarm } from '../data/farm.js';
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 3;
 
 export function createGame({ dev = false, seed = 20261025 } = {}) {
   const learned = {};
@@ -24,15 +25,27 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     mode: 'prep',           // prep(영업 전·마감 후) | shift | settlement | hunt
     day: 1,                 // 다음(또는 진행 중) 정규 영업 번호
     paused: false,
-    auto: false,           // 전체 자동(접대 판단 포함)
-    autoKitchen: true,     // 주방 자동: 주문 조리·서빙·정리는 기본 자동
+    auto: false,           // 전체 자동(접대 판단 포함) — 시뮬·테스트 전용
+    automation: { hall: false, kitchen: false, farm: false }, // 인연으로 연 뒤에도 기본은 꺼짐(permissions.js)
+    hostbar: { open: false, openedDay: null },
+    huntUnlocked: false,
+    stress: {},            // 직원 id → 0~100(stress.js). 없으면 0
+    resting: {},           // 이번 영업을 쉬는 직원(한계·휴무). 결산 때 풀린다
+    dayOff: {},            // 다음 영업을 쉬게 한 직원(준비 중 지정)
     shift: null,
     lastSettlement: null,
+    reputation:25,
     gold: TEMP.START_GOLD,
-    debt: PDF.INITIAL_DEBT,
+    debt: TEMP.INITIAL_DEBT,
+    startingDebt:TEMP.INITIAL_DEBT,
+    payroll:{months:{},arrears:0},
+    finance:{balance:0,requests:{},interest:{}},
     repaidTotal: 0,
     stock: { ...TEMP.START_STOCK, night_dew: 0 },
-    moonstone: 0,          // 월정석: 사냥에서 얻고 루나의 저울에서 골드로 바꾼다
+    moonstone: 0,          // 월정석: 사냥에서 얻고 청토끼 금융 센터에서 골드로 바꾼다
+    farm: newFarm(seed),
+    hunter: { xp: 0, kills: 0, maxStage:1 },
+    armory: {upgrades:{},supplies:{}},
     gear: { owned: [], equipped: { weapon: null, armor: null, charm: null } }, // 영냥이 장비(data/gear.js)
     learned,
     // 접대 가능한 명단: 새 게임은 네오 한 명
@@ -47,7 +60,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     stats: { served: 0, servedSpecial: 0, shiftsCompleted: 0, repayCount: 0, nightDewObtained: 0, recruited: 0, huntsCompleted: 0, moonstonesObtained: 0, moonstonesExchanged: 0, expansions: 0, areasOpened: 0 },
     ledger: { sales: {}, tips: {}, settlements: {}, rewards: {}, consumes: {}, repay: {}, interest: {}, story: {} },
     calendar: { ended: false, endingId: null, endedDebt: null }, // 달력(game/calendar.js): day 로 달·순을 계산한다
-    ap: { left: TEMP.CALENDAR.AP_PER_TURN, talked: {}, gifted: {}, shopped: false }, // 이번 순 행동력
+    ap: { left: TEMP.CALENDAR.AP_PER_TURN, talked: {}, gifted: {}, shopped: false, delegated: {}, sheltered: {}, neoTask: null }, // 이번 순 행동력
     affinity: { neo: 0, luna: 0, luna_sis: 0, moka: 0 }, // 친밀도(game/bonds.js)
     hunt: null,
     lastHunt: null,
@@ -107,7 +120,7 @@ export function elapsed(state) {
 }
 
 export function remainingShift(state) {
-  return state.shift ? Math.max(0, RULES.SHIFT_MS - state.shift.elapsedMs) : 0;
+  return state.shift ? Math.max(0, shiftDuration(state) - state.shift.elapsedMs) : 0;
 }
 
 // ── 이벤트(화면 연출용). 저장하지 않는다.
@@ -126,3 +139,8 @@ export function fmtTime(ms) {
   const s = Math.max(0, Math.ceil(ms / 1000));
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 }
+
+// 이미 진행 중이던 v1 저장은 그 영업만 기존 시간을 보존한다.
+export const shiftDuration = state => state.shift?.durationMs ?? RULES.SHIFT_MS;
+export const nominationDuration = state => state.shift?.nominationMs ?? RULES.NOMINATION_MS;
+export const lastAcceptAt = state => shiftDuration(state) - nominationDuration(state);

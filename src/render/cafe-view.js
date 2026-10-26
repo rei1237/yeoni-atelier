@@ -6,13 +6,18 @@ import { PDF } from '../config/balance.pdf.js';
 import { PEOPLE, STAFF_CREW } from '../data/companions.js';
 import { MENUS } from '../data/menus.js';
 import { OUTFITS } from '../data/outfits.js';
-import { ASSETS } from './assets.js';
+import {atmosphere} from '../game/cafe-growth.js';
+import { CUSTOMER_WEALTH } from '../data/customer-wealth.js';
+import {personName,usableHosts} from '../game/state.js';
+import { ASSETS,imageFor } from './assets.js';
 import { furnitureCells } from '../game/space.js';
-import { drawActor, roundRect, drawObjectImage } from './sprite-renderer.js';
+import { drawActor, roundRect, drawObjectImage, drawFood, nameTag } from './sprite-renderer.js';
 
-export function computeView(w, h) {
-  const tile = Math.max(8, Math.floor(Math.min(w / GRID.cols, h / GRID.rows) * 100) / 100);
-  return { tile, ox: Math.round((w - tile * GRID.cols) / 2), oy: Math.round((h - tile * GRID.rows) / 2), w, h };
+export function cafeBounds(state){const a=state?.interior?.areas||[];return {cols:a.includes('east_wing')||a.includes('garden_wing')?20:12,rows:a.includes('garden_wing')?24:16};}
+export function computeView(w, h, camera={}) {
+  const cols=camera.cols||12,rows=camera.rows||16;
+  const tile = Math.max(8, Math.floor(Math.min(w / cols, h / (rows + 1.5)) * 100) / 100) * (camera.zoom || 1);
+  return { tile, ox: Math.round((w - tile * cols) / 2)+Math.max(-Math.max(0,tile*cols-w)/2,Math.min(Math.max(0,tile*cols-w)/2,camera.x||0)), oy: Math.round((h - tile * rows) / 2)+Math.max(-Math.max(0,tile*rows-h)/2,Math.min(Math.max(0,tile*rows-h)/2,camera.y||0)), w, h, cols, rows };
 }
 export const cellToPx = (v, x, y) => ({ x: v.ox + x * v.tile, y: v.oy + y * v.tile });
 export const pxToCell = (v, px, py) => ({ x: Math.floor((px - v.ox) / v.tile), y: Math.floor((py - v.oy) / v.tile) });
@@ -22,6 +27,22 @@ const isFloorDef = def => def.cells.every(c => c.kind === 'floor');
 function cellsBox(cells) {
   const xs = cells.map(c => c[0]), ys = cells.map(c => c[1]);
   return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs) + 1, h: Math.max(...ys) - Math.min(...ys) + 1 };
+}
+
+// 이름표는 모든 배우를 그린 뒤 한 번에 놓는다. 겹치면 앞(아래쪽) 이름표를 한 줄씩 아래로 민다.
+function drawNameTags(ctx, tags, size) {
+  const fs = Math.max(9, Math.min(11, Math.round(size * 0.17))), h = fs + 6, placed = [];
+  ctx.font = `600 ${fs}px system-ui, sans-serif`;
+  for (const g of tags.sort((a, b) => a.y - b.y)) {
+    const w = ctx.measureText(g.text).width + 10;
+    let y = g.y;
+    for (let moved = true, n = 0; moved && n < 6; n++) {
+      moved = false;
+      for (const r of placed) if (Math.abs(r.x - g.x) < (r.w + w) / 2 && y < r.y + h && y + h > r.y) { y = r.y + h; moved = true; }
+    }
+    placed.push({ x: g.x, y, w });
+    nameTag(ctx, g.text, g.x, y, size, g.color);
+  }
 }
 
 function label(ctx, text, x, y, size, color = '#3b2f2f', align = 'center') {
@@ -34,6 +55,7 @@ function outfitLook(state, who) {
   const eq = state.outfits?.equipped?.[who];
   if (!eq) return {};
   return {
+    outfitId: eq.outfit,
     body: eq.outfit ? OUTFITS[eq.outfit]?.color : undefined,
     accents: [eq.acc1, eq.acc2].filter(Boolean).map(id => OUTFITS[id]?.color).filter(Boolean),
   };
@@ -45,17 +67,26 @@ export function drawCafe(ctx, state, v, opts = {}) {
   const P = (x, y) => cellToPx(v, x, y);
   ctx.fillStyle = '#eadbc8'; ctx.fillRect(0, 0, v.w, v.h);
 
+  const luxurious=atmosphere(state)>=20;
+  const backdrop=imageFor('backgrounds/cafe_room');
+  if(backdrop)ctx.drawImage(backdrop,v.ox,v.oy,T*v.cols,T*v.rows);
   // 바닥
-  for (let y = 0; y < GRID.rows; y++) for (let x = 0; x < GRID.cols; x++) {
+  for (let y = 0; y < v.rows; y++) for (let x = 0; x < v.cols; x++) {
+    if(backdrop && !state.interior.draft)continue;
     const p = P(x, y);
-    if (drawObjectImage(ctx, 'tiles', y === 0 ? 'cafe_wall' : 'cafe_floor', p.x, p.y, T, T)) continue;
+    ctx.fillStyle = y === 0 ? '#e8dbc8' : '#f3e8d9';
+    ctx.fillRect(p.x,p.y,T+.5,T+.5);
+    ctx.globalAlpha = y === 0 ? .5 : .22;
+    const tiled = drawObjectImage(ctx, 'tiles', y === 0 ? 'cafe_wall' : 'cafe_floor', p.x, p.y, T, T);
+    ctx.globalAlpha = 1;
+    if (tiled) continue;
     ctx.fillStyle = y === 0 ? '#e9dccb' : (x + y) % 2 ? '#f6ead9' : '#f1e2cd';
     ctx.fillRect(p.x, p.y, T + 0.5, T + 0.5);
   }
   // 아직 열지 않은 구역(공방 증축 전): 빗금과 자물쇠
   const open = state.interior.areas || [];
   for (const a of AREAS) {
-    if (open.includes(a.id)) continue;
+    if (open.includes(a.id) || a.rect[0]>=v.cols || a.rect[1]>=v.rows) continue;
     ctx.fillStyle = 'rgba(92,60,82,0.28)';
     for (const [x, y] of areaCells(a)) {
       const p = P(x, y);
@@ -100,12 +131,12 @@ export function drawCafe(ctx, state, v, opts = {}) {
   for (const fx of FIXTURES) {
     if (fx.wall) continue;
     const b = cellsBox(fx.cells), p = P(b.x, b.y);
-    if (!drawObjectImage(ctx, 'objects', fx.id, p.x, p.y, b.w * T, b.h * T)) {
+    if (!drawObjectImage(ctx, 'objects', !luxurious && ASSETS.objects[`basic_${fx.id}`] ? `basic_${fx.id}` : fx.id, p.x, p.y, b.w * T, b.h * T)) {
       ctx.fillStyle = fx.color;
       roundRect(ctx, p.x + 2, p.y + 2, b.w * T - 4, b.h * T - 4, T * 0.15); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(p.x + 4, p.y + 4, b.w * T - 8, T * 0.18);
     }
-    label(ctx, fx.name, p.x + b.w * T / 2, p.y + (b.h === 1 ? T * 0.42 : b.h * T / 2), T * 0.27);
+
   }
 
   // 가구(테이블·의자·막는 장식)
@@ -117,7 +148,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
     for (const c of furnitureCells(f)) {
       const p = P(c.x, c.y);
       if (c.kind === 'table') drawTable(ctx, state, p, T, f, tablesByUid.get(f.uid), t);
-      else if (c.kind === 'chair') { if (drawObjectImage(ctx, 'objects', 'chair', p.x, p.y, T, T)) continue; ctx.fillStyle = '#a8774c'; roundRect(ctx, p.x + T * 0.22, p.y + T * 0.3, T * 0.56, T * 0.5, T * 0.12); ctx.fill(); }
+      else if (c.kind === 'chair') { if (drawObjectImage(ctx, 'objects', luxurious?'chair':'basic_chair', p.x-T*.13, p.y-T*.16, T*1.26, T*1.26)) continue; ctx.fillStyle = '#a8774c'; roundRect(ctx, p.x + T * 0.22, p.y + T * 0.3, T * 0.56, T * 0.5, T * 0.12); ctx.fill(); }
       else drawDecor(ctx, f.defId, def, p, T);
     }
   }
@@ -129,13 +160,13 @@ export function drawCafe(ctx, state, v, opts = {}) {
   if (state.mode === 'shift') {
     for (const c of Object.values(state.customers)) {
       const st = c.action === 'walk' ? 'walk' : c.action === 'react' ? 'react' : 'idle';
-      actors.push({ key: 'customer', x: c.x, y: c.y, o: { state: st, facing: c.facing, hue: c.hue } });
+      actors.push({ key: 'customer', x: c.x, y: c.y, o: { state: st, facing: c.facing, hue: c.hue, name:null, tagColor:CUSTOMER_WEALTH[c.wealthId]?.color } });
     }
     for (const s of Object.values(state.staff)) {
-      const map = { walk: 'walk', serve: 'serve', clean: 'serve', host: 'host', react: 'react' };
+      const map = { walk: 'walk', serve: 'serve', clean: 'clean', host: 'host', react: 'react' };
       let st = map[s.action] || 'idle';
       if (s.action === 'cook') st = 'cook'; // 루나 언니가 굽는 중
-      actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color } : null, ...outfitLook(state, s.id) } });
+      actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, ...outfitLook(state, s.id) } });
     }
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
     actors.push({ key: 'yeoni', x: SPOTS.yeoniHome.x + 0.5, y: SPOTS.yeoniHome.y + 0.5, o: { state: 'idle', facing: 'down', name: '연이', ...outfitLook(state, 'yeoni') } });
@@ -144,12 +175,16 @@ export function drawCafe(ctx, state, v, opts = {}) {
       actors.push({ key: id, x: home.x + 0.5, y: home.y + 0.5, o: { state: 'idle', facing: 'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
     }
     if (state.people.neo?.activity === 'idle') actors.push({ key: 'neo', x: SPOTS.neoHome.x + 0.5, y: SPOTS.neoHome.y + 0.5, o: { state: 'idle', facing: 'down', name: '네오', ...outfitLook(state, 'neo') } });
+    usableHosts(state).filter(id=>id!=='neo'&&!STAFF_CREW.includes(id)).forEach((id,i)=>actors.push({key:id,x:2.5+(i%4)*2,y:10.5+Math.floor(i/4)*2,o:{state:'idle',facing:'down',name:personName(state,id),...outfitLook(state,id)}}));
   }
   actors.sort((a, b) => a.y - b.y);
+  const tags = [];
   for (const a of actors) {
-    const p = P(a.x, a.y);
-    drawActor(ctx, a.key, { ...a.o, x: p.x, y: p.y + T * 0.32, size: T * 1.05, t });
+    const p = P(a.x, a.y), foot = p.y + T * 0.32;
+    drawActor(ctx, a.key, { ...a.o, name: null, x: p.x, y: foot, size: T * 1.8, idleMotion:!editing&&!state.paused, reducedMotion:opts.reducedMotion, t });
+    if (a.o.name) tags.push({ text: a.o.name, x: p.x, y: foot + 4 + (a.o.state === 'host' ? Math.max(20, T * .65) : 0), color: a.o.tagColor });
   }
+  drawNameTags(ctx, tags, T * 1.8);
 
   // 편집 표시: 선택 가구와 문제 가구
   if (editing) {
@@ -169,7 +204,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
 function staffName(state, id) {
   if (id === 'yeoni') return '연이';
   if (PEOPLE[id]) return PEOPLE[id].name;
-  return id.startsWith('dev_') ? 'DEV' : id;
+  return id.startsWith('dev_') ? 'DEV' : personName(state,id);
 }
 
 function drawTable(ctx, state, p, T, f, tb, t) {
@@ -178,7 +213,7 @@ function drawTable(ctx, state, p, T, f, tb, t) {
     ctx.fillStyle = `rgba(255,200,60,${0.35 + Math.sin(t / 150) * 0.15})`;
     ctx.beginPath(); ctx.arc(p.x + T / 2, p.y + T / 2, T * 0.72, 0, Math.PI * 2); ctx.fill();
   }
-  if (!drawObjectImage(ctx, 'objects', 'table', p.x, p.y, T, T)) {
+  if (!drawObjectImage(ctx, 'objects', atmosphere(state)>=20?'table':'basic_table', p.x-T*.18, p.y-T*.16, T*1.36, T*1.36)) {
     ctx.fillStyle = '#c79a6b';
     roundRect(ctx, p.x + T * 0.08, p.y + T * 0.12, T * 0.84, T * 0.76, T * 0.18); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(p.x + T * 0.14, p.y + T * 0.16, T * 0.72, T * 0.12);
@@ -198,7 +233,7 @@ function drawTable(ctx, state, p, T, f, tb, t) {
     served.forEach((o, i) => {
       const cx = p.x + T * (served.length === 1 ? 0.5 : 0.33 + i * 0.34), cy = p.y + T * 0.55;
       ctx.fillStyle = '#fffaf2'; ctx.beginPath(); ctx.arc(cx, cy, T * 0.15, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = MENUS[o.menuId].color; ctx.beginPath(); ctx.arc(cx, cy, T * 0.09, 0, Math.PI * 2); ctx.fill();
+      drawFood(ctx, o.menuId, cx, cy + T * 0.07, T * (served.length === 1 ? 0.5 : 0.4));
     });
   }
   // 테이블 번호(색만이 아니라 숫자로)
@@ -240,16 +275,13 @@ function drawStations(ctx, state, v) {
       const k = Math.min(1, st.current.progressMs / st.current.durationMs);
       ctx.fillStyle = 'rgba(0,0,0,0.25)'; roundRect(ctx, p.x + 4, p.y + T * 0.66, w - 8, T * 0.22, 4); ctx.fill();
       ctx.fillStyle = MENUS[st.current.menuId].color; roundRect(ctx, p.x + 4, p.y + T * 0.66, (w - 8) * k, T * 0.22, 4); ctx.fill();
-      label(ctx, `${MENUS[st.current.menuId].short} ${Math.ceil((st.current.durationMs - st.current.progressMs) / 1000)}초`, p.x + w / 2, p.y + T * 0.77, T * 0.2, '#fff');
     }
     if (st.next) {
       ctx.fillStyle = '#fff'; roundRect(ctx, p.x + w - T * 0.62, p.y - T * 0.02, T * 0.62, T * 0.28, 5); ctx.fill();
-      label(ctx, `다음 ${MENUS[st.next.menuId].short}`, p.x + w - T * 0.31, p.y + T * 0.12, T * 0.17, '#5a3b22');
     }
     if (st.held) {
       ctx.strokeStyle = '#d9443a'; ctx.lineWidth = 3; ctx.strokeRect(p.x + 2, p.y + 2, w - 4, T - 4);
       ctx.fillStyle = '#d9443a'; roundRect(ctx, p.x + 2, p.y + T * 0.02, T * 1.1, T * 0.28, 5); ctx.fill();
-      label(ctx, '트레이 가득', p.x + 2 + T * 0.55, p.y + T * 0.16, T * 0.17, '#fff');
     }
   }
   // 서빙대 위 완성 음식(트레이 3칸)
@@ -257,6 +289,6 @@ function drawStations(ctx, state, v) {
   state.tray.forEach((it, i) => {
     const cx = pp.x + T * (0.4 + i * 0.6), cy = pp.y + T * 0.72;
     ctx.fillStyle = it ? '#fffaf2' : 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.arc(cx, cy, T * 0.18, 0, Math.PI * 2); ctx.fill();
-    if (it) { ctx.fillStyle = MENUS[it.menuId].color; ctx.beginPath(); ctx.arc(cx, cy, T * 0.11, 0, Math.PI * 2); ctx.fill(); }
+    if (it) drawFood(ctx, it.menuId, cx, cy + T * 0.08, T * 0.5);
   });
 }

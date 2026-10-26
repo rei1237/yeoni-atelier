@@ -1,3 +1,7 @@
+import {wealthEligible} from './cafe-growth.js';
+import {changePopularity,guestChatter,waitingSatisfaction,reviewVisit} from './reputation.js';
+import {cafeProgress,customerWealth,atmosphere,menuWeight,menuPrice} from './cafe-growth.js';
+import {CUSTOMER_WEALTH,wealthAt,hostRevenueMultiplier} from '../data/customer-wealth.js';
 // 카페 영업 루프: 입장 → 착석 → 주문 → 조리 → 완성 → 트레이 → 직원 운반 → 서빙 → 식사 → 퇴장 → 정리 → 빈 테이블
 // 모든 변경은 엔진 명령(engine.js)이나 영업 틱(shift.js)에서만 일어난다.
 
@@ -11,6 +15,7 @@ import { emit, nextId, remainingShift, usableHosts } from './state.js';
 import { buildGrid, findPath, tableGeometry } from './space.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
 import { bondFx } from '../data/bonds.js';
+import { changeStress, isResting } from './stress.js';
 
 export const STATION_IDS = ['drink', 'oven'];
 export const STATION_NAMES = { drink: '음료 머신', oven: '오븐' };
@@ -56,7 +61,7 @@ export function setupWorld(state) {
   const crewHome = { luna_sis: SPOTS.sisHome, luna: SPOTS.lunaHome };
   for (const id of STAFF_CREW) state.staff[id] = mk(id, { ...crewHome[id] });
   usableHosts(state).forEach((id, i) => {
-    const home = i === 0 ? { ...SPOTS.neoHome } : nearestWalkable(grid, { x: SPOTS.neoHome.x + i * 2, y: SPOTS.neoHome.y });
+    const home = i === 0 ? { ...SPOTS.neoHome } : nearestWalkable(grid, { x: 1 + ((i - 1) % 4) * 2, y: 2 + Math.floor((i - 1) / 4) * 4 });
     state.staff[id] = mk(id, home);
   });
 }
@@ -97,6 +102,23 @@ function moveAlong(e, dt, tilesPerS) {
 }
 
 // ── 재고·조리
+// 주문 말풍선 한 번: 완성 음식은 그 테이블로 보내고, 없으면 한 개만 조리 예약한다.
+export function quickOrder(state, orderId) {
+  const order = state.orders[orderId];
+  if (!order || order.status !== 'waiting') return { ok: false, reason: '이미 서빙 중이거나 끝난 주문이에요' };
+  const item = state.tray.find(it => it && !it.reservedFor && it.menuId === order.menuId);
+  if (item && state.visits[order.visitId]?.kind==='takeaway') {state.tray[state.tray.indexOf(item)]=null;recordServe(state,order);return {ok:true};}
+  if (item) return serve(state, item.id, order.tableNo);
+  const station = state.stations[MENUS[order.menuId].station];
+  if ([station.current, station.next].some(job => job?.orderId === orderId)) return { ok: false, reason: '이 주문은 만들고 있어요. 완성 트레이를 눌러 주세요' };
+  const prepared = [station.current, station.next, station.held].filter(job => job?.menuId === order.menuId).length;
+  const waiting = Object.values(state.orders).filter(o => o.status === 'waiting' && o.menuId === order.menuId);
+  if (prepared > waiting.findIndex(o => o.id === orderId)) return { ok: false, reason: '이 주문은 만들고 있어요. 완성 트레이를 눌러 주세요' };
+  const result = cook(state, order.menuId, order.id);
+  if (result.ok) (result.started ? station.current : station.next).orderId = orderId;
+  return result;
+}
+
 export function stockCheck(state, menuId) {
   const m = MENUS[menuId];
   for (const [id, n] of Object.entries(m.ingredients)) {
@@ -123,7 +145,7 @@ function startJob(state, sid, job) {
   return true;
 }
 
-export function cook(state, menuId) {
+export function cook(state, menuId, orderId=null) {
   const m = MENUS[menuId];
   if (!m) return { ok: false, reason: '없는 메뉴입니다' };
   if (!state.learned[menuId]) return { ok: false, reason: `${m.name} 레시피를 아직 배우지 않았습니다` };
@@ -131,7 +153,8 @@ export function cook(state, menuId) {
   const chk = stockCheck(state, menuId);
   if (!chk.ok) return { ok: false, reason: chk.reason };
   // 루나 언니 친밀도 능력: 조리 시간 단축
-  const job = { id: nextId(state, 'job'), menuId, durationMs: Math.round(m.cookMs * (1 - bondFx(state.affinity).cookSpeed)) };
+  const takeaway=state.visits[state.orders[orderId]?.visitId]?.kind==='takeaway';
+  const job = { id: nextId(state, 'job'), menuId, orderId, durationMs: Math.round(m.cookMs * (1 - bondFx(state.affinity).cookSpeed)*(takeaway?.55:1)) };
   if (!st.current && !st.held && !st.next) { startJob(state, m.station, job); return { ok: true, started: true }; }
   if (!st.next) { st.next = job; emit('cookQueued', { station: m.station, menuId }); return { ok: true, queued: true }; }
   return { ok: false, reason: `${STATION_NAMES[m.station]} 대기열이 가득 찼습니다 (현재 1 + 다음 1)` };
@@ -161,8 +184,12 @@ export function stepStations(state, dt) {
       st.current.progressMs += dt;
       if (st.current.progressMs >= st.current.durationMs) {
         const item = { id: nextId(state, 'item'), menuId: st.current.menuId, reservedFor: null };
+        const order=state.orders[st.current.orderId];
+        const pickup=order?.status==='waiting' && state.visits[order.visitId]?.kind==='takeaway' && state.visits[order.visitId].status==='active';
         st.current = null;
-        if (placeInTray(state, item)) emit('cooked', { station: sid, menuId: item.menuId });
+        if (state.staff.luna_sis && !isResting(state, 'luna_sis')) changeStress(state, 'cook', 'luna_sis');
+        if(pickup){recordServe(state,order);emit('takeawayDone',{price:order.price});}
+        else if (placeInTray(state, item)) emit('cooked', { station: sid, menuId: item.menuId });
         else { st.held = item; emit('trayFull', { station: sid, menuId: item.menuId }); }
       }
     }
@@ -180,10 +207,10 @@ function menuAvailable(state, menuId) {
   return state.tray.some(it => it && it.menuId === menuId && !it.reservedFor);
 }
 
-export function chooseMenu(state, limitMs) {
-  const list = MENU_ORDER.filter(id => menuAvailable(state, id) && MENUS[id].cookMs + TEMP.SERVE_BUFFER_MS <= limitMs);
+export function chooseMenu(state, limitMs, visit=null) {
+  const list = MENU_ORDER.filter(id => menuAvailable(state, id) && MENUS[id].cookMs + TEMP.SERVE_BUFFER_MS <= limitMs && menuWeight(state,visit,MENUS[id])>0);
   if (!list.length) return null;
-  const weights = list.map(id => (MENUS[id].special ? 3 : 1));
+  const weights = list.map(id => menuWeight(state,visit,MENUS[id]));
   let r = nextRandom(state.rng) * weights.reduce((a, b) => a + b, 0);
   for (let i = 0; i < list.length; i++) { r -= weights[i]; if (r < 0) return list[i]; }
   return list[list.length - 1];
@@ -191,7 +218,8 @@ export function chooseMenu(state, limitMs) {
 
 export function placeOrder(state, visit, menuId) {
   const m = MENUS[menuId];
-  const order = { id: nextId(state, 'order'), visitId: visit.id, tableNo: visit.tableNo, menuId, price: m.price, placedAt: state.shift.elapsedMs, status: 'waiting', itemId: null, servedAt: null };
+  if(!m || (m.nominationOnly && (visit.kind!=='nomination'||visit.acceptAt==null)))return null;
+  const order = { id: nextId(state, 'order'), visitId: visit.id, tableNo: visit.tableNo, menuId, price: menuPrice(state,m), placedAt: state.shift.elapsedMs, status: 'waiting', itemId: null, servedAt: null };
   state.orders[order.id] = order;
   visit.orderIds.push(order.id);
   emit('order', { tableNo: visit.tableNo, menuId });
@@ -219,7 +247,7 @@ export function serve(state, itemId, tableNo) {
 }
 
 export function findServeTarget(state, item) {
-  const o = Object.values(state.orders).find(x => x.status === 'waiting' && x.menuId === item.menuId);
+  const o = Object.values(state.orders).find(x => x.status === 'waiting' && state.visits[x.visitId]?.kind!=='takeaway' && x.menuId === item.menuId);
   return o ? o.tableNo : null;
 }
 
@@ -227,11 +255,14 @@ function recordServe(state, order) {
   if (state.ledger.sales[order.id] != null) return; // 같은 주문을 두 번 매출로 잡지 않는다
   const now = state.shift.elapsedMs;
   const visit = state.visits[order.visitId];
-  state.ledger.sales[order.id] = order.price;
-  state.gold += order.price;
-  state.shift.sales += order.price;
+  const levelBefore=cafeProgress(state).level;
+  const revenue = Math.floor(order.price * (visit.acceptAt != null ? hostRevenueMultiplier(visit.nominee) : 1)*(visit.motive==='atmosphere'?1+Math.min(.3,atmosphere(state)/200):1));
+  state.ledger.sales[order.id] = revenue;
+  visit.bill=(visit.bill||0)+revenue;
+  state.shift.sales += revenue;
   state.shift.servedCount += 1;
   state.stats.served += 1;
+
   if (MENUS[order.menuId].special) state.stats.servedSpecial += 1;
   order.status = 'served';
   order.servedAt = now;
@@ -242,11 +273,15 @@ function recordServe(state, order) {
   const c = state.customers[visit.customerId];
   if (c) {
     c.action = 'eat'; c.actionUntil = now + TEMP.EAT_MS;
-    if (visit.kind === 'regular') { c.state = 'eating'; c.eatEndAt = now + TEMP.EAT_MS; }
+    if (visit.kind === 'regular' && !openOrdersOfVisit(state,visit).length) { c.state = 'eating'; c.eatEndAt = now + TEMP.EAT_MS; }
   }
-  const y = state.staff.yeoni;
-  if (y) { y.action = 'react'; y.actionUntil = now + 900; } // 연이는 계산만 한다: 매출이 잡히면 계산대 동작
-  emit('served', { tableNo: order.tableNo, menuId: order.menuId, price: order.price });
+  // 연이의 계산 동작은 실제 카운터 결제 때 실행한다.
+  if(!openOrdersOfVisit(state,visit).length)guestChatter(state,visit,(state.shift.servedCount%7)/7,food>=70?'served':'late');
+  emit('served', { tableNo: order.tableNo||null, menuId: order.menuId, price: revenue });
+  // 마을 행동력은 순을 넘길 때 카페 Lv로 다시 채운다(calendar.maxActionPoints). 영업 중에는 쓸 곳이 없으니 여기서 더하지 않고 알리기만 한다.
+  if(cafeProgress(state).level>levelBefore){const next=cafeProgress(state).level;emit('cafeLevelUp',{level:next,apGain:Math.floor((next-1)/3)-Math.floor((levelBefore-1)/3)});};
+  if(visit.kind==='takeaway' && c && !openOrdersOfVisit(state,visit).length){state.stats.takeaways=(state.stats.takeaways||0)+1;customerLeave(state,c,'포장 수령');}
+
 }
 
 // ── 정리
@@ -263,7 +298,7 @@ export function requestClean(state, tableNo) {
 // ── 직원
 export function staffAvailable(state, id) {
   const s = state.staff[id];
-  if (!s || (s.job && s.job.kind !== 'home')) return false;
+  if (!s || (s.job && s.job.kind !== 'home') || isResting(state, id)) return false;
   const work = PEOPLE[id]?.work;
   if (work) return work === 'runner'; // 연이(계산)·루나 언니(굽기)는 운반하지 않는다
   return state.people[id]?.activity === 'idle'; // 접대 중인 동료는 서빙·정리에 투입하지 않는다
@@ -273,7 +308,8 @@ export function staffStatusText(state, id) {
   const s = state.staff[id];
   if (!s) return '';
   const j = s.job;
-  if (id === 'yeoni') return s.action === 'react' ? '계산 중' : '계산대';
+  if (id === 'yeoni') return j?.kind === 'deliver' ? `${j.tableNo}번 대신 서빙` : j?.kind === 'clean' ? `${j.tableNo}번 대신 정리` : s.action === 'react' ? '계산 중' : '계산대';
+  if (isResting(state, id)) return state.dayOff?.[id] ? '오늘은 휴무' : '지쳐서 쉬는 중';
   if (id === 'luna_sis') return j?.kind === 'station' && j.sid ? `${STATION_NAMES[j.sid]} 앞` : '대기';
   if (state.people[id]?.activity === 'hosting') return `${state.people[id].tableNo}번 접대 중`;
   if (!j || j.kind === 'home') return '대기';
@@ -295,6 +331,9 @@ function assignTasks(state) {
       const d = Math.abs(s.x - target.x) + Math.abs(s.y - target.y) + (PEOPLE[id]?.work === 'runner' ? 0 : 0.5);
       if (!best || d < best.d) best = { id, d };
     }
+    // 쉬는 직원이 있어 손이 모자라면 연이가 계산대를 잠시 비우고 대신 나른다(막힘 방지)
+    const y = state.staff.yeoni;
+    if (!best && y && (!y.job || y.job.kind === 'home') && Object.values(state.resting || {}).some(Boolean)) best = { id: 'yeoni' };
     if (!best) continue;
     const s = state.staff[best.id];
     task.assignedTo = best.id;
@@ -306,6 +345,28 @@ function assignTasks(state) {
       setPath(state, s, t.service);
     }
   }
+}
+
+// 한계에 닿은 직원의 일을 다른 사람에게 넘긴다: 든 음식은 트레이(가득하면 그 기계 보관칸)로, 닦던 테이블은 다시 정리 대기로.
+function handOver(state, s) {
+  const j = s.job, task = state.tasks.find(t => t.id === j.taskId);
+  if (j.kind === 'deliver' && s.carry) {
+    const st = state.stations[MENUS[s.carry.menuId].station], order = task && state.orders[task.orderId];
+    if (placeInTray(state, s.carry)) s.carry = null; // 예약은 그대로: 다른 직원이 트레이에서 이어 나른다
+    else if (!st.held) { // 트레이가 가득하면 기계 보관칸에 두고 서빙 예약을 푼다(다시 눌러 서빙)
+      s.carry.reservedFor = null; st.held = s.carry; s.carry = null;
+      if (order?.status === 'assigned') { order.status = 'waiting'; order.itemId = null; }
+      state.tasks = state.tasks.filter(t => t !== task);
+    } else return; // 둘 곳이 없으면 이 한 접시만 마저 나르고 쉰다
+  }
+  if (j.kind === 'clean') {
+    const t = tableByNo(state, j.tableNo);
+    if (t.state === 'cleaning') { t.state = 'dirty'; t.cleanEndAt = null; }
+  }
+  if (task) task.assignedTo = null;
+  s.action = 'idle';
+  sendHome(state, s);
+  emit('handOver', { id: s.id, kind: j.kind, tableNo: j.tableNo });
 }
 
 function finishTask(state, s) {
@@ -323,13 +384,20 @@ export function sendHostToTable(state, personId, tableNo) {
   if (!s) return;
   const t = tableByNo(state, tableNo);
   s.job = { kind: 'host', tableNo, stage: 'toTable' };
-  setPath(state, s, t.service);
+  const grid=getGrid(state);
+  const beside=[{x:t.chair.x+1,y:t.chair.y},{x:t.chair.x-1,y:t.chair.y}].find(p=>grid.walkable(p.x,p.y)&&findPath(grid,{x:Math.floor(s.x),y:Math.floor(s.y)},p));
+  setPath(state, s, beside||t.service);
 }
 
 // 루나 언니: 굽는 중인 기계 앞으로 가서 굽는다(가장 최근에 시작한 쪽). 없으면 대기 자리.
 const STATION_FRONT = { drink: SPOTS.drinkFront, oven: SPOTS.ovenFront };
 function stepBaker(state, s, dt) {
   moveAlong(s, dt, TEMP.WALK_TILES_PER_S);
+  if (isResting(state, s.id)) { // 쉬는 동안 조리는 기계에 그대로 남고, 연이(플레이어)가 이어서 만든다
+    if (s.job?.kind !== 'home' && (Math.floor(s.x) !== s.home.x || Math.floor(s.y) !== s.home.y)) sendHome(state, s);
+    s.action = s.path.length ? 'walk' : 'idle'; s.facing = 'down';
+    return;
+  }
   const busy = STATION_IDS.filter(id => state.stations[id].current)
     .sort((a, b) => state.stations[b].current.startedAt - state.stations[a].current.startedAt);
   const sid = busy[0] || null;
@@ -348,6 +416,7 @@ export function stepStaff(state, dt) {
   assignTasks(state);
   for (const s of Object.values(state.staff)) {
     if (PEOPLE[s.id]?.work === 'baker') { stepBaker(state, s, dt); continue; }
+    if (isResting(state, s.id) && (s.job?.kind === 'deliver' || s.job?.kind === 'clean')) handOver(state, s);
     const arrived = moveAlong(s, dt, TEMP.WALK_TILES_PER_S);
     const j = s.job;
     if (s.actionUntil && now >= s.actionUntil) { s.actionUntil = 0; if (s.action === 'serve' || s.action === 'react') s.action = 'idle'; }
@@ -368,6 +437,7 @@ export function stepStaff(state, dt) {
       } else if (j.stage === 'toTable' && arrived) {
         if (order && order.status === 'assigned') {
           recordServe(state, order);
+          changeStress(state, 'deliver', s.id);
           s.carry = null;
           s.action = 'serve'; s.actionUntil = now + 600;
           finishTask(state, s);
@@ -392,6 +462,7 @@ export function stepStaff(state, dt) {
         t.state = 'empty'; t.cleanQueued = false; t.cleanEndAt = null;
         s.action = 'idle';
         emit('cleaned', { tableNo: t.no });
+        changeStress(state, 'clean', s.id);
         finishTask(state, s);
       }
     } else if (j.kind === 'host') {
@@ -424,33 +495,40 @@ function cancelVisitOrders(state, visit) {
 
 export function customerLeave(state, c, reason) {
   const visit = state.visits[c.visitId];
+  reviewVisit(state,visit,reason);
+  if(visit.reviewScore>=65)guestChatter(state,visit,(state.shift.spawnCount%5)/5,'farewell');
   cancelVisitOrders(state, visit);
   const t = tableByNo(state, c.tableNo);
   if (t && t.customerId === c.id) { t.customerId = null; t.state = 'dirty'; }
   visit.status = 'done';
   visit.leaveReason = reason;
-  c.state = 'leaving';
-  c.action = 'walk';
-  setPath(state, c, SPOTS.entrance);
+  state.cafeGesture={kind:'bow',at:state.shift.elapsedMs};
+  c.state = visit.bill>0 && !visit.paid ? 'checkout' : 'leaving';
+  c.action = 'walk';c.payAt=null;
+  setPath(state,c,c.state==='checkout'?nearestWalkable(getGrid(state),{x:5,y:14}):SPOTS.entrance);
   emit('leave', { tableNo: c.tableNo, reason });
 }
 
 export function spawnCustomer(state, spec) {
+  if (!state.hostbar.open && spec.kind === 'nomination') spec = { ...spec, kind: 'regular', nominee: null };
   const empty = state.tables.filter(t => t.state === 'empty');
-  if (!empty.length) return null;
-  const t = pick(state.rng, empty);
+  const takeaway=spec.kind==='takeaway';
+  if(takeaway && Object.values(state.visits).filter(v=>v.kind==='takeaway'&&v.status==='active').length>=2)return null;
+  if (!takeaway && !empty.length) return null;
+  const t = takeaway?{no:0,chair:nearestWalkable(getGrid(state),{x:5,y:14})}:pick(state.rng, empty);
   const profile = spec.profileId ? PDF.PROFILES.find(p => p.id === spec.profileId) : pick(state.rng, PDF.PROFILES);
+  const wealthId = CUSTOMER_WEALTH[spec.wealthId] && (state.meta.devData||wealthEligible(state,spec.wealthId)) ? spec.wealthId : customerWealth(state,nextRandom(state.rng));
   const cid = nextId(state, 'customer');
   const vid = nextId(state, 'visit');
   state.shift.spawnCount += 1;
   const c = {
-    id: cid, visitId: vid, tableNo: t.no, label: `손님 ${state.shift.spawnCount}`,
+    id: cid, visitId: vid, tableNo: t.no, wealthId, label: `${takeaway?'포장 · ':''}${CUSTOMER_WEALTH[wealthId].name} ${state.shift.spawnCount}`,
     x: SPOTS.entrance.x + 0.5, y: SPOTS.entrance.y + 0.5, path: [], moving: false, facing: 'up',
     state: 'entering', action: 'walk', actionUntil: 0, orderAt: null, eatEndAt: null,
     hue: Math.floor(nextRandom(state.rng) * 360),
   };
   const visit = {
-    id: vid, customerId: cid, tableNo: t.no, kind: spec.kind, profileId: profile.id, prefs: { ...profile.prefs },
+    id: vid, customerId: cid, tableNo: t.no, kind: spec.kind, motive:spec.motive || (spec.kind==='regular' && nextRandom(state.rng)<Math.min(.55,.1+atmosphere(state)/140)?'atmosphere':'menu'), wealthId, profileId: profile.id, prefs: { ...profile.prefs },
     nominee: spec.kind === 'nomination' ? spec.nominee : null, requestedNominee: spec.kind === 'nomination' ? spec.nominee : null,
     requestAt: null, acceptAt: null, endAt: null, waitPenalty: 0, talkBonus: 0, help: [],
     feverEvalDone: false, feverSpecialDone: false, fevered: false, extraOrderDone: false,
@@ -461,7 +539,9 @@ export function spawnCustomer(state, spec) {
   t.state = 'occupied';
   t.customerId = cid;
   setPath(state, c, t.chair, { goalBlocked: true });
-  if (spec.kind === 'regular') state.shift.regularVisits += 1; else state.shift.nominationVisits += 1;
+  if (spec.kind !== 'nomination') state.shift.regularVisits += 1; else state.shift.nominationVisits += 1;
+  visit.chatter=guestChatter(state,visit,nextRandom(state.rng));
+  if(!state.cafeGesture||state.shift.elapsedMs-state.cafeGesture.at>1100)state.cafeGesture={kind:'welcome',at:state.shift.elapsedMs};
   emit('enter', { tableNo: t.no, kind: spec.kind });
   return c;
 }
@@ -489,14 +569,19 @@ export function stepCustomers(state, dt, hooks) {
         break;
       case 'thinking':
         if (now >= c.orderAt) {
-          const menuId = chooseMenu(state, remainingShift(state));
+          const menuId = chooseMenu(state, remainingShift(state),visit);
           if (!menuId) { customerLeave(state, c, remainingShift(state) < 60000 ? '마감이 가까워 주문하지 않음' : '주문할 수 있는 메뉴가 없음'); break; }
           placeOrder(state, visit, menuId);
+          const extraChance={frugal:.12,ordinary:.3,generous:.6,tycoon:.85}[visit.wealthId]||0;
+          if(nextRandom(state.rng)<extraChance){const extra=chooseMenu(state,remainingShift(state),visit);if(extra)placeOrder(state,visit,extra);if(visit.wealthId==='tycoon'&&nextRandom(state.rng)<.4){const third=chooseMenu(state,remainingShift(state),visit);if(third)placeOrder(state,visit,third);}}
           c.state = 'waiting_food';
         }
         break;
       case 'waiting_food': {
         const open = openOrdersOfVisit(state, visit);
+        const satisfaction=waitingSatisfaction(state,visit);
+        if(satisfaction<55 && !visit.lateSpoken){visit.lateSpoken=true;guestChatter(state,visit,(state.shift.spawnCount%4)/4,'late');}
+        else if(satisfaction<80 && !visit.waitSpoken){visit.waitSpoken=true;guestChatter(state,visit,(state.shift.spawnCount%4)/4,'waiting');}
         if (open.length && now - open[0].placedAt >= TEMP.FOOD_PATIENCE_MS * (1 + bondFx(state.affinity).patience)) customerLeave(state, c, '음식을 오래 기다려 떠남');
         break;
       }
@@ -506,6 +591,9 @@ export function stepCustomers(state, dt, hooks) {
       case 'requesting':
         hooks.onRequesting(state, c, visit, now);
         break;
+      case 'checkout':
+        if(arrived||!c.path.length){c.action='idle';c.facing='left';c.payAt??=now+650;if(now>=c.payAt){checkout(state,visit);c.state='leaving';c.action='walk';setPath(state,c,SPOTS.entrance);}}
+        break;
       case 'leaving':
         if (arrived || !c.path.length) delete state.customers[c.id];
         break;
@@ -513,4 +601,15 @@ export function stepCustomers(state, dt, hooks) {
         break;
     }
   }
+}
+
+// 매출은 서빙 기록에 쌓고, 실제 골드는 연이의 계산대에서 한 번만 받는다.
+export function checkout(state,visit){
+ if(!visit || visit.paid)return false;
+ state.ledger.checkouts ||= {};
+ if(state.ledger.checkouts[visit.id]!=null){visit.paid=true;return false;}
+ const amount=Math.max(0,visit.bill||0);state.ledger.checkouts[visit.id]=amount;visit.paid=true;state.gold+=amount;
+ const yeoni=state.staff.yeoni;if(yeoni){yeoni.action='react';yeoni.actionUntil=state.shift.elapsedMs+650;yeoni.facing='right';}
+ state.cafeGesture={kind:'cashier',at:state.shift.elapsedMs};
+ if(amount)emit('paidAtCounter',{amount});return true;
 }

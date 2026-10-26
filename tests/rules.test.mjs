@@ -23,7 +23,8 @@ test('새 게임: 접대 가능한 동료는 네오 한 명, 토끼 자매는 �
   // 개발용 임시 동료는 일반 게임의 영입 후보에도 없다
   const normal = createGame();
   assert.equal(isUsableHost(normal, 'dev_temp_01'), false);
-  assert.deepEqual(normal.recruitment, {});
+  assert.equal(normal.recruitment.dev_temp_01, undefined);
+  assert.ok(Object.values(normal.recruitment).every(r => r.status === 'locked'));
 });
 
 test('외모 중심(10/25/5/60) + 네오 → M = 92, H = 92, 매우 만족', () => {

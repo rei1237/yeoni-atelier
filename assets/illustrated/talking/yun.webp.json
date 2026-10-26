@@ -1,0 +1,41 @@
+{
+  "prompt": "Use case: identity-preserve. Redraw the supplied Yun (윤달) reference as a polished Korean light-novel dialogue portrait animation asset. ONE CHARACTER ONLY. Exactly TWO columns by TWO rows, 4 equal square cells, true transparent alpha. Chest-up bust, entire head and both shoulders visible. Calm adult man with dark indigo-black layered hair, low tied hair at nape, cool gray-violet eyes and slight knowing warmth; preserve reference face, navy moon-patterned traditional coat, ivory high collar, round bronze pendant and understated earring. Hands and fan below the crop, do not include hands. NEW near-frontal conversational pose, upright head, relaxed level shoulders, looking toward viewer, not a tilted head. Every cell has exactly identical body, hair, neck, face scale and placement. ONLY lips or eyelids change. Reading order: top-left relaxed neutral closed lips and open eyes; top-right identical with closed eyes for one blink, closed lips; bottom-left open eyes, lips very slightly parted naturally saying a soft syllable; bottom-right open eyes, mouth gently open in a small natural speech shape, no exaggerated smile or red hole. Accurate human anatomy and subtle lip contours, delicate mouth interior, no teeth grin. Broad empty TRANSPARENT 15% padding on all four sides of EACH cell, no cropped hair, no overlapping portraits. Consistent painting/lighting, premium fine linework. No scenery, no matte background, no colored rectangle, no words, no panel borders, no extra heads or figures. Do not draw a collage or a reference sheet with text. Exactly four aligned speaking busts.",
+  "createdAt": "2026-10-25T21:06:45.753Z",
+  "updatedAt": "2026-10-25T21:50:42.198954+00:00",
+  "sourceFile": "exec-8683a7b9-ef30-4d1c-b1e0-60d01b8503b8.png",
+  "sourceSha256": "035201aaa6ac97a656f49947c7805eebe3a4eb492d714273b1c85a18b8fdafef",
+  "sourceCells": [
+    [
+      0,
+      0,
+      627,
+      630
+    ],
+    [
+      627,
+      0,
+      1254,
+      630
+    ],
+    [
+      0,
+      638,
+      627,
+      1254
+    ],
+    [
+      627,
+      638,
+      1254,
+      1254
+    ]
+  ],
+  "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+  "sha256": "b714dd5b595309e7dc715f60c1e721ac2423f4f250bb2bcca54d194e28afa619",
+  "frame": {
+    "width": 320,
+    "height": 384,
+    "count": 4
+  },
+  "revision": "new dedicated redraw, supersedes previous talk-mystery row"
+}

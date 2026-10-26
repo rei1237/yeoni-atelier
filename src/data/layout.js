@@ -2,7 +2,8 @@
 // 고정 설비(이동 불가)와 배치 가능한 가구를 분리한다.
 // 연이는 입구 옆 계산대에서 계산만 한다. 루나 언니는 주방(굽기), 루나는 홀(서빙·정리)을 맡는다(게임 오리지널).
 
-export const GRID = Object.freeze({ cols: 12, rows: 16 });
+import { DECOR_CATALOG } from './decor-catalog.js';
+export const GRID = Object.freeze({ cols: 20, rows: 24 });
 
 export const SPOTS = Object.freeze({
   entrance: { x: 5, y: 15 },
@@ -32,6 +33,8 @@ export const RESERVED = Object.freeze([
 
 // 잠긴 구역(공방 증축으로 연다). rect: [x0, y0, x1, y1] 포함 범위. 이름은 게임 오리지널, 가격은 TEMP.AREA_COSTS.
 export const AREAS = Object.freeze([
+  {id:'east_wing',name:'동쪽 음악당',rect:[12,0,19,15]},
+  {id:'garden_wing',name:'남쪽 정원 홀',rect:[0,16,19,23]},
   { id: 'window', name: '창가석', rect: [9, 2, 11, 9] },
   { id: 'salon', name: '별빛 살롱', rect: [0, 11, 2, 15] },
   { id: 'terrace', name: '꽃길 테라스', rect: [9, 10, 11, 15] },
@@ -46,6 +49,7 @@ export function areaCells(a) {
 
 // 가구 정의. cells는 회전 0 기준의 상대 좌표. kind: table / chair / block / floor(통과 가능 장식)
 export const FURNITURE = Object.freeze({
+  ...Object.fromEntries(DECOR_CATALOG.map(d => [d.id, d])),
   table_set: { id: 'table_set', name: '2인 테이블 세트', cells: [{ dx: 0, dy: 0, kind: 'table' }, { dx: 0, dy: 1, kind: 'chair' }], color: '#c79a6b', ambience: 0, table: true, storable: false },
   plant: { id: 'plant', name: '화분', cells: [{ dx: 0, dy: 0, kind: 'block' }], color: '#6aa36a', ambience: 2 },
   bookshelf: { id: 'bookshelf', name: '책장', cells: [{ dx: 0, dy: 0, kind: 'block' }, { dx: 1, dy: 0, kind: 'block' }], color: '#9a6f4e', ambience: 3 },
@@ -59,6 +63,8 @@ export const START_FURNITURE = Object.freeze([
   { uid: 'table1', defId: 'table_set', x: 2, y: 4, rot: 0, tableNo: 1 },
   { uid: 'table2', defId: 'table_set', x: 6, y: 4, rot: 0, tableNo: 2 },
   { uid: 'table3', defId: 'table_set', x: 6, y: 8, rot: 0, tableNo: 3 },
+  { uid: 'table4', defId: 'table_set', x: 2, y: 8, rot: 0, tableNo: 4 },
+  { uid: 'table5', defId: 'table_set', x: 6, y: 11, rot: 0, tableNo: 5 },
   { uid: 'plant1', defId: 'plant', x: 0, y: 10, rot: 0 },
   { uid: 'plant2', defId: 'plant', x: 8, y: 15, rot: 0 },
   { uid: 'rug1', defId: 'rug', x: 3, y: 4, rot: 0 },

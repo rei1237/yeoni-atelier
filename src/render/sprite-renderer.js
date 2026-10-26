@@ -1,30 +1,86 @@
 // 캐릭터 그리기: 스프라이트 시트가 있으면 프레임을, 없으면 도형 대체를 그린다.
 // 같은 입력(상태·방향·시간)을 받으므로 시트를 넣어도 호출하는 쪽은 바뀌지 않는다.
 
-import { ASSETS, SPRITE_STATES, imageFor, resolveState, actorDef } from './assets.js';
+import { ASSETS, imageFor, resolveState, actorDef } from './assets.js';
+import { actorSocket } from '../data/actor-sockets.js';
+
+// 카페의 대기 동작. 발 기준점은 이동하지 않고 호흡·작은 몸 기울임만 표현한다.
+export function cafeIdlePose(key, o) {
+  if (!o.idleMotion || o.reducedMotion || !['idle','host','cook','serve'].includes(o.state || 'idle')) return null;
+  const seed=Array.from(key).reduce((n,c)=>n+c.charCodeAt(0),0)+(o.x||0)*.37+(o.y||0)*.19;
+  const phase=(o.t||0)/1000, breath=Math.sin(phase*(1.65+(seed%7)*.06)+seed);
+  return {scaleX:1-breath*.006,scaleY:1+breath*.022,angle:Math.sin(phase*.85+seed*.7)*.014};
+}
 
 export function drawActor(ctx, key, o) {
+  const gesture=key==='yeoni'&&o.gesture;
+  if(gesture && imageFor('yeoni_idle')){key='yeoni_idle';o={...o,state:gesture.kind,facing:'down',animationFrame:Math.min(3,Math.floor(gesture.age/260)),idleMotion:false,outfitId:null};}
+  // 쟁반·천을 든 동안에는 손 위치가 정해진 기본 시트를 쓴다(대기 전용 시트는 손에 다른 물건이 있다).
+  else if((o.state||'idle')==='idle'&&!o.outfitId&&!o.carry&&!o.cleaning&&imageFor(key+'_idle')){key=key+'_idle';o={...o,idleMotion:false};}
+  const dressed = o.outfitId ? `${key}@${o.outfitId}` : key;
+  key = imageFor(dressed) ? dressed : key.split('@')[0];
   const def = actorDef(key) || ASSETS.actors.customer;
   const st = resolveState(def, o.state || 'idle');
   const img = imageFor(key);
+  o={...o,actorKey:key};
+  const pose=cafeIdlePose(key,o);
+  if (pose) {
+    ctx.save();ctx.translate(o.x,o.y);ctx.rotate(pose.angle);ctx.scale(pose.scaleX,pose.scaleY);
+    const body={...o,x:0,y:0,name:null};
+    if(img)drawFromSheet(ctx,def,img,st,body);else drawFallback(ctx,def,st,body);
+    ctx.restore();
+    if(o.name)nameTag(ctx,o.name,o.x,o.y+4+(o.nameOffsetY||0),o.size,o.tagColor);
+    return;
+  }
   if (img) return drawFromSheet(ctx, def, img, st, o);
   drawFallback(ctx, def, st, o);
 }
 
 function drawFromSheet(ctx, def, img, st, o) {
   const s = def.states[st];
-  const row = SPRITE_STATES.indexOf(st) + Math.max(0, def.directions.indexOf(o.facing || 'down')) * SPRITE_STATES.length;
-  const frame = Math.floor((o.t / 1000) * s.fps) % s.frames;
-  // 도트 그림은 정수 배율로만 키워야 픽셀이 고르게 보인다(32px 프레임 → 32·64·96…)
-  const scale = Math.max(1, Math.round(o.size / def.frame.h));
+  const row = def.stateRows[st] + Math.max(0, def.directions.indexOf(o.facing || 'down')) * def.directionRows;
+  const frame = (s.frameOffset || 0) + (o.animationFrame==null?Math.floor((o.t / 1000) * s.fps) % s.frames:Math.max(0,Math.min(s.frames-1,o.animationFrame)));
+  // 고해상도 원본을 실제 화면 크기에 맞춰 축소한다.
+  const scale = o.size / def.frame.h;
+  const sock = o.carry || o.cleaning ? actorSocket(o.actorKey || '', o.facing || 'down') : null;
+  if (sock?.layer === 'back') drawWorkProps(ctx, o, sock, scale, frame);
   const prev = ctx.imageSmoothingEnabled;
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  if(o.flipX){ctx.save();ctx.translate(o.x,0);ctx.scale(-1,1);ctx.translate(-o.x,0);}
   if (o.flash) ctx.filter = 'brightness(3)';
   ctx.drawImage(img, frame * def.frame.w, row * def.frame.h, def.frame.w, def.frame.h,
     Math.round(o.x - def.anchor.x * scale), Math.round(o.y - def.anchor.y * scale), def.frame.w * scale, def.frame.h * scale);
   ctx.filter = 'none';
+  if(o.flipX)ctx.restore();
   ctx.imageSmoothingEnabled = prev;
-  if (o.name) nameTag(ctx, o.name, o.x, o.y + 4, o.size, o.tagColor);
+  if (sock && sock.layer !== 'back') drawWorkProps(ctx, o, sock, scale, frame);
+  if (o.name) nameTag(ctx, o.name, o.x, o.y + 4 + (o.nameOffsetY || 0), o.size, o.tagColor);
+}
+
+// 손이 없는 서빙 소품을 배우별 손 위치(actor-sockets.js)에 맞춰 붙인다. 위를 보면 몸 뒤, 그 외에는 몸 앞에 그린다.
+// 쟁반과 음식은 한 번의 이동으로 함께 움직이고, 음식은 주문 ID가 가리키는 실제 메뉴 그림을 쟁반 면에 세운다.
+function drawWorkProps(ctx, o, sock, scale, frame) {
+  const id = `${o.cleaning ? 'cloth' : 'tray'}-${o.facing || 'down'}`, def = ASSETS.service?.[id], prop = def && imageFor(`service/${id}`);
+  if (!prop) return;
+  // 천은 한 손으로 쥐어 손잡이 기준점이 없다. 그때는 쟁반 손잡이 간격(172)으로 크기를 맞춘다.
+  const hs = def.handSockets || [], [ax, ay] = def.anchor, span = hs.length > 1 ? hs[1][0] - hs[0][0] : 172;
+  const k = sock.w * scale / span * (o.cleaning ? .8 : 1);
+  const sx = o.flipX ? 128 - sock.x : sock.x;
+  const bob = o.state === 'walk' && !o.reducedMotion ? -(frame % 2) * scale : 0;
+  const wipe = o.cleaning && !o.reducedMotion ? Math.sin(o.t / 140) * sock.w * .22 * scale : 0;
+  ctx.save();
+  ctx.translate(o.x + (sx - 64) * scale + wipe, o.y + (sock.y - 122) * scale + bob);
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(prop, -ax * k, -ay * k, def.dimensions[0] * k, def.dimensions[1] * k);
+  if (o.carry?.menuId && !o.cleaning) drawFood(ctx, o.carry.menuId, (def.itemSocket[0] - ax) * k, (def.itemSocket[1] - ay) * k, 104 * k);
+  ctx.restore();
+}
+
+// 메뉴 그림의 바닥(투명 여백 제외)을 주어진 점에 맞춘다. 그림이 없으면 아이콘 대체.
+export function drawFood(ctx, menuId, x, bottom, px) {
+  const img = imageFor(`icons/${menuId}`);
+  if (!img) return drawIcon(ctx, menuId, x, bottom - px / 2, px);
+  ctx.drawImage(img, x - px / 2, bottom - px * .88, px, px);
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -38,7 +94,7 @@ function roundRect(ctx, x, y, w, h, r) {
 }
 
 export function nameTag(ctx, text, x, y, size, color = '#3b2f2f') {
-  const fs = Math.max(10, Math.round(size * 0.26));
+  const fs = Math.max(9, Math.min(11, Math.round(size * 0.17)));
   ctx.font = `600 ${fs}px system-ui, sans-serif`;
   const w = ctx.measureText(text).width + 8;
   ctx.fillStyle = 'rgba(255,255,255,0.88)';
@@ -85,7 +141,7 @@ function drawFallback(ctx, def, st, o) {
   if (st === 'host') hostMark(ctx, x + s * 0.32, y - s * 1.0, s, t);
   if (st === 'react') { ctx.fillStyle = '#e8574a'; ctx.font = `800 ${Math.round(s * 0.34)}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText('!', x + s * 0.3, y - s * 0.95); }
   if (st === 'attack') { ctx.strokeStyle = 'rgba(255,240,150,0.9)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y - s * 0.4, s * 0.5, -0.6, 0.6); ctx.stroke(); }
-  if (o.name) nameTag(ctx, o.name, o.x, o.y + 3, s, o.tagColor);
+  if (o.name) nameTag(ctx, o.name, o.x, o.y + 3 + (o.nameOffsetY || 0), s, o.tagColor);
 }
 
 function drawPerson(ctx, x, y, s, fb, o, t, st) {
@@ -266,12 +322,12 @@ function hostMark(ctx, x, y, s, t) {
   ctx.fillText('♥', x, y);
 }
 
-// 16×16 아이콘: 이미지가 있으면 정수 배율, 없으면 색 마름모
+// 아이콘은 요청 크기로 부드럽게 축소한다. 없으면 색 마름모.
 export function drawIcon(ctx, key, x, y, px) {
   const img = imageFor(`icons/${key}`);
   if (img) {
-    const k = Math.max(1, Math.round(px / 16));
-    const prev = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = false;
+    const k = px / 16;
+    const prev = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(img, Math.round(x - 8 * k), Math.round(y - 8 * k), 16 * k, 16 * k);
     ctx.imageSmoothingEnabled = prev;
     return;
@@ -282,16 +338,38 @@ export function drawIcon(ctx, key, x, y, px) {
   ctx.beginPath(); ctx.moveTo(x, y - r); ctx.lineTo(x + r * 0.78, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r * 0.78, y); ctx.closePath(); ctx.fill(); ctx.stroke();
 }
 
+// 대화 시트 키: 무대 정장(검정·금색)일 때만 neo_stage, 그 밖의 의상은 각 인물의 기본 시트.
+const STAGE_SUITS = new Set(['host_first', 'crescent_tailcoat']);
+export function talkingKey(key) {
+  const [who, outfit] = key.split(':')[0].split('@');
+  return who === 'neo' && STAGE_SUITS.has(outfit) ? 'neo_stage' : who;
+}
+
 // 대화 초상화(소설 화면): 초상화 시트가 있으면 표정 칸을, 없으면 캐릭터 도형을 크게 그린다
-export function drawPortrait(ctx, key, expr, w, h) {
+export function drawPortrait(ctx, key, expr, w, h, { frame = 0, talkingSheet = false } = {}) {
   ctx.clearRect(0, 0, w, h);
-  const def = ASSETS.portraits[key];
-  const img = imageFor(`portraits/${key}`);
+  if(talkingSheet){
+    const talkKey=talkingKey(key);
+    const sheet=imageFor(`talking/${talkKey}`), d=ASSETS.talking?.[talkKey];
+    if(sheet&&d){const fw=d.frame.w,fh=d.frame.h,k=Math.min(w/fw,h/fh);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(sheet,Math.max(0,Math.min(3,frame))*fw,0,fw,fh,(w-fw*k)/2,h-fh*k,fw*k,fh*k);return;}
+  }
+  const actualKey = imageFor(`portraits/${key}`) ? key : key.split('@')[0];
+  const def = ASSETS.portraits[actualKey];
+  const img = imageFor(`portraits/${actualKey}`);
+  if (def?.static && img) {
+    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    const sh = w >= h ? Math.min(img.height,img.width*1.05) : img.height;
+    const scale=Math.min(w/img.width,h/sh);
+    ctx.drawImage(img,0,0,img.width,sh,(w-img.width*scale)/2,h-sh*scale,img.width*scale,sh*scale);return;
+  }
   if (def && img) {
     const i = Math.max(0, def.expressions.indexOf(expr));
-    const k = Math.max(1, Math.floor(Math.min(w, h) / def.px));
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(img, i * def.px, 0, def.px, def.px, Math.round((w - def.px * k) / 2), h - def.px * k, def.px * k, def.px * k);
+    const k = Math.min(w, h) / def.px;
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    const animated = img.width === 4 * def.px && img.height === def.expressions.length * def.px;
+    const sx = animated ? Math.max(0, Math.min(3, frame)) * def.px : i * def.px;
+    const sy = animated ? i * def.px : 0;
+    ctx.drawImage(img, sx, sy, def.px, def.px, Math.round((w - def.px * k) / 2), h - def.px * k, def.px * k, def.px * k);
     return;
   }
   const state = expr === 'surprised' || expr === 'flustered' || expr === 'cry' ? 'react' : 'idle';
@@ -304,10 +382,11 @@ export { roundRect };
 // 회전으로 비율이 바뀌었거나 그림이 없으면 false → 호출한 쪽이 도형으로 그린다.
 export function drawObjectImage(ctx, group, key, x, y, w, h) {
   const img = imageFor(`${group}/${key}`);
-  if (!img || Math.abs(img.width / img.height - w / h) > 0.01) return false;
+  if (!img) return false;
   const prev = ctx.imageSmoothingEnabled;
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(img, Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  if (group === 'tiles') ctx.drawImage(img,2,2,img.width-4,img.height-4,x,y,w+.5,h+.5);
+  else {const k=Math.min(w/img.width,h/img.height);ctx.drawImage(img,x+(w-img.width*k)/2,y+h-img.height*k,img.width*k,img.height*k);}
   ctx.imageSmoothingEnabled = prev;
   return true;
 }

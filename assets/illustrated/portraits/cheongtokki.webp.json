@@ -1,0 +1,4 @@
+{
+  "prompt": "NEW speaking bust sprite atlas, exactly FOUR columns by TWO rows, landscape 2:1. Row1: adult silver-haired Neo in black and gold DEST1NOVA stage suit like reference1, no white shirt, chest-up only. Row2: cunning BLUE RABBIT Cheongtokki like reference2, swept dark hair narrow purple eyes navy gold waistcoat holding coin. BOTH long rabbit ears must be complete and fit inside row2 with 40px transparent top margin. Columns1 mouth closed eyes open;2 eyes closed blink;3 small open talking mouth;4 open speaking mouth. Same exact pose/face scale/costume registration in each row, ONLY eyes and lips change. Each bust complete with empty transparent gutter on every side. Do NOT inherit reference2 background: no purple rectangle, no star background, no glow, no scenery. Transparent alpha background around every single character. Only 8 isolated chest-up portraits, no words, no frame, no full bodies.",
+  "createdAt": "2026-10-25T21:06:59.956Z"
+}

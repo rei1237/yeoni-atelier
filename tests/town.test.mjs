@@ -7,13 +7,16 @@ import { createGame } from '../src/game/state.js';
 import { dispatch } from '../src/game/engine.js';
 import { questView } from '../src/game/economy.js';
 import { validateLayout } from '../src/game/space.js';
-import { tablePrice, areaPrice } from '../src/game/town.js';
+import { tablePrice, areaPrice, VISIT_PLACES } from '../src/game/town.js';
+import { VISIT_STORIES } from '../src/story/visits.js';
 import { AREAS } from '../src/data/layout.js';
+import { DECOR_CATALOG } from '../src/data/decor-catalog.js';
 import { serialize, deserialize } from '../src/core/save.js';
 import { quietShift, seat } from './helpers.mjs';
 
 test('루나의 저울: 월정석을 고정 환율로 골드로 바꾸고, 부족하면 거절', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.moonstone = 12; // 테스트 준비
   const g0 = s.gold;
   const r = dispatch(s, { type: 'moonstone.exchange', qty: 10 });
@@ -36,6 +39,7 @@ test('마을은 영업 준비 중에만: 영업 중에는 환전·장비·확장
 
 test('무인 장비 좌판: 사면 빈 칸에 장착되고, 사냥 시작 때 효과가 적용된다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 5000; // 테스트 준비
   assert.ok(dispatch(s, { type: 'gear.buy', id: 'scale_vest' }).ok);
   assert.equal(s.gold, 5000 - GEAR.scale_vest.cost.gold);
@@ -51,6 +55,7 @@ test('무인 장비 좌판: 사면 빈 칸에 장착되고, 사냥 시작 때 �
 
 test('모카 식재료점: 준비 중엔 재료값만, 영업 중엔 긴급 배달비가 붙는다 · 밤이슬 퀘스트 진행', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 1000;
   const r = dispatch(s, { type: 'shop.buy', ingredientId: 'night_dew', qty: 1 });
   assert.ok(r.ok, r.reason);
@@ -67,10 +72,11 @@ test('모카 식재료점: 준비 중엔 재료값만, 영업 중엔 긴급 배�
   assert.equal(t.gold, 1000 - 180 - r2.fee);
 });
 
-test('가게 확장: 테이블 값은 들일수록 오르고, 4·5번 테이블에도 다음 영업에서 손님이 앉는다', () => {
+test('가게 확장: 테이블 값은 들일수록 오르고, 6·7번 테이블에도 다음 영업에서 손님이 앉는다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 20000;
-  const p4 = tablePrice(3), p5 = tablePrice(4);
+  const p4 = tablePrice(5), p5 = tablePrice(6);
   assert.equal(p4, TEMP.TABLE_PRICE_BASE);
   assert.ok(p5 > p4, '두 번째 테이블이 더 비싸다');
   assert.ok(dispatch(s, { type: 'expand.table' }).ok);
@@ -79,17 +85,17 @@ test('가게 확장: 테이블 값은 들일수록 오르고, 4·5번 테이블�
   assert.equal(s.stats.expansions, 2);
   assert.ok(validateLayout(s.interior.furniture, s.interior.areas).ok);
 
-  s.autoKitchen = false;
   assert.ok(dispatch(s, { type: 'shift.start' }).ok);
   s.shift.scriptIndex = 99;
   s.shift.nextSpawnAt = Number.MAX_SAFE_INTEGER;
-  assert.deepEqual(s.tables.map(t => t.no).sort(), [1, 2, 3, 4, 5]);
-  const seated = [1, 2, 3, 4, 5].map(() => seat(s, { kind: 'normal' }).tableNo);
-  assert.deepEqual(seated.sort(), [1, 2, 3, 4, 5]);
+  assert.deepEqual(s.tables.map(t => t.no).sort(), [1, 2, 3, 4, 5, 6, 7]);
+  const seated = [1, 2, 3, 4, 5, 6, 7].map(() => seat(s, { kind: 'normal' }).tableNo);
+  assert.deepEqual(seated.sort(), [1, 2, 3, 4, 5, 6, 7]);
 });
 
 test('공방 증축: 잠긴 구역에는 가구를 못 놓고, 열 때마다 다음 구역이 비싸진다', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   const [a] = AREAS;
   const [x, y] = a.rect;
   const plant = s.interior.furniture.find(f => f.uid === 'plant1');
@@ -111,8 +117,9 @@ test('공방 증축: 잠긴 구역에는 가구를 못 놓고, 열 때마다 다
 
 test('장식 들이기는 보관함으로 오고, 월정석·장비는 저장 후에도 그대로', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 2000;
-  s.moonstone = 40;
+  s.moonstone = GEAR.crescent_wand.cost.moonstone;
   const n0 = s.interior.furniture.length;
   assert.ok(dispatch(s, { type: 'expand.decor', defId: 'lamp' }).ok);
   const added = s.interior.furniture[n0];
@@ -124,4 +131,40 @@ test('장식 들이기는 보관함으로 오고, 월정석·장비는 저장 �
   assert.equal(r.state.moonstone, 0);
   assert.equal(r.state.gear.equipped.weapon, 'crescent_wand');
   assert.equal(r.state.interior.furniture.length, n0 + 1);
+});
+test('네 테마의 새 장식 16종은 정해진 가격으로 보관함에 오고 저장 후 유지된다', () => {
+  const s=createGame();s.ap.left=20;s.gold=50000;const before=s.gold;
+  for(const d of DECOR_CATALOG)assert.ok(dispatch(s,{type:'expand.decor',defId:d.id}).ok);
+  assert.equal(s.gold,before-DECOR_CATALOG.reduce((sum,d)=>sum+d.price,0));
+  const back=deserialize(serialize(s)).state;
+  for(const d of DECOR_CATALOG)assert.ok(back.interior.furniture.some(f=>f.defId===d.id&&f.x===null));
+  assert.equal(new Set(DECOR_CATALOG.map(d=>d.theme)).size,4);
+});
+
+test('가게 첫 방문 이야기는 준비 중에 한 번만 기록되고, 행동력·골드를 쓰지 않는다', () => {
+  const s = createGame(); const ap = s.ap.left, gold = s.gold;
+  assert.deepEqual(Object.keys(VISIT_STORIES).sort(), [...VISIT_PLACES].sort());
+  for (const beats of Object.values(VISIT_STORIES)) assert.ok(beats.some(b => b.s === 'sys'), '가게가 하는 일을 알린다');
+  assert.equal(dispatch(s, { type: 'town.visit', place: 'hunt' }).ok, false);
+  assert.ok(dispatch(s, { type: 'town.visit', place: 'expand' }).ok);
+  assert.equal(s.ledger.story['visit:expand'], true);
+  assert.ok(dispatch(s, { type: 'town.visit', place: 'expand' }).duplicate);
+  assert.equal(s.ap.left, ap); assert.equal(s.gold, gold);
+  assert.equal(deserialize(serialize(s)).state.ledger.story['visit:expand'], true);
+  const sh = quietShift();
+  assert.equal(dispatch(sh, { type: 'town.visit', place: 'moka' }).ok, false, '영업 중에는 마을에 없다');
+});
+
+test('마을 구매·강화·환전은 행동력을 쓰지 않고, 강화는 윤달의 공방 소관이다', () => {
+  const s = createGame(); s.gold = 100000; s.moonstone = 500;
+  const ap = s.ap.left;
+  assert.ok(dispatch(s, { type: 'gear.buy', id: Object.keys(GEAR).find(id => GEAR[id].cost.gold) }).ok);
+  assert.ok(dispatch(s, { type: 'expand.decor', defId: 'lotus_pot' }).ok);
+  assert.ok(dispatch(s, { type: 'moonstone.exchange', qty: 1 }).ok);
+  assert.ok(dispatch(s, { type: 'armory.enhance', who: 'neo', id: 'power' }).ok);
+  assert.ok(dispatch(s, { type: 'armory.buy', id: 'tonic' }).ok);
+  assert.equal(s.ap.left, ap);
+  const sh = quietShift(); sh.moonstone = 500;
+  assert.match(dispatch(sh, { type: 'armory.enhance', who: 'neo', id: 'power' }).reason, /윤달/);
+  assert.match(dispatch(sh, { type: 'armory.buy', id: 'tonic' }).reason, /모카/);
 });

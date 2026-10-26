@@ -3,12 +3,30 @@ import assert from 'node:assert/strict';
 import { createGame } from '../src/game/state.js';
 import { dispatch, tick } from '../src/game/engine.js';
 import { spawnCustomer } from '../src/game/cafe.js';
+import { TEMP } from '../src/config/balance.temp.js';
+import { ABILITIES } from '../src/game/permissions.js';
+
+// 인연으로 자동화를 연 상태를 만든다: 그 동료를 필요 단계까지 올리고 같은 단계까지의 인연 이야기를 본 기록을 남긴다.
+// 켜기는 화면과 같은 automation.toggle 명령으로 한다(권한 검사를 그대로 거친다).
+export function unlockAutomation(s, abilities) {
+  for (const ab of abilities) {
+    const a = ABILITIES[ab];
+    s.affinity[a.id] = Math.max(s.affinity[a.id] || 0, TEMP.BONDS.TIERS[a.tier - 1]);
+    for (let t = 1; t <= a.tier; t++) s.ledger.story[`bond:${a.id}:${t}`] = true;
+  }
+}
+export function enableAutomation(s, abilities) {
+  unlockAutomation(s, abilities);
+  for (const ab of abilities) { const r = dispatch(s, { type: 'automation.toggle', ability: ab, on: true }); assert.ok(r.ok, r.reason); }
+}
 
 // 영업을 시작하고 대본·무작위 입장을 끈다. 손님은 테스트가 직접 들여보낸다.
-// 주방 자동(기본 켜짐)도 끈다: 조리·서빙을 테스트가 명령으로 직접 낸다. 자동을 보는 테스트는 kitchen=true.
-export function quietShift({ dev = false, kitchen = false } = {}) {
+// 기본은 수동: 조리·서빙을 테스트가 명령으로 직접 낸다. 자동을 보는 테스트는 kitchen=true(루나 홀·루나 언니 주방 자동을 인연으로 열고 켠다).
+export function quietShift({ dev = false, kitchen = false, beforeStart = () => {} } = {}) {
   const s = createGame({ dev });
-  s.autoKitchen = kitchen;
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
+  if (kitchen) enableAutomation(s, ['hall', 'kitchen']);
+  beforeStart(s);
   const r = dispatch(s, { type: 'shift.start' });
   assert.ok(r.ok, r.reason);
   s.shift.scriptIndex = 99;

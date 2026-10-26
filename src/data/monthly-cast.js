@@ -1,0 +1,23 @@
+// 확인된 원작 인물만 사용. 영입 월·카페 능력치·만남과 후속 이야기는 게임 오리지널 임시 설정.
+export const MONTHLY_CAST = Object.freeze([
+  { id: 'yun', name: '윤달', color: '#8d80ad', month: 4, stats: { empathy: 6, talk: 9, fun: 8, looks: 7 },
+    profile: '낯선 자리에서도 먼저 말을 건네는 점술가. 생시를 묻는 가벼운 농담 뒤에 상대의 말을 오래 기억한다.',
+    specialty: '대화·재미 중심 손님',
+    meetEvent: { title: '윤달의 공방 · 돌아온 약속', lines: ['윤달: 거대한 검은 손의 흔적이네. 영냥이가 약속을 지켜 돌아왔구나.', '연이: 네가 손질한 장비 덕분이야. 이제 우리 카페에서도 함께할래?', '윤달: 그건 자신 있어. 자기 얘기를 기억해 주는 가게엔 다시 오거든.', '연이: (첫인상 별 넷. 근무표 적응은 지켜보자.)'] },
+    followup: { title: '기억해 둔 한 잔', lines: ['윤달: 저 손님은 오늘도 설탕 반만. 지난번에는 잠을 잘 못 잤다고 했지.', '연이: 그런 것도 다 기억해?', '윤달: 다음 운세보다 오늘 차 한 잔이 먼저일 때도 있거든.'] }, reward: { items: { tea: 6 } } },
+  { id: 'moka', name: '모카', color: '#ba8051', month: 6, stats: { empathy: 4, talk: 7, fun: 10, looks: 5 },
+    gender: 'female', species: 'otter', profile: '식상의 섬에서 온 여성 수달 요리사. 퉁명한 별점 평가와 몰래 연습한 랩, 한번 편이 되면 끝까지 챙기는 의리가 있다.',
+    specialty: '재미 중심 손님',
+    meetEvent: { title: '6월 · 메뉴판 뒤의 비트', lines: ['모카: 접시 소리가 박자를 다 망치잖아. 별 하나.', '연이: 그럼 네가 박자를 잡아 주면 되겠네?', '모카: 내가 왜 접대까지… 야, 마이크는 어디 있어?', '연이: (거절 대사 별 하나. 출근 의지 별 다섯.)'] },
+    followup: { title: '마감 뒤 앙코르', lines: ['모카: 오늘 손님이 웃은 건 랩 때문이 아니라 네 계산 실수 때문이야.', '연이: 합계는 맞았거든. 앙코르 해 달라는 쪽지나 읽어 봐.', '모카: …내일 한 곡 더 준비한다. 별점은 그때 받아.'] }, reward: { items: { sugar: 8 } } },
+  { id: 'seohanbi', name: '서한비', gender:'female', hidden:true, color: '#962c40', month: 7, stats: { empathy: 18, talk: 20, fun: 14, looks: 24 },
+    profile: '검은 머리와 붉은 눈, 차분한 말 속에 강한 존재감을 지닌 여성. 가게에서는 마음의 빈틈을 읽고, 사냥터에서는 검은 호랑이로 변신한다.',
+    specialty: '공감·외모 중심 손님',
+    meetEvent: { title: '히든 인연 · 붉은 봉인의 손님', lines: ['서한비: 우산을 접을 자리가 있겠습니까. 차 한 잔이면 충분합니다.', '연이: 자리는 있는데, 오늘은 손님들이 유난히 조용하네.', '서한비: 조용한 손님에게도 대화가 필요할 때가 있지요. 잠시 함께해도 되겠습니까?', '연이: (침묵도 서비스가 되네. 분위기 별 다섯.)'] },
+    followup: { title: '말하지 않은 주문', lines: ['서한비: 오늘은 먼저 묻지 않았습니다. 말씀하실 때까지 차를 따뜻하게 두었지요.', '연이: 결국 손님이 먼저 웃으시더라.', '서한비: 기다림도 이 가게가 드릴 수 있는 작은 친절일 겁니다.'] }, reward: { items: { milk: 6 } } },
+  { id: 'museong', name: '무성', color: '#666e82', month: 9, stats: { empathy: 5, talk: 10, fun: 6, looks: 8 },
+    profile: '원칙과 약속을 또렷하게 말하는 인물. 엄격한 첫인상과 달리 노래가 시작되면 공간의 분위기를 바꾼다.',
+    specialty: '대화 중심 손님',
+    meetEvent: { title: '달그늘의 노래 · 무성의 약속', lines: ['무성: 깊은 사냥터에서 네 발소리를 들었다. 끝까지 무너지지 않는 박자더군.', '연이: 맞는 말인데 입구에서 판결하는 건 조금… 노래 한 곡은 어때?', '무성: 끝나는 시각을 정해 둬라. 그 안에서 제대로 부르겠다.', '연이: (발성 별 다섯. 안내 방송으로 쓰면 안 되겠지.)'] },
+    followup: { title: '한 곡의 여백', lines: ['무성: 오늘 앙코르는 없다. 마지막 손님도 돌아갈 차편이 있다.', '연이: 아쉬워하시던데?', '무성: 다음에 올 이유를 남겨 두는 것도 약속이다. 다음 곡은 연습해 두겠다.'] }, reward: { items: { bean: 6 } } },
+].map(c => ({ ...c, role: 'host', canServe: false, canHost: true, temp: true, condition: { shiftsCompleted: 0, repaidAtLeast: 0, month: c.month, year: ({yun:1,moka:1,seohanbi:2,museong:3})[c.id] } })));

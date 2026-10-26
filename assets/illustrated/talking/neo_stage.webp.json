@@ -1,0 +1,41 @@
+{
+  "prompt": "NEW speaking bust sprite atlas, exactly FOUR columns by TWO rows, landscape 2:1. Row1: adult silver-haired Neo in black and gold DEST1NOVA stage suit like reference1, no white shirt, chest-up only. Row2: cunning BLUE RABBIT Cheongtokki like reference2, swept dark hair narrow purple eyes navy gold waistcoat holding coin. BOTH long rabbit ears must be complete and fit inside row2 with 40px transparent top margin. Columns1 mouth closed eyes open;2 eyes closed blink;3 small open talking mouth;4 open speaking mouth. Same exact pose/face scale/costume registration in each row, ONLY eyes and lips change. Each bust complete with empty transparent gutter on every side. Do NOT inherit reference2 background: no purple rectangle, no star background, no glow, no scenery. Transparent alpha background around every single character. Only 8 isolated chest-up portraits, no words, no frame, no full bodies.",
+  "createdAt": "2026-10-25T21:06:54.755Z",
+  "updatedAt": "2026-10-25T21:50:42.198954+00:00",
+  "sourceFile": "exec-74a98eca-af59-45e5-aae8-ead8b9256525.png",
+  "sourceSha256": "41d25a7d5eca11ed227668011e9733cca29a95a5f93eb3f34fd2f6ddf6e9ca00",
+  "sourceCells": [
+    [
+      0,
+      0,
+      444,
+      426
+    ],
+    [
+      444,
+      0,
+      887,
+      426
+    ],
+    [
+      887,
+      0,
+      1330,
+      426
+    ],
+    [
+      1330,
+      0,
+      1774,
+      426
+    ]
+  ],
+  "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+  "sha256": "ee7a530b03c82021c4ee3ff7e5a20d851fdcde253841652d8a73bcc607a98ce3",
+  "frame": {
+    "width": 320,
+    "height": 384,
+    "count": 4
+  },
+  "revision": "measured crop and fixed-position repack"
+}

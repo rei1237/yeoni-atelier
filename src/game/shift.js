@@ -1,14 +1,20 @@
+import {chargeLoanInterest} from './finance.js';
+import {accruePayroll} from './payroll.js';
 // 정규 영업: 시작 → 활성 시간 1,800초 동안 진행 → 30:00 마지막 접대 정산 → 마감 → 결산.
 // 한 시뮬레이션 단계 안의 처리 순서(동시 사건 순서)는 stepShift 에 고정되어 있다.
 
+import {arrivalMultiplier,takeawayChance} from './cafe-growth.js';
 import { RULES } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
-import { emit, usableHosts, emptyStations } from './state.js';
-import { setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave } from './cafe.js';
+import { emit, usableHosts, emptyStations, shiftDuration, lastAcceptAt } from './state.js';
+import { checkout, setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave } from './cafe.js';
 import { settleDue, settleHosting, hostingVisits, stepHosting, onRequesting } from './nomination.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
 import { chargeInterest, advanceTurn } from './calendar.js';
 import { workShift } from './bonds.js';
+import { settleStress, stressOf } from './stress.js';
+import { canUse } from './permissions.js';
+import { delegateCheck, delegateFarm } from './farm-delegate.js';
 
 // 첫 영업의 손님 순서(온보딩): 일반 손님 → 외모 중심 지명 → 재미 중심 지명
 const FIRST_SHIFT_SCRIPT = [
@@ -28,15 +34,22 @@ export function startCheck(state) {
 export function startShift(state) {
   const chk = startCheck(state);
   if (!chk.ok) return { ok: false, reason: chk.reasons[0], reasons: chk.reasons };
+  // 농장 맡기기를 켜 두었으면 문을 열기 전에 네오가 밭을 한 번 돌보고 온다(사냥을 다녀온 순·이미 맡긴 순은 건너뜀)
+  if (state.automation?.farm && canUse(state, 'farm')) {
+    const d = delegateCheck(state);
+    if (d.ok) delegateFarm(state); else emit('farmDelegateSkipped', { reason: d.reason });
+  }
   state.mode = 'shift';
   state.paused = false;
   state.fever = { gauge: 0, activeUntil: null };
   state.shift = {
-    id: `shift-${state.day}`, day: state.day, elapsedMs: 0,
+    id: `shift-${state.day}`, day: state.day, elapsedMs: 0, durationMs: RULES.SHIFT_MS, nominationMs: RULES.NOMINATION_MS,
     nextSpawnAt: TEMP.SPAWN_FIRST_MS, scriptIndex: state.stats.shiftsCompleted === 0 ? 0 : FIRST_SHIFT_SCRIPT.length,
     sales: 0, ingredientCost: 0, baseTips: 0, feverTips: 0, servedCount: 0, lostOrders: 0, wasted: 0,
     spawnCount: 0, regularVisits: 0, nominationVisits: 0, hostings: [], autoAt: 0,
+    stressStart: stressOf(state, 'neo'),
   };
+  state.resting = { ...state.dayOff }; // 하루 휴무로 정한 직원은 이번 영업에 나오지 않는다
   setupWorld(state);
   emit('shiftStart', { day: state.day });
   return { ok: true };
@@ -44,6 +57,8 @@ export function startShift(state) {
 
 function nextSpec(state) {
   const sh = state.shift;
+  if(sh.spawnCount>=2 && nextRandom(state.rng)<takeawayChance(state))return {kind:'takeaway'};
+  if (!state.hostbar.open) return { kind: 'regular' };
   if (sh.scriptIndex < FIRST_SHIFT_SCRIPT.length) {
     const spec = { ...FIRST_SHIFT_SCRIPT[sh.scriptIndex++] };
     if (spec.kind === 'nomination') spec.nominee = 'neo';
@@ -51,19 +66,20 @@ function nextSpec(state) {
   }
   const hosts = usableHosts(state).filter(id => state.staff[id]);
   // 지명 요청은 아직 수락할 시간이 남아 있을 때만 생긴다. 지명 대상은 접대 가능한 동료뿐이다.
-  const canNominate = hosts.length && sh.elapsedMs < RULES.LAST_ACCEPT_ELAPSED_MS - 20000;
+  const canNominate = hosts.length && sh.elapsedMs < lastAcceptAt(state) - 20000;
   if (canNominate && nextRandom(state.rng) < TEMP.NOMINATE_CHANCE) return { kind: 'nomination', nominee: pick(state.rng, hosts) };
   return { kind: 'regular' };
 }
 
 function stepSpawn(state) {
   const sh = state.shift;
-  if (sh.elapsedMs < sh.nextSpawnAt || sh.elapsedMs >= TEMP.LAST_SEATING_ELAPSED_MS) return;
-  if (!state.tables.some(t => t.state === 'empty')) { sh.nextSpawnAt = sh.elapsedMs + 2000; return; }
-  spawnCustomer(state, nextSpec(state));
+  if (sh.elapsedMs < sh.nextSpawnAt || sh.elapsedMs >= shiftDuration(state) - 80000) return;
+  const spec=nextSpec(state);
+  if (!state.tables.some(t => t.state === 'empty') && spec.kind!=='takeaway') { sh.nextSpawnAt = sh.elapsedMs + 2000; return; }
+  spawnCustomer(state, spec);
   // 테이블이 늘면 손님 간격이 그만큼 짧아진다(임시)
   const scale = TEMP.SPAWN_TABLE_BASE / Math.max(TEMP.SPAWN_TABLE_BASE, state.tables.length);
-  sh.nextSpawnAt = sh.elapsedMs + Math.round(randRange(state.rng, ...TEMP.SPAWN_INTERVAL_MS) * scale);
+  sh.nextSpawnAt = sh.elapsedMs + Math.round(randRange(state.rng, ...TEMP.SPAWN_INTERVAL_MS) * scale / arrivalMultiplier(state));
 }
 
 // 한 시뮬레이션 단계(dt ≤ SIM_STEP_MS). 순서:
@@ -71,7 +87,7 @@ function stepSpawn(state) {
 // → 5 조리 → 6 직원 이동·운반·정리 → 7 손님 → 8 입장 → 9 자동 운영 → 10 30:00 이면 마감
 export function stepShift(state, dt, autoStep) {
   const sh = state.shift;
-  const step = Math.max(0, Math.min(dt, RULES.SHIFT_MS - sh.elapsedMs));
+  const step = Math.max(0, Math.min(dt, shiftDuration(state) - sh.elapsedMs));
   sh.elapsedMs += step;
   settleDue(state);
   if (state.fever.activeUntil != null && sh.elapsedMs >= state.fever.activeUntil) { state.fever.activeUntil = null; emit('feverOff'); }
@@ -80,8 +96,8 @@ export function stepShift(state, dt, autoStep) {
   stepStaff(state, step);
   stepCustomers(state, step, { onRequesting });
   stepSpawn(state);
-  if (autoStep && (state.auto || state.autoKitchen)) autoStep(state);
-  if (sh.elapsedMs >= RULES.SHIFT_MS) closeShift(state);
+  if (autoStep) autoStep(state);
+  if (sh.elapsedMs >= shiftDuration(state)) closeShift(state);
 }
 
 export function closeShift(state) {
@@ -90,12 +106,14 @@ export function closeShift(state) {
   settleDue(state); // 30:00 에 끝나는 마지막 접대를 먼저 정산
   for (const v of hostingVisits(state)) settleHosting(state, v); // (규칙상 남을 수 없지만 안전장치: 300초 미달 → 팁 없음)
   for (const c of Object.values(state.customers)) if (c.state !== 'leaving') customerLeave(state, c, '영업 종료');
+  for(const visit of Object.values(state.visits))checkout(state,visit); // 마감 직전 계산대 대기도 같은 원장으로 정산
   let wasted = state.tray.filter(Boolean).length;
   for (const st of Object.values(state.stations)) wasted += (st.current ? 1 : 0) + (st.held ? 1 : 0);
   for (const s of Object.values(state.staff)) if (s.carry) wasted += 1;
   sh.wasted = wasted;
   const settlement = {
     shiftId: sh.id, day: sh.day,
+    stressStart: sh.stressStart, stressEnd: stressOf(state, 'neo'),
     sales: sh.sales, ingredientCost: sh.ingredientCost, baseTips: sh.baseTips, feverTips: sh.feverTips,
     result: sh.sales + sh.baseTips + sh.feverTips - sh.ingredientCost,
     gold: state.gold, debt: state.debt,
@@ -104,6 +122,8 @@ export function closeShift(state) {
   };
   if (!state.ledger.settlements[sh.id]) {
     // 하순이면 이달 이자가 나간다(한 번만)
+    settlement.payroll = structuredClone(accruePayroll(state,sh));
+    settlement.loanInterest=chargeLoanInterest(state,sh);
     settlement.interest = chargeInterest(state, sh);
     settlement.gold = state.gold; settlement.debt = state.debt;
     state.ledger.settlements[sh.id] = settlement;
@@ -122,6 +142,7 @@ export function closeShift(state) {
 export function closeSettlement(state) {
   if (state.mode !== 'settlement') return { ok: false, reason: '결산 화면이 아닙니다' };
   state.mode = 'prep';
+  settleStress(state);
   state.shift = null;
   state.day += 1;
   advanceTurn(state);

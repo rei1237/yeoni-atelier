@@ -1,13 +1,13 @@
 // 짧은 대사. 기획서 p.21의 개그 대사를 쓴다. 대사는 규칙과 능력치를 바꾸지 않는다.
 
 export const GAG_HOSTBAR = Object.freeze([
-  { who: '손님', text: '여기 호스트바 아니에요?' },
-  { who: '연이', text: '카페예요. 커피가 먼저 나오잖아요.' },
+  { who: '손님', text: '여기가 소문난 호스트 카페예요?' },
+  { who: '연이', text: '맞아요! 커피는 잔에, 이야기는 마음에 담아 드려요.' },
 ]);
 
 export const GAG_NEO_FUN = Object.freeze([
   { who: '연이', text: '네오야, 손님 좀 웃겨봐.' },
-  { who: '네오', text: '웃음은 스트레스 반응을 완화하는 데 도움이 됩니다.' },
+  { who: '네오', text: '웃으면 긴장이 풀린대. …이건 농담이 아니네.' },
   { who: '연이', text: '설명 말고 실행을 해.' },
 ]);
 
@@ -15,6 +15,9 @@ export const HELP_KINDS = Object.freeze({
   topic: { id: 'topic', label: '대화 주제 고르기' },
   listen: { id: 'listen', label: '이야기 들어주기' },
   photo: { id: 'photo', label: '사진 요청', special: true },
+  refill: { id: 'refill', label: '음료 리필' },
+  trouble: { id: 'trouble', label: '곤란한 요청' },
+  compliment: { id: 'compliment', label: '칭찬 받아치기' },
 });
 
 // 주제 고르기 선택지: 손님의 가장 높은 선호와 맞으면 '좋음'
@@ -30,7 +33,7 @@ export const TOPICS = Object.freeze({
 
 // 영업 시작할 때 하나
 export const GAG_SHIFT_START = Object.freeze([
-  [{ who: '연이', text: '계산대 사수 완료! 오늘도 사장님 포스 별 다섯!' }, { who: '영냥이', text: '앉아 있는 것뿐이다.' }],
+  [{ who: '연이', text: '계산대 사수 완료! 오늘도 사장님 포스 별 다섯!' }, { who: '네오', text: '앉아 있는 것도 전략이네.' }],
   [{ who: '루나', text: '오늘은 손님 열 배 올까?' }, { who: '루나 언니', text: '0 곱하기 10은 안 돼요, 루나.' }],
   [{ who: '네오', text: '오늘도 홀은 내가 볼게.' }, { who: '연이', text: '(네오 미소 효과로 손님 체류 시간 별 네 개.)' }],
   [{ who: '연이', text: '루나 언니, 오븐 잘 부탁해! 나는 계산기를 지킬게.' }, { who: '루나 언니', text: '괜찮아요… 늘 제가 굽는걸요.' }],
@@ -42,7 +45,7 @@ export const GAG_KITCHEN = Object.freeze([
   [{ who: '연이', text: '(손님이 웃었다. 오늘 서비스 별 하나 추가.)' }],
   [{ who: '루나', text: '언니! 빵 냄새 맡고 손님이 줄 섰어!' }, { who: '루나 언니', text: '순서 지켜요. 다 들어와요.' }],
   [{ who: '네오', text: '3번 테이블, 주문하신 운세 라테 나왔습니다.' }, { who: '손님', text: '운세도 같이 나와요?' }, { who: '네오', text: '라테는 거짓말을 안 해요.' }],
-  [{ who: '영냥이', text: '설탕 두 스푼. 세 스푼은 사치다.' }],
+  [{ who: '네오', text: '설탕 두 스푼이면 충분할 것 같아.' }],
 ]);
 
 // 모카 식재료점
@@ -57,18 +60,18 @@ export const GAG_MOKA_DELIVERY = Object.freeze([
   { who: '모카', text: '헉헉… 강 건너 뛰어왔어. 배달비는 정직하게.' },
 ]);
 
-// 루나의 저울(월정석 환전소)
+// 청토끼 금융 센터(월정석 환전소)
 export const GAG_LUNA_EXCHANGE = Object.freeze([
-  [{ who: '루나', text: '하나, 둘, 많다! 그러니까 많이 줄게!' }, { who: '루나 언니', text: '루나, 저울을 봐요. 정확히 드려야 해요.' }],
-  [{ who: '루나', text: '월정석 반짝반짝! 한 개만 내가 가지면 안 돼?' }, { who: '루나 언니', text: '안 돼요.' }],
-  [{ who: '루나 언니', text: '무게 정직하게 달았어요. 빵값을 거짓으로 받으면, 빵이 거짓말 맛이 나거든요.' }],
+  [{ who: '청토끼', text: '어머~ 돌이 돈이 되는 순간이네요. 환산 내역도 꼭 챙기세요.' }],
+  [{ who: '청토끼', text: '반짝이는 월정석은 반가워요. 이자 납부일도 잊지 마시고요.' }],
+  [{ who: '연이', text: '환율 확인, 개수 확인. 이번엔 내가 장부를 봐!' }],
 ]);
 
-// 무인 장비 좌판 팻말 — 주인은 없다
+// 모카의 무기 공방
 export const GAG_GEAR_STALL = Object.freeze([
-  { who: '팻말', text: '「무인 좌판. 돈은 상자에. 훔치면 고양이가 봅니다.」' },
-  { who: '팻말', text: '「반품 불가. 단, 고양이 털 묻은 건 원래 그런 겁니다.」' },
-  { who: '영냥이', text: '…주인이 없는데 왜 나를 노려보는 기분이지.' },
+  { who: '모카', text: '손에 맞는지부터 봐. 가격표만 보면 별 하나야.' },
+  { who: '모카', text: '장비는 챙겼고, 돌아올 체력도 남겨 놔.' },
+  { who: '영냥이', text: '…잔소리까지 묶음 상품인가.' },
 ]);
 
 // 빚 상환할 때 청토끼

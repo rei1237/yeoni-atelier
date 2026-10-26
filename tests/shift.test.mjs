@@ -1,5 +1,5 @@
-// 영업 흐름: 지명 300초 잠금, 25:00 / 30:00 경계, 피버, 일시정지, 자동 운영.
-// 모든 시간은 엔진 tick(활성 시간)으로 진행한다. "자동 시계" 표시가 붙은 테스트는 사람이 하는 30분 플레이테스트가 아니다.
+// 영업 흐름: 지명 60초 잠금, 09:00 / 10:00 경계, 피버, 일시정지, 자동 운영.
+// 모든 시간은 엔진 tick(활성 시간)으로 진행한다. "자동 시계" 표시가 붙은 테스트는 사람이 하는 10분 플레이테스트가 아니다.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { RULES } from '../src/config/rules.js';
@@ -8,6 +8,7 @@ import { dispatch, tick } from '../src/game/engine.js';
 import { acceptCheck, addFever, feverCandidates } from '../src/game/nomination.js';
 import { huntCheck } from '../src/game/hunt.js';
 import { autoAcceptDecision } from '../src/game/auto.js';
+import {CUSTOMER_WEALTH} from '../src/data/customer-wealth.js';
 import { tipFor } from '../src/game/satisfaction.js';
 import { quietShift, seat, tickTo } from './helpers.mjs';
 
@@ -15,7 +16,7 @@ const N = RULES.NOMINATION_MS;
 
 test('일반 손님은 접대 없이 주문·식사하고 떠난다', () => {
   const s = quietShift();
-  dispatch(s, { type: 'auto.toggle', on: true }); // 조리·서빙만 사람과 같은 명령으로 대신 누름
+  dispatch(s, { type: 'auto.toggle', on: true, sim: true }); // 조리·서빙만 사람과 같은 명령으로 대신 누름
   const { cid, vid, tableNo } = seat(s, { kind: 'regular' });
   assert.equal(s.customers[cid].state, 'thinking');
   assert.equal(acceptCheck(s, tableNo).ok, false);
@@ -31,8 +32,8 @@ test('일반 손님은 접대 없이 주문·식사하고 떠난다', () => {
   assert.equal(s.shift.hostings.length, 0);
 });
 
-test('주방 자동(기본 켜짐)은 조리·서빙만 하고 지명 수락은 사람에게 남긴다', () => {
-  assert.equal(createGame().autoKitchen, true, '새 게임은 주방 자동이 켜져 있다');
+test('편한 수동이 기본이며 주방 자동을 켜면 조리·서빙만 하고 지명 수락은 사람에게 남긴다', () => {
+  assert.deepEqual(createGame().automation, { hall: false, kitchen: false, farm: false }, '새 게임은 수동 조리·서빙으로 시작한다');
   const s = quietShift({ kitchen: true });
   assert.equal(s.auto, false);
   const reg = seat(s, { kind: 'regular' });
@@ -40,8 +41,8 @@ test('주방 자동(기본 켜짐)은 조리·서빙만 하고 지명 수락은 
   for (let i = 0; i < 1800 && s.customers[reg.cid]; i++) tick(s, 100);
   assert.ok(s.visits[reg.vid].servedTotal > 0, '일반 손님 주문이 자동으로 조리·서빙되었다');
   assert.equal(s.visits[nom.vid].acceptAt, null, '지명 요청은 자동으로 수락하지 않는다');
-  assert.ok(dispatch(s, { type: 'kitchen.toggle', on: false }).ok);
-  assert.equal(s.autoKitchen, false);
+  assert.ok(dispatch(s, { type: 'automation.toggle', ability: 'kitchen', on: false }).ok);
+  assert.equal(s.automation.kitchen, false);
 });
 
 test('연이는 계산만 한다: 서빙은 루나·네오, 굽기는 루나 언니가 오븐 앞에서', () => {
@@ -62,7 +63,7 @@ test('연이는 계산만 한다: 서빙은 루나·네오, 굽기는 루나 언
   assert.ok(sisCooked, '루나 언니가 조리대 앞에서 굽는다');
 });
 
-test('지명 요청만으로는 300초가 시작되지 않고, 수락 시점부터 시작된다', () => {
+test('지명 요청만으로는 60초가 시작되지 않고, 수락 시점부터 시작된다', () => {
   const s = quietShift();
   const { cid, vid, tableNo } = seat(s);
   const v = s.visits[vid];
@@ -79,7 +80,7 @@ test('지명 요청만으로는 300초가 시작되지 않고, 수락 시점부�
   assert.deepEqual({ a: s.people.neo.activity, t: s.people.neo.tableNo, e: s.people.neo.endAt }, { a: 'hosting', t: tableNo, e: t0 + N });
 });
 
-test('접대 중 두 번째 지명·탐색 거절, 299초까지 잠금, 300초에 1회 정산 후 해제', () => {
+test('접대 중 두 번째 지명·탐색 거절, 59초까지 잠금, 60초에 1회 정산 후 해제', () => {
   const s = quietShift();
   const first = seat(s);
   assert.ok(dispatch(s, { type: 'nomination.accept', tableNo: first.tableNo }).ok);
@@ -97,13 +98,13 @@ test('접대 중 두 번째 지명·탐색 거절, 299초까지 잠금, 300초�
   assert.ok(huntCheck(s).reasons.some(r => r.includes('접대 중')));
 
   const goldBefore = s.gold;
-  tickTo(s, t0 + N - 1000); // 299초
+  tickTo(s, t0 + N - 1000); // 59초
   const v = s.visits[first.vid];
   assert.equal(v.settled, false);
   assert.equal(s.people.neo.activity, 'hosting');
   assert.equal(s.ledger.tips[v.id], undefined);
 
-  tickTo(s, t0 + N); // 300초
+  tickTo(s, t0 + N); // 60초
   assert.equal(v.settled, true);
   assert.equal(s.people.neo.activity, 'idle');
   assert.equal(s.people.neo.endAt, null);
@@ -124,7 +125,7 @@ function requestAround(elapsedMs, profileId = 'looks') {
   return { s, ...seated };
 }
 
-test('25:00 정각 수락은 허용, 25:00 이후는 거절', () => {
+test('09:00 정각 수락은 허용, 09:00 이후는 거절', () => {
   const ok = requestAround(RULES.LAST_ACCEPT_ELAPSED_MS);
   tickTo(ok.s, RULES.LAST_ACCEPT_ELAPSED_MS);
   assert.equal(acceptCheck(ok.s, ok.tableNo).ok, true);
@@ -135,15 +136,15 @@ test('25:00 정각 수락은 허용, 25:00 이후는 거절', () => {
   tickTo(late.s, RULES.LAST_ACCEPT_ELAPSED_MS + 100);
   const chk = acceptCheck(late.s, late.tableNo);
   assert.equal(chk.ok, false);
-  assert.ok(chk.reasons.some(r => r.includes('25:00')), chk.reasons.join(' | '));
+  assert.ok(chk.reasons.some(r => r.includes('09:00')), chk.reasons.join(' | '));
   assert.equal(dispatch(late.s, { type: 'nomination.accept', tableNo: late.tableNo }).ok, false);
 });
 
-test('30:00: 마지막 접대를 먼저 정산하고 영업을 닫는다', () => {
+test('10:00: 마지막 접대를 먼저 정산하고 영업을 닫는다', () => {
   const { s, tableNo, vid } = requestAround(RULES.LAST_ACCEPT_ELAPSED_MS);
   tickTo(s, RULES.LAST_ACCEPT_ELAPSED_MS);
   assert.ok(dispatch(s, { type: 'nomination.accept', tableNo }).ok);
-  dispatch(s, { type: 'auto.toggle', on: true }); // 주문 조리·서빙
+  dispatch(s, { type: 'auto.toggle', on: true, sim: true }); // 주문 조리·서빙
   tickTo(s, RULES.SHIFT_MS - 100);
   assert.equal(s.mode, 'shift');
   assert.equal(s.people.neo.activity, 'hosting');
@@ -156,8 +157,8 @@ test('30:00: 마지막 접대를 먼저 정산하고 영업을 닫는다', () =>
   const st = s.ledger.settlements[s.shift.id];
   const rec = st.hostings.filter(h => h.visitId === vid);
   assert.equal(rec.length, 1);
-  assert.equal(rec[0].tip, tipFor({ servedTotal: rec[0].servedTotal, H: rec[0].H, completedFull: true, fevered: false }).total);
-  assert.ok(rec[0].tip > 0, '300초를 다 채운 정산이므로 팁이 나왔다');
+  assert.equal(rec[0].tip, tipFor({ servedTotal: rec[0].servedTotal, H: rec[0].H, completedFull: true, fevered: false, multiplier:CUSTOMER_WEALTH[v.wealthId].tip }).total);
+  assert.ok(rec[0].tip > 0, '60초를 다 채운 정산이므로 팁이 나왔다');
   assert.equal(s.people.neo.activity, 'idle');
   assert.equal(s.stats.shiftsCompleted, 1);
   tick(s, 60000); // 결산 중에는 시간이 흐르지 않는다
@@ -169,7 +170,7 @@ test('피버: 접대 테이블 1개로도 사용 가능, 팁만 2배', () => {
   const { vid, tableNo } = seat(s);
   assert.ok(dispatch(s, { type: 'nomination.accept', tableNo }).ok);
   const t0 = s.shift.elapsedMs;
-  tickTo(s, t0 + 60000); // 첫 평가: H 92 ≥ 90 → +24
+  tickTo(s, t0 + 10000); // 첫 평가: H 92 ≥ 90 → +24
   assert.equal(s.fever.gauge, 24);
   assert.equal(dispatch(s, { type: 'fever.activate' }).ok, false, '게이지 100 미만');
   addFever(s, 100, 'test');
@@ -188,9 +189,10 @@ test('피버: 접대 테이블 1개로도 사용 가능, 팁만 2배', () => {
 });
 
 test('피버·음식·의상으로도 상한(≤39) 고객은 만족·팁 불가', () => {
-  const s = quietShift();
-  assert.ok(dispatch(s, { type: 'outfit.equip', who: 'neo', slot: 'outfit', itemId: 'vest_night' }).ok);
-  assert.ok(dispatch(s, { type: 'outfit.equip', who: 'neo', slot: 'acc1', itemId: 'pin_star' }).ok);
+  const s = quietShift({ beforeStart: state => {
+    assert.ok(dispatch(state, { type: 'outfit.equip', who: 'neo', slot: 'outfit', itemId: 'vest_night' }).ok);
+    assert.ok(dispatch(state, { type: 'outfit.equip', who: 'neo', slot: 'acc1', itemId: 'pin_star' }).ok);
+  } });
   const { vid, tableNo } = seat(s, { profileId: 'funmix' });
   assert.ok(dispatch(s, { type: 'nomination.accept', tableNo }).ok);
   const v = s.visits[vid];
@@ -222,7 +224,7 @@ test('일시정지(탭 전환 포함)는 영업·접대 남은 시간을 그대�
   assert.equal(s.visits[vid].endAt, before.end);
 });
 
-test('자동 운영 수락 판단: 예상 H ≥ 60·남은 300초 이상만, 재미 중심은 수락 안 함', () => {
+test('자동 운영 수락 판단: 예상 H ≥ 60·남은 60초 이상만, 재미 중심은 수락 안 함', () => {
   const s = quietShift();
   const looks = seat(s, { profileId: 'looks' });
   const fun = seat(s, { profileId: 'fun' });
@@ -236,13 +238,14 @@ test('자동 운영 수락 판단: 예상 H ≥ 60·남은 300초 이상만, 재
   assert.equal(autoAcceptDecision(late.s, late.tableNo).accept, false);
 });
 
-test('[자동 시계] 30분 정규 영업 전체를 자동 운영으로 진행 — 마감·정산 1회', () => {
+test('[자동 시계] 10분 정규 영업 전체를 자동 운영으로 진행 — 마감·정산 1회', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   assert.ok(dispatch(s, { type: 'shift.start' }).ok);
-  dispatch(s, { type: 'auto.toggle', on: true });
+  dispatch(s, { type: 'auto.toggle', on: true, sim: true });
   for (let t = 0; t < RULES.SHIFT_MS - 100; t += 60000) tick(s, Math.min(60000, RULES.SHIFT_MS - 100 - s.shift.elapsedMs));
   assert.equal(s.shift.elapsedMs, RULES.SHIFT_MS - 100);
-  assert.equal(s.mode, 'shift', '30:00 전에는 닫히지 않는다');
+  assert.equal(s.mode, 'shift', '10:00 전에는 닫히지 않는다');
   tick(s, 100);
   assert.equal(s.mode, 'settlement');
   const st = s.lastSettlement;

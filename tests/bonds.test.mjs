@@ -7,14 +7,17 @@ import { dispatch } from '../src/game/engine.js';
 import { pendingStory } from '../src/game/calendar.js';
 import { BONDS, bondFx } from '../src/data/bonds.js';
 
+import {bondQuestion} from '../src/data/bond-dialogues.js';
 const B = TEMP.BONDS;
 
 test('대화: 행동력 1, 같은 순 같은 동료는 한 번 · 선물은 골드가 들고 순마다 한 번', () => {
   const s = createGame();
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   const ap0 = s.ap.left;
-  const r = dispatch(s, { type: 'bond.talk', id: 'luna' });
+  const q=bondQuestion(s,'luna'),answer=q.answers.find(a=>a.gain===12);
+  const r = dispatch(s, { type: 'bond.talk', id: 'luna', choiceId:answer.id, token:q.token });
   assert.ok(r.ok, r.reason);
-  assert.ok(r.gain >= B.TALK && r.gain <= B.TALK + B.TALK_RAND);
+  assert.equal(r.gain,12);
   assert.equal(s.ap.left, ap0 - 1);
   assert.equal(s.affinity.luna, r.gain);
   assert.match(dispatch(s, { type: 'bond.talk', id: 'luna' }).reason, /이미/);
@@ -31,10 +34,11 @@ test('대화: 행동력 1, 같은 순 같은 동료는 한 번 · 선물은 골�
 
 test('능력: 단계를 넘으면 재료값·환전·사냥 HP 에 붙고, 인연 이야기는 달 이야기 뒤에 나온다', () => {
   const s = createGame();
-  s.gold = 10000; // 테스트 준비
+  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
+  s.gold = 10000; s.ap.left=4; // shopping x2, exchange, hunt // 테스트 준비
   s.affinity = { neo: B.TIERS[0], luna: 0, luna_sis: B.TIERS[2], moka: B.TIERS[0] };
   const fx = bondFx(s.affinity);
-  assert.equal(fx.huntHp, 20);
+  assert.equal(fx.huntHp, 40);
   assert.equal(fx.discount, 0.05);
   assert.equal(fx.moonRate, 0.1);
 
@@ -50,7 +54,7 @@ test('능력: 단계를 넘으면 재료값·환전·사냥 HP 에 붙고, 인�
   assert.equal(r.gold, Math.floor(10 * TEMP.MOONSTONE_GOLD * 1.1));
 
   assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
-  assert.equal(s.hunt.maxHp, TEMP.HUNT.PLAYER_HP + 20);
+  assert.equal(s.hunt.maxHp, TEMP.HUNT.PLAYER_HP + 40);
   dispatch(s, { type: 'hunt.retreat' });
   dispatch(s, { type: 'hunt.finish' });
 

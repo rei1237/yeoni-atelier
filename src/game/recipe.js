@@ -29,7 +29,7 @@ export function findRecipe(ingredients) {
 // 모르는 레시피 중 가장 많이 겹치는 것을 기준으로 힌트(모두 알면 전체 기준)
 export function comboHint(state, ingredients) {
   const bag = countOf(ingredients), k = ingredients.length;
-  let pool = MENU_ORDER.filter(id => !state.learned[id]);
+  let pool = MENU_ORDER.filter(id => !state.learned[id] && !MENUS[id].nominationOnly);
   if (!pool.length) pool = MENU_ORDER.slice();
   let best = { overlap: -1, size: 0 };
   for (const id of pool) {

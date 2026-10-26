@@ -2,6 +2,7 @@
 // 개발 모드는 별도 키를 쓰므로 일반 저장을 건드리지 않는다.
 
 import { SAVE_VERSION, createGame } from '../game/state.js';
+import { newFarm, maxFarmEnergy } from '../data/farm.js';
 
 export const SAVE_KEYS = Object.freeze({ normal: 'yeoni-atelier.save.v1', dev: 'yeoni-atelier.dev-save.v1' });
 
@@ -29,9 +30,42 @@ const REQUIRED = ['version', 'meta', 'rng', 'mode', 'day', 'gold', 'debt', 'stoc
 
 function migrate(data) {
   // v1 이 첫 버전이다. 이후 버전이 생기면 여기서 단계별로 올린다.
+  const legacy = data.version < 2;
+  if (legacy) {
+    data.hostbar ??= { open: data.day >= 7, openedDay: data.day >= 7 ? 7 : null };
+    data.huntUnlocked ??= data.day > 1 || (data.stats?.huntsCompleted || 0) > 0 || !!data.hunt || !!data.lastHunt;
+    if (data.huntUnlocked) (data.ledger.story ||= {})['ev:hunt'] = true;
+    if (data.shift) { data.shift.durationMs ??= 1800000; data.shift.nominationMs ??= 300000; }
+  }
+  data.startingDebt ??= 120000; // 이전 저장의 원금과 상환 진척은 보존
   const base = createGame({ dev: !!data.meta?.devData });
+  if (!data.farm) data.farm = { ...newFarm(data.rng?.seed), lastAdvancedDay: data.day };
+  data.farm.energy = Number.isFinite(data.farm.energy) ? Math.max(0,Math.min(data.farm.energy,maxFarmEnergy(data.farm))) : maxFarmEnergy(data.farm);
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
   for (const k of ['ledger', 'stats', 'seq', 'quests', 'outfits', 'fever', 'offline', 'gear', 'calendar', 'ap', 'affinity']) data[k] = { ...base[k], ...data[k] };
+  // 네오 전용 스트레스 → 전 직원 스트레스. 예전 자동 켜짐은 권한이 아니므로 모두 끈다(인연으로 다시 연다).
+  if ('neoStress' in data || 'neoResting' in data) {
+    data.stress = { ...data.stress, neo: data.stress?.neo ?? data.neoStress };
+    if (data.neoResting) data.resting = { ...data.resting, neo: true };
+    delete data.neoStress; delete data.neoResting;
+  }
+  for (const k of ['stress', 'resting', 'dayOff']) if (!data[k] || typeof data[k] !== 'object') data[k] = {};
+  for (const [id, v] of Object.entries(data.stress)) data.stress[id] = Math.max(0, Math.min(100, Math.floor(Number(v) || 0)));
+  if ('autoKitchen' in data) { delete data.autoKitchen; data.auto = false; }
+  data.automation = { hall: false, kitchen: false, farm: false, ...(data.automation || {}) };
+  for (const k of Object.keys(data.automation)) data.automation[k] = data.automation[k] === true;
+  if (legacy && data.hostbar.open && !data.ledger.rewards['outfit:host_first']) {
+    data.ledger.rewards['outfit:host_first'] = true;
+    if (!data.outfits.owned.includes('host_first')) data.outfits.owned.push('host_first');
+  }
+  if (data.version < 3 && data.day <= 180 && data.calendar.ended) {
+    data.calendar.previousEnding = { id:data.calendar.endingId, debt:data.calendar.endedDebt };
+    data.calendar.ended = false; data.calendar.endingId = null; data.calendar.endedDebt = null;
+    // 예전 결말의 추억은 별도 보존하되 5년 결말은 새로 볼 수 있다.
+    for (const key of Object.keys(data.ledger.story)) if (key.startsWith('ending:')) { data.ledger.story['previous:'+key]=true; delete data.ledger.story[key]; }
+  }
+  data.outfits.equipped = {...base.outfits.equipped,...data.outfits.equipped};
+  for(const id of Object.keys(data.roster)) { const outfit=`${id}_formal`; if(['yun','museong','solv','bambi','lune','raven'].includes(id) && !data.outfits.owned.includes(outfit)){data.outfits.owned.push(outfit);data.ledger.rewards[`outfit:${outfit}`]=true;data.outfits.equipped[id].outfit=outfit;} }
   data.interior.areas ||= []; // 증축 구역 이전 저장
   return data;
 }

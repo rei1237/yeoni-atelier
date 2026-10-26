@@ -1,13 +1,17 @@
+import {yunQuestView} from './yun-quest.js';
 // 재료 구매·부채 상환·퀘스트·영입·의상. 보상은 모두 원장(ledger) id 로 한 번만 지급한다.
 
 import { PDF } from '../config/balance.pdf.js';
 import { TEMP } from '../config/balance.temp.js';
 import { INGREDIENTS, MENUS } from '../data/menus.js';
 import { QUESTS } from '../data/quests.js';
+import { grantEventOutfits } from './outfits.js';
 import { OUTFITS, OUTFIT_SLOTS, OUTFIT_WEARERS } from '../data/outfits.js';
+import { hiddenGuestQuest } from './hidden-guest.js';
 import { emit, recruitables } from './state.js';
 import { bondFx } from '../data/bonds.js';
 import { workShop } from './bonds.js';
+import { calendarOf } from './calendar.js';
 
 // ── 재료 구매: 마을 모카 식재료점(기본 재료 + 밤이슬). 사냥 화면에서는 살 수 없다.
 // 영업 중에는 가게를 비울 수 없으니 「모카 긴급 배달」로만 산다: 재료값 + 배달비(TEMP.DELIVERY_FEE_RATE).
@@ -55,8 +59,9 @@ export function debtStage(state) {
   let acc = 0;
   for (let i = 0; i < PDF.DEBT_STAGES.length; i++) {
     const st = PDF.DEBT_STAGES[i];
-    if (state.repaidTotal < acc + st.amount) return { index: i, label: st.label, paid: state.repaidTotal - acc, need: st.amount };
-    acc += st.amount;
+    const amount=Math.round(st.amount/PDF.INITIAL_DEBT*(state.startingDebt||PDF.INITIAL_DEBT));
+      if (state.repaidTotal < acc + amount) return { index: i, label: st.label, paid: state.repaidTotal - acc, need: amount };
+    acc += amount;
   }
   return { index: PDF.DEBT_STAGES.length, label: '완납', paid: 0, need: 0 };
 }
@@ -75,7 +80,8 @@ function grant(state, rewardId, reward) {
 // ── 퀘스트
 export function questView(state) {
   const anyRecruitable = recruitables(state).length > 0;
-  return QUESTS.filter(q => !q.hiddenUntilRecruitable || anyRecruitable).map(q => {
+  const revealed = q => (!q.hiddenUntilRecruitable || anyRecruitable) && (!q.afterHunt || state.huntUnlocked) && (!q.requires || state.quests.claimed[q.requires] || state.quests.claimed[q.id]);
+  return QUESTS.filter(revealed).map(q => {
     const progress = Math.min(q.goal, state.stats[q.stat] || 0);
     const locked = q.requires && !state.quests.claimed[q.requires];
     const claimed = !!state.quests.claimed[q.id];
@@ -85,7 +91,7 @@ export function questView(state) {
 
 export function claimQuest(state, questId) {
   const q = questView(state).find(x => x.id === questId);
-  if (!q) return { ok: false, reason: '없는 퀘스트입니다' };
+  if (!q) return { ok: false, reason: QUESTS.some(x => x.id === questId) ? '아직 열리지 않은 부탁입니다' : '없는 퀘스트입니다' };
   if (q.claimed) return { ok: false, reason: '이미 받은 보상입니다' };
   if (q.locked) return { ok: false, reason: '먼저 앞 퀘스트를 완료해 주세요' };
   if (q.progress < q.goal) return { ok: false, reason: `진행 ${q.progress}/${q.goal}` };
@@ -100,7 +106,9 @@ export function recruitView(state) {
   return recruitables(state).map(c => {
     const r = state.recruitment[c.id] || { status: 'locked' };
     const cond = c.condition;
-    const met = state.stats.shiftsCompleted >= cond.shiftsCompleted && state.stats.repayCount >= cond.repaidAtLeast;
+    const month = calendarOf(state.day).month;
+    // 해당 월에 등장, 놓친 경우 다음 해 같은 달에 다시 만난다. 영입 후에는 계속 함께한다.
+    const met = c.id === 'yun' ? yunQuestView(state).ready : c.id === 'museong' ? !!state.museongEncounter : (!cond.debtFree || state.debt <= 0) && state.gold >= (cond.wealth || 0) && (state.affinity?.neo || 0) >= (cond.neoAffinity || 0) && (c.id !== 'seohanbi' || hiddenGuestQuest(state).ready) && state.stats.shiftsCompleted >= cond.shiftsCompleted && state.stats.repayCount >= cond.repaidAtLeast && (c.id === 'seohanbi' || !cond.month || cond.month === month) && (c.id === 'seohanbi' || 1 + Math.floor(calendarOf(state.day).monthIdx / 12) >= (cond.year || 1));
     const status = r.status === 'recruited' ? 'recruited' : met ? 'available' : 'locked';
     return { id: c.id, name: c.name, devOnly: !!c.devOnly, status, condition: cond, meetEvent: c.meetEvent, reward: c.reward, usableFrom: state.roster[c.id]?.usableFrom ?? null };
   });
@@ -110,26 +118,42 @@ export function completeRecruit(state, id) {
   const v = recruitView(state).find(x => x.id === id);
   if (!v) return { ok: false, reason: '영입 대상이 아닙니다' };
   if (v.status === 'recruited') return { ok: false, reason: '이미 함께하는 동료입니다' };
-  if (v.status !== 'available') return { ok: false, reason: `조건 미충족: 정규 영업 ${v.condition.shiftsCompleted}회 + 상환 ${v.condition.repaidAtLeast}회` };
+  if (v.status !== 'available') return { ok: false, reason: v.condition.month ? `${v.condition.month}월에 만날 수 있어요. 놓쳤다면 다음 해에 다시 찾아와요` : `조건 미충족: 정규 영업 ${v.condition.shiftsCompleted}회 + 상환 ${v.condition.repaidAtLeast}회` };
   if (state.mode !== 'prep') return { ok: false, reason: '만남 이벤트는 영업 준비 중에만 진행할 수 있습니다' };
   state.recruitment[id] = { status: 'recruited', at: state.day };
   // 영업 준비 중의 day 는 "다음 영업 번호"이므로 다음 영업부터 접대에 쓸 수 있다
   state.roster[id] = { usableFrom: state.day };
   state.people[id] = { activity: 'idle', form: 'human', visitId: null, tableNo: null, endAt: null };
   state.stats.recruited += 1;
+  grantEventOutfits(state,`recruit:${id}`);
+  if(OUTFITS[`${id}_formal`]){ state.outfits.equipped[id] ||= {outfit:null,acc1:null,acc2:null}; state.outfits.equipped[id].outfit=`${id}_formal`; }
   grant(state, `recruit:${id}`, v.reward || {});
   emit('recruited', { id, name: v.name });
   return { ok: true };
 }
 
+export function castStory(state, id) {
+  const c = recruitables(state).find(x => x.id === id);
+  if (!c?.followup || !state.roster[id]) return { ok: false, reason: '먼저 만남 이벤트로 영입해 주세요' };
+  if (state.mode !== 'prep') return { ok: false, reason: '영업을 마친 뒤 이야기를 나눠요' };
+  if (state.day <= state.recruitment[id].at) return { ok: false, reason: '함께 영업한 뒤 이야기가 열려요' };
+  state.ledger.story[`cast:${id}`] = true;
+  return { ok: true };
+}
+
 // ── 의상(능력치 효과 없음)
 export function equip(state, who, slot, itemId) {
+  if(!state.hostbar.open)return {ok:false,reason:'첫해 5월, 호스트 카페 개업 이야기를 마치면 드레스룸이 열려요'};
+  if (state.mode !== 'prep') return { ok: false, reason: '영업 준비 중에 갈아입을 수 있어요' };
+  if (who === 'yeoni') return { ok:false, reason:'호스트 카페 드레스룸은 남성 동료 전용이에요' };
   if (!OUTFIT_WEARERS.includes(who)) return { ok: false, reason: '의상을 입을 수 없는 대상입니다' };
   if (!OUTFIT_SLOTS.includes(slot)) return { ok: false, reason: '없는 칸입니다' };
+  if(who!=='neo' && !state.roster[who])return {ok:false,reason:'먼저 동료를 영입해 주세요'};
   const eq = state.outfits.equipped[who];
   if (itemId == null) { eq[slot] = null; return { ok: true }; }
   const item = OUTFITS[itemId];
   if (!item || !state.outfits.owned.includes(itemId)) return { ok: false, reason: '가지고 있지 않은 의상입니다' };
+  if (item.who && item.who !== who) return { ok: false, reason: '이 인물의 의상이 아니에요' };
   if ((slot === 'outfit') !== (item.slot === 'outfit')) return { ok: false, reason: slot === 'outfit' ? '의상 칸에는 옷만 넣을 수 있습니다' : '액세서리 칸에는 액세서리만 넣을 수 있습니다' };
   const other = slot === 'acc1' ? 'acc2' : slot === 'acc2' ? 'acc1' : null;
   if (other && eq[other] === itemId) eq[other] = null;

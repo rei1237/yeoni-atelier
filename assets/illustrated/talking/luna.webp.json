@@ -1,0 +1,41 @@
+{
+  "prompt": "Draw a NEW transparent 4x4 sprite atlas of talking chest-up busts, using provided 3 images for identity. FOUR rows: row1 white floppy-eared baby rabbit Luna pink bow bread basket; row2 adult human woman Luna's sister, short light pink bob and rabbit ears headband pink apron, illustrated light-novel mature face (not child); row3 female brown otter Moka with purple star beret, cream apron, headphones; row4 a BLUE RABBIT male cunning creditor with slick dark hair, narrowed purple eyes, navy-gold waistcoat, coin in right hand. FOUR equal columns: closed mouth neutral, eyes closed blink, mouth slightly open, mouth open talking. Each row same identical bust fixed in exactly same pose and position, only eyelids/mouth change. Crop chest-up, NOT full bodies, no text. The entire canvas behind all 16 busts is EMPTY TRANSPARENT ALPHA, all pixels outside characters completely invisible. Isolated sprites, no scenery, NO painted background, no gradient, no glow or shadow, no panel, no floor. Wide empty gutters between every cell and 32px outside margin. Square canvas. Exquisite clean face linework.",
+  "createdAt": "2026-10-25T21:06:18.553Z",
+  "updatedAt": "2026-10-25T21:50:42.198954+00:00",
+  "sourceFile": "exec-7d91b958-4ba7-4130-9f96-c1f0eb2deee2.png",
+  "sourceSha256": "08b4f6f42a60bf676417778b79aec796e3a6b7a6a83e7be02e55e09eb90ff1e0",
+  "sourceCells": [
+    [
+      0,
+      0,
+      314,
+      281
+    ],
+    [
+      314,
+      0,
+      627,
+      281
+    ],
+    [
+      627,
+      0,
+      940,
+      281
+    ],
+    [
+      940,
+      0,
+      1254,
+      281
+    ]
+  ],
+  "normalization": "Measured character boundaries; 320x384 transparent cells, four columns; fixed neutral silhouette and body, registered eye/mouth frames; lossless WebP. Not voice phoneme lip sync.",
+  "sha256": "1c931edd062c2e4e29bd4047ca9d7a882516d99b2fd337839eb13b8bf040c216",
+  "frame": {
+    "width": 320,
+    "height": 384,
+    "count": 4
+  },
+  "revision": "measured crop and fixed-position repack"
+}

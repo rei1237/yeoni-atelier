@@ -1,8 +1,10 @@
-// 마을 나가기(영업 준비 중에만): 루나의 저울(월정석 환전) · 무인 장비 좌판(영냥이 장비) · 가게 확장(테이블·장식 들이기).
+// 마을 나가기(영업 준비 중에만): 청토끼 금융 센터(월정석 환전) · 윤달의 무기 공방(영냥이 장비) · 무성의 가구·꽃 상점(테이블·구역·장식).
 // 모카 식재료점 구매는 economy.buy 를 그대로 쓴다. 가격·환율은 모두 임시값(balance.temp.js, data/gear.js).
-// 장소 이름과 역할(루나의 저울, 무인 좌판)은 게임 오리지널 설정이다.
+// 장소 이름과 역할(청토끼 금융 센터, 윤달 무기 공방, 무성 가구·꽃 상점)은 게임 오리지널 설정이다.
 
+import {recordYunTrade} from './yun-quest.js';
 import { TEMP } from '../config/balance.temp.js';
+import { RULES } from '../config/rules.js';
 import { GEAR } from '../data/gear.js';
 import { FURNITURE, GRID, AREAS } from '../data/layout.js';
 import { validateLayout } from './space.js';
@@ -16,7 +18,19 @@ export function townCheck(state) {
   return { ok: true };
 }
 
-// ── 루나의 저울: 월정석 → 골드
+// 가게를 처음 찾은 기록(첫 방문 이야기 한 번). 지급하는 보상은 없고 행동력도 쓰지 않는다.
+export const VISIT_PLACES = Object.freeze(['moka', 'luna', 'finance', 'gear', 'expand']);
+export function markVisit(state, place) {
+  const chk = townCheck(state);
+  if (!chk.ok) return chk;
+  if (!VISIT_PLACES.includes(place)) return { ok: false, reason: '없는 장소입니다' };
+  const key = `visit:${place}`;
+  if (state.ledger.story[key]) return { ok: true, duplicate: true };
+  state.ledger.story[key] = true;
+  return { ok: true };
+}
+
+// ── 청토끼 금융 센터: 월정석 → 골드
 export function exchange(state, qty) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;
@@ -32,7 +46,7 @@ export function exchange(state, qty) {
   return { ok: true, gold };
 }
 
-// ── 무인 장비 좌판
+// ── 윤달의 무기 공방
 export function buyGear(state, id) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;
@@ -43,6 +57,7 @@ export function buyGear(state, id) {
   if (g.cost.moonstone && (state.moonstone || 0) < g.cost.moonstone) return { ok: false, reason: `월정석이 부족합니다 (${g.cost.moonstone}개 필요)` };
   if (g.cost.gold) state.gold -= g.cost.gold;
   if (g.cost.moonstone) state.moonstone -= g.cost.moonstone;
+  recordYunTrade(state,g.cost.gold||0,g.cost.moonstone||0);
   state.gear.owned.push(id);
   if (!state.gear.equipped[g.slot]) state.gear.equipped[g.slot] = id; // 빈 칸이면 바로 장착
   emit('gearBought', { id, name: g.name });
@@ -65,7 +80,7 @@ export function equipGear(state, slot, id) {
 export const tableCount = state => state.interior.furniture.filter(f => FURNITURE[f.defId].table).length;
 
 export function tablePrice(count) {
-  return Math.round(TEMP.TABLE_PRICE_BASE * TEMP.TABLE_PRICE_GROWTH ** Math.max(0, count - 3) / 100) * 100;
+  return Math.round(TEMP.TABLE_PRICE_BASE * TEMP.TABLE_PRICE_GROWTH ** Math.max(0, count - RULES.TABLE_COUNT) / 100) * 100;
 }
 
 export function nextExpansion(state) {

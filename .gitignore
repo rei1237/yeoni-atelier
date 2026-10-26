@@ -8,3 +8,7 @@ Thumbs.db
 .idea/
 /tmp/
 /scratch/
+tools/*.local.json
+tools/*.local.html
+.impeccable/review/
+__pycache__/

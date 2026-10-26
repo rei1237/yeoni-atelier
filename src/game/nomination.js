@@ -1,14 +1,18 @@
-// 지명 접대: 요청 → (수락 검사) → 수락 순간부터 정확히 300초 → 정산 1회 → 동료 해제.
+import {changePopularity} from './reputation.js';
+import {patronTipMultiplier,hostRevenueMultiplier} from '../data/customer-wealth.js';
+// 지명 접대: 요청 → (수락 검사) → 수락 순간부터 해당 영업의 접대 시간 → 정산 1회 → 동료 해제.
 // 요청과 수락은 다른 상태다. 요청만으로는 동료를 예약하지 않고 타이머도 시작하지 않는다.
 
 import { RULES, STAT_KEYS } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
 import { MENUS } from '../data/menus.js';
 import { GAG_HOSTBAR, GAG_NEO_FUN, HELP_KINDS } from '../data/lines.js';
-import { emit, fmtTime, hostStats, isUsableHost, personName, remainingShift } from './state.js';
+import { emit, fmtTime, hostStats, isUsableHost, personName, remainingShift, nominationDuration, lastAcceptAt } from './state.js';
 import { hostingScore, gradeOf, tipFor, feverGainFor } from './satisfaction.js';
 import { visitAt, customerAt, chooseMenu, placeOrder, customerLeave, sendHostToTable, sendHome, openOrdersOfVisit } from './cafe.js';
 import { nextRandom } from '../core/rng.js';
+import { HELP_SCENES, helpQuality, bestHelpChoice, HELP_REACTIONS } from '../data/help.js';
+import { changeStress, isResting, stressOf } from './stress.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
@@ -44,6 +48,7 @@ export function personBusyReason(state, personId) {
 export function acceptCheck(state, tableNo) {
   const reasons = [];
   if (state.mode !== 'shift' || !state.shift) return { ok: false, reasons: ['정규 영업 중이 아닙니다'] };
+  if (!state.hostbar.open) reasons.push('호스트 카페 개장 전입니다 · 5월 이야기를 먼저 확인해 주세요');
   if (state.paused) reasons.push('일시정지 중입니다');
   const visit = visitAt(state, tableNo);
   const c = customerAt(state, tableNo);
@@ -51,19 +56,21 @@ export function acceptCheck(state, tableNo) {
   if (c.state === 'entering') reasons.push('손님이 아직 자리에 앉는 중입니다');
   else if (c.state !== 'requesting') reasons.push(visit.acceptAt != null ? '이미 수락된 지명입니다' : '지명 요청 상태가 아닙니다');
   const pid = visit.nominee;
+  if (isResting(state, pid) || stressOf(state, pid) >= 100) reasons.push(`${personName(state, pid)}이(가) 한계에 닿아 이번 영업의 새 지명을 쉬고 있습니다`);
   if (!isUsableHost(state, pid)) reasons.push(`${personName(state, pid)}은(는) 아직 접대할 수 없는 동료입니다`);
   else if (!state.staff[pid]) reasons.push(`${personName(state, pid)}은(는) 이번 영업에 출근하지 않았습니다`);
   const busy = personBusyReason(state, pid);
   if (busy) reasons.push(busy);
   const el = state.shift.elapsedMs;
-  if (el > RULES.LAST_ACCEPT_ELAPSED_MS) reasons.push('25:00 이후에는 새 지명을 수락할 수 없습니다 (300초를 채울 시간이 없음)');
-  else if (remainingShift(state) < RULES.NOMINATION_MS) reasons.push('남은 영업 시간이 300초보다 짧습니다');
+  if (el > lastAcceptAt(state)) reasons.push(`${fmtTime(lastAcceptAt(state))} 이후에는 새 지명을 수락할 수 없습니다 (${nominationDuration(state) / 1000}초 전담)`);
+  else if (remainingShift(state) < nominationDuration(state)) reasons.push('접대를 마칠 영업 시간이 부족합니다');
   return { ok: reasons.length === 0, reasons, visit };
 }
 
 function helpSchedule(state, visit) {
-  const photo = nextRandom(state.rng) < 0.6;
-  const kinds = ['topic', 'listen', photo ? 'photo' : 'topic'];
+  const available = Object.keys(HELP_SCENES).filter(k => k !== 'topic');
+  const first = available.splice(Math.floor(nextRandom(state.rng) * available.length), 1)[0];
+  const kinds = ['topic', first, available[Math.floor(nextRandom(state.rng) * available.length)]];
   return TEMP.HELP_AT_MS.map((at, i) => ({ index: i, kind: kinds[i], at: visit.acceptAt + at, until: visit.acceptAt + at + TEMP.HELP_WINDOW_MS, status: 'pending', result: null }));
 }
 
@@ -79,13 +86,14 @@ export function accept(state, tableNo) {
   const now = state.shift.elapsedMs;
   visit.waitPenalty = waitPenaltyAt(visit, now);
   visit.acceptAt = now;
-  visit.endAt = now + RULES.NOMINATION_MS; // 300초는 이동 연출을 포함한 수락 시점부터
+  visit.endAt = now + nominationDuration(state); // 이동 연출을 포함한 수락 시점부터
   visit.help = helpSchedule(state, visit);
   const pid = visit.nominee;
+  changeStress(state, 'accept', pid);
   Object.assign(state.people[pid], { activity: 'hosting', visitId: visit.id, tableNo, endAt: visit.endAt });
   c.state = 'hosted';
   sendHostToTable(state, pid, tableNo);
-  const menuId = chooseMenu(state, orderLimit(state, visit));
+  const menuId = chooseMenu(state, orderLimit(state, visit),visit);
   if (menuId) placeOrder(state, visit, menuId);
   if (c && nextRandom(state.rng) < 0.25) visit.gag = 'hostbar';
   emit('nominationAccepted', { tableNo, nominee: pid, endAt: visit.endAt, gag: visit.gag ? GAG_HOSTBAR : null });
@@ -128,24 +136,21 @@ export function respondHelp(state, visitId, index, choice) {
   if (!visit || visit.acceptAt == null || visit.settled) return { ok: false, reason: '진행 중인 접대가 아닙니다' };
   const h = visit.help[index];
   if (!h || h.status !== 'open') return { ok: false, reason: '응답할 수 있는 도움 요청이 없습니다' };
-  let gain = 0, gag = null;
-  if (h.kind === 'topic') {
-    const top = topPref(visit.prefs);
-    gain = choice === top ? TEMP.HELP_GAIN_GOOD : 0;
-    if (choice === 'fun') gag = GAG_NEO_FUN; // 대사는 연출일 뿐 능력치·규칙을 바꾸지 않는다
-  } else if (h.kind === 'listen') {
-    gain = TEMP.HELP_GAIN_OK;
-  } else if (h.kind === 'photo') {
-    gain = TEMP.HELP_GAIN_OK;
-    if (!visit.feverSpecialDone) {
-      visit.feverSpecialDone = true;
-      addFever(state, RULES.FEVER_GAIN_SPECIAL, '특별 요청');
-    }
+  if (state.shift.elapsedMs >= h.until) return { ok: false, reason: '응답 시간이 지났습니다' };
+  const quality = helpQuality(h.kind, visit.prefs, choice);
+  if (!quality) return { ok: false, reason: '없는 대응입니다' };
+  const gain = quality === 'good' ? TEMP.HELP_GAIN_GOOD : quality === 'okay' ? TEMP.HELP_GAIN_OK : TEMP.HELP_MISS;
+  const gag = h.kind === 'topic' && choice === 'fun' && visit.nominee === 'neo' ? GAG_NEO_FUN : null;
+  if (quality !== 'okay') changeStress(state, quality === 'good' ? 'good' : 'wrong', visit.nominee);
+  if (h.kind === 'photo' && quality === 'good' && !visit.feverSpecialDone) {
+    visit.feverSpecialDone = true;
+    addFever(state, RULES.FEVER_GAIN_SPECIAL, '특별 요청');
   }
   visit.talkBonus = clamp(visit.talkBonus + gain, RULES.TALK_BONUS_MIN, RULES.TALK_BONUS_MAX);
+  changePopularity(state,quality==='good'?1:quality==='wrong'?-.8:0);
   h.status = 'done';
-  h.result = gain > 0 ? 'good' : 'neutral';
-  emit('helpDone', { tableNo: visit.tableNo, kind: h.kind, gain, gag });
+  h.result = quality;
+  emit('helpDone', { tableNo: visit.tableNo, kind: h.kind, gain, quality, hint: HELP_SCENES[h.kind].choices.find(([id])=>id===bestHelpChoice(h.kind,visit.prefs))?.[1], gag, nominee: visit.nominee, reaction: HELP_REACTIONS[quality] });
   return { ok: true, gain };
 }
 
@@ -187,23 +192,32 @@ export function activateFever(state) {
   return { ok: true, tables: chk.list.map(x => x.v.tableNo) };
 }
 
-// 접대 정산(방문당 1회). 300초를 모두 채웠을 때만 팁이 생긴다.
+// 접대 정산(방문당 1회). 해당 영업의 접대 시간을 모두 채웠을 때만 팁이 생긴다.
 export function settleHosting(state, visit) {
   if (visit.settled) return;
   const now = state.shift.elapsedMs;
   const pid = visit.nominee;
   const score = hostingScore({ stats: hostStats(state, pid), prefs: visit.prefs, talkBonus: visit.talkBonus, waitPenalty: visit.waitPenalty });
-  const completedFull = now - visit.acceptAt >= RULES.NOMINATION_MS;
-  const tip = tipFor({ servedTotal: visit.servedTotal, H: score.H, completedFull, fevered: visit.fevered });
+  const completedFull = now >= visit.endAt;
+  const tip = tipFor({ servedTotal: visit.servedTotal, H: score.H, completedFull, fevered: visit.fevered, multiplier: patronTipMultiplier(visit.wealthId)*hostRevenueMultiplier(pid) });
   visit.settled = true;
   visit.finalH = score.H;
   visit.finalScore = score;
   visit.tip = tip;
   if (state.ledger.tips[visit.id] == null) {
     state.ledger.tips[visit.id] = tip.total;
-    state.gold += tip.total;
+    visit.bill=(visit.bill||0)+tip.total;
+    changePopularity(state,score.H>=80?2:score.H<40?-1:0);
     state.shift.baseTips += tip.base;
     state.shift.feverTips += tip.feverExtra;
+    if (visit.wealthId==='tycoon' && completedFull && score.H>=80 && tip.total>=100) {
+      addFever(state, RULES.FEVER_GAUGE_MAX, '대부호의 앙코르 팁');
+      const candidates=feverCandidates(state);
+      state.fever.gauge=0;
+      state.fever.activeUntil=now+RULES.FEVER_DURATION_MS;
+      for(const {v} of candidates)v.fevered=true;
+      emit('feverOn',{tables:candidates.map(x=>x.v.tableNo),tycoon:true,tip:tip.total});
+    }
   }
   const grade = gradeOf(score.H);
   const foodAvg = visit.foodScores.length ? Math.round(visit.foodScores.reduce((a, b) => a + b, 0) / visit.foodScores.length) : null;
@@ -231,6 +245,7 @@ export function stepHosting(state) {
       if (h.status === 'pending' && now >= h.at) { h.status = 'open'; emit('helpOpen', { tableNo: v.tableNo, kind: h.kind, label: HELP_KINDS[h.kind].label }); }
       if (h.status === 'open' && now >= h.until) {
         h.status = 'missed'; h.result = 'miss';
+        changeStress(state, 'missed', v.nominee);
         v.talkBonus = clamp(v.talkBonus + TEMP.HELP_MISS, RULES.TALK_BONUS_MIN, RULES.TALK_BONUS_MAX);
         emit('helpMissed', { tableNo: v.tableNo });
       }
@@ -241,10 +256,11 @@ export function stepHosting(state) {
       v.evalH = H;
       const g = feverGainFor(H);
       if (g) addFever(state, g, `${v.tableNo}번 접대 평가`);
+      if(state.fever.activeUntil>now && H>=RULES.TIP_MIN_H && hostingVisits(state).filter(x=>x.fevered).length<RULES.FEVER_MAX_TABLES)v.fevered=true;
     }
     if (!v.extraOrderDone && now >= v.acceptAt + TEMP.EXTRA_ORDER_AT_MS) {
       v.extraOrderDone = true;
-      const menuId = openOrdersOfVisit(state, v).length < 2 ? chooseMenu(state, orderLimit(state, v)) : null;
+      const menuId = openOrdersOfVisit(state, v).length < 2 ? chooseMenu(state, orderLimit(state, v),v) : null;
       if (menuId) placeOrder(state, v, menuId);
     }
   }
