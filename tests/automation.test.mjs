@@ -164,3 +164,15 @@ test('자동화를 여는 인연 이야기는 그 해금을 알리고, 이야기
     assert.ok(picks[0].choices.length >= 2 && picks[0].choices.every(c => c.beats.length > 0));
   }
 });
+
+test('정리 직원은 서비스 칸에서 테이블을 바라보고 닦는다', () => {
+  const s=quietShift(), t=s.tables[0];t.state='dirty';
+  assert.ok(cmd(s,'clean',{tableNo:t.no}).ok);
+  for(let i=0;i<600&&t.state!=='cleaning';i++)tick(s,100);
+  assert.equal(t.state,'cleaning');
+  const worker=Object.values(s.staff).find(w=>w.job?.kind==='clean'&&w.job.tableNo===t.no);
+  assert.ok(worker);
+  const vector={left:[-1,0],right:[1,0],up:[0,-1],down:[0,1]}[worker.facing];
+  const toward=[t.table.x+.5-worker.x,t.table.y+.5-worker.y];
+  assert.ok(vector[0]*toward[0]+vector[1]*toward[1]>0,'정면 방향이 테이블 중심을 향해야 한다');
+});

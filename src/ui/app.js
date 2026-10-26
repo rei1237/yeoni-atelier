@@ -1,3 +1,5 @@
+import { worldScreenHtml, WORLD_PLACES } from './world-screen.js';
+import { tableBadgesHtml, tablePopHtml } from './table-ui.js';
 import { bondQuestion } from '../data/bond-dialogues.js';
 import { talkCheck } from '../game/bonds.js';
 import {CAFE_LINES,selectLine} from '../data/cafe-dialogue.js';
@@ -93,6 +95,13 @@ function save(quiet = true) {
   if (!quiet) toast(r.ok ? (storageOk ? '💾 저장했습니다' : '💾 임시 저장(새로고침하면 사라짐)') : r.reason, r.ok ? 'good' : 'bad');
 }
 
+// 독립 화면의 주소 이력은 UI만 바꾸며 게임 저장과 분리한다.
+function navigateScreen(screen, replace=false) {
+  ui.screen=screen; ui.sheet=null; ui.tablePop=null;
+  history[replace?'replaceState':'pushState']({yeoniScreen:screen},'',screen?'#'+screen:location.pathname+location.search);
+}
+window.addEventListener('popstate',e=>{ui.screen=state?(e.state?.yeoniScreen||null):null;ui.sheet=null;ui.tablePop=null;render(true);});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape'||novelActive())return;if(ui.tablePop){ui.tablePop=null;render(true);}else if(ui.screen&&!ui.sheet){navigateScreen(null,true);render(true);}});
 // ── 명령
 let repaySeq = 0;
 function run(cmd, { keepQuiet = false } = {}) {
@@ -123,7 +132,7 @@ function startNew() {
 function goTitle() {
   if (state && (state.mode === 'shift' || state.mode === 'hunt') && !state.paused) dispatch(state, { type: 'pause' });
   save();
-  state = null; ui.sheet = null; ui.selectedSlot = null; ui.recruitEvent = null; ui.ending = null;
+  ui.screen=null; state = null; ui.sheet = null; ui.selectedSlot = null; ui.recruitEvent = null; ui.ending = null;
 }
 
 // 달 이야기·결말: id → 박자
@@ -167,6 +176,22 @@ function replayStory() {
 const n = v => Number(v);
 // data-action → 처리. 엔진 명령은 같은 이름을 쓰고, 화면 전용 동작(시트·확인창·저장)은 여기서만 처리한다.
 const ACTIONS = {
+  'world.close': () => navigateScreen(null),
+  'world.back': () => navigateScreen(ui.questReturn==='world'?'world':null),
+  'world.select': d => {ui.worldPlace=d.id;},
+  'world.quests': () => {ui.questReturn='world';ui.questDetail=false;navigateScreen('quests');},
+  'quest.host': d => {ui.questHost=d.id;ui.questId=null;ui.questDetail=false;},
+  'quest.select': d => {ui.questId=d.id;ui.questDetail=true;},
+  'quest.list': () => {ui.questDetail=false;},
+  'world.enter': d => {
+    const p=WORLD_PLACES.find(p=>p.id===d.id);if(!p)return;
+    const lock=placeLock(state,p.id);if(lock){toast(lock);return;}
+    if(p.id==='atelier'){navigateScreen(null);return;}
+    ui.sheet={kind:p.id==='farm'?'farm':p.id==='hunt'?'hunt':'town',tab:p.id};
+    if(p.id==='hunt')ui.huntMenu='title';else maybeVisit(p.id);
+  },
+  'table.close': () => {ui.tablePop=null;},
+  'table.firstDirty': () => {const t=state.tables.find(t=>t.state==='dirty');if(t)ui.tablePop={no:t.no};},
   'dress.who': d => { ui.dressWho = d.who; ui.dressPreview = null; ui.dressLine = null; },
   'dress.slot': d => { ui.dressSlot = d.slot; ui.dressPreview = null; ui.dressLine = null; },
   'dress.direction': d => { ui.dressDirection = d.dir; },
@@ -198,7 +223,7 @@ const ACTIONS = {
   'farm.expand': () => run({ type: 'farm.expand' }),
   'farm.greenhouse': () => run({ type: 'farm.greenhouse' }),
   // 화면 전용
-  'sheet.open': d => { ui.sheet = { kind: d.sheet, tab: d.tab }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
+  'sheet.open': d => { if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
   'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; maybeVisit(d.tab); },
   'sheet.close': () => { if(ui.sheet?.kind==='tutorial')finishGuide();else ui.sheet = null; },
   'overlay.settlement': () => {},
@@ -269,10 +294,8 @@ const ACTIONS = {
       if (r.ok) ui.selectedSlot = null;
       return;
     }
-    // 손님이 떠난 테이블은 한 번 눌러 바로 정리를 맡긴다.
-    const t = state.tables.find(x => x.no === no);
-    if (t?.state === 'dirty' && !t.cleanQueued) { run({ type: 'clean', tableNo: no }); return; }
-    ui.sheet = { kind: 'table', no };
+    ui.tablePop = { no };
+    ui.sheet = null;
   },
   'tray.tap': d => {
     const i = n(d.i);
@@ -293,11 +316,11 @@ const ACTIONS = {
   'help.respond': d => run({ type: 'help.respond', visitId: d.visit, index: n(d.index), choice: d.choice }),
   'cook': d => beginCraft(d.menu),
   'order.quick': d => {const o=state.orders[d.id];if(!o)return;if(state.tray.some(it=>it?.menuId===o.menuId&&!it.reservedFor))run({type:'order.quick',orderId:d.id});else beginCraft(o.menuId,d.id);},
-  'craft.cancel':()=>{ui.craft=null;ui.sheet={kind:'kitchen'};},
+  'craft.cancel':()=>{ui.craft=null;ui.sheet=null;},
   'craft.mix':()=>{const c=ui.craft;if(c&&!Object.keys(craftShortage(state,c.menuId)).length&&mixCraft(c))sound('cook');},
   // 부족한 만큼만 모카 긴급 배달(영업 중 배달비 포함). 구매는 재료마다 엔진 명령 한 번.
   'craft.restock':()=>{const c=ui.craft;if(!c)return;for(const [id,qty] of Object.entries(craftShortage(state,c.menuId)))if(deliverable(id)&&!run({type:'shop.buy',ingredientId:id,qty}).ok)break;},
-  'craft.heat':()=>{const c=ui.craft;if(!c||c.step!==1)return;const quality=craftQuality(craftHeat(c));const r=run(c.orderId?{type:'order.quick',orderId:c.orderId}:{type:'cook',menuId:c.menuId});if(r.ok){sound('cook');ui.craft=null;ui.sheet=null;toast(`${quality} 완성되면 서빙대에서 만나요.`,'good');}},
+  'craft.heat':()=>{const c=ui.craft;if(!c||c.step!==1)return;const quality=craftQuality(craftHeat(c));const r=run(c.orderId?{type:'order.quick',orderId:c.orderId}:{type:'cook',menuId:c.menuId});if(r.ok){sound('cook');c.step=2;c.quality=quality;c.perfect=quality.startsWith('향이');toast('조리를 시작했어요. 완성되면 픽업 선반에서 만나요.','good');}},
 
   'cook.cancelNext': d => run({ type: 'cook.cancelNext', station: d.station }),
   'shop.buy': d => run({ type: 'shop.buy', ingredientId: d.id, qty: n(d.qty) }),
@@ -348,6 +371,7 @@ document.addEventListener('click', e => {
   const cam=e.target.closest('[data-action^="camera."]');
   if(cam){if(cam.dataset.action==='camera.fit')ui.camera={zoom:1,x:0,y:0};else ui.camera.zoom=Math.max(1,Math.min(2.4,ui.camera.zoom+Number(cam.dataset.step)));resize();render(true);return;}
 
+  if(ui.tablePop&&!e.target.closest('.table-pop,.table-badge,.hit')){ui.tablePop=null;render(true);}
   const b = e.target.closest('[data-action]');
   if (!b) return;
   const action = b.dataset.action;
@@ -421,7 +445,7 @@ function handleEvents(events) {
       case 'takeawayDone': toast('포장 완료 · 손님이 계산대에서 받아 갔어요','good');break;
       case 'farmAction': ui.farmFeedback=ev.text;ui.farmMotion={kind:ev.kind,index:ev.index,cropId:ev.cropId,at:performance.now()};ui.farmAnimUntil=performance.now()+1800;toast(ev.text,'good');break;
       case 'shiftStart': toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 10:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
-      case 'served': floater(p?.x??cssW/2, (p?.y??cssH*.75) - 10, '주문 완료', '#b07a12'); if (Math.random() < 0.25) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
+      case 'served': floater(p?.x??cssW/2, (p?.y??cssH*.75) - 10, '주문 완료', '#b07a12'); if (state.stats.served % 4 === 0) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
       case 'nominationRequest': toast(`💌 ${ev.tableNo}번 손님이 ${personName(state, ev.nominee)} 지명 요청 — 테이블을 눌러 확인`, 'good', 3600); break;
       case 'nominationAccepted': toast(`🫖 ${ev.tableNo}번 접대 시작 · 60초 전담`, 'good'); gagLines(ev.gag); break;
       case 'nominationConverted': toast(`${ev.tableNo}번: ${ev.why}`); break;
@@ -435,7 +459,8 @@ function handleEvents(events) {
         if (ev.tip > 0) floater(p.x, p.y - 30, `팁 +${ev.tip}G`, '#c0392b');
         break;
       case 'trayFull': toast('트레이가 가득 찼어요 — 서빙해서 칸을 비워 주세요', 'bad'); break;
-      case 'cooked': pixelFx(el.stage,'effects/aura',{frames:4,size:130,duration:850});toast('한 접시 완성! 서빙대에서 손님에게 전해 주세요.','good');break;
+      case 'cooked': {const p=cellToPx(view,8,1.4);floater(p.x,p.y,'✧','#b07a12');}toast('한 접시 완성! 서빙대에서 손님에게 전해 주세요.','good');break;
+      case 'cleaned': if(p)floater(p.x,p.y-12,'✧ 깨끗해요','#58734e');break;
       case 'cookCancelled': toast(`조리 취소: ${ev.reason}`, 'bad'); break;
       case 'leave': if (ev.reason === '음식을 오래 기다려 떠남' || ev.reason === '주문할 수 있는 메뉴가 없음') toast(`😣 ${ev.tableNo}번 손님: ${ev.reason}`, 'bad'); break;
       case 'learned': toast(`📖 새 레시피: ${ev.name}`, 'good'); break;
@@ -481,14 +506,18 @@ function handleEvents(events) {
 function render(force = false) {
   const now = performance.now();
   document.body.dataset.mode=state?.mode||'title';
+  if(!state||state.mode==='hunt')ui.screen=null;
+  document.getElementById('app').hidden=!!ui.screen;
+  const world=document.getElementById('world-screen');world.hidden=!ui.screen;
   if (!force && now - lastUi < 200) return;
+  morph(world,worldScreenHtml(state,ui));
   lastUi = now;
   if (state && ui.selectedSlot != null && !state.tray[ui.selectedSlot]) ui.selectedSlot = null;
   if (ui.sheet?.kind === 'table' && state?.mode !== 'shift') ui.sheet = null;
   morph(el.topbar, topbarHtml(state, ui));
   morph(el.panel, panelHtml(state, ui));
   morph(el.bubbles, state?.mode === 'shift' || state?.mode === 'hunt' ? bubblesHtml(ui) : '');
-  morph(el.hits, hitsHtml(state, view, ui));
+  morph(el.hits, hitsHtml(state, view, ui)+tableBadgesHtml(state,view)+tablePopHtml(state,view,ui));
   document.getElementById('camera-controls').hidden=!state||state.mode==='hunt';
   const hunting=state?.mode==='hunt', h=state?.hunt;
   // 보스곡은 서한비(검은 호랑이) 전용. 일반 단계 보스는 깊이별 사냥곡
@@ -512,7 +541,9 @@ function render(force = false) {
 const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');
 function draw(t) {
   drawNumbers(t);
+  if(ui.craft?.step===1){const marker=document.querySelector('.heat-track i');if(marker)marker.style.left=craftHeat(ui.craft,t)+'%';}
   if (state && ui.sheet?.kind === 'farm') drawFarm(state, t, ui);
+  if(ui.screen){drawInlinePortraits(t);return;}
   if (state && ui.sheet?.kind === 'outfits') drawDressroom(state, ui, t);
   drawInlinePortraits(t);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);

@@ -1,3 +1,4 @@
+import { automationStatus } from '../game/auto.js';
 import {maxActionPoints} from '../game/calendar.js';
 import {CUSTOMER_WEALTH} from '../data/customer-wealth.js';
 import {waitingSatisfaction} from '../game/reputation.js';
@@ -91,7 +92,7 @@ function calendarStrip(state) {
 // ── 하단 패널
 export function panelHtml(state, ui) {
   if (!state) return '';
-  if (state.mode === 'shift') return stationDock(state)+shiftPanel(state, ui);
+  if (state.mode === 'shift') return shiftPanel(state, ui);
   if (state.mode === 'hunt') return huntPanel(state);
   if (state.mode === 'settlement') return `<div class="prep">${btn({ action: 'overlay.settlement', label: '📒 결산 보기', cls: 'primary big' })}</div>`;
   if (state.interior.draft) return interiorPanel(state);
@@ -135,7 +136,7 @@ function shiftPanel(state, ui) {
   const fever = btn({ action: 'fever.activate', cls: fcls, disabled: !chk.ok, title: chk.ok ? '피버 발동 (20초, 대상 팁 2배)' : chk.reason,
     label: `<span>${flabel}</span><span class="gauge" aria-hidden="true"><i style="width:${active ? 100 : fv.gauge}%"></i></span>` });
 
-  return `${customerOrders(state)}<div class="tray" role="group" aria-label="완성 트레이 3칸">${slots || '<p class="tray-guide">완성 서빙대 · 주문 메뉴를 눌러 조리해 주세요.</p>'}</div>
+  return `${customerOrders(state)}${stationDock(state)}${automationChips(state)}<div class="tray" role="group" aria-label="완성 트레이 3칸" data-label="픽업 선반">${slots || '<p class="tray-guide">완성 서빙대 · 주문 메뉴를 눌러 조리해 주세요.</p>'}</div>
     ${held.length ? `<div class="small warn">${esc(held.join(' / '))}</div>` : ''}${hint}
     <div class="hostrow${state.hostbar.open ? '' : ' cafe-only'}">${state.hostbar.open ? hostCell + fever : ''}</div>
     ${navRow([['kitchen','주방'],['shop','배달'],['companions','동료'],['manage','수첩']])}`;
@@ -233,11 +234,9 @@ export function hitsHtml(state, v, ui) {
 export { won };
 
 function customerOrders(state){
- // 떠난 자리 정리 카드는 앞에 둔다(가로 목록 끝에 숨으면 놓치기 쉽다). 수동 영업에서는 눌러야 정리한다.
- const tidy=state.tables.filter(t=>!t.customerId&&(t.state==='dirty'||t.state==='cleaning')).map(t=>{
-  const busy=t.state==='cleaning'||t.cleanQueued;
-  return btn({action:'clean',args:{no:t.no},disabled:busy,cls:'customer-order tidy',label:`<span class="order-thinking" aria-hidden="true">🧽</span><span class="order-content"><b>${t.no}번 · 정리</b><small>${t.state==='cleaning'?'닦는 중':t.cleanQueued?'정리하러 가는 중':'눌러서 정리하기'}</small></span>`});
- }).join('');
+ // 정리 수를 누르면 첫 테이블 팝오버를 연다.
+ const count=state.tables.filter(t=>t.state==='dirty').length;
+ const tidy=count?`<div class="tidy-count">${btn({action:'table.firstDirty',label:`정리 ${count}`})}</div>`:'';
  const rows=tidy+Object.values(state.customers).map(c=>{
   const v=state.visits[c.visitId];if(!v||c.state==='leaving')return '';
   const pending=v.orderIds.map(id=>state.orders[id]).filter(o=>o&&['waiting','assigned'].includes(o.status));
@@ -248,9 +247,19 @@ function customerOrders(state){
   const tray=order&&state.tray.some(it=>it?.menuId===order.menuId&&!it.reservedFor), help=v.help?.some(h=>h.status==='open');
   const score=waitingSatisfaction(state,v),mood=score>=80?'여유':score>=55?'기다림':'서둘러요';
   const status=help?'도움 요청':c.state==='checkout'?'연이에게 결제 중':job?'조리 중':tray?'완성 · 전달하기':order?.status==='assigned'?'가져가는 중':order?'주문 · 만들기':c.state==='eating'?'맛있게 먹는 중':c.state==='requesting'?'지명 요청':c.state==='entering'?'자리로 안내 중':'메뉴 고르는 중';
-  return btn({action:help?'table.tap':order?.status==='waiting'&&!job?'order.quick':'table.tap',args:{id:order?.id||'',no:c.tableNo},disabled:c.tableNo===0&&(!order||!!job),cls:'customer-order',label:`${menu?assetIcon('icons/'+menu.id):'<span class="order-thinking" aria-hidden="true">…</span>'}<span class="order-content"><b>${v.kind==='takeaway'?'포장':`${c.tableNo}번`} · ${esc(items||status)}</b><small>${esc(CUSTOMER_WEALTH[v.wealthId]?.name||'손님')} · ${status}</small>${pending.length?`<span class="patience ${score<55?'urgent':''}"><meter min="0" max="100" value="${score}" aria-label="손님 만족도 ${score}점"></meter><small>${mood}</small></span>`:''}</span>`});
+  return btn({action:help?'table.tap':order?.status==='waiting'&&!job?'order.quick':'table.tap',args:{id:order?.id||'',no:c.tableNo,key:'order-'+c.id},disabled:c.tableNo===0&&(!order||!!job),cls:'customer-order',title:`${c.tableNo?c.tableNo+'번':'포장'} · ${items||status} · ${status}`,label:`${menu?assetIcon('icons/'+menu.id):'<span class="order-thinking" aria-hidden="true">…</span>'}<span class="order-content"><b>${v.kind==='takeaway'?'포장':`${c.tableNo}번`} · ${esc(items||status)}</b><small>${esc(CUSTOMER_WEALTH[v.wealthId]?.name||'손님')} · ${status}</small>${pending.length?`<span class="patience ${score<55?'urgent':''}"><meter min="0" max="100" value="${score}" aria-label="손님 만족도 ${score}점"></meter><small>${mood}</small></span>`:''}</span>`});
  }).join('');
  return `<div class="customer-orders" aria-label="손님 주문 현황">${rows||'<p class="tray-guide">곧 첫 손님이 찾아와요. 재료와 주방을 준비해 주세요.</p>'}</div>`;
 }
-function stationDock(state){return `<div class="station-dock" aria-label="주방 설비">${[['drink','음료 머신','objects/drink'],['oven','오븐','objects/oven'],['pass','서빙대','objects/pass']].map(([id,name,icon])=>{const st=state.stations[id],job=st?.current,ready=id==='pass'?state.tray.filter(Boolean).length:0;return btn({action:'sheet.open',args:{sheet:'kitchen'},label:`${assetIcon(icon)}<span>${name}<small>${job?'만드는 중':ready?ready+'개 완성':id==='pass'?'완성 음식':'준비됨'}</small>${job?`<progress max="${job.durationMs}" value="${job.progressMs}" aria-label="${name} 조리 진행"></progress>`:''}</span>`});}).join('')}</div>`;}
+function stationDock(state){return `<div class="station-dock" aria-label="주방 설비">${[['drink','음료 머신'],['oven','오븐']].map(([id,name])=>{
+  const st=state.stations[id],job=st.current,m=MENUS[job?.menuId],pct=job?Math.min(100,job.progressMs/job.durationMs*100):0;
+  return btn({action:'sheet.open',args:{sheet:'kitchen'},label:`<i class="station-ring ${st.held?'held':''}" style="--progress:${pct}%">${assetIcon(m?'icons/'+m.id:'objects/'+id)}</i><span><b>${name}</b><small>${m?esc(m.short)+' · '+Math.max(0,Math.ceil((job.durationMs-job.progressMs)/1000))+'초':st.held?'선반이 가득 찼어요':'준비됨'}</small>${st.next?`<small>다음 · ${esc(MENUS[st.next.menuId].short)}</small>`:''}</span>`});
+}).join('')}</div>`;}
 function chatterRibbon(ui){const c=ui.chatter;if(!c||performance.now()>c.until)return '';return `<aside class="cafe-chatter" aria-label="카페에서 들리는 이야기">${assetIcon('portraits/'+c.portrait)}<div><b>${esc(c.speaker)}</b><p>${esc(c.line)}</p></div></aside>`;}
+
+export function automationChips(state) {
+  return `<div class="automation-chips">${['kitchen','hall'].map(ability=>{
+    const st=automationStatus(state,ability),label=ability==='kitchen'?'자동 조리':'홀 자동';
+    return `<span class="automation-tip"><button data-action="automation.toggle" data-ability="${ability}" title="${esc(st.reason)}" aria-label="${label} · ${esc(st.reason)}" aria-describedby="auto-tip-${ability}" aria-pressed="${st.on}">${st.locked?'🔒 ':''}${label} ${st.locked?'':st.on?'켜짐':'꺼짐'}</button><span id="auto-tip-${ability}" role="tooltip">${esc(st.reason)}</span></span>`;
+  }).join('')}</div>`;
+}

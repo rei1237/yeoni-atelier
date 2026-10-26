@@ -1,3 +1,4 @@
+import { customerLook } from '../data/customer-looks.js';
 import {wealthEligible} from './cafe-growth.js';
 import {changePopularity,guestChatter,waitingSatisfaction,reviewVisit} from './reputation.js';
 import {cafeProgress,customerWealth,atmosphere,menuWeight,menuPrice} from './cafe-growth.js';
@@ -458,6 +459,7 @@ export function stepStaff(state, dt) {
         t.cleanMs = PDF.CLEAN_MS;
         t.cleanEndAt = now + t.cleanMs;
         s.action = 'clean';
+        s.facing = t.table.x < s.x - 0.5 ? 'left' : t.table.x > s.x - 0.5 ? 'right' : (t.table.y < s.y - 0.5 ? 'up' : 'down');
       } else if (j.stage === 'cleaning' && now >= t.cleanEndAt) {
         t.state = 'empty'; t.cleanQueued = false; t.cleanEndAt = null;
         s.action = 'idle';
@@ -527,6 +529,7 @@ export function spawnCustomer(state, spec) {
     state: 'entering', action: 'walk', actionUntil: 0, orderAt: null, eatEndAt: null,
     hue: Math.floor(nextRandom(state.rng) * 360),
   };
+  c.look = customerLook(c);
   const visit = {
     id: vid, customerId: cid, tableNo: t.no, kind: spec.kind, motive:spec.motive || (spec.kind==='regular' && nextRandom(state.rng)<Math.min(.55,.1+atmosphere(state)/140)?'atmosphere':'menu'), wealthId, profileId: profile.id, prefs: { ...profile.prefs },
     nominee: spec.kind === 'nomination' ? spec.nominee : null, requestedNominee: spec.kind === 'nomination' ? spec.nominee : null,

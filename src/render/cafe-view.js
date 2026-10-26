@@ -1,3 +1,4 @@
+import { customerLook } from '../data/customer-looks.js';
 // 카페 화면 그리기(Canvas 2D). 상태를 읽기만 한다. 모든 시각 상태는 실제 게임 상태에서 나온다.
 // 좌표: 상태의 x, y 는 타일 단위(칸 중심 = +0.5). view 가 타일 → 픽셀 변환을 맡는다.
 
@@ -127,11 +128,17 @@ export function drawCafe(ctx, state, v, opts = {}) {
     }
   }
 
+  // 고정 설비 아래 원목 하부장. 이동·배치 판정은 원래 설비 칸을 유지한다.
+  const kitchen=P(0,-1.05),floor=P(0,1);
+  ctx.fillStyle=luxurious?'#8a5b3e':'#a57850';roundRect(ctx,kitchen.x,floor.y-T*.85,10*T,T*.85,T*.08);ctx.fill();
+  ctx.fillStyle=luxurious?'#fff4df':'#ecd9b8';roundRect(ctx,kitchen.x,floor.y-T*.98,10*T,T*.18,T*.05);ctx.fill();
+  ctx.strokeStyle='#7d573c';ctx.lineWidth=Math.max(1,T*.025);
+  for(let i=1;i<10;i++){ctx.beginPath();ctx.moveTo(kitchen.x+i*T,floor.y-T*.8);ctx.lineTo(kitchen.x+i*T,floor.y-T*.05);ctx.stroke();}
   // 고정 설비
   for (const fx of FIXTURES) {
     if (fx.wall) continue;
     const b = cellsBox(fx.cells), p = P(b.x, b.y);
-    if (!drawObjectImage(ctx, 'objects', !luxurious && ASSETS.objects[`basic_${fx.id}`] ? `basic_${fx.id}` : fx.id, p.x, p.y, b.w * T, b.h * T)) {
+    if (!drawObjectImage(ctx, 'objects', !luxurious && ASSETS.objects[`basic_${fx.id}`] ? `basic_${fx.id}` : fx.id, p.x, fx.id==='counter'?p.y-T*.45:p.y-T*1.1, b.w*T, fx.id==='counter'?b.h*T+T*.45:T*1.2)) {
       ctx.fillStyle = fx.color;
       roundRect(ctx, p.x + 2, p.y + 2, b.w * T - 4, b.h * T - 4, T * 0.15); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(p.x + 4, p.y + 4, b.w * T - 8, T * 0.18);
@@ -160,7 +167,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   if (state.mode === 'shift') {
     for (const c of Object.values(state.customers)) {
       const st = c.action === 'walk' ? 'walk' : c.action === 'react' ? 'react' : 'idle';
-      actors.push({ key: 'customer', x: c.x, y: c.y, o: { state: st, facing: c.facing, hue: c.hue, name:null, tagColor:CUSTOMER_WEALTH[c.wealthId]?.color } });
+      actors.push({ key: `customer@look${customerLook(c)}`, x: c.x, y: c.y, o: { state: st, facing: c.facing, hue: c.hue, name:null, tagColor:CUSTOMER_WEALTH[c.wealthId]?.color } });
     }
     for (const s of Object.values(state.staff)) {
       const map = { walk: 'walk', serve: 'serve', clean: 'clean', host: 'host', react: 'react' };
@@ -169,7 +176,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
       actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, ...outfitLook(state, s.id) } });
     }
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
-    actors.push({ key: 'yeoni', x: SPOTS.yeoniHome.x + 0.5, y: SPOTS.yeoniHome.y + 0.5, o: { state: 'idle', facing: 'down', name: '연이', ...outfitLook(state, 'yeoni') } });
+    actors.push({ key: 'yeoni', x: SPOTS.yeoniHome.x + 0.5, y: SPOTS.yeoniHome.y + 0.5, o: { state: 'idle', facing: 'right', name: '연이', ...outfitLook(state, 'yeoni') } });
     for (const id of STAFF_CREW) {
       const home = id === 'luna' ? SPOTS.lunaHome : SPOTS.sisHome;
       actors.push({ key: id, x: home.x + 0.5, y: home.y + 0.5, o: { state: 'idle', facing: 'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
@@ -219,8 +226,13 @@ function drawTable(ctx, state, p, T, f, tb, t) {
     ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(p.x + T * 0.14, p.y + T * 0.16, T * 0.72, T * 0.12);
   }
   if (tb?.state === 'dirty' || tb?.state === 'cleaning') {
-    ctx.fillStyle = '#8a6142';
-    for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.arc(p.x + T * (0.25 + (i * 37 % 50) / 100), p.y + T * (0.35 + (i * 23 % 35) / 100), T * 0.04, 0, Math.PI * 2); ctx.fill(); }
+    ctx.save();
+    ctx.globalAlpha=tb.state==='cleaning'?Math.max(0,(tb.cleanEndAt-state.shift.elapsedMs)/(tb.cleanMs||PDF.CLEAN_MS)):1;
+    ctx.fillStyle='#fff9ec';ctx.strokeStyle='#ad9275';ctx.lineWidth=1;
+    ctx.beginPath();ctx.ellipse(p.x+T*.48,p.y+T*.5,T*.22,T*.11,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#b58c62';ctx.beginPath();ctx.ellipse(p.x+T*.68,p.y+T*.4,T*.08,T*.1,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#8a6142';for(let i=0;i<4;i++)ctx.fillRect(p.x+T*(.25+i*.13),p.y+T*(.62+(i%2)*.06),T*.04,T*.025);
+    ctx.restore();
   }
   if (tb?.state === 'cleaning' && tb.cleanEndAt != null) {
     const k = 1 - Math.max(0, tb.cleanEndAt - state.shift.elapsedMs) / (tb.cleanMs || PDF.CLEAN_MS);
@@ -271,18 +283,16 @@ function drawStations(ctx, state, v) {
     const st = state.stations[sid];
     const b = cellsBox(fixtures[sid].cells), p = cellToPx(v, b.x, b.y);
     const w = b.w * T;
-    if (st.current) {
-      const k = Math.min(1, st.current.progressMs / st.current.durationMs);
-      ctx.fillStyle = 'rgba(0,0,0,0.25)'; roundRect(ctx, p.x + 4, p.y + T * 0.66, w - 8, T * 0.22, 4); ctx.fill();
-      ctx.fillStyle = MENUS[st.current.menuId].color; roundRect(ctx, p.x + 4, p.y + T * 0.66, (w - 8) * k, T * 0.22, 4); ctx.fill();
+    const job=st.current,menu=job?.menuId||st.held?.menuId;
+    if(menu){
+      const cx=p.x+w/2,cy=p.y-T*.4,r=T*.48;
+      ctx.fillStyle='#fff8eb';ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle=st.held?'#ad5265':'#58734e';ctx.lineWidth=Math.max(2,T*.09);
+      ctx.beginPath();ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*(job?Math.min(1,job.progressMs/job.durationMs):1));ctx.stroke();
+      drawFood(ctx,menu,cx,cy+T*.2,T*.6);
+      label(ctx,st.held?'보관':Math.max(0,Math.ceil((job.durationMs-job.progressMs)/1000))+'초',cx,cy+r+T*.22,T*.3,'#48382e');
     }
-    if (st.next) {
-      ctx.fillStyle = '#fff'; roundRect(ctx, p.x + w - T * 0.62, p.y - T * 0.02, T * 0.62, T * 0.28, 5); ctx.fill();
-    }
-    if (st.held) {
-      ctx.strokeStyle = '#d9443a'; ctx.lineWidth = 3; ctx.strokeRect(p.x + 2, p.y + 2, w - 4, T - 4);
-      ctx.fillStyle = '#d9443a'; roundRect(ctx, p.x + 2, p.y + T * 0.02, T * 1.1, T * 0.28, 5); ctx.fill();
-    }
+    if(st.next)label(ctx,'다음 '+MENUS[st.next.menuId].short,p.x+w/2,p.y+T*.75,T*.28,'#48382e');
   }
   // 서빙대 위 완성 음식(트레이 3칸)
   const pb = cellsBox(fixtures.pass.cells), pp = cellToPx(v, pb.x, pb.y);

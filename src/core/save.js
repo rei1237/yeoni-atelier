@@ -1,3 +1,4 @@
+import { customerLook } from '../data/customer-looks.js';
 // 저장·불러오기. 연이의 아틀리에 전용 키만 쓴다(killerflowerpig 의 kfp.* 키는 읽지도 쓰지도 않는다).
 // 개발 모드는 별도 키를 쓰므로 일반 저장을 건드리지 않는다.
 
@@ -70,6 +71,7 @@ function migrate(data) {
   }
   data.outfits.equipped = {...base.outfits.equipped,...data.outfits.equipped};
   for(const id of Object.keys(data.roster)) { const outfit=`${id}_formal`; if(['yun','museong','solv','bambi','lune','raven'].includes(id) && !data.outfits.owned.includes(outfit)){data.outfits.owned.push(outfit);data.ledger.rewards[`outfit:${outfit}`]=true;data.outfits.equipped[id].outfit=outfit;} }
+  for (const c of Object.values(data.customers || {})) c.look = customerLook(c);
   data.interior.areas ||= []; // 증축 구역 이전 저장
   checkAchievements(data, { quiet: true }); // 업적 소급(원장으로 보상 1회)
   return data;

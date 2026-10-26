@@ -4,6 +4,8 @@ import { dispatch, tick } from '../src/game/engine.js';
 import { quietShift, seat } from './helpers.mjs';
 import { MENUS } from '../src/data/menus.js';
 import { panelHtml } from '../src/ui/hud.js';
+import { tableBadgesHtml,tablePopHtml } from '../src/ui/table-ui.js';
+import { computeView } from '../src/render/cafe-view.js';
 import { newCraft, mixCraft, craftShortage, craftingSheet, deliverable } from '../src/ui/crafting.js';
 
 test('수동은 주문을 기다리며, 한 번 조리·한 번 서빙 후 이동만 보조하고 정리는 플레이어가 누른다', () => {
@@ -27,8 +29,11 @@ test('수동은 주문을 기다리며, 한 번 조리·한 번 서빙 후 이�
   tick(s, 20000);
   assert.equal(table.state, 'dirty', '수동에서 저절로 정리되면 안 된다');
   assert.equal(s.tasks.filter(t => t.type === 'clean').length, 0);
-  assert.match(panelHtml(s, {}), new RegExp(`data-action="clean"[^>]*data-no="${table.no}"|data-no="${table.no}"[^>]*data-action="clean"`));
-  assert.ok(dispatch(s, { type: 'clean', tableNo: table.no }).ok);
+  assert.match(panelHtml(s, {}), /data-action="table.firstDirty"/);
+  const view=computeView(390,440), badge=tableBadgesHtml(s,view).match(/data-action="(clean)" data-no="(\d+)"/);
+  assert.ok(badge,'정리 배지에 실제 엔진 명령이 있어야 한다');assert.equal(Number(badge[2]),table.no);
+  assert.match(tablePopHtml(s,view,{tablePop:{no:table.no}}),/data-action="clean"/);
+  assert.ok(dispatch(s, { type: badge[1], tableNo: Number(badge[2]) }).ok);
   assert.equal(dispatch(s, { type: 'clean', tableNo: table.no }).ok, false, '같은 테이블 중복 정리 예약');
   for (let i = 0; i < 600 && table.state !== 'empty'; i++) tick(s, 100);
   assert.equal(table.state, 'empty');

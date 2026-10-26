@@ -6,7 +6,8 @@ import { actorSocket } from '../data/actor-sockets.js';
 
 // 카페의 대기 동작. 발 기준점은 이동하지 않고 호흡·작은 몸 기울임만 표현한다.
 export function cafeIdlePose(key, o) {
-  if (!o.idleMotion || o.reducedMotion || !['idle','host','cook','serve'].includes(o.state || 'idle')) return null;
+  if (!o.idleMotion || o.reducedMotion || !['idle','host','cook','serve','clean'].includes(o.state || 'idle')) return null;
+  if(o.state==='clean')return {scaleX:1,scaleY:.94+Math.sin((o.t||0)/140)*.008,angle:o.facing==='right'?.04:o.facing==='left'?-.04:0};
   const seed=Array.from(key).reduce((n,c)=>n+c.charCodeAt(0),0)+(o.x||0)*.37+(o.y||0)*.19;
   const phase=(o.t||0)/1000, breath=Math.sin(phase*(1.65+(seed%7)*.06)+seed);
   return {scaleX:1-breath*.006,scaleY:1+breath*.022,angle:Math.sin(phase*.85+seed*.7)*.014};
@@ -14,14 +15,14 @@ export function cafeIdlePose(key, o) {
 
 export function drawActor(ctx, key, o) {
   const gesture=key==='yeoni'&&o.gesture;
-  if(gesture && imageFor('yeoni_idle')){key='yeoni_idle';o={...o,state:gesture.kind,facing:'down',animationFrame:Math.min(3,Math.floor(gesture.age/260)),idleMotion:false,outfitId:null};}
+  if(gesture && o.facing==='down' && imageFor('yeoni_idle')){key='yeoni_idle';o={...o,state:gesture.kind,facing:'down',animationFrame:Math.min(3,Math.floor(gesture.age/260)),idleMotion:false,outfitId:null};}
   // 쟁반·천을 든 동안에는 손 위치가 정해진 기본 시트를 쓴다(대기 전용 시트는 손에 다른 물건이 있다).
-  else if((o.state||'idle')==='idle'&&!o.outfitId&&!o.carry&&!o.cleaning&&imageFor(key+'_idle')){key=key+'_idle';o={...o,idleMotion:false};}
+  else if((!o.facing||o.facing==='down')&&(o.state||'idle')==='idle'&&!o.outfitId&&!o.carry&&!o.cleaning&&imageFor(key+'_idle')){key=key+'_idle';o={...o,idleMotion:false};}
   const dressed = o.outfitId ? `${key}@${o.outfitId}` : key;
   key = imageFor(dressed) ? dressed : key.split('@')[0];
   const def = actorDef(key) || ASSETS.actors.customer;
   const st = resolveState(def, o.state || 'idle');
-  const img = imageFor(key);
+  const img = customerTint(imageFor(key), def.clothesHue);
   o={...o,actorKey:key};
   const pose=cafeIdlePose(key,o);
   if (pose) {
@@ -43,7 +44,7 @@ function drawFromSheet(ctx, def, img, st, o) {
   // 고해상도 원본을 실제 화면 크기에 맞춰 축소한다.
   const scale = o.size / def.frame.h;
   const sock = o.carry || o.cleaning ? actorSocket(o.actorKey || '', o.facing || 'down') : null;
-  if (sock?.layer === 'back') drawWorkProps(ctx, o, sock, scale, frame);
+  if (sock?.layer === 'back' && !o.cleaning) drawWorkProps(ctx, o, sock, scale, frame);
   const prev = ctx.imageSmoothingEnabled;
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   if(o.flipX){ctx.save();ctx.translate(o.x,0);ctx.scale(-1,1);ctx.translate(-o.x,0);}
@@ -53,7 +54,7 @@ function drawFromSheet(ctx, def, img, st, o) {
   ctx.filter = 'none';
   if(o.flipX)ctx.restore();
   ctx.imageSmoothingEnabled = prev;
-  if (sock && sock.layer !== 'back') drawWorkProps(ctx, o, sock, scale, frame);
+  if (sock && (sock.layer !== 'back' || o.cleaning)) drawWorkProps(ctx, o, sock, scale, frame);
   if (o.name) nameTag(ctx, o.name, o.x, o.y + 4 + (o.nameOffsetY || 0), o.size, o.tagColor);
 }
 
@@ -69,7 +70,7 @@ function drawWorkProps(ctx, o, sock, scale, frame) {
   const bob = o.state === 'walk' && !o.reducedMotion ? -(frame % 2) * scale : 0;
   const wipe = o.cleaning && !o.reducedMotion ? Math.sin(o.t / 140) * sock.w * .22 * scale : 0;
   ctx.save();
-  ctx.translate(o.x + (sx - 64) * scale + wipe, o.y + (sock.y - 122) * scale + bob);
+  ctx.translate(o.x + (sx - 64) * scale + wipe, o.y + (sock.y - 122) * scale + bob + (o.cleaning&&!o.reducedMotion?Math.cos(o.t/140)*sock.w*.10*scale:0));
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(prop, -ax * k, -ay * k, def.dimensions[0] * k, def.dimensions[1] * k);
   if (o.carry?.menuId && !o.cleaning) drawFood(ctx, o.carry.menuId, (def.itemSocket[0] - ax) * k, (def.itemSocket[1] - ay) * k, 104 * k);
@@ -395,4 +396,17 @@ export function drawObjectImage(ctx, group, key, x, y, w, h) {
   else {const k=Math.min(w/img.width,h/img.height);ctx.drawImage(img,x+(w-img.width*k)/2,y+h-img.height*k,img.width*k,img.height*k);}
   ctx.imageSmoothingEnabled = prev;
   return true;
+}
+
+const customerTints = new Map();
+// 색상 회전 결과를 저장해 매 프레임 픽셀 작업을 하지 않는다. 마스크 밖은 원본 그대로다.
+function customerTint(image, hue) {
+  const mask=imageFor('service/customer-clothes-mask');
+  if(!image || !hue || !mask || typeof document==='undefined')return image;
+  if(customerTints.has(hue))return customerTints.get(hue);
+  const cv=document.createElement('canvas');cv.width=image.width;cv.height=image.height;
+  const ctx=cv.getContext('2d');ctx.filter=`hue-rotate(${hue}deg)`;ctx.drawImage(image,0,0);ctx.filter='none';
+  ctx.globalCompositeOperation='destination-in';ctx.drawImage(mask,0,0);
+  ctx.globalCompositeOperation='destination-over';ctx.drawImage(image,0,0);
+  customerTints.set(hue,cv);return cv;
 }

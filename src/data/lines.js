@@ -87,4 +87,4 @@ export const GAG_HUNT_RETURN = Object.freeze([
   [{ who: '영냥이', text: '츄르 값은 따로 받겠다.' }],
 ]);
 
-export const pickLine = pool => pool[Math.floor(Math.random() * pool.length)];
+export const pickLine = pool => pool[Math.floor((globalThis.performance?.now() || 0)/1200) % pool.length];

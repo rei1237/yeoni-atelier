@@ -8,6 +8,7 @@ export function installDialogFocus() {
     const novel=document.getElementById('novel'), overlay=document.getElementById('overlay'), wrap=document.getElementById('sheet-wrap');
     const next=visible(novel)?novel:visible(overlay)?overlay:visible(wrap)?document.getElementById('sheet'):null;
     document.getElementById('app').inert=!!next;
+    document.getElementById('world-screen').inert=!!next;
     wrap.inert=!!next && next!==document.getElementById('sheet');
     overlay.inert=!!next && next!==overlay;
     if(next===current)return;
@@ -28,7 +29,7 @@ export function installDialogFocus() {
       else if(!e.shiftKey && (document.activeElement===last||!current.contains(document.activeElement))){e.preventDefault();first.focus();}
     }
     if(e.key==='Escape') {
-      const close=current.querySelector('[data-action="confirm.no"], [data-action="sheet.close"]');
+      const close=current.querySelector('[data-action="confirm.no"], [data-action="sheet.close"], [data-action="craft.cancel"]');
       if(close){e.preventDefault();close.click();}
     }
   },true);
