@@ -375,7 +375,7 @@
 | interactions/broom-left | assets/illustrated/interactions/broom-left.webp | 160×160 | 완료 |
 | interactions/broom-right | assets/illustrated/interactions/broom-right.webp | 160×160 | 완료 |
 | interactions/broom-up | assets/illustrated/interactions/broom-up.webp | 160×160 | 완료 |
-| ui/town-node-finance | assets/illustrated/portraits/cheongtokki.webp | 384×576 | 완료 |
+| ui/town-node-finance | assets/illustrated/portraits/cheongtokki.webp | 320×384 | 완료 |
 | wardrobe/solv@solv_formal | assets/illustrated/wardrobe/solv@solv_formal.webp | 1024×256 | 완료 |
 | wardrobe/solv@solv_moon | assets/illustrated/wardrobe/solv@solv_moon.webp | 1024×256 | 완료 |
 | wardrobe/solv@solv_garden | assets/illustrated/wardrobe/solv@solv_garden.webp | 1024×256 | 완료 |

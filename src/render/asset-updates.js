@@ -8728,8 +8728,8 @@ export const ASSET_UPDATES = {
       "label": "cheongtokki",
       "path": "assets/illustrated/portraits/cheongtokki.webp",
       "dimensions": [
-        384,
-        576
+        320,
+        384
       ],
       "static": true,
       "expressions": [
