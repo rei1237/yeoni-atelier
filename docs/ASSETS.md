@@ -205,7 +205,7 @@
 | ui/town-map-autumn | assets/ui/town-map-autumn.webp | 720×600 | 완료 |
 | ui/town-map-winter | assets/ui/town-map-winter.webp | 720×600 | 완료 |
 | ui/town-node-atelier | assets/ui/town-node-atelier.webp | 128×128 | 완료 |
-| ui/town-node-expand | assets/ui/town-node-expand.webp | 128×128 | 완료 · 무성의 가구·꽃 상점(10-26 교체, 옛 증축 게시판 그림 대체) |
+| ui/town-node-expand | assets/ui/town-node-expand.webp | 128×128 | 완료 |
 | ui/town-node-moka | assets/ui/town-node-moka.webp | 128×128 | 완료 |
 | ui/town-node-luna | assets/ui/town-node-luna.webp | 128×128 | 완료 |
 | ui/town-node-gear | assets/ui/town-node-gear.webp | 128×128 | 완료 |
