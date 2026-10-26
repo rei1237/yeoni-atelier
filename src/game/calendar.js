@@ -103,7 +103,8 @@ export function pendingStory(state) {
   const c = calendarOf(state.day);
   const id = `m${c.monthIdx}`;
   if (!state.ledger.story[id]) return id;
-  if (!state.huntUnlocked && !state.ledger.story['ev:hunt']) return 'ev:hunt';
+  // 첫 영업을 마친 뒤에야 「돈 벌어 와, 네오!」가 나온다
+  if (!state.huntUnlocked && !state.ledger.story['ev:hunt'] && state.stats.shiftsCompleted >= 1) return 'ev:hunt';
   return pendingHanbiStory(state) || pendingBondStory(state);
 }
 

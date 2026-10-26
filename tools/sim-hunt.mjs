@@ -26,9 +26,10 @@ export function botHunt(s, depth=1, idle=false) {
 if(process.argv[1]?.endsWith('sim-hunt.mjs')){
  const rows=[];
  for(const seed of [7,42,20261025]){
-  const s=createGame({seed});dispatch(s,{type:'story.seen',id:'m0'});dispatch(s,{type:'story.seen',id:'ev:hunt'});
+  const s=createGame({seed});s.stats.shiftsCompleted=1; // 시뮬 준비: 첫 영업을 마친 상태
+  dispatch(s,{type:'story.seen',id:'m0'});dispatch(s,{type:'story.seen',id:'ev:hunt'});
   for(let run=1;run<=2;run++){const r=botHunt(s,maxHuntDepth(s));rows.push({seed,run,from:r.startDepth,depth:r.depth,cleared:r.cleared,maxStage:s.hunter.maxStage,status:r.status,kills:r.kills,moonstone:r.bag.moonstone,xp:r.careerXP,careerLevel:hunterProgress(s.hunter.xp).level});}
-  const idle=createGame({seed});dispatch(idle,{type:'story.seen',id:'m0'});dispatch(idle,{type:'story.seen',id:'ev:hunt'});const r=botHunt(idle,1,true);rows.push({seed,run:'idle',depth:r.depth,cleared:r.cleared,status:r.status,kills:r.kills,moonstone:r.bag.moonstone});
+  const idle=createGame({seed});idle.stats.shiftsCompleted=1;dispatch(idle,{type:'story.seen',id:'m0'});dispatch(idle,{type:'story.seen',id:'ev:hunt'});const r=botHunt(idle,1,true);rows.push({seed,run:'idle',depth:r.depth,cleared:r.cleared,status:r.status,kills:r.kills,moonstone:r.bag.moonstone});
  }
  console.log(JSON.stringify({method:'사냥 조이스틱 봇 / 사람 플레이테스트 아님 / 신규 무장비',rows},null,2));
 }

@@ -1,6 +1,6 @@
 # 인계 — 2026-10-26 단계 사냥·인연 자동화 이어받기
 
-- 브랜치 `feat/hostbar-mobile-monthly-cast`, PR https://github.com/rei1237/yeoni-atelier/pull/2 (main 직접 push·merge·배포 없음)
+- 브랜치 `feat/hostbar-mobile-monthly-cast`, PR https://github.com/rei1237/yeoni-atelier/pull/2 — 사용자 승인으로 main 머지(e961b1d). 이후 작업은 새 브랜치·새 PR로
 - 정본 요구: 인계 묶음 `outputs/claude-handoff/03-REQUIREMENTS.md`, 수락 목록 `05-ACCEPTANCE.md`
 - 이 문서는 "출시 완성" 선언이 아니다. 실기기·사람 플레이테스트는 하지 않았다.
 

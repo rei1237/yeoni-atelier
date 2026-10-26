@@ -45,7 +45,7 @@ export const gemTier = v => (v < 4 ? 0 : v < 20 ? 1 : 2);
 export function huntCheck(state, hunterId = 'neo') {
   const reasons = [];
   if (!['neo','seohanbi'].includes(hunterId) || (hunterId === 'seohanbi' && !state.roster.seohanbi)) reasons.push('아직 함께 사냥할 수 없는 동료입니다');
-  if (!state.huntUnlocked) reasons.push('아직 사냥터 이야기를 보지 않았습니다');
+  if (!state.huntUnlocked) reasons.push(state.stats.shiftsCompleted >= 1 ? '아직 사냥터 이야기를 보지 않았습니다' : '첫 영업을 마치면 사냥터 이야기가 열립니다');
   const busy = state.shift ? personBusyReason(state, hunterId) : null;
   if (busy) reasons.push(busy);
   else if (state.people[hunterId]?.activity !== 'idle') reasons.push('선택한 동료가 다른 활동 중입니다');
