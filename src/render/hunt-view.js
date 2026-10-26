@@ -12,6 +12,68 @@ const H = TEMP.HUNT;
 const GEM_KEYS = ['gem_s', 'gem_m', 'gem_l'];
 const fieldPatterns = new WeakMap();
 
+// 달빛 결계(위에서 본 바닥 원). 이미지 에셋 없이 캔버스로 그린다
+const WARD = { gold: '#D9B26A', rose: '#E7A3B5', lilac: '#B9A6E0', silver: '#E6E9F5' };
+const wardFloors = new Map();
+function wardFloor(r, evo) {
+  const key = `${Math.round(r)}:${evo ? 1 : 0}`;
+  if (wardFloors.has(key)) return wardFloors.get(key);
+  if (typeof document === 'undefined') return null;
+  const c = document.createElement('canvas'), s = Math.ceil(r * 2 + 4), m = s / 2; c.width = c.height = s;
+  const g = c.getContext('2d'), grad = g.createRadialGradient(m, m, r * .08, m, m, r);
+  grad.addColorStop(0, evo ? 'rgba(230,233,245,.26)' : 'rgba(185,166,224,.22)');
+  grad.addColorStop(.6, evo ? 'rgba(185,166,224,.16)' : 'rgba(231,163,181,.14)');
+  grad.addColorStop(.93, evo ? 'rgba(230,233,245,.30)' : 'rgba(217,178,106,.24)'); // 테두리 쪽 결계 빛
+  grad.addColorStop(1, 'rgba(185,166,224,0)');
+  g.fillStyle = grad; g.beginPath(); g.arc(m, m, r, 0, Math.PI * 2); g.fill();
+  if (wardFloors.size > 24) wardFloors.clear();
+  wardFloors.set(key, c); return c;
+}
+function petal(ctx, s) { ctx.beginPath(); ctx.moveTo(0, -s); ctx.quadraticCurveTo(s * .7, 0, 0, s); ctx.quadraticCurveTo(-s * .7, 0, 0, -s); ctx.fill(); }
+function wardStar(ctx, s) { ctx.beginPath(); for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4, d = k % 2 ? s * .35 : s; ctx.lineTo(Math.cos(a) * d, Math.sin(a) * d); } ctx.closePath(); ctx.fill(); }
+function crescent(ctx, s) { ctx.beginPath(); ctx.arc(0, 0, s, -Math.PI / 2, Math.PI / 2); ctx.ellipse(0, 0, s * .45, s, 0, Math.PI / 2, -Math.PI / 2, true); ctx.fill(); }
+function drawMoonWard(ctx, x, y, r, now, evo, still) {
+  const floor = wardFloor(r, evo), spin = still ? 0 : now / 7000, rim = evo ? WARD.silver : WARD.gold;
+  ctx.save(); ctx.translate(x, y);
+  if (floor) ctx.drawImage(floor, -floor.width / 2, -floor.height / 2);
+  ctx.strokeStyle = rim; ctx.globalAlpha = .7; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = .45; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(0, 0, r * .82, 0, Math.PI * 2); ctx.stroke();
+  // 두 고리 사이를 도는 꽃잎·별 12개
+  for (let k = 0; k < 12; k++) {
+    const a = spin + k * Math.PI / 6;
+    ctx.save(); ctx.translate(Math.cos(a) * r * .91, Math.sin(a) * r * .91); ctx.rotate(a + Math.PI / 2);
+    ctx.globalAlpha = .85; ctx.fillStyle = k % 2 ? rim : (evo ? WARD.lilac : WARD.rose);
+    if (k % 2) wardStar(ctx, 4.5); else petal(ctx, 6);
+    ctx.restore();
+  }
+  // 안쪽 초승달 4개는 반대로 돈다
+  ctx.fillStyle = evo ? WARD.silver : WARD.lilac;
+  for (let k = 0; k < 4; k++) {
+    const a = -spin * 1.6 + k * Math.PI / 2;
+    ctx.save(); ctx.translate(Math.cos(a) * r * .55, Math.sin(a) * r * .55); ctx.rotate(a); ctx.globalAlpha = .55; crescent(ctx, 7); ctx.restore();
+  }
+  if (evo) { // 월광 결계: 가운데 보름달 문양
+    ctx.globalAlpha = .5; ctx.strokeStyle = WARD.silver; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(0, 0, r * .24, 0, Math.PI * 2); ctx.stroke();
+    ctx.globalAlpha = .18; ctx.fillStyle = WARD.silver; ctx.fill();
+  }
+  ctx.restore();
+}
+// 회복 틱: 금 고리가 안에서 밖으로 퍼지고 빛 알갱이가 떠오른다
+function drawWardPulse(ctx, b, now, still) {
+  const q = Math.max(0, Math.min(1, (now - b.at) / (b.until - b.at)));
+  ctx.save(); ctx.strokeStyle = WARD.gold; ctx.fillStyle = '#FFF1C7';
+  ctx.globalAlpha = (1 - q) * .8; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(b.x, b.y, still ? b.r * .82 : b.r * (.3 + .7 * q), 0, Math.PI * 2); ctx.stroke();
+  if (!still) for (let k = 0; k < 6; k++) {
+    const a = k * Math.PI / 3 + (b.at % 628) / 100, d = b.r * (.25 + .12 * (k % 3));
+    ctx.globalAlpha = (1 - q) * .9; ctx.beginPath(); ctx.arc(b.x + Math.cos(a) * d, b.y + Math.sin(a) * d * .6 - q * 26, 1.8, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+}
+
 export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const t = opts.t || 0;
   const fx=(key,x,y,size)=>{const img=imageFor(`effects/${key}`);if(!img)return false;const frame=Math.floor((opts.reducedMotion?0:t)/100)%4;ctx.drawImage(img,frame*128,0,128,128,x-size/2,y-size/2,size,size);return true;};
@@ -35,14 +97,8 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   for(const o of world.props||[]){if(hs.brokenProps?.[o.id]||o.x<camX-64||o.x>camX+vw+64||o.y<camY-80||o.y>camY+vh+80)continue;const img=imageFor('objects/hunt_'+o.kind);if(img)ctx.drawImage(img,o.x-32,o.y-48,64,64);if(o.hp<o.maxHp){ctx.fillStyle='#e7c275';ctx.fillRect(o.x-20,o.y-52,40*o.hp/o.maxHp,3);}}
   const m = mods(hs);
   // 달빛 수호부(바닥 원): 안에 있는 동안 방어가 오르고 조금씩 회복한다. 무적·탄 제거는 없다
-  for (const wp of hs.weapons) {
-    if (wp.id !== 'aura') continue;
-    const s = weaponStats(wp, m);
-    ctx.save(); ctx.globalAlpha = 0.35; fx('aura',p.x,p.y,s.radius*2); ctx.restore();
-    ctx.fillStyle = wp.evo ? 'rgba(200,190,255,0.12)' : 'rgba(232,213,163,0.08)';
-    ctx.strokeStyle = wp.evo ? 'rgba(200,190,255,0.55)' : 'rgba(232,213,163,0.4)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(p.x, p.y, s.radius + (opts.reducedMotion ? 0 : Math.sin(t / 300) * 2), 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  }
+  for (const wp of hs.weapons) if (wp.id === 'aura') drawMoonWard(ctx, p.x, p.y, weaponStats(wp, m).radius, now, wp.evo, opts.reducedMotion);
+  for (const b of world.fx) if (b.kind === 'ward') drawWardPulse(ctx, b, now, opts.reducedMotion);
 
   // 보스 예고·피해 구역: 예고 중(at 전)에는 점선 테두리와 차오르는 면, 피해 중에는 진한 면
   for (const z of world.zones || []) {
@@ -135,7 +191,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   for(const shot of world.hostile){ctx.strokeStyle='#c69bdb';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(shot.x-shot.vx*.045,shot.y-shot.vy*.045);ctx.lineTo(shot.x,shot.y);ctx.stroke();ctx.fillStyle='#ffdda9';ctx.beginPath();ctx.arc(shot.x,shot.y,shot.r,0,Math.PI*2);ctx.fill();}
   const swing=p.swing;
   if(swing&&now>=swing.hitAt&&now<swing.until){const q=(now-swing.hitAt)/(swing.until-swing.hitAt);ctx.save();ctx.translate(swing.x,swing.y);ctx.rotate(swing.angle);ctx.globalAlpha=1-q;const grad=ctx.createRadialGradient(0,0,swing.radius*.25,0,0,swing.radius);grad.addColorStop(0,'#fff0c000');grad.addColorStop(.76,swing.evo?'#d9b7f6aa':'#ffd58a88');grad.addColorStop(1,'#fff8e8ee');ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,swing.radius,-swing.halfArc,swing.halfArc);ctx.closePath();ctx.fill();ctx.strokeStyle='#fffbea';ctx.lineWidth=opts.reducedMotion?2:5*(1-q)+1;ctx.beginPath();ctx.arc(0,0,swing.radius,-swing.halfArc+swing.halfArc*2*q,swing.halfArc);ctx.stroke();ctx.restore();}
-  for(const burst of world.fx){const q=(now-burst.at)/(burst.until-burst.at);ctx.save();ctx.globalAlpha=1-q;ctx.strokeStyle=burst.kind==='burst'?'#ffb37d':'#fff4b8';ctx.lineWidth=burst.kind==='burst'?3:2;ctx.beginPath();ctx.arc(burst.x,burst.y,burst.r*(.35+.65*q),0,Math.PI*2);ctx.stroke();if(!opts.reducedMotion)for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(burst.x+Math.cos(a)*burst.r*q*.6,burst.y+Math.sin(a)*burst.r*q*.6);ctx.lineTo(burst.x+Math.cos(a)*burst.r*q,burst.y+Math.sin(a)*burst.r*q);ctx.stroke();}ctx.restore();}
+  for(const burst of world.fx){if(burst.kind==='ward')continue;const q=(now-burst.at)/(burst.until-burst.at);ctx.save();ctx.globalAlpha=1-q;ctx.strokeStyle=burst.kind==='burst'?'#ffb37d':'#fff4b8';ctx.lineWidth=burst.kind==='burst'?3:2;ctx.beginPath();ctx.arc(burst.x,burst.y,burst.r*(.35+.65*q),0,Math.PI*2);ctx.stroke();if(!opts.reducedMotion)for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(burst.x+Math.cos(a)*burst.r*q*.6,burst.y+Math.sin(a)*burst.r*q*.6);ctx.lineTo(burst.x+Math.cos(a)*burst.r*q,burst.y+Math.sin(a)*burst.r*q);ctx.stroke();}ctx.restore();}
   // 영냥이
   const hurt = now < p.hurtUntil;
   const st = p.action !== 'idle' ? p.action : p.moving ? 'walk' : 'idle';
@@ -150,6 +206,11 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
     drawActor(ctx,act?act.key:'neo_cat',{x:p.x,y:p.y+20,size:act?85:68,state:act?'walk':st,facing:act?act.facing:p.facing,t:now,animationFrame:frame});
   }
   ctx.globalAlpha = 1;
+  // 수호부가 피해를 줄인 순간: 짧은 금빛 막
+  if (p.guardAt != null && now - p.guardAt < 220) {
+    ctx.save(); ctx.globalAlpha = (1 - (now - p.guardAt) / 220) * .8; ctx.strokeStyle = WARD.gold; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(p.x, p.y - 4, 34, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+  }
 
   // 별자리 궤도(플레이어 위에 그림)
   for (const wp of hs.weapons) {
