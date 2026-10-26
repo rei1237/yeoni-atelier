@@ -2,6 +2,10 @@
 export const EVENT_STORIES = Object.freeze({
   'ev:hunt': [
     {chapter:['월정석 원정의 시작','돈 벌어 와, 네오!'],bg:'atelier_lit',l:'yeoni:surprised',c:'neo:normal',r:'moka:smug'},
+    {s:'nar',t:'첫 영업을 마친 밤. 연이는 계산대에 장부를 펼쳐 오늘 매출 옆에 빚 1억을 나란히 적었다.',fx:'ledger'},
+    {s:'yeoni',t:'이자 내고, 재료 사고, 남은 걸로 갚으면… 이대로 가면 빚은 다 못 갚아…',l:'yeoni:sulky'},
+    {s:'neo',t:'계산은 맞아. 그래서 더 조용해지는군.'},
+    {s:'nar',t:'그때 문종이 울렸다. 배달 가방을 멘 모카가 반짝이는 돌 하나를 계산대에 내려놓았다.',r:'moka:smug'},
     {s:'moka',t:'월정석은 청토끼 금융 센터에서 골드로 바꿔 줘. 빚 상환에도 쓸 수 있고.'},
     {s:'yeoni',t:'잠깐. 저 반짝이는 돌이 돈이라고? 네오, 운세 세계의 던전으로 가서 돈 벌어 와!',l:'yeoni:determined'},
     {s:'neo',t:'아까는 소중한 동료라며. 수익 구조를 안 지 삼 초 만에 원정대장이 됐군.'},

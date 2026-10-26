@@ -12,6 +12,11 @@ import { RULES } from '../src/config/rules.js';
 import { topbarHtml, panelHtml } from '../src/ui/hud.js';
 import { sheetHtml, overlayHtml } from '../src/ui/sheets.js';
 import { MONTH_STORIES } from '../src/story/months.js';
+import { EVENT_STORIES } from '../src/story/events.js';
+import { HANBI_STORIES } from '../src/story/hanbi.js';
+import { PROLOGUE } from '../src/story/prologue.js';
+import { BOND_STORIES } from '../src/story/bonds.js';
+import { VISIT_STORIES } from '../src/story/visits.js';
 
 test('개장 전 HUD·결산은 일반 카페이며 5월 이벤트 뒤 지명 조작을 공개한다', () => {
   const s = createGame(), ui = { dev:false, speed:1 };
@@ -32,13 +37,20 @@ test('개장 전 HUD·결산은 일반 카페이며 5월 이벤트 뒤 지명 �
   assert.doesNotMatch(MONTH_STORIES[2].map(b=>JSON.stringify(b)).join(' '), /호스트.?바/);
 });
 
-test('새 게임 이야기 순서 m0 → ev:hunt, 사냥 잠금·변신·복귀', () => {
+test('새 게임 이야기 순서 m0 → 첫 영업 → ev:hunt, 사냥 잠금·변신·복귀', () => {
   const s = createGame();
   assert.match(dispatch(s, { type: 'hunt.start' }).reason, /사냥터 이야기/);
   assert.equal(pendingStory(s), 'm0');
   assert.equal(dispatch(s, { type: 'story.seen', id: 'ev:hunt' }).ok, false);
   assert.ok(dispatch(s, { type: 'story.seen', id: 'm0' }).ok);
+  // 첫 영업 전에는 「돈 벌어 와, 네오!」가 나오지 않는다
+  assert.notEqual(pendingStory(s), 'ev:hunt');
+  assert.equal(dispatch(s, { type: 'story.seen', id: 'ev:hunt' }).ok, false);
+  assert.match(dispatch(s, { type: 'hunt.start' }).reason, /첫 영업/);
+  dispatch(s, { type: 'shift.start' }); tick(s, RULES.SHIFT_MS);
+  assert.ok(dispatch(s, { type: 'settlement.close' }).ok);
   assert.equal(pendingStory(s), 'ev:hunt');
+  assert.match(EVENT_STORIES['ev:hunt'].map(b=>b.t).join(' '), /빚은 다 못 갚아/);
   assert.ok(dispatch(s, { type: 'story.seen', id: 'ev:hunt' }).ok);
   assert.ok(dispatch(s, { type: 'story.seen', id: 'ev:hunt' }).duplicate);
   assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
@@ -123,4 +135,10 @@ test('영업 중 카페 레벨이 올라도 그 자리에서 행동력을 더하
   dispatch(s, { type: 'settlement.close' });
   assert.equal(s.ap.left, maxActionPoints(s));
   assert.ok(s.ap.left >= TEMP.CALENDAR.AP_PER_TURN + 1);
+});
+
+test('보스곡은 서한비 에피소드 전용: 모든 서한비 이야기는 boss로 시작하고 다른 이야기는 쓰지 않는다', () => {
+  for (const [n, beats] of Object.entries(HANBI_STORIES)) assert.equal(beats[0].bgm, 'boss', `${n}단계 이야기`);
+  const others = [PROLOGUE, ...Object.values(MONTH_STORIES), ...Object.values(EVENT_STORIES), ...Object.values(BOND_STORIES).flatMap(x => Array.isArray(x) ? [x] : Object.values(x)), ...Object.values(VISIT_STORIES)];
+  for (const beats of others) assert.ok(!beats.flat(Infinity).some(b => b?.bgm === 'boss'));
 });

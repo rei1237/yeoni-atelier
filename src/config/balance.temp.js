@@ -66,12 +66,16 @@ export const TEMP = Object.freeze({
     // 무기·보조 능력·적 수치는 src/data/hunt-kit.js (모두 임시)
     PLAYER_SPEED: 165,        // px/s (필드 좌표)
     PLAYER_HP: 100,
-    HURT_IFRAME_MS: 700,
+    HURT_IFRAME_MS: 600,
+    DEPTH_HP0: 1.15,          // 1단계 적 체력 배율(단계마다 hunt-growth.js depthScale 로 오른다)
+    DEPTH_DMG0: 1.2,          // 1단계 받는 피해 배율
+    DEPTH_DMG_STEP: 0.03,     // 단계당 받는 피해 증가
     SUB_STEP_MS: 34,          // 탄이 적을 뚫고 지나가지 않도록 탐색 안에서 더 잘게 나눈다
     // 단계별 준비 시간·밀도·동시 상한은 src/data/hunt-stages.js. 생성은 밀도 목표보다 모자랄 때만 한다
-    SPAWN_RATE_MIN: 1.056,    // 초당 생성 수 = min(MAX, MIN + PER_MISSING × 모자란 수)
-    SPAWN_RATE_MAX: 2.64,
+    SPAWN_RATE_MIN: 1.35,    // 초당 생성 수 = min(MAX, MIN + PER_MISSING × 모자란 수)
+    SPAWN_RATE_MAX: 3.3,
     SPAWN_RATE_PER_MISSING: 0.45,
+    STAGES_PER_RUN: 3,        // 한 번 출발에 클리어할 수 있는 단계 수(다음 출발에 이어 간다)
     BOSS_DENSITY: 0.35,       // 보스가 있는 동안 잡몹 밀도 배율
     MAX_ENEMIES: 140,         // 안전 상한(단계 상한이 먼저 걸린다)
     MONTH_HP: 0.08,           // 달이 지날 때마다 적 HP +8% (3월 0, 다음 해 2월 +88%)
@@ -86,11 +90,10 @@ export const TEMP = Object.freeze({
     MAGNET_RADIUS: 150,
     PICKUP_RADIUS: 42,
     GEM_CAP: 140,             // 넘으면 새 별조각을 기존 별조각에 합친다
-    HEAL_FISH: 30,
+    HEAL_FISH: 24,
     BOMB_RADIUS: 280,
     BOMB_DAMAGE: 200,
     POWER_DROP: Object.freeze([ // 일반 적 처치 시 확률
-      { id: 'fish', chance: 0.012 },
       { id: 'magnet', chance: 0.005 },
       { id: 'bomb', chance: 0.005 },
     ]),
@@ -133,5 +136,15 @@ export const TEMP = Object.freeze({
 
   // ── 자동 운영
   AUTO_DECIDE_MS: 600,
-  HUNT_CAREER: Object.freeze({ xpBase: 1100, xpStep: 350, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.1, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100 }),
+  HUNT_CAREER: Object.freeze({ xpBase: 1100, xpStep: 350, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.1, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100, statCap: 10 }), // statCap: 이 레벨 뒤로는 체력·피해 보너스가 오르지 않는다(레벨·경험치는 계속)
+  // 기술 단련(윤달 공방). 단련 단계가 사냥 중 오를 수 있는 레벨 상한을 정한다. 가격은 월정석, 모두 임시
+  HUNT_SKILLS: Object.freeze({
+    START: Object.freeze(['bolt', 'orbit', 'paw', 'fish_stock']), // 처음부터 1단계
+    LEARN: Object.freeze({ hat: 800, whisker: 800, crescent: 1500, bell: 1500, aura: 2500, luck: 2500, tarot: 4000 }), // 배우기(1단계) 값
+    TRAIN_BASE: 600,                                  // 기본 4종의 단련 기준값
+    TRAIN_MULT: Object.freeze([1, 1.6, 2.6, 4.2]),    // 1·2·3·4단계 값 = 기준값 × 배율
+    POUCH: 3,                                         // 상한에 다 닿았을 때 레벨업 카드 「월정석 주머니」
+  }),
+  // 사냥터 업적 보상 월정석(1회, ledger.achievements). 모두 임시
+  HUNT_ACHIEVE_MOON: Object.freeze({ first_boss: 30, triple: 60, no_tonic: 60, stage10: 60, stage30: 120, stage50: 200, stage100: 400, kills1000: 50, kills10000: 150, evolve: 80, evolve_all: 300, bestiary10: 50, hanbi: 100 }),
 });

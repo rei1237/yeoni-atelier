@@ -61,15 +61,37 @@ def pack(frames,size,cols,rows,pad):
         atlas.alpha_composite(im,((i%cols)*size+(size-im.width)//2,(i//cols)*size+size-pad-im.height))
     return atlas
 
+# scaleBy=height: 기준 프레임(refFrames, 서 있는 칸)의 중앙 몸 높이를 targetH 로 맞춘 한 배율을 시트 전체에 쓴다.
+# 가로는 알파 질량 중심을 기준점 x 에, 발은 기준점 y 에 둔다(뻗은 앞발 때문에 몸이 밀리지 않게). 칸을 넘으면 시트 전체를 줄이고 보고한다.
+def pack_height(frames,j,cols,rows,pad=6):
+    cw,ch=j.get('cell',[128,128]);ax,ay=cw//2,ch-pad
+    ref=[frames[i] for i in j.get('refFrames',range(len(frames)))]
+    scale=j['targetH']/float(np.median([f.height for f in ref]))
+    cx=[float((np.asarray(f.getchannel('A'),dtype=np.float64).sum(0)*np.arange(f.width)).sum()/max(1,np.asarray(f.getchannel('A'),dtype=np.float64).sum())) for f in frames]
+    fit=min(min((ax-pad)/max(1,c),(cw-pad-ax)/max(1,f.width-c),(ay-pad)/f.height) for f,c in zip(frames,cx))
+    shrink=min(1.0,fit/scale);scale*=shrink
+    atlas=Image.new('RGBA',(cw*cols,ch*rows))
+    for i,(im,c) in enumerate(zip(frames,cx)):
+        im=im.resize((max(1,round(im.width*scale)),max(1,round(im.height*scale))),Image.Resampling.LANCZOS)
+        im.putalpha(im.getchannel('A').point(lambda v:0 if v<8 else v))
+        atlas.alpha_composite(im,((i%cols)*cw+ax-round(c*scale),(i//cols)*ch+ay-im.height))
+    return atlas,{'scale':round(scale,4),'shrink':round(shrink,4),'cell':[cw,ch],'anchor':[ax,ay]}
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--sources',required=True);args=parser.parse_args()
     root=Path(__file__).resolve().parents[1];report=[]
     for j in json.loads(Path(args.sources).read_text(encoding='utf-8-sig')):
         source=Path(j['path']);im=Image.open(source).convert('RGBA');frames,bounds=separate(im,j['rows'])
         target=root/'assets'/'illustrated'/j['group']/(j['key']+'.webp')
-        pack(frames,128,4,j['rows'],6).save(target,'WEBP',quality=90,method=4)
+        meta={'cell':[128,128],'anchor':[64,122]}
+        if j.get('scaleBy')=='height':atlas,meta=pack_height(frames,j,4,j['rows'])
+        else:atlas=pack(frames,128,4,j['rows'],6)
+        atlas.save(target,'WEBP',quality=90,method=4)
         preview=root/'assets'/'illustrated'/'wardrobe'/(j['key']+'.webp')
         if preview.exists():pack([frames[i*4+1] for i in range(4)],256,4,1,8).save(preview,'WEBP',quality=92,method=4)
-        report.append({'id':j['group']+'/'+j['key'],'source':source.name,'sourceSize':list(im.size),'sourceBounds':bounds,'frames':len(frames),'cell':[128,128],'anchor':[64,122],'transparentGutter':6})
+        report.append({'id':j['group']+'/'+j['key'],'source':source.name,'sourceSize':list(im.size),'sourceBounds':bounds,'frames':len(frames),**meta,'transparentGutter':6})
         print(j['key'],len(frames),'isolated frames',flush=True)
-    (root/'docs'/'sprite-crops.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+    # 이번에 다시 묶은 시트만 바꾸고 나머지 보고는 보존한다
+    path=root/'docs'/'sprite-crops.json';old=json.loads(path.read_text(encoding='utf-8')) if path.exists() else []
+    new={r['id']:r for r in report};merged=[new.pop(r['id'],r) for r in old]+list(new.values())
+    path.write_text(json.dumps(merged,ensure_ascii=False,indent=2),encoding='utf-8')

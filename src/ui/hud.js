@@ -6,6 +6,7 @@ import {cafeProgress,cafeStyle,atmosphere} from '../game/cafe-growth.js';
 import { SUPPLIES } from '../game/moka-armory.js';
 import { stressLabel, stressStage, stressOf } from '../game/stress.js';
 import { automationOn } from '../game/permissions.js';
+import { placeLock } from '../game/unlocks.js';
 import { assetIcon } from './asset-html.js';
 // 상단 바·하단 패널·테이블 말풍선·테이블 터치 영역의 HTML. 상태를 읽기만 한다.
 // 모든 표시는 글자 + 아이콘 + 시간으로 쓴다(색만으로 구분하지 않는다).
@@ -142,7 +143,7 @@ function shiftPanel(state, ui) {
 
 function prepPanel(state) {
  const sc=startCheck(state), available=recruitView(state).filter(c=>c.status==='available');
- return `<div class="cafe-dock"><div class="day-plan"><span>${esc(dateLabel(state))}</span><span>행동력 ${state.ap?.left??0}/${maxActionPoints(state)}</span></div>${available.length?btn({action:'recruit.event',args:{id:available[0].id},cls:'new-friend',label:available[0].id==='seohanbi'?'봉인된 초대장이 도착했어요':`${esc(available[0].name)}의 초대장` }):''}${btn({action:'shift.start',cls:'primary open-cafe',disabled:!sc.ok,title:sc.ok?'10분 영업을 시작해요':sc.reasons.join(' / '),label:`${assetIcon('icons/fortune_latte')} 카페 문 열기 <small>10:00</small>`})}${navRow([['kitchen','주방'],['farm','농장'],['town','마을'],['manage','수첩']])}</div>`;
+ return `<div class="cafe-dock"><div class="day-plan"><span>${esc(dateLabel(state))}</span><span>행동력 ${state.ap?.left??0}/${maxActionPoints(state)}</span></div>${available.length?btn({action:'recruit.event',args:{id:available[0].id},cls:'new-friend',label:available[0].id==='seohanbi'?'봉인된 초대장이 도착했어요':`${esc(available[0].name)}의 초대장` }):''}${btn({action:'shift.start',cls:'primary open-cafe',disabled:!sc.ok,title:sc.ok?'10분 영업을 시작해요':sc.reasons.join(' / '),label:`${assetIcon('icons/fortune_latte')} 카페 문 열기 <small>10:00</small>`})}${navRow([['kitchen','주방'],['farm',placeLock(state,'farm')?'농장 🔒':'농장'],['town','마을'],['manage','수첩']])}</div>`;
 }
 
 function interiorPanel(state) {

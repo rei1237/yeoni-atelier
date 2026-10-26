@@ -3,7 +3,7 @@ import {TEMP} from '../config/balance.temp.js';
 import {emit} from './state.js';
 const H=TEMP.HUNT;
 // 받는 피해 = 기본 × 단계·달 배율 × (1 − 수호부 피해 감소 w.guard). 보호막 소모품(shieldUntil)은 무적
-export function damageHunter(state,w,base,t){const h=state.hunt,p=w.player;if(t<p.hurtUntil||t<(h.shieldUntil||0))return false;h.hp=Math.max(0,h.hp-Math.max(1,Math.round(base*h.scale.dmg*(1-(w.guard||0)))));p.hurtUntil=t+H.HURT_IFRAME_MS;p.action='hurt';p.actionUntil=t+240;w.shakeUntil=t+160;emit('huntHurt',{hp:h.hp});return true;}
+export function damageHunter(state,w,base,t){const h=state.hunt,p=w.player;if(t<p.hurtUntil||t<(h.shieldUntil||0))return false;h.hp=Math.max(0,h.hp-Math.max(1,Math.round(base*h.scale.dmg*(1-(w.guard||0)))));p.hurtUntil=t+H.HURT_IFRAME_MS;p.action='hurt';p.actionUntil=t+240;w.shakeUntil=t+160;if(w.guard)p.guardAt=t;emit('huntHurt',{hp:h.hp});return true;}
 export function addBattleFx(w,fx){if(w.fx.length>=40)w.fx.shift();w.fx.push(fx);}
 function shoot(w,e,t,def){const n=def.role==='fan'?3:1;for(let k=0;k<n&&w.hostile.length<48;k++){const a=Math.atan2(e.aimY,e.aimX)+(k-(n-1)/2)*.25;w.hostile.push({x:e.x,y:e.y,vx:Math.cos(a)*155,vy:Math.sin(a)*155,r:6,dmg:def.dmg*.7,until:t+3000});}emit('huntEnemyAttack',{kind:'shot'});}
 // 보스는 src/game/hunt-boss.js 가 움직인다(여기서는 건너뛴다)

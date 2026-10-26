@@ -18,6 +18,7 @@
 2. 실제 확인한 키만 assets/manifest.json ready에 등록한다. DEV 임시 동료만 의도적으로 도형이다.
 3. node tools/check-assets.mjs는 WebP 컨테이너·크기·알파 채널·문서 표·프롬프트 기록을 검사한다. 개별 1.5MB, 전체 15MB 전송 예산을 넘으면 실패한다. 픽셀 내용의 미적 품질은 자동 판정하지 않는다.
    - 2026-10-26 현재 전체 17.77MB로 예산을 넘는다(이전 12.89MB, 인계 대화 16종·의상·초상화 추가분). 한도는 올리지 않았다. 확인한 근거: 바이트가 같은 중복 파일 0개. 부팅 때는 BOOT_ASSETS 95파일 1.53MB만 받고 나머지는 처음 쓸 때 요청한다(지연 로딩 적용됨). 기존 파이프라인 품질(q90)로 전부 다시 인코딩해도 17.05MB(talking 2.11→1.71MB가 대부분). 15MB 아래로 내리려면 시트 품질을 q80 이하로 낮추거나 해상도를 줄여야 하므로, 아트 검수 없이 하지 않고 후속 결정으로 남긴다.
+   - 영냥이 걷기·참격·시전 시트(neo_cat, neo_cat_attack, neo_cat_cast)는 pack-sprites.py의 `"scaleBy":"height"`로 몸 높이(약 113px)와 발 기준선을 맞춘다. 참격·시전은 앞발이 뻗어 나가므로 192×160 셀을 쓰고, 사냥 화면에서는 크기 85로 그려 걷기(128 셀, 크기 68)와 몸 크기가 같다.
 4. 실제 Chromium 화면에서 로드 누락·404·잘림·모바일 축소 결과를 확인한다.
 
 이전 tools/*normalize*.py와 actor-grid-spec.json은 원래 픽셀 아트 기록이며 현재 제작에는 illustration-export.py를 쓴다.
@@ -410,7 +411,8 @@
 | wardrobe/raven@raven_swim | assets/illustrated/wardrobe/raven@raven_swim.webp | 1024×256 | 완료 |
 | wardrobe/neo@neo_swim | assets/illustrated/wardrobe/neo@neo_swim.webp | 1024×256 | 완료 |
 | wardrobe/neo | assets/illustrated/wardrobe/neo.webp | 1024×256 | 완료 |
-| actors/neo_cat_attack | assets/illustrated/actors/neo_cat_attack.webp | 512×512 | 완료 |
+| actors/neo_cat_attack | assets/illustrated/actors/neo_cat_attack.webp | 768×640 | 완료 |
+| actors/neo_cat_cast | assets/illustrated/actors/neo_cat_cast.webp | 768×640 | 완료 |
 | backgrounds/cafe_room | assets/illustrated/backgrounds/cafe_room.webp | 720×960 | 완료 |
 | ui/loading | assets/illustrated/ui/loading.webp | 280×336 | 완료 |
 | actors/neo_idle | assets/illustrated/actors/neo_idle.webp | 512×512 | 완료 |
@@ -445,6 +447,8 @@
 | talking/yeoni_pig | assets/illustrated/talking/yeoni_pig.webp | 1280×384 | 완료 |
 | talking/luna | assets/illustrated/talking/luna.webp | 1280×384 | 완료 |
 | talking/luna_sis | assets/illustrated/talking/luna_sis.webp | 1280×384 | 완료 |
+
+루나·루나 언니 talking 2·3프레임(입 벌림)은 입 주변에 덧댄 자국이 있어 쓰지 않는다(`"mouth": false`, 기본 칸으로 말함). 다시 그리기 전까지 유지.
 | talking/moka | assets/illustrated/talking/moka.webp | 1280×384 | 완료 |
 | talking/solv | assets/illustrated/talking/solv.webp | 1280×384 | 완료 |
 | talking/bambi | assets/illustrated/talking/bambi.webp | 1280×384 | 완료 |

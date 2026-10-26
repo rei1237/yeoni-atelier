@@ -143,3 +143,7 @@
 #novel.fx-shake .nv-portraits{animation:nv-shake .5s ease-out}
 #novel.fx-glow .nv-portraits{filter:drop-shadow(0 0 18px rgba(255,214,140,.85));transition:filter .3s}
 @keyframes nv-shake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+
+/* 소설이 열려 있는 동안 뒤 게임 화면(HUD·시트)을 가리고 눌리지 않게 한다. 넓은 화면의 기둥 밖은 남색 여백 */
+html.novel-open body{background:#0B1026}
+html.novel-open body>:not(.novel):not(.toasts){visibility:hidden}

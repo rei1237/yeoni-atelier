@@ -1,6 +1,6 @@
 # 인계 — 2026-10-26 단계 사냥·인연 자동화 이어받기
 
-- 브랜치 `feat/hostbar-mobile-monthly-cast`, PR https://github.com/rei1237/yeoni-atelier/pull/2 (main 직접 push·merge·배포 없음)
+- 브랜치 `feat/hostbar-mobile-monthly-cast`, PR https://github.com/rei1237/yeoni-atelier/pull/2 — 사용자 승인으로 main 머지(e961b1d). 이후 작업은 새 브랜치·새 PR로
 - 정본 요구: 인계 묶음 `outputs/claude-handoff/03-REQUIREMENTS.md`, 수락 목록 `05-ACCEPTANCE.md`
 - 이 문서는 "출시 완성" 선언이 아니다. 실기기·사람 플레이테스트는 하지 않았다.
 
@@ -28,7 +28,7 @@
 - 대출로 24테이블까지 증축하면 180순 매출이 5테이블의 약 4.2배다(TUNING 대출 증축 행). 5테이블 고정 봇보다 실제 상한이 높으니 증축 가격·대출 한도를 사람 플레이로 다시 볼 것
 - 생존 보너스(floor(초/30)×(4+단계))와 사냥 결과의 옛 생존 행은 "재검토 대상"으로 남겨 두었다
 - 무성 영입 조건 문구가 아직 "사냥에서 90초 생존"이다(단계제 이후에도 경과 시간으로 동작)
-- 보스 전용 곡은 code-destiny OST 카탈로그에서 찾지 못해 기존 곡 유지
+- 보스곡(The Moonlit War Room)은 서한비 에피소드 전용: 서한비 이야기 5편과 사냥 중 검은 호랑이(boss_hanbi)만. 일반 단계 보스는 깊이별 사냥곡
 - 하단 탭 이름은 바꾸지 않았다. 인연 소설 선택은 친밀도 차이 외 분기 없음
 - `cafe-brand.css`가 쓰는 `--rose`·`--sage`·`--cream`·`--rose-dark` 변수가 정의되어 있지 않다(이전부터)
 - `src/game/hunt.js`의 `totalMonths` import는 쓰이지 않는다

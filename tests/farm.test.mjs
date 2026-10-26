@@ -10,7 +10,7 @@ const cmd = (s, type, args = {}) => dispatch(s, { type, ...args });
 const tend = (s, index) => { cmd(s, 'farm.water', { index }); cmd(s, 'farm.tend', { index }); };
 
 test('연이 농사 → 마감 성장 → 재고 → 실제 조리, 수확 중복 방지와 저장 왕복', () => {
-  let s = createGame();
+  let s = createGame(); s.ledger.story.m1 = true; // 테스트 준비: 4월 이야기 뒤 농장
   const start = s.stock.flour, gold = s.gold;
   assert.ok(cmd(s, 'farm.plant', { cropId: 'wheat', index: 0 }).ok);
   assert.equal(s.gold, gold - CROPS.wheat.seedCost);
@@ -35,7 +35,7 @@ test('연이 농사 → 마감 성장 → 재고 → 실제 조리, 수확 중�
 
 test('날씨는 저장 후 동일, 비 자동 급수·건조 돌봄·방치 성장 보류와 중복 마감 방지', () => {
   for (const weather of ['sun', 'rain', 'dry', 'frost']) {
-    const s = createGame(); s.day = weather === 'frost' ? 28 : 1;
+    const s = createGame(); s.day = weather === 'frost' ? 28 : 1; s.ledger.story.m1 = true; // 테스트 준비: 농장 개방
     while (farmWeather(s.farm, s.day) !== weather) s.farm.seed++;
     assert.equal(farmWeather(deserialize(serialize(s)).state.farm, s.day), weather);
     assert.ok(cmd(s, 'farm.plant', { cropId: 'wheat', index: 0 }).ok);

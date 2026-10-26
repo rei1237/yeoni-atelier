@@ -2,7 +2,7 @@
 // 100단계 전까지는 이름·사람 모습을 드러내지 않는다(검은 실루엣과 ??? 만). 기록은 story.seen 명령만 남긴다.
 export const HANBI_STORIES = Object.freeze({
   30: [
-    { chapter: ['달그늘 30단계', '검은 발자국'], bg: 'river_night', l: null, c: 'neo_cat:serious', r: null },
+    { chapter: ['달그늘 30단계', '검은 발자국'], bg: 'river_night', bgm: 'boss', l: null, c: 'neo_cat:serious', r: null },
     { s: 'nar', t: '보스가 쓰러지고 안개가 걷혔다. 강 건너편 바위 위에서 붉은 눈 두 개가 영냥이를 내려다보고 있었다.' },
     { s: 'neo_cat', t: '…누구냐. 검은 손은 아니군.' },
     { s: 'shadow_tiger', t: '아직이다.', r: 'seohanbi_tiger:shadow' },
@@ -13,7 +13,7 @@ export const HANBI_STORIES = Object.freeze({
     { s: 'yeoni', t: '(무서운 손님 별 하나. 그래도 아무도 다치지 않았으니 별 셋.)', l: 'yeoni:smile' },
   ],
   40: [
-    { chapter: ['달그늘 40단계', '빌려준 적 없는 등'], bg: 'river_night', l: null, c: 'neo_cat:surprised', r: null },
+    { chapter: ['달그늘 40단계', '빌려준 적 없는 등'], bg: 'river_night', bgm: 'boss', l: null, c: 'neo_cat:surprised', r: null },
     { s: 'nar', t: '검은 손 무리가 사방을 막았다. 영냥이가 지팡이를 고쳐 쥐는 순간, 검은 그림자가 무리 한가운데를 가로질렀다.', fx: 'shake' },
     { s: 'shadow_tiger', t: '등 뒤를 비우고 싸우는군.', r: 'seohanbi_tiger:shadow' },
     { s: 'neo_cat', t: '도와 달라고 한 적 없다.' },
@@ -24,7 +24,7 @@ export const HANBI_STORIES = Object.freeze({
     { s: 'neo', t: '…그 실, 버리지 말고 둬. 다시 만날 것 같으니까.' },
   ],
   50: [
-    { chapter: ['달그늘 50단계', '붉은 봉인의 편지'], bg: 'atelier_lit', l: 'yeoni:surprised', c: 'neo:serious', r: null },
+    { chapter: ['달그늘 50단계', '붉은 봉인의 편지'], bg: 'atelier_lit', bgm: 'boss', l: 'yeoni:surprised', c: 'neo:serious', r: null },
     { s: 'nar', t: '사냥에서 돌아온 밤, 장부 사이에 편지 한 통이 끼워져 있었다. 붉은 밀랍 위에 호랑이 발톱 자국이 찍혀 있었다.', fx: 'glow' },
     { s: 'yeoni', t: '문은 잠가 뒀는데… 누가 넣었지? 우편 요금도 안 붙어 있어.' },
     { s: 'sys', t: '[ 백 번째 밤, 달그늘 가장 깊은 곳에서. 지켜 온 것을 넘겨줄 사람인지 보겠다. ]' },
@@ -32,7 +32,7 @@ export const HANBI_STORIES = Object.freeze({
     { s: 'yeoni', t: '그럼 답장은 직접 전해야겠네. 차 한 잔 값은 내가 낼게.', l: 'yeoni:determined' },
   ],
   70: [
-    { chapter: ['달그늘 70단계', '혼자 지키는 문'], bg: 'river_night', l: null, c: 'neo_cat:serious', r: null },
+    { chapter: ['달그늘 70단계', '혼자 지키는 문'], bg: 'river_night', bgm: 'boss', l: null, c: 'neo_cat:serious', r: null },
     { s: 'nar', t: '흑월의 파편들이 한 방향으로 흘러가고 있었다. 그 끝에서 검은 그림자가 홀로 파편을 막아서고 있었다.' },
     { s: 'shadow_tiger', t: '돌아가라. 이 아래에는 흑월의 핵이 잠들어 있다. 봉인이 약해지면 네 가게의 불빛까지 삼킨다.', r: 'seohanbi_tiger:shadow' },
     { s: 'neo_cat', t: '그래서 혼자 막고 있었나. 언제부터.' },
@@ -43,7 +43,7 @@ export const HANBI_STORIES = Object.freeze({
     { s: 'yeoni', t: '그럼 이기고 와. 그리고 돌아올 때는 둘이야. 자리 하나 비워 둘게.', l: 'yeoni:smile' },
   ],
   100: [
-    { chapter: ['달그늘 100단계', '붉은 봉인이 풀리는 밤'], bg: 'river_night', l: null, c: 'neo_cat:serious', r: 'seohanbi_tiger:shadow' },
+    { chapter: ['달그늘 100단계', '붉은 봉인이 풀리는 밤'], bg: 'river_night', bgm: 'boss', l: null, c: 'neo_cat:serious', r: 'seohanbi_tiger:shadow' },
     { s: 'nar', t: '마지막 일격 뒤, 거대한 검은 호랑이가 무릎을 꿇었다. 이마의 붉은 봉인에 금이 가고, 빛이 새어 나왔다.', fx: 'shake' },
     { s: 'shadow_tiger', t: '…됐다. 이제 이 문을 맡길 수 있겠군.' },
     { s: 'nar', t: '봉인이 부서지며 검은 털이 밤안개처럼 흩어졌다. 그 자리에 검은 드레스를 입은 여인이 숨을 고르며 서 있었다.', r: 'seohanbi:normal', fx: 'glow' },

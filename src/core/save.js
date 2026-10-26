@@ -3,6 +3,8 @@
 
 import { SAVE_VERSION, createGame } from '../game/state.js';
 import { newFarm, maxFarmEnergy } from '../data/farm.js';
+import { legacySkillRanks } from '../game/moka-armory.js';
+import { legacyCodex, checkAchievements } from '../game/hunt-codex.js';
 
 export const SAVE_KEYS = Object.freeze({ normal: 'yeoni-atelier.save.v1', dev: 'yeoni-atelier.dev-save.v1' });
 
@@ -38,6 +40,8 @@ function migrate(data) {
     if (data.shift) { data.shift.durationMs ??= 1800000; data.shift.nominationMs ??= 300000; }
   }
   data.startingDebt ??= 120000; // 이전 저장의 원금과 상환 진척은 보존
+  if (data.armory && !data.armory.skills) data.armory.skills = legacySkillRanks(data); // 기술 단련 이전 저장
+  data.huntCodex ??= legacyCodex(data); // 수집 도감 이전 저장: 깬 단계로 소급
   const base = createGame({ dev: !!data.meta?.devData });
   if (!data.farm) data.farm = { ...newFarm(data.rng?.seed), lastAdvancedDay: data.day };
   data.farm.energy = Number.isFinite(data.farm.energy) ? Math.max(0,Math.min(data.farm.energy,maxFarmEnergy(data.farm))) : maxFarmEnergy(data.farm);
@@ -67,6 +71,7 @@ function migrate(data) {
   data.outfits.equipped = {...base.outfits.equipped,...data.outfits.equipped};
   for(const id of Object.keys(data.roster)) { const outfit=`${id}_formal`; if(['yun','museong','solv','bambi','lune','raven'].includes(id) && !data.outfits.owned.includes(outfit)){data.outfits.owned.push(outfit);data.ledger.rewards[`outfit:${outfit}`]=true;data.outfits.equipped[id].outfit=outfit;} }
   data.interior.areas ||= []; // 증축 구역 이전 저장
+  checkAchievements(data, { quiet: true }); // 업적 소급(원장으로 보상 1회)
   return data;
 }
 

@@ -16,7 +16,8 @@ for (const seed of [7,42,20261025]) {
  const s = createGame({seed}); let purchases=0, sales=0, tips=0, hostings=0, interest=0,payroll=0,huntGold=0,clearedDay=null,borrowed=0,loanInterest=0,expansions=0;
  for(let turn=1;turn<=180;turn++) {
   for(let id;(id=pendingStory(s));) dispatch(s,{type:'story.seen',id});
-  if(withHunt && turn%3===1){botHunt(s,maxHuntDepth(s));if(s.moonstone){const ex=dispatch(s,{type:'moonstone.exchange',qty:s.moonstone});huntGold+=ex.gold||0;}}
+  // 사냥터는 첫 영업 뒤 「돈 벌어 와, 네오!」로 열리므로 2순부터 3순마다
+  if(withHunt && s.huntUnlocked && turn%3===2){botHunt(s,maxHuntDepth(s));if(s.moonstone){const ex=dispatch(s,{type:'moonstone.exchange',qty:s.moonstone});huntGold+=ex.gold||0;}}
   if(s.ap.left>0){const q=bondQuestion(s,'neo');dispatch(s,{type:'bond.talk',id:'neo',choiceId:q.answers.find(a=>a.gain===12).id,token:q.token});}
   for(const c of recruitView(s).filter(c=>c.status==='available')) dispatch(s,{type:'recruit.complete',id:c.id});
   for(const [index,p] of s.farm.plots.entries()) {

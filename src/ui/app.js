@@ -16,7 +16,6 @@ import { createGame, personName, personDef } from '../game/state.js';
 import { dispatch, tick, helperAvailable, HELPERS } from '../game/engine.js';
 import { findServeTarget } from '../game/cafe.js';
 import { getHuntWorld, paused as huntPaused } from '../game/hunt.js';
-import { ENEMIES } from '../data/hunt-kit.js';
 import { preview as interiorPreview } from '../game/interior.js';
 import { furnitureCells } from '../game/space.js';
 import { recordWallClock } from '../game/offline.js';
@@ -29,7 +28,7 @@ import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe } from '../render
 import { drawHunt } from '../render/hunt-view.js';
 import { $, morph, toast, floater, shake } from './dom.js';
 import { topbarHtml, panelHtml, bubblesHtml, hitsHtml } from './hud.js';
-import { sheetHtml, overlayHtml } from './sheets.js';
+import { sheetHtml, overlayHtml, tiredLine } from './sheets.js';
 import { drawDressroom, drawInlinePortraits } from './dressroom.js';
 import { outfitLine } from '../data/outfit-lines.js';
 import { stressStage } from '../game/stress.js';
@@ -50,6 +49,7 @@ import { BOND_STORIES } from '../story/bonds.js';
 import { BONDS } from '../data/bonds.js';
 import { SPEAKERS } from '../story/prologue.js';
 import { pendingStory, calendarOf, isEnded, dateLabel } from '../game/calendar.js';
+import { placeLock } from '../game/unlocks.js';
 import { GAG_SHIFT_START, GAG_KITCHEN, GAG_MOKA_BUY, GAG_MOKA_DELIVERY, GAG_LUNA_EXCHANGE, GAG_GEAR_STALL, GAG_CHEONGTOKKI_REPAY, GAG_HUNT_RETURN, pickLine } from '../data/lines.js';
 
 // ── 부팅
@@ -152,7 +152,7 @@ function maybeStory() {
 // 마을 가게를 처음 찾으면 그 가게 이야기를 한 번 튼다. 끝내든 건너뛰든 town.visit 으로만 기록한다.
 function maybeVisit(place) {
   const beats = VISIT_STORIES[place];
-  if (!beats || !state || state.mode !== 'prep' || state.ledger.story[`visit:${place}`] || novelActive()) return;
+  if (!beats || !state || state.mode !== 'prep' || state.ledger.story[`visit:${place}`] || placeLock(state, place) || novelActive()) return;
   const done = () => { run({ type: 'town.visit', place }, { keepQuiet: true }); render(true); };
   playNovel(beats, { onEnd: done, onCancel: done });
 }
@@ -175,7 +175,9 @@ const ACTIONS = {
   'outfit.unlock': d => { if (run({ type: 'outfit.unlock', id: d.id }).ok) ui.dressLine = outfitLine(ui.dressWho || 'neo', d.id, stressStage(state), 'unlock'); },
   'hunt.hunter': d => {ui.hunterId=d.id;},
   'hunt.stage': d => {ui.huntStage=n(d.depth);},
+  'hunt.menu': d => {ui.huntMenu=d.menu;},
   'armory.enhance': d => run({type:'armory.enhance',who:d.who,id:d.id}),
+  'armory.learn': d => run({type:'armory.learn',id:d.id}),
   'armory.buy': d => run({type:'armory.buy',id:d.id}),
   'hunt.supply': d => run({type:'hunt.supply',id:d.id}),
   'audio.change': d => audioAction(d.key,d.value),
@@ -196,7 +198,7 @@ const ACTIONS = {
   'farm.expand': () => run({ type: 'farm.expand' }),
   'farm.greenhouse': () => run({ type: 'farm.greenhouse' }),
   // 화면 전용
-  'sheet.open': d => { ui.sheet = { kind: d.sheet, tab: d.tab }; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
+  'sheet.open': d => { ui.sheet = { kind: d.sheet, tab: d.tab }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
   'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; maybeVisit(d.tab); },
   'sheet.close': () => { if(ui.sheet?.kind==='tutorial')finishGuide();else ui.sheet = null; },
   'overlay.settlement': () => {},
@@ -411,6 +413,7 @@ function handleEvents(events) {
     const p = ev.tableNo != null ? tableAt(ev.tableNo) : null;
     switch (ev.type) {
       case 'huntCritical': ui.critLine=(ui.critLine||0)+1;showCafeLine(CAFE_LINES.critical[ui.critLine%CAFE_LINES.critical.length],'영냥이','neo_cat');sound('level');break;
+      case 'huntStageClear': if(ev.tired)showCafeLine(tiredLine(ev.hunterId),ev.hunterId==='seohanbi'?'서한비':'영냥이',ev.hunterId==='seohanbi'?'seohanbi':'neo_cat');break;
       case 'huntObjectBroken': sound('gem');break;
       case 'guestChatter': showCafeLine(ev.line,ev.kind==='takeaway'?'포장 손님':ev.tableNo?`${ev.tableNo}번 손님`:'손님','customer'); break;
       case 'paidAtCounter': sound('moon'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;
@@ -443,6 +446,7 @@ function handleEvents(events) {
       case 'repaid': toast(`💳 ${ev.amount}G 상환 · 남은 빚 ${ev.debt}G`, 'good'); gagOnce('repay', pickLine(GAG_CHEONGTOKKI_REPAY), 0); break;
       case 'bought': if (ev.delivery) { toast(`🛵 모카 긴급 배달 · 배달비 ${ev.fee}G 포함 ${ev.cost}G`); gagOnce('delivery', pickLine(GAG_MOKA_DELIVERY), 20000); } else gagOnce('moka', pickLine(GAG_MOKA_BUY), 12000); break;
       case 'exchanged': toast(`⚖ 월정석 ${ev.qty}개 → ${ev.gold}G`, 'good'); gagOnce('luna', pickLine(GAG_LUNA_EXCHANGE), 8000); break;
+      case 'placeUnlocked': toast(`🔓 ${ev.name}이 열렸어요`, 'good', 3600); break;
       case 'gearBought': toast(`🗡 ${ev.name} 구입 · 윤달의 무기 공방`, 'good'); gagOnce('stall', pickLine(GAG_GEAR_STALL), 8000); break;
       case 'expanded': toast(`🪑 ${ev.tableNo}번 테이블을 들였어요 · 다음 영업부터 손님 자리가 늘어요`, 'good', 3600); break;
       case 'areaOpened': resize(); toast(`🔓 ${ev.name} 증축 완료 · 인테리어에서 테이블과 장식을 놓아 보세요`, 'good', 3600); break;
@@ -451,7 +455,9 @@ function handleEvents(events) {
       case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast(`${state.hunt.hunterId==='seohanbi'?'검은 호랑이 서한비':'영냥이'}가 ${state.hunt.depth}단계로 출발했어요 · 보스를 쓰러뜨리면 클리어`, 'good'); break;
       case 'huntPickup': floater(cssW / 2, cssH * 0.4, `+${ev.name}`, '#7d86e8'); break;
       case 'huntHurt': if(!matchMedia('(prefers-reduced-motion: reduce)').matches)shake(el.stage); break;
+      case 'skillLearned': toast(ev.rank===1?`📜 ${ev.name}을 배웠어요 · 다음 사냥부터 나와요`:`📜 ${ev.name} 단련 ${ev.rank}단계`, 'good', 3200); break;
       case 'huntEvolve': toast(`🌟 진화! ${ev.name}`, 'good', 3200); break;
+      case 'achievement': toast(`🏅 업적 「${ev.name}」 · 월정석 +${ev.moon}`, 'good', 3600); break;
       case 'huntPower': toast(ev.label, 'good', 1800); break;
       case 'payrollPaid': toast(`동료 급여 ${ev.paid.toLocaleString('ko-KR')}G 지급${ev.arrears?` · 미지급 ${ev.arrears.toLocaleString('ko-KR')}G`:''}`);break;
       case 'interestCharged': toast(`💸 ${ev.month}월 이자 ${ev.due.toLocaleString('ko-KR')}G${ev.added ? ` · 골드가 모자라 ${ev.added.toLocaleString('ko-KR')}G는 빚에 붙었어요` : ' 납부'}`, ev.added ? 'bad' : '', 3600); break;
@@ -485,10 +491,13 @@ function render(force = false) {
   morph(el.hits, hitsHtml(state, view, ui));
   document.getElementById('camera-controls').hidden=!state||state.mode==='hunt';
   const hunting=state?.mode==='hunt', h=state?.hunt;
-  const bossAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>ENEMIES[e.type]?.boss);
-  setAudioScene(novelActive()?'story':hunting?(h.status!=='running'?'huntResult':bossAlive?'huntBoss':h.depth>=55?'huntDeep':'hunt'):state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind==='hunt'?'huntPrep':ui.sheet?.kind||(state?'cafe':'title'));
+  // 보스곡은 서한비(검은 호랑이) 전용. 일반 단계 보스는 깊이별 사냥곡
+  const hanbiAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>e.type==='boss_hanbi');
+  setAudioScene(novelActive()?'story':hunting?(h.status!=='running'?'huntResult':hanbiAlive?'huntBoss':h.depth>=55?'huntDeep':'hunt'):state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind==='hunt'?'huntPrep':ui.sheet?.kind||(state?'cafe':'title'));
   const guide=({kitchen:'cook',craft:'cook',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop'})[ui.sheet?.kind] || (state?.interior.draft?'interior':null);
-  if(state && guide && (guide!=='outfits'||state.hostbar.open) && !state.tutorials?.[guide] && !novelActive()){
+  // 잠긴 농장·공방에서는 안내를 띄우지 않는다
+  const guideLocked=guide==='farm'?placeLock(state,'farm'):guide==='armory'?placeLock(state,'gear'):'';
+  if(state && guide && !guideLocked && (guide!=='outfits'||state.hostbar.open) && !state.tutorials?.[guide] && !novelActive()){
     ui.guideReturn=ui.sheet;ui.guideId=guide;ui.guideStep=0;ui.sheet={kind:'tutorial'};
   }
   const sh = sheetHtml(state, ui);

@@ -345,13 +345,19 @@ export function talkingKey(key) {
   return who === 'neo' && STAGE_SUITS.has(outfit) ? 'neo_stage' : who;
 }
 
+// 입 벌림 칸(2·3)에 덧댄 자국이 있는 시트(mouth:false)는 기본 칸으로 말한다. 깜빡임(1)은 그대로.
+export function talkingFrame(key, frame) {
+  const f = Math.max(0, Math.min(3, frame));
+  return ASSETS.talking?.[talkingKey(key)]?.mouth === false && f >= 2 ? 0 : f;
+}
+
 // 대화 초상화(소설 화면): 초상화 시트가 있으면 표정 칸을, 없으면 캐릭터 도형을 크게 그린다
 export function drawPortrait(ctx, key, expr, w, h, { frame = 0, talkingSheet = false } = {}) {
   ctx.clearRect(0, 0, w, h);
   if(talkingSheet){
     const talkKey=talkingKey(key);
     const sheet=imageFor(`talking/${talkKey}`), d=ASSETS.talking?.[talkKey];
-    if(sheet&&d){const fw=d.frame.w,fh=d.frame.h,k=Math.min(w/fw,h/fh);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(sheet,Math.max(0,Math.min(3,frame))*fw,0,fw,fh,(w-fw*k)/2,h-fh*k,fw*k,fh*k);return;}
+    if(sheet&&d){const fw=d.frame.w,fh=d.frame.h,k=Math.min(w/fw,h/fh);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(sheet,talkingFrame(key,frame)*fw,0,fw,fh,(w-fw*k)/2,h-fh*k,fw*k,fh*k);return;}
   }
   const actualKey = imageFor(`portraits/${key}`) ? key : key.split('@')[0];
   const def = ASSETS.portraits[actualKey];

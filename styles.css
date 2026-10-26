@@ -248,6 +248,9 @@ button.on { background: #2f6e4a; color: #fff; box-shadow: none; }
 .tn .tn-bond { font-style: normal; font-size: 10px; color: var(--accent); white-space: nowrap; }
 .tn:hover, .tn:focus-visible { transform: translate(-50%, -50%) scale(1.06); }
 .tn.on { box-shadow: 0 0 0 3px var(--accent), 0 3px 10px rgba(232, 119, 143, 0.35); }
+/* 열리기 전 장소: 흐리게 + 자물쇠 */
+.tn.locked { filter: grayscale(.8); opacity: .72; }
+.tn .tn-lock { position: absolute; top: -6px; right: -6px; font-style: normal; font-size: 14px; }
 .tm-me { position: absolute; z-index: 2; font-size: 22px; transform: translate(-50%, -150%); transition: left 0.45s cubic-bezier(0.3, 1.4, 0.5, 1), top 0.45s cubic-bezier(0.3, 1.4, 0.5, 1); animation: tm-bob 1.4s ease-in-out infinite; pointer-events: none; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2)); }
 @keyframes tm-bob { 50% { margin-top: -4px; } }
 .bond-card { background: linear-gradient(180deg, #fff, #fff5f8); border-radius: var(--r); box-shadow: inset 0 0 0 1px #f3cbd6; padding: 8px 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 5px; }

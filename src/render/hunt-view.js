@@ -12,6 +12,73 @@ const H = TEMP.HUNT;
 const GEM_KEYS = ['gem_s', 'gem_m', 'gem_l'];
 const fieldPatterns = new WeakMap();
 
+// 달빛 결계(위에서 본 바닥 원). 이미지 에셋 없이 캔버스로 그린다
+const WARD = { gold: '#D9B26A', rose: '#E7A3B5', lilac: '#B9A6E0', silver: '#E6E9F5' };
+const wardFloors = new Map();
+function wardFloor(r, evo) {
+  const key = `${Math.round(r)}:${evo ? 1 : 0}`;
+  if (wardFloors.has(key)) return wardFloors.get(key);
+  if (typeof document === 'undefined') return null;
+  const c = document.createElement('canvas'), s = Math.ceil(r * 2 + 4), m = s / 2; c.width = c.height = s;
+  const g = c.getContext('2d'), grad = g.createRadialGradient(m, m, r * .08, m, m, r);
+  grad.addColorStop(0, evo ? 'rgba(230,233,245,.26)' : 'rgba(185,166,224,.22)');
+  grad.addColorStop(.6, evo ? 'rgba(185,166,224,.16)' : 'rgba(231,163,181,.14)');
+  grad.addColorStop(.93, evo ? 'rgba(230,233,245,.30)' : 'rgba(217,178,106,.24)'); // 테두리 쪽 결계 빛
+  grad.addColorStop(1, 'rgba(185,166,224,0)');
+  g.fillStyle = grad; g.beginPath(); g.arc(m, m, r, 0, Math.PI * 2); g.fill();
+  if (wardFloors.size > 24) wardFloors.clear();
+  wardFloors.set(key, c); return c;
+}
+function petal(ctx, s) { ctx.beginPath(); ctx.moveTo(0, -s); ctx.quadraticCurveTo(s * .7, 0, 0, s); ctx.quadraticCurveTo(-s * .7, 0, 0, -s); ctx.fill(); }
+function wardStar(ctx, s) { ctx.beginPath(); for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4, d = k % 2 ? s * .35 : s; ctx.lineTo(Math.cos(a) * d, Math.sin(a) * d); } ctx.closePath(); ctx.fill(); }
+function crescent(ctx, s) { ctx.beginPath(); ctx.arc(0, 0, s, -Math.PI / 2, Math.PI / 2); ctx.ellipse(0, 0, s * .45, s, 0, Math.PI / 2, -Math.PI / 2, true); ctx.fill(); }
+// 둥근 판(보스 체력·알림). ctx.roundRect 없는 브라우저도 그린다
+function roundPanel(ctx, x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function drawMoonWard(ctx, x, y, r, now, evo, still) {
+  const floor = wardFloor(r, evo), spin = still ? 0 : now / 7000, rim = evo ? WARD.silver : WARD.gold;
+  ctx.save(); ctx.translate(x, y);
+  if (floor) ctx.drawImage(floor, -floor.width / 2, -floor.height / 2);
+  ctx.strokeStyle = rim; ctx.globalAlpha = .7; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = .45; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(0, 0, r * .82, 0, Math.PI * 2); ctx.stroke();
+  // 두 고리 사이를 도는 꽃잎·별 12개
+  for (let k = 0; k < 12; k++) {
+    const a = spin + k * Math.PI / 6;
+    ctx.save(); ctx.translate(Math.cos(a) * r * .91, Math.sin(a) * r * .91); ctx.rotate(a + Math.PI / 2);
+    ctx.globalAlpha = .85; ctx.fillStyle = k % 2 ? rim : (evo ? WARD.lilac : WARD.rose);
+    if (k % 2) wardStar(ctx, 4.5); else petal(ctx, 6);
+    ctx.restore();
+  }
+  // 안쪽 초승달 4개는 반대로 돈다
+  ctx.fillStyle = evo ? WARD.silver : WARD.lilac;
+  for (let k = 0; k < 4; k++) {
+    const a = -spin * 1.6 + k * Math.PI / 2;
+    ctx.save(); ctx.translate(Math.cos(a) * r * .55, Math.sin(a) * r * .55); ctx.rotate(a); ctx.globalAlpha = .55; crescent(ctx, 7); ctx.restore();
+  }
+  if (evo) { // 월광 결계: 가운데 보름달 문양
+    ctx.globalAlpha = .5; ctx.strokeStyle = WARD.silver; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(0, 0, r * .24, 0, Math.PI * 2); ctx.stroke();
+    ctx.globalAlpha = .18; ctx.fillStyle = WARD.silver; ctx.fill();
+  }
+  ctx.restore();
+}
+// 회복 틱: 금 고리가 안에서 밖으로 퍼지고 빛 알갱이가 떠오른다
+function drawWardPulse(ctx, b, now, still) {
+  const q = Math.max(0, Math.min(1, (now - b.at) / (b.until - b.at)));
+  ctx.save(); ctx.strokeStyle = WARD.gold; ctx.fillStyle = '#FFF1C7';
+  ctx.globalAlpha = (1 - q) * .8; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(b.x, b.y, still ? b.r * .82 : b.r * (.3 + .7 * q), 0, Math.PI * 2); ctx.stroke();
+  if (!still) for (let k = 0; k < 6; k++) {
+    const a = k * Math.PI / 3 + (b.at % 628) / 100, d = b.r * (.25 + .12 * (k % 3));
+    ctx.globalAlpha = (1 - q) * .9; ctx.beginPath(); ctx.arc(b.x + Math.cos(a) * d, b.y + Math.sin(a) * d * .6 - q * 26, 1.8, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+}
+
 export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const t = opts.t || 0;
   const fx=(key,x,y,size)=>{const img=imageFor(`effects/${key}`);if(!img)return false;const frame=Math.floor((opts.reducedMotion?0:t)/100)%4;ctx.drawImage(img,frame*128,0,128,128,x-size/2,y-size/2,size,size);return true;};
@@ -35,14 +102,8 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   for(const o of world.props||[]){if(hs.brokenProps?.[o.id]||o.x<camX-64||o.x>camX+vw+64||o.y<camY-80||o.y>camY+vh+80)continue;const img=imageFor('objects/hunt_'+o.kind);if(img)ctx.drawImage(img,o.x-32,o.y-48,64,64);if(o.hp<o.maxHp){ctx.fillStyle='#e7c275';ctx.fillRect(o.x-20,o.y-52,40*o.hp/o.maxHp,3);}}
   const m = mods(hs);
   // 달빛 수호부(바닥 원): 안에 있는 동안 방어가 오르고 조금씩 회복한다. 무적·탄 제거는 없다
-  for (const wp of hs.weapons) {
-    if (wp.id !== 'aura') continue;
-    const s = weaponStats(wp, m);
-    ctx.save(); ctx.globalAlpha = 0.35; fx('aura',p.x,p.y,s.radius*2); ctx.restore();
-    ctx.fillStyle = wp.evo ? 'rgba(200,190,255,0.12)' : 'rgba(232,213,163,0.08)';
-    ctx.strokeStyle = wp.evo ? 'rgba(200,190,255,0.55)' : 'rgba(232,213,163,0.4)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(p.x, p.y, s.radius + (opts.reducedMotion ? 0 : Math.sin(t / 300) * 2), 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  }
+  for (const wp of hs.weapons) if (wp.id === 'aura') drawMoonWard(ctx, p.x, p.y, weaponStats(wp, m).radius, now, wp.evo, opts.reducedMotion);
+  for (const b of world.fx) if (b.kind === 'ward') drawWardPulse(ctx, b, now, opts.reducedMotion);
 
   // 보스 예고·피해 구역: 예고 중(at 전)에는 점선 테두리와 차오르는 면, 피해 중에는 진한 면
   for (const z of world.zones || []) {
@@ -54,6 +115,9 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
     if (z.kind === 'circle') {
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2); ctx.stroke();
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r * k, 0, Math.PI * 2); ctx.fill();
+    } else if (z.kind === 'ring') { // 도넛: 안쪽은 안전
+      ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2); ctx.moveTo(z.x + z.r0, z.y); ctx.arc(z.x, z.y, z.r0, 0, Math.PI * 2, true); ctx.stroke();
+      ctx.beginPath(); ctx.arc(z.x, z.y, z.r0 + (z.r - z.r0) * k, 0, Math.PI * 2); ctx.moveTo(z.x + z.r0, z.y); ctx.arc(z.x, z.y, z.r0, 0, Math.PI * 2, true); ctx.fill();
     } else {
       const len = Math.hypot(z.x2 - z.x, z.y2 - z.y);
       ctx.translate(z.x, z.y); ctx.rotate(Math.atan2(z.y2 - z.y, z.x2 - z.x));
@@ -132,14 +196,26 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   for(const shot of world.hostile){ctx.strokeStyle='#c69bdb';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(shot.x-shot.vx*.045,shot.y-shot.vy*.045);ctx.lineTo(shot.x,shot.y);ctx.stroke();ctx.fillStyle='#ffdda9';ctx.beginPath();ctx.arc(shot.x,shot.y,shot.r,0,Math.PI*2);ctx.fill();}
   const swing=p.swing;
   if(swing&&now>=swing.hitAt&&now<swing.until){const q=(now-swing.hitAt)/(swing.until-swing.hitAt);ctx.save();ctx.translate(swing.x,swing.y);ctx.rotate(swing.angle);ctx.globalAlpha=1-q;const grad=ctx.createRadialGradient(0,0,swing.radius*.25,0,0,swing.radius);grad.addColorStop(0,'#fff0c000');grad.addColorStop(.76,swing.evo?'#d9b7f6aa':'#ffd58a88');grad.addColorStop(1,'#fff8e8ee');ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,swing.radius,-swing.halfArc,swing.halfArc);ctx.closePath();ctx.fill();ctx.strokeStyle='#fffbea';ctx.lineWidth=opts.reducedMotion?2:5*(1-q)+1;ctx.beginPath();ctx.arc(0,0,swing.radius,-swing.halfArc+swing.halfArc*2*q,swing.halfArc);ctx.stroke();ctx.restore();}
-  for(const burst of world.fx){const q=(now-burst.at)/(burst.until-burst.at);ctx.save();ctx.globalAlpha=1-q;ctx.strokeStyle=burst.kind==='burst'?'#ffb37d':'#fff4b8';ctx.lineWidth=burst.kind==='burst'?3:2;ctx.beginPath();ctx.arc(burst.x,burst.y,burst.r*(.35+.65*q),0,Math.PI*2);ctx.stroke();if(!opts.reducedMotion)for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(burst.x+Math.cos(a)*burst.r*q*.6,burst.y+Math.sin(a)*burst.r*q*.6);ctx.lineTo(burst.x+Math.cos(a)*burst.r*q,burst.y+Math.sin(a)*burst.r*q);ctx.stroke();}ctx.restore();}
+  for(const burst of world.fx){if(burst.kind==='ward')continue;const q=(now-burst.at)/(burst.until-burst.at);ctx.save();ctx.globalAlpha=1-q;ctx.strokeStyle=burst.kind==='burst'?'#ffb37d':'#fff4b8';ctx.lineWidth=burst.kind==='burst'?3:2;ctx.beginPath();ctx.arc(burst.x,burst.y,burst.r*(.35+.65*q),0,Math.PI*2);ctx.stroke();if(!opts.reducedMotion)for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(burst.x+Math.cos(a)*burst.r*q*.6,burst.y+Math.sin(a)*burst.r*q*.6);ctx.lineTo(burst.x+Math.cos(a)*burst.r*q,burst.y+Math.sin(a)*burst.r*q);ctx.stroke();}ctx.restore();}
   // 영냥이
   const hurt = now < p.hurtUntil;
   const st = p.action !== 'idle' ? p.action : p.moving ? 'walk' : 'idle';
   if (hurt && Math.floor(t / 80) % 2) ctx.globalAlpha = 0.5;
-  const attacking=swing&&now<swing.until;
-  drawActor(ctx, hs.hunterId==='seohanbi'?'seohanbi_tiger':attacking?'neo_cat_attack':'neo_cat', {x:p.x,y:p.y+20,size:hs.hunterId==='seohanbi'?76:68,state:attacking?'walk':st,facing:attacking?p.attackFacing:p.facing,t:now,animationFrame:attacking?Math.min(3,Math.floor((now-swing.at)/90)):undefined});
+  const attacking=swing&&now<swing.until,casting=!attacking&&p.cast&&now<p.cast.until;
+  if(hs.hunterId==='seohanbi')drawActor(ctx,'seohanbi_tiger',{x:p.x,y:p.y+20,size:76,state:attacking?'walk':st,facing:attacking?p.attackFacing:p.facing,t:now,animationFrame:attacking?Math.min(3,Math.floor((now-swing.at)/90)):undefined});
+  else{
+    // 참격 > 시전 > 걷기. 공격·시전 셀은 192×160이라 크기 68×160/128=85로 몸 크기를 맞춘다
+    const act=attacking?{key:'neo_cat_attack',at:swing.at,step:90,facing:p.attackFacing}:casting?{key:'neo_cat_cast',at:p.cast.at,step:80,facing:p.cast.facing}:null;
+    const walkFps=8+3*Math.max(0,Math.min(1,(m.speed-1)/.5));
+    const frame=opts.reducedMotion?1:act?Math.min(3,Math.floor((now-act.at)/act.step)):st==='walk'?Math.floor(now/1000*walkFps)%4:undefined;
+    drawActor(ctx,act?act.key:'neo_cat',{x:p.x,y:p.y+20,size:act?85:68,state:act?'walk':st,facing:act?act.facing:p.facing,t:now,animationFrame:frame});
+  }
   ctx.globalAlpha = 1;
+  // 수호부가 피해를 줄인 순간: 짧은 금빛 막
+  if (p.guardAt != null && now - p.guardAt < 220) {
+    ctx.save(); ctx.globalAlpha = (1 - (now - p.guardAt) / 220) * .8; ctx.strokeStyle = WARD.gold; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(p.x, p.y - 4, 34, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+  }
 
   // 별자리 궤도(플레이어 위에 그림)
   for (const wp of hs.weapons) {
@@ -171,44 +247,61 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const bi = findBoss(world);
   if (bi >= 0) {
     const e = world.enemies.items[bi], def = ENEMIES[e.type];
-    const bw = Math.min(w - 32, 380), bx = (w - bw) / 2, by = h - 46;
-    ctx.fillStyle = 'rgba(20,16,40,0.86)'; ctx.fillRect(bx - 6, by, bw + 12, 34);
-    ctx.font = '800 13px system-ui, sans-serif'; ctx.fillStyle = '#ffe0e6';
-    ctx.textAlign = 'left'; ctx.fillText(def.name, bx, by + 14);
+    // 달밤 판: 남색 둥근 판·금 가는 테·초승달·장미→진홍 막대·꽃잎 마름모 페이즈 눈금
+    const bw = Math.min(w - 40, 380), bx = (w - bw) / 2, by = h - 48;
+    roundPanel(ctx, bx - 10, by - 3, bw + 20, 40, 12);
+    ctx.fillStyle = 'rgba(20,26,51,0.92)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(217,178,106,0.85)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.save(); ctx.translate(bx + 3, by + 9); ctx.rotate(Math.PI); ctx.fillStyle = WARD.gold; crescent(ctx, 5.5); ctx.restore();
+    ctx.font = '800 13px system-ui, sans-serif'; ctx.fillStyle = '#F6E3B4';
+    ctx.textAlign = 'left'; ctx.fillText(def.name, bx + 12, by + 14);
+    ctx.fillStyle = '#E6E9F5';
     ctx.textAlign = 'right'; ctx.fillText(`${Math.max(0, Math.ceil(e.hp)).toLocaleString('ko-KR')} / ${e.maxHp.toLocaleString('ko-KR')}`, bx + bw, by + 14);
-    ctx.fillStyle = '#3a2030'; ctx.fillRect(bx, by + 20, bw, 9);
-    ctx.fillStyle = '#ff5f7e'; ctx.fillRect(bx, by + 20, bw * Math.max(0, e.hp / e.maxHp), 9);
-    ctx.fillStyle = '#fff4e8';
-    for (const ph of (def.phases || []).slice(1)) ctx.fillRect(bx + bw * ph.below - 1, by + 18, 2, 13);
+    roundPanel(ctx, bx, by + 20, bw, 9, 4.5); ctx.fillStyle = '#2B1A33'; ctx.fill();
+    const q = Math.max(0, e.hp / e.maxHp);
+    if (q > 0) {
+      const g = ctx.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, '#B3243F'); g.addColorStop(1, '#E7A3B5');
+      roundPanel(ctx, bx, by + 20, Math.max(9, bw * q), 9, 4.5); ctx.fillStyle = g; ctx.fill();
+    }
+    for (const ph of (def.phases || []).slice(1)) {
+      ctx.save(); ctx.translate(bx + bw * ph.below, by + 24.5); ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = '#F3EBDD'; ctx.strokeStyle = WARD.gold; ctx.lineWidth = 1; ctx.fillRect(-3.5, -3.5, 7, 7); ctx.strokeRect(-3.5, -3.5, 7, 7); ctx.restore();
+    }
     const sx = (e.x - camX) * scale, sy = (e.y - camY) * scale;
     if (sx < 0 || sx > w || sy < 0 || sy > h) {
       const ax = Math.max(22, Math.min(w - 22, sx)), ay = Math.max(22, Math.min(by - 22, sy)), ang = Math.atan2(sy - h / 2, sx - w / 2);
-      ctx.save(); ctx.translate(ax, ay); ctx.rotate(ang); ctx.fillStyle = '#ff5f7e'; ctx.strokeStyle = '#2a1424'; ctx.lineWidth = 2;
+      ctx.save(); ctx.translate(ax, ay); ctx.rotate(ang); ctx.fillStyle = '#E7A3B5'; ctx.strokeStyle = '#141A33'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-8, -10); ctx.lineTo(-8, 10); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
     }
   }
 
-  // 사건 알림(화면 좌표)
+  // 사건 알림(화면 좌표): 금 테 알약. 경고는 붉은 판에 장미빛 테가 깜빡인다(움직임 줄이기면 깜빡이지 않음)
   if (world.banner) {
     const b = world.banner;
-    const blink = b.warn && Math.floor(t / 250) % 2;
+    const blink = b.warn && !opts.reducedMotion && Math.floor(t / 250) % 2;
     ctx.font = '800 15px system-ui, sans-serif'; ctx.textAlign = 'center';
-    const tw = ctx.measureText(b.label).width + 28;
-    ctx.fillStyle = b.warn ? (blink ? 'rgba(160,30,60,0.85)' : 'rgba(110,20,45,0.85)') : 'rgba(20,16,40,0.8)';
-    ctx.fillRect(w / 2 - tw / 2, 14, tw, 30);
-    ctx.fillStyle = b.warn ? '#ffe0e6' : '#ffe6a8'; ctx.fillText(b.label, w / 2, 34);
+    const tw = ctx.measureText(b.label).width + 48, bx = w / 2 - tw / 2;
+    roundPanel(ctx, bx, 12, tw, 32, 16);
+    ctx.fillStyle = b.warn ? (blink ? 'rgba(150,28,58,0.92)' : 'rgba(104,20,44,0.92)') : 'rgba(20,26,51,0.9)'; ctx.fill();
+    ctx.strokeStyle = b.warn ? (blink ? '#F3C2CF' : 'rgba(231,163,181,0.75)') : 'rgba(217,178,106,0.85)'; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.fillStyle = b.warn ? WARD.rose : WARD.gold;
+    for (const sx of [bx + 15, bx + tw - 15]) { ctx.save(); ctx.translate(sx, 28); ctx.rotate(Math.PI / 2); petal(ctx, 4.5); ctx.restore(); }
+    ctx.fillStyle = b.warn ? '#FFE0E6' : '#F6E3B4'; ctx.fillText(b.label, w / 2, 33);
   }
 
   // 조이스틱(화면 좌표)
   const joy = opts.joy;
   if (joy?.active && opts.rect) {
     const ox = joy.ox - opts.rect.left, oy = joy.oy - opts.rect.top;
-    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 2;
+    // 금 테 반투명 달 원
+    ctx.fillStyle = 'rgba(20,26,51,0.32)'; ctx.strokeStyle = 'rgba(217,178,106,0.8)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(ox, oy, joy.radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = 'rgba(217,178,106,0.3)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(ox, oy, joy.radius * .62, 0, Math.PI * 2); ctx.stroke();
     const kx = joy.x - opts.rect.left, ky = joy.y - opts.rect.top;
     const dx = kx - ox, dy = ky - oy, d = Math.hypot(dx, dy), k = d > joy.radius ? joy.radius / d : 1;
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    ctx.beginPath(); ctx.arc(ox + dx * k, oy + dy * k, 22, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(246,227,180,0.55)'; ctx.strokeStyle = WARD.gold; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(ox + dx * k, oy + dy * k, 22, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   }
   ctx.textAlign = 'start';
 }

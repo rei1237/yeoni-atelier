@@ -135,3 +135,65 @@ body:not([data-mode=hunt]) #topbar>.status{grid-column:4/6;grid-row:2;min-width:
 .chest-result .lv-icon{display:inline-grid;width:28px;height:28px;flex:none;margin-right:4px;vertical-align:middle;background:transparent}.chest-result .lv-icon .pixel-icon{width:28px;height:28px}
 @keyframes cw-reveal{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.cw-strip,.chest-result{animation:none}}
+
+/* 사냥 · 달밤의 꽃정원(DESIGN.md): 남색 밤 바탕, 달빛 금 가는 선, 꽃잎 장미·연보라. 경고는 붉은 계열 그대로 */
+:root{--night0:#141A33;--night1:#1F2547;--moon-gold:#D9B26A;--petal-rose:#E7A3B5;--petal-lilac:#B9A6E0;--night-ink:#F3EBDD}
+.dialog.night{width:min(94vw,440px);color:var(--night-ink);background:radial-gradient(120% 60% at 50% 0%,#2C336A 0%,#2C336A00 62%),linear-gradient(180deg,var(--night1),var(--night0));border:1px solid var(--moon-gold);border-image:none;box-shadow:inset 0 0 0 4px var(--night0),inset 0 0 0 5px #D9B26A55,0 18px 48px #05081acc}
+.dialog.night .night-orn{display:block;width:160px;height:20px;margin:0 auto 2px}
+.dialog.night h2{color:#F6E3B4;text-align:center;letter-spacing:.06em;font-weight:800;margin:0 0 8px}
+.dialog.night .muted{color:#C9C2DA}.dialog.night .ok{color:#F2C9D4}.dialog.night p{color:var(--night-ink)}
+.dialog.night .kv{border-top:1px solid #D9B26A80;border-bottom:1px solid #D9B26A80;padding:6px 0;gap:0}
+.dialog.night .kv>span,.dialog.night .kv>b{padding:5px 10px 5px 0;border-bottom:1px solid #D9B26A26}.dialog.night .kv>b{padding-right:0}.dialog.night .kv>b{color:#F6E3B4}
+.dialog.night button{min-height:44px;background:#252C55;color:var(--night-ink);box-shadow:inset 0 0 0 1px #8D86B0;border:0}
+.dialog.night button.primary{background:linear-gradient(180deg,#E8C57E,#C99A4B);color:#241A10;box-shadow:inset 0 1px 0 #fff6,0 3px 0 #7C5A26}
+.dialog.night .lv-card{background:linear-gradient(180deg,#272E59,#1B2144);color:var(--night-ink);border:1px solid #D9B26A99;box-shadow:inset 0 1px 0 #ffffff14,0 3px 0 #0B0F24}
+.dialog.night .lv-card.k-passive{border-color:#B9A6E0aa}
+.dialog.night .lv-card.evo{border-color:var(--petal-lilac);box-shadow:0 0 0 1px var(--petal-lilac),0 0 18px #B9A6E07a,inset 0 0 22px #B9A6E030}
+.dialog.night .lv-card:hover,.dialog.night .lv-card:focus-visible{border-color:#F0CF8A}
+.dialog.night .lv-card .lv-tag{color:#E8C987}.dialog.night .lv-card .small{color:#D8D0E6}
+.dialog.night .lv-icon{border-radius:50%;background:radial-gradient(circle at 40% 35%,#343C72,#161B38 72%);box-shadow:inset 0 0 0 1px #D9B26A88}
+.dialog.night .chest-wheel{background:var(--night0);border-color:var(--moon-gold);box-shadow:inset 0 0 0 4px var(--night1),inset 0 0 18px #B9A6E044}
+.dialog.night .cw-strip span{color:#F6E3B4}.dialog.night .chest-result .lv-icon{background:transparent;box-shadow:none}
+body[data-mode=hunt] .topbar{background:linear-gradient(180deg,var(--night1),#181E3D);border-color:#D9B26A66}
+body[data-mode=hunt] .panel{background:linear-gradient(180deg,var(--night1),var(--night0));border-color:#D9B26A88;box-shadow:inset 0 1px 0 #D9B26A55}
+.hunt-dock .row{color:var(--night-ink)}
+.hunt-dock button{background:#252C55;color:var(--night-ink);box-shadow:inset 0 0 0 1px #8D86B0;min-height:44px}
+.hunt-skill .pixel-icon{border-radius:50%;padding:2px;background:radial-gradient(circle at 40% 35%,#343C72,#161B38 72%);box-shadow:inset 0 0 0 1px #D9B26A99,-2px -1px 0 #E6E9F540}
+.hunt-skill small{color:#D8D0E6}
+.hunt-goal{background-color:#252C55;color:#F6E3B4;box-shadow:inset 0 0 0 1px #D9B26A99;padding-left:20px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M8 1A5 5 0 1 0 8 11A6 6 0 0 1 8 1Z' fill='%23D9B26A'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:6px center;background-size:10px}
+.hunt-goal.boss{background-color:#7A2238;color:#FFE0E6;box-shadow:inset 0 0 0 1px var(--petal-rose)}
+body[data-mode=hunt] .bubbles .cafe-chatter{top:54px;padding:8px 30px 8px 8px;border:1px solid #D9B26Aaa;border-radius:16px;background:linear-gradient(180deg,#1F2547eb,#141A33eb);backdrop-filter:blur(6px);color:var(--night-ink);box-shadow:0 6px 20px #05081a88;animation:night-in .28s ease-out both}
+body[data-mode=hunt] .bubbles .cafe-chatter::after{content:'';position:absolute;right:8px;top:7px;width:16px;height:16px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M9 1C12.5 4 12.5 8.5 9 13C5.5 8.5 5.5 4 9 1Z' fill='%23E7A3B5'/%3E%3Cpath d='M15 9C13 12 10 13 7 12.5C9 10 12 9 15 9Z' fill='%23B9A6E0'/%3E%3C/svg%3E") no-repeat center/contain}
+body[data-mode=hunt] .cafe-chatter img{width:44px;height:44px;flex:none;border-radius:50%;object-fit:cover;object-position:50% 12%;background:radial-gradient(circle at 40% 35%,#343C72,#161B38 72%);box-shadow:0 0 0 1.5px var(--moon-gold),-3px -2px 0 1px #E6E9F59a}
+body[data-mode=hunt] .cafe-chatter b{display:inline-block;color:#F6E3B4;letter-spacing:.08em;padding:1px 10px;border-top:1px solid #D9B26Acc;border-bottom:1px solid #D9B26Acc;background:linear-gradient(90deg,#D9B26A00,#D9B26A30 20%,#D9B26A30 80%,#D9B26A00)}
+body[data-mode=hunt] .cafe-chatter p{color:var(--night-ink)}
+@keyframes night-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){body[data-mode=hunt] .bubbles .cafe-chatter{animation:none}}
+/* 사냥터 메인(타이틀·출발·업적·수집 도감): 달밤 판, 금 선 로고, 미발견은 실루엣 */
+.sheet:has(>.hunt-home){background:radial-gradient(120% 46% at 50% 0%,#2C336A 0%,#2C336A00 62%),linear-gradient(180deg,var(--night1),var(--night0));color:var(--night-ink);border-top:1px solid var(--moon-gold);box-shadow:inset 0 0 0 1px #D9B26A40,0 -10px 38px #05081a99}
+.hunt-home,.hunt-home p,.hunt-home label,.hunt-home output,.hunt-home b{color:var(--night-ink)}.hunt-home h2,.hunt-home h3{color:#F6E3B4}.hunt-home .muted,.hunt-home .small{color:#C9C2DA}.hunt-home .ok{color:#F2C9D4}
+.hunt-home h3{letter-spacing:.06em;font-size:15px;margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid #D9B26A55}
+.hunt-home button{min-height:44px;background:#252C55;color:var(--night-ink);box-shadow:inset 0 0 0 1px #8D86B0;border:0}
+.hunt-home button.primary{background:linear-gradient(180deg,#E8C57E,#C99A4B);color:#241A10;box-shadow:inset 0 1px 0 #fff6,0 3px 0 #7C5A26}
+.hunt-home button.on{background:#352F68;box-shadow:inset 0 0 0 1.5px var(--petal-lilac)}.hunt-home button.ghost{background:transparent;box-shadow:none}
+.hunt-home .card{background:#1B2144;border:1px solid #D9B26A66}.hunt-home progress,.hunt-home input[type=range]{accent-color:var(--moon-gold)}
+.hh-top{display:flex;justify-content:flex-end;min-height:44px}
+.hh-logo{text-align:center;margin-top:-30px}.hh-logo small{display:block;color:var(--petal-rose);letter-spacing:.32em;font-size:12px;font-weight:700}
+.hh-logo h2{display:block;text-align:center;font-size:34px;letter-spacing:.14em;font-weight:800;margin:6px 0 2px;text-shadow:0 0 18px #D9B26A66}
+.hh-logo .night-orn{display:block;width:200px;height:25px;margin:0 auto}.hh-logo p{font-size:13px;color:#D8D0E6;margin:6px 0 0}
+.hh-hero{width:150px;height:150px;margin:14px auto 8px;border-radius:50%;background:radial-gradient(circle at 42% 38%,#3A4380,#161B38 70%);box-shadow:0 0 0 1.5px var(--moon-gold),-6px -4px 0 1px #E6E9F566,0 0 40px #B9A6E044;overflow:hidden;display:grid;place-items:end center}
+.hh-hero canvas{width:96px;height:144px}
+.hh-stats{display:grid;grid-template-columns:repeat(3,1fr);margin:10px 0;border-top:1px solid #D9B26A66;border-bottom:1px solid #D9B26A66}
+.hh-stats div{padding:6px 4px;text-align:center}.hh-stats div+div{border-left:1px solid #D9B26A33}.hh-stats dt{font-size:11px;color:#C9C2DA}.hh-stats dd{margin:0;font-weight:800;color:#F6E3B4}
+.hh-menu{display:grid;gap:10px;max-width:360px;margin:14px auto 4px}.hh-menu button{font-size:17px;letter-spacing:.08em;min-height:52px}.hh-menu small{font-size:12px;opacity:.85;margin-left:8px;letter-spacing:0}
+.hh-head{display:flex;align-items:center;gap:6px}.hh-head>span{flex:1;letter-spacing:.06em}.hh-head small{font-size:13px;color:#E8C987;margin-left:8px}.hh-back{min-width:44px;font-size:22px}
+.hh-list{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.hh-ach{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:10px;padding:10px;border-radius:14px;background:#1B2144;border:1px solid #8D86B055}
+.hh-ach i{font-style:normal;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;background:radial-gradient(circle at 40% 35%,#343C72,#161B38 72%);box-shadow:inset 0 0 0 1px #8D86B0;color:#8D86B0}
+.hh-ach b,.hh-ach .small{display:block}.hh-ach em{font-style:normal;font-size:12px;color:#C9C2DA;white-space:nowrap}
+.hh-ach.got{border-color:#D9B26Aaa;background:linear-gradient(90deg,#2A2D5C,#1B2144)}.hh-ach.got i{color:#F6E3B4;box-shadow:inset 0 0 0 1px var(--moon-gold),0 0 12px #D9B26A55}.hh-ach.got em{color:#F6E3B4;font-weight:800}
+.hh-grid{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.hh-cell{display:grid;justify-items:center;align-content:start;text-align:center;gap:2px;padding:8px 4px;border-radius:12px;background:#1B2144;border:1px solid #D9B26A55}
+.hh-cell i{font-style:normal;font-size:22px;line-height:1.3;color:#F6E3B4}.hh-cell b{font-size:13px;line-height:1.25}.hh-cell .small{font-size:11px}.hh-cell canvas{width:64px;height:64px}
+.hh-cell.boss{border-color:#E7A3B5aa}.hh-cell.unknown{border-color:#8D86B040;background:#161B38}.hh-cell.unknown canvas,.hh-cell.unknown i{filter:brightness(0);opacity:.55}.hh-cell.unknown b{color:#8D86B0}
+@media(min-width:700px){.hh-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.hh-grid.foes{grid-template-columns:repeat(5,minmax(0,1fr))}}

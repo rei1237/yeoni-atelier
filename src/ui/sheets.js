@@ -12,7 +12,7 @@ import { stressCrew, stressOf, stressStage, stressLabel, isResting } from '../ga
 import { audioSheet,audioQuickButton } from './audio.js';
 import { HELP_SCENES } from '../data/help.js';
 import { farmSheet } from './farm.js';
-import { huntPrepSheet } from './hunt-prep.js';
+import { huntPrepSheet, NIGHT_ORN } from './hunt-prep.js';
 import { dressroomSheet } from './dressroom.js';
 import { assetStyle, assetIcon } from './asset-html.js';
 // 바텀시트(테이블·주방·재료·마을·퀘스트·기타·부채·동료·의상)와 전면 오버레이(타이틀·확인·일시정지·결산·사냥 결과·만남 이벤트).
@@ -39,6 +39,7 @@ import { survivalReward } from '../game/hunt-rewards.js';
 import { BONDS, BOND_IDS, COMMON_GIFT, bondTier } from '../data/bonds.js';
 import { SPEAKERS } from '../story/prologue.js';
 import { townCheck, nextExpansion, areaPrice } from '../game/town.js';
+import { placeLock, PLACE_NAMES } from '../game/unlocks.js';
 import { COMBO_MAX } from '../game/recipe.js';
 import { dateLabel, isEnded, calendarOf } from '../game/calendar.js';
 import { ENDINGS } from '../story/months.js';
@@ -67,9 +68,9 @@ function sheetBody(state, ui) {
     case 'debt': return debtSheet(state);
     case 'companions': return companionSheet(state);
     case 'outfits': return state.hostbar.open?dressroomSheet(state, ui):`${head('아직 닫힌 드레스룸')}<div class="locked-room"><b>옷걸이에 초대장이 걸려 있어요</b><p>첫해 5월의 호스트 카페 개업 이야기를 마치면 동료들과 새 의상을 골라요.</p></div>`;
-    case 'farm': return farmSheet(state, ui);
+    case 'farm': return placeLock(state,'farm')?`${head(PLACE_NAMES.farm)}${lockedRoom(placeLock(state,'farm'))}`:farmSheet(state, ui);
     case 'hunt': return huntPrepSheet(state,ui);
-    case 'armory': return armorySheet(state,ui);
+    case 'armory': return placeLock(state,'gear')?`${head(PLACE_NAMES.gear)}${lockedRoom(placeLock(state,'gear'))}`:armorySheet(state,ui);
     case 'tutorial': return tutorialSheet(ui);
     case 'audio': return audioSheet();
     default: return '';
@@ -286,16 +287,21 @@ function townSheet(state, tab = 'atelier') {
     const bid = bondAt(p.id);
     const canTalk = bid && !state.ap.talked[bid] && state.ap.left > 0;
     const badge = bid ? `<em class="tn-bond">${esc(BONDS[bid].name)} ♥${bondTier(state.affinity[bid] || 0)}${canTalk ? ' 💬' : ''}</em>` : '';
-    return `<button type="button" class="tn${p.id === here.id ? ' on' : ''}" data-action="town.tab" data-tab="${p.id}" style="left:${p.x}%;top:${p.y}%" aria-label="${esc(p.name)}"><i>${assetIcon(`ui/town-node-${p.id}`,p.icon)}</i><b>${esc(p.name)}</b>${badge}</button>`;
+    const lock = placeLock(state, p.id);
+    return `<button type="button" class="tn${p.id === here.id ? ' on' : ''}${lock ? ' locked' : ''}" data-action="town.tab" data-tab="${p.id}" style="left:${p.x}%;top:${p.y}%" aria-label="${esc(p.name)}${lock ? ' (잠김)' : ''}"><i>${assetIcon(`ui/town-node-${p.id}`,p.icon)}</i><b>${esc(p.name)}</b>${lock ? '<em class="tn-lock" aria-hidden="true">🔒</em>' : badge}</button>`;
   }).join('');
   const map = `<div class="town-map ${SEASON(calendarOf(state.day).month)}" style="${assetStyle(`ui/town-map-${SEASON(calendarOf(state.day).month)}`)}" role="group" aria-label="마을 지도">
     <svg class="tm-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${paths}</svg>
     ${nodes}<span class="tm-me" style="left:${here.x}%;top:${here.y}%" aria-hidden="true">🐷</span></div>`;
   const bid = bondAt(here.id);
-  const body = !chk.ok ? `<p class="warn">${esc(chk.reason)}</p>`
+  const lock = placeLock(state, here.id);
+  const body = !chk.ok ? `<p class="warn">${esc(chk.reason)}</p>` : lock ? lockedRoom(lock)
     : (bid ? bondCard(state, bid) : '') + placeBody(state, here.id);
   return `${head('🏘 마을')}<p class="small">보유 ${won(state.gold)} · 🌙 월정석 ${state.moonstone || 0}개 · 마을 행동력 ${state.ap.left}</p><p class="small muted">대화와 사냥 출발에만 행동력 1을 써요. 구매·강화·환전은 자유롭게 이용해요.</p>${map}<h3>${here.icon} ${esc(here.name)}</h3>${body}`;
 }
+
+// 열리기 전 장소 안내(잠금 이유만 보이고 조작은 없다)
+const lockedRoom = reason => `<div class="locked-room"><b>🔒 아직 닫혀 있어요</b><p>${esc(reason)}</p></div>`;
 
 function placeBody(state, id) {
   switch (id) {
@@ -580,16 +586,19 @@ function endingDialog(state, id) {
     <div class="stack">${btn({ action: 'ending.close', cls: 'primary', label: '☕ 후일담 영업 계속하기' })}${btn({ action: 'story.replay', label: '📖 결말 다시 보기' })}${btn({ action: 'game.new', label: '🌱 새 게임' })}</div></div>`;
 }
 
+// 사냥 대화상자 제목 위 장식(초승달·꽃잎·금 가는 선). 이미지 에셋 없이 인라인 SVG
+
 // 레벨업 카드 3장. 고르는 동안 사냥 시간이 멈춘다(엔진이 멈춤, UI는 고른 번호만 보낸다).
 function levelUpDialog(state) {
   const h = state.hunt;
   const cards = h.picks[0].map((o, i) => {
     const d = describeOption(h, o);
-    return btn({ action: 'hunt.pick', args: { index: i }, cls: `lv-card k-${o.kind}`,
-      label: `<span class="lv-icon" aria-hidden="true">${assetIcon(`skills/${o.id || 'heal'}`,esc(d.icon))}</span><span class="lv-body"><b>${esc(d.name)}</b><span class="lv-tag">${esc(d.tag)}</span><span class="small">${esc(d.text)}</span></span>` });
+    return btn({ action: 'hunt.pick', args: { index: i }, cls: `lv-card k-${o.kind}${d.evo ? ' evo' : ''}`,
+      label: `<span class="lv-icon" aria-hidden="true">${assetIcon(o.kind === 'pouch' ? 'icons/moonstone' : `skills/${o.id || 'heal'}`,esc(d.icon))}</span><span class="lv-body"><b>${esc(d.name)}</b><span class="lv-tag">${esc(d.tag)}${d.cap ? ` · 단련 상한 Lv ${d.cap}` : ''}</span><span class="small">${esc(d.text)}</span></span>` });
   }).join('');
-  const more = h.picks.length > 1 ? `<p class="small muted">남은 선택 ${h.picks.length - 1}번</p>` : '';
-  return `<div class="dialog levelup" role="dialog" aria-modal="true"><h2>✨ 레벨 ${h.level}! 하나를 고르세요</h2>
+  const more = (h.picks.length > 1 ? `<p class="small muted">남은 선택 ${h.picks.length - 1}번</p>` : '')
+    + (Object.values(h.caps || {}).some(c => !c) ? '<p class="small muted">윤달 공방에서 기술을 더 배울 수 있어요</p>' : '');
+  return `<div class="dialog levelup night" role="dialog" aria-modal="true">${NIGHT_ORN}<h2>레벨 ${h.level} · 하나를 고르세요</h2>
     <p class="small muted">고르는 동안 시간이 멈춰 있어요.</p><div class="lv-cards">${cards}</div>${more}</div>`;
 }
 
@@ -599,31 +608,35 @@ function chestDialog(state) {
   const cells = [0, 1, 2].flatMap(() => CHEST_WHEEL).map(v => `<span>🌙 ${Math.round(v * k)}</span>`).join('');
   const still = c.upgrade && describeOption(h, c.upgrade);
   const up = c.upgrade ? `<span class="lv-icon" aria-hidden="true">${assetIcon(`skills/${c.upgrade.id}`)}</span><b>${esc(still.name)}</b> 한 단계 강화` : `보유 기술이 모두 최대라 월정석 +${CHEST_FALLBACK}개로 바꿔요`;
-  return `<div class="dialog chest-roll" role="dialog" aria-modal="true"><h2>🎁 희귀 상자</h2>
+  return `<div class="dialog chest-roll night" role="dialog" aria-modal="true">${NIGHT_ORN}<h2>희귀 상자</h2>
     <p class="small muted">상자를 주운 순간 결과가 정해졌어요. 여는 동안 시간이 멈춰 있어요.</p>
     <div class="chest-wheel" aria-hidden="true"><div class="cw-strip" style="--stop:${12 + c.slot}">${cells}</div></div>
     <p class="chest-result" aria-live="polite">🌙 월정석 +${c.moon}<br>${up}</p>
     <div class="stack">${btn({ action: 'hunt.chest', cls: 'primary', label: h.chests.length > 1 ? `받기 · 남은 상자 ${h.chests.length - 1}개` : '받기' })}</div></div>`;
 }
 
+// 한 번 출발에 3단계를 마친 사냥꾼의 한마디
+export const tiredLine = id => id === 'seohanbi' ? '오늘 사냥은 여기까지. 무리하면 내일이 무뎌져' : '영냥이가 피곤하군… 오늘은 여기까지만 할까?';
+
 // 단계 클리어: 다음 단계로 이어 가거나 귀환해 정산한다. 고르는 동안 시간이 멈춘다
 function stageClearDialog(state) {
   const h = state.hunt, c = h.stageChoice;
   const story = h.hunterId === 'neo' && c.first && HANBI_STAGES.includes(c.stage) && !state.roster.seohanbi;
-  return `<div class="dialog stage-clear" role="dialog" aria-modal="true"><h2>🌙 ${c.stage}단계 클리어!</h2>
+  return `<div class="dialog stage-clear night" role="dialog" aria-modal="true">${NIGHT_ORN}<h2>${c.stage}단계 클리어</h2>
     <p>${c.first ? `첫 클리어 보너스 · 월정석 +${c.bonus}개를 가방에 담았어요.` : '이미 클리어한 단계예요. 첫 클리어 보너스는 한 번만 받아요.'}</p>
     ${story ? '<p class="ok">달그늘 깊은 곳에서 무언가가 지켜보고 있었어요. 귀환하면 이야기가 이어져요.</p>' : ''}
     <div class="kv"><span>가방 월정석</span><b>${h.bag.moonstone || 0}</b><span>처치</span><b>${h.kills}</b><span>남은 체력</span><b>${Math.ceil(h.hp)} / ${h.maxHp}</b><span>열린 단계</span><b>${state.hunter.maxStage} / 100</b></div>
     <p class="small muted">이어 가면 체력과 이번 사냥의 기술이 그대로 이어져요. 쓰러져도 모은 월정석은 가져와요.</p>
-    <div class="stack">${c.next ? btn({ action: 'hunt.next', cls: 'primary', label: `다음 단계로 · ${c.stage + 1}단계` }) : '<p class="ok">달그늘 100단계를 모두 정복했어요!</p>'}${btn({ action: 'hunt.retreat', cls: c.next ? '' : 'primary', label: '귀환해서 정산하기' })}</div></div>`;
+    ${c.tired ? `<p class="ok">${tiredLine(h.hunterId)}</p><p class="small muted">다음 출발에서 ${c.stage + 1}단계부터 이어 갈 수 있어요.</p>` : ''}
+    <div class="stack">${c.next ? btn({ action: 'hunt.next', cls: 'primary', label: `다음 단계로 · ${c.stage + 1}단계` }) : c.tired ? '' : '<p class="ok">달그늘 100단계를 모두 정복했어요!</p>'}${btn({ action: 'hunt.retreat', cls: c.next ? '' : 'primary', label: c.tired ? '귀환' : '귀환해서 정산하기' })}</div></div>`;
 }
 
 function huntResult(state) {
   const h = state.hunt;
   const bonus=survivalReward(h), name=h.hunterId==='seohanbi'?'서한비':'영냥이';
-  const head2 = h.status === 'down' ? `${name}가 지쳤어요` : h.status === 'retreat' ? (h.cleared ? `🏠 ${h.cleared}개 단계를 클리어하고 돌아왔어요` : '🏠 일찍 돌아왔어요') : '🎉 사냥 완료';
+  const head2 = h.status === 'down' ? `${name}가 지쳤어요` : h.status === 'retreat' ? (h.cleared ? `${h.cleared}개 단계를 클리어하고 돌아왔어요` : '일찍 돌아왔어요') : '사냥 완료';
   const bag = Object.entries(h.bag).filter(([id, n]) => id === 'moonstone' || n > 0).map(([id, n]) => `<span>${id === 'moonstone' ? '🌙 월정석' : esc(INGREDIENTS[id]?.name || id)}</span><b>${n}</b>`).join('');
-  return `<div class="dialog" role="dialog" aria-modal="true"><h2>${head2}</h2>
+  return `<div class="dialog night hunt-result" role="dialog" aria-modal="true">${NIGHT_ORN}<h2>${head2}</h2>
     <div class="kv">${bag}<span>생존 추가 월정석</span><b>+${bonus.moonstone}</b><span>생존 재료</span><b>${Object.entries(bonus.items).map(([id,n])=>`${INGREDIENTS[id]?.name} ${n}`).join(' · ')||'1분부터 지급'}</b><span>클리어한 단계</span><b>${h.cleared ? `${h.cleared}개 · ${state.hunter.maxStage}단계까지 열림` : '보스를 쓰러뜨리면 클리어'}</b><span>처치</span><b>${h.kills}</b><span>이번 사냥 레벨</span><b>${h.level ?? 1}</b><span>탐사 성장 경험치</span><b>+${h.careerXP || 0}</b><span>보스 처치</span><b>${h.bossKills || 0}</b><span>사냥 시간</span><b>${fmtTime(h.elapsedMs)}</b></div>
     <p class="small muted">월정석은 한 번만 들어갑니다. 쓰러져도 모은 월정석은 가져와요. 마을 「청토끼 금융 센터」에서 골드로 바꿀 수 있어요.</p>
     <div class="stack">${btn({ action: 'hunt.finish', cls: 'primary', label: '월정석 받고 가게로' })}</div></div>`;
