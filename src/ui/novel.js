@@ -13,7 +13,7 @@ export const novelPlaying=novelActive;
 export function playNovel(input,{onEnd,onChoose,onGuideSeen,onCancel}={}){
  if(active)active.close(false);
  const beats=input.slice(),root=document.getElementById('novel');
- root.hidden=false;
+ root.hidden=false;document.documentElement.classList.add("novel-open");
  root.innerHTML='<div class="nv-bg"><div class="nv-bg-layer a"></div><div class="nv-bg-layer b"></div></div><div class="nv-portraits">'+['l','c','r'].map(k=>'<canvas class="nv-pt '+k+'" width="384" height="460" aria-hidden="true"></canvas>').join('')+'</div><div class="nv-chapter" hidden><b></b></div><div class="nv-box" role="button" tabindex="0" aria-label="다음 대사"><div class="nv-name"></div><p class="nv-text" aria-live="polite"></p><span class="nv-next">다음 ▾</span></div><section class="nv-choice-panel" hidden aria-label="대화 선택지"></section><nav class="nv-tools"><button data-nv="back" aria-label="이전 대사">이전</button><button data-nv="auto">자동</button><button data-nv="log">기록</button><button data-nv="end" class="nv-end">건너뛰기</button></nav><div class="nv-log" hidden><div class="nv-log-list"></div><button data-nv="log">닫기</button></div>';
  const q=s=>root.querySelector(s),box=q('.nv-box'),text=q('.nv-text'),name=q('.nv-name'),next=q('.nv-next'),panel=q('.nv-choice-panel');
  const pts=Object.fromEntries(['l','c','r'].map(k=>[k,q('.nv-pt.'+k)])),layers=[q('.a'),q('.b')],slots={l:null,c:null,r:null};
@@ -87,7 +87,7 @@ export function playNovel(input,{onEnd,onChoose,onGuideSeen,onCancel}={}){
  function tap(){if(transformCancel?.running||!q('.nv-log').hidden||!q('.nv-chapter').hidden||beats[idx]?.choices)return;if(typing)finish();else advance();}
  function close(done){
   if(closed)return;closed=true;stop();cancelAnimationFrame(raf);transformCancel?.();setStoryAudio(null);
-  root.removeEventListener('click',click);window.removeEventListener('keydown',key,true);root.hidden=true;root.innerHTML='';root.classList.remove('choosing','transforming');active=null;
+  root.removeEventListener('click',click);window.removeEventListener('keydown',key,true);root.hidden=true;document.documentElement.classList.remove("novel-open");root.innerHTML='';root.classList.remove('choosing','transforming');active=null;
   if(done)onEnd?.();else onCancel?.();focusBefore?.focus?.({preventScroll:true});
  }
  function click(e){
