@@ -32,7 +32,8 @@ import { acceptCheck, hostingPreview, personBusyReason } from '../game/nominatio
 import { gradeOf } from '../game/satisfaction.js';
 import { debtStage, questView, recruitView } from '../game/economy.js';
 import { estimateOfflineIncome } from '../game/offline.js';
-import { describeOption, huntCheck } from '../game/hunt.js';
+import { describeOption, huntCheck, CHEST_WHEEL, CHEST_FALLBACK } from '../game/hunt.js';
+import { HANBI_STAGES } from '../data/hunt-stages.js';
 import { hiddenGuestQuest } from '../game/hidden-guest.js';
 import { survivalReward } from '../game/hunt-rewards.js';
 import { BONDS, BOND_IDS, COMMON_GIFT, bondTier } from '../data/bonds.js';
@@ -512,6 +513,8 @@ export function overlayHtml(state, ui) {
   if (state.mode === 'settlement' && state.lastSettlement) return settlementDialog(state);
   if (state.paused && (state.mode === 'shift' || state.mode === 'hunt')) return pausedDialog(state);
   if (state.mode === 'hunt' && state.hunt?.status === 'running' && state.hunt.picks?.length) return levelUpDialog(state);
+  if (state.mode === 'hunt' && state.hunt?.status === 'running' && state.hunt.chests?.length) return chestDialog(state);
+  if (state.mode === 'hunt' && state.hunt?.status === 'running' && state.hunt.stageChoice) return stageClearDialog(state);
   if (ui.discovery && MENUS[ui.discovery]) return discoveryDialog(state,ui.discovery);
   // Recruitment is played in the illustrated novel layer.
   if (ui.ending && ENDINGS[ui.ending]) return endingDialog(state, ui.ending);
@@ -590,13 +593,38 @@ function levelUpDialog(state) {
     <p class="small muted">고르는 동안 시간이 멈춰 있어요.</p><div class="lv-cards">${cards}</div>${more}</div>`;
 }
 
+// 희귀 상자: 결과는 주운 순간 엔진이 정해 저장했다. 룰렛은 저장된 칸에 멈추는 연출일 뿐이다(움직임 줄이기면 바로 결과)
+function chestDialog(state) {
+  const h = state.hunt, c = h.chests[0], k = c.moon / CHEST_WHEEL[c.slot];
+  const cells = [0, 1, 2].flatMap(() => CHEST_WHEEL).map(v => `<span>🌙 ${Math.round(v * k)}</span>`).join('');
+  const still = c.upgrade && describeOption(h, c.upgrade);
+  const up = c.upgrade ? `<span class="lv-icon" aria-hidden="true">${assetIcon(`skills/${c.upgrade.id}`)}</span><b>${esc(still.name)}</b> 한 단계 강화` : `보유 기술이 모두 최대라 월정석 +${CHEST_FALLBACK}개로 바꿔요`;
+  return `<div class="dialog chest-roll" role="dialog" aria-modal="true"><h2>🎁 희귀 상자</h2>
+    <p class="small muted">상자를 주운 순간 결과가 정해졌어요. 여는 동안 시간이 멈춰 있어요.</p>
+    <div class="chest-wheel" aria-hidden="true"><div class="cw-strip" style="--stop:${12 + c.slot}">${cells}</div></div>
+    <p class="chest-result" aria-live="polite">🌙 월정석 +${c.moon}<br>${up}</p>
+    <div class="stack">${btn({ action: 'hunt.chest', cls: 'primary', label: h.chests.length > 1 ? `받기 · 남은 상자 ${h.chests.length - 1}개` : '받기' })}</div></div>`;
+}
+
+// 단계 클리어: 다음 단계로 이어 가거나 귀환해 정산한다. 고르는 동안 시간이 멈춘다
+function stageClearDialog(state) {
+  const h = state.hunt, c = h.stageChoice;
+  const story = h.hunterId === 'neo' && c.first && HANBI_STAGES.includes(c.stage) && !state.roster.seohanbi;
+  return `<div class="dialog stage-clear" role="dialog" aria-modal="true"><h2>🌙 ${c.stage}단계 클리어!</h2>
+    <p>${c.first ? `첫 클리어 보너스 · 월정석 +${c.bonus}개를 가방에 담았어요.` : '이미 클리어한 단계예요. 첫 클리어 보너스는 한 번만 받아요.'}</p>
+    ${story ? '<p class="ok">달그늘 깊은 곳에서 무언가가 지켜보고 있었어요. 귀환하면 이야기가 이어져요.</p>' : ''}
+    <div class="kv"><span>가방 월정석</span><b>${h.bag.moonstone || 0}</b><span>처치</span><b>${h.kills}</b><span>남은 체력</span><b>${Math.ceil(h.hp)} / ${h.maxHp}</b><span>열린 단계</span><b>${state.hunter.maxStage} / 100</b></div>
+    <p class="small muted">이어 가면 체력과 이번 사냥의 기술이 그대로 이어져요. 쓰러져도 모은 월정석은 가져와요.</p>
+    <div class="stack">${c.next ? btn({ action: 'hunt.next', cls: 'primary', label: `다음 단계로 · ${c.stage + 1}단계` }) : '<p class="ok">달그늘 100단계를 모두 정복했어요!</p>'}${btn({ action: 'hunt.retreat', cls: c.next ? '' : 'primary', label: '귀환해서 정산하기' })}</div></div>`;
+}
+
 function huntResult(state) {
   const h = state.hunt;
   const bonus=survivalReward(h), name=h.hunterId==='seohanbi'?'서한비':'영냥이';
-  const head2 = h.status === 'down' ? `${name}가 지쳤어요` : h.status === 'retreat' ? '🏠 일찍 돌아왔어요' : '🎉 사냥 완료';
+  const head2 = h.status === 'down' ? `${name}가 지쳤어요` : h.status === 'retreat' ? (h.cleared ? `🏠 ${h.cleared}개 단계를 클리어하고 돌아왔어요` : '🏠 일찍 돌아왔어요') : '🎉 사냥 완료';
   const bag = Object.entries(h.bag).filter(([id, n]) => id === 'moonstone' || n > 0).map(([id, n]) => `<span>${id === 'moonstone' ? '🌙 월정석' : esc(INGREDIENTS[id]?.name || id)}</span><b>${n}</b>`).join('');
   return `<div class="dialog" role="dialog" aria-modal="true"><h2>${head2}</h2>
-    <div class="kv">${bag}<span>생존 추가 월정석</span><b>+${bonus.moonstone}</b><span>생존 재료</span><b>${Object.entries(bonus.items).map(([id,n])=>`${INGREDIENTS[id]?.name} ${n}`).join(' · ')||'1분부터 지급'}</b><span>단계 진행</span><b>${h.elapsedMs>=180000 ? (h.depth>=100?'100단계 도달':'다음 단계 열림'):'3분 생존 후 정산'}</b><span>처치</span><b>${h.kills}</b><span>이번 사냥 레벨</span><b>${h.level ?? 1}</b><span>탐사 성장 경험치</span><b>+${h.careerXP || 0}</b><span>거대한 검은 손</span><b>${h.bossDown ? '물리침' : '-'}</b><span>사냥 시간</span><b>${fmtTime(h.elapsedMs)}</b></div>
+    <div class="kv">${bag}<span>생존 추가 월정석</span><b>+${bonus.moonstone}</b><span>생존 재료</span><b>${Object.entries(bonus.items).map(([id,n])=>`${INGREDIENTS[id]?.name} ${n}`).join(' · ')||'1분부터 지급'}</b><span>클리어한 단계</span><b>${h.cleared ? `${h.cleared}개 · ${state.hunter.maxStage}단계까지 열림` : '보스를 쓰러뜨리면 클리어'}</b><span>처치</span><b>${h.kills}</b><span>이번 사냥 레벨</span><b>${h.level ?? 1}</b><span>탐사 성장 경험치</span><b>+${h.careerXP || 0}</b><span>보스 처치</span><b>${h.bossKills || 0}</b><span>사냥 시간</span><b>${fmtTime(h.elapsedMs)}</b></div>
     <p class="small muted">월정석은 한 번만 들어갑니다. 쓰러져도 모은 월정석은 가져와요. 마을 「청토끼 금융 센터」에서 골드로 바꿀 수 있어요.</p>
     <div class="stack">${btn({ action: 'hunt.finish', cls: 'primary', label: '월정석 받고 가게로' })}</div></div>`;
 }

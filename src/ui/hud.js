@@ -20,7 +20,8 @@ import { fmtTime, personName, remainingShift, usableHosts, shiftDuration, lastAc
 import { STATION_NAMES, findServeTarget, openOrdersOfVisit, staffStatusText } from '../game/cafe.js';
 import { feverCheck, personBusyReason } from '../game/nomination.js';
 import { startCheck } from '../game/shift.js';
-import { huntCheck } from '../game/hunt.js';
+import { huntCheck, findBoss, getHuntWorld } from '../game/hunt.js';
+import { stageDef } from '../data/hunt-stages.js';
 import { calendarOf, dateLabel, turnsLeft, isEnded, PARTS } from '../game/calendar.js';
 import { WEAPONS, PASSIVES } from '../data/hunt-kit.js';
 import { debtStage, recruitView } from '../game/economy.js';
@@ -174,7 +175,9 @@ function interiorPanel(state) {
   </div>`;
 }
 
-function huntPanel(state){const h=state.hunt;return `<div class="hunt-dock"><div class="row"><b class="grow">${h.hunterId==='seohanbi'?'서한비':'영냥이'} · 성장 Lv.${h.careerLevel} · ${h.depth}/100단계</b><span>처치 ${h.kills}</span>${btn({action:h.status==='running'?'hunt.retreat':'overlay.hunt',label:h.status==='running'?'귀환':'결과'})}</div><div class="hunt-kit">${h.weapons.map(w=>`<span class="hunt-skill" title="${esc(WEAPONS[w.id].name)}">${assetIcon(`skills/${w.id}`)}<small>${esc(WEAPONS[w.id].name)} ${w.evo?'★':'Lv.'+w.level}</small></span>`).join('')}${Object.entries(h.passives).map(([id,lv])=>`<span class="hunt-skill" title="${esc(PASSIVES[id].name)}">${assetIcon(`skills/${id}`)}<small>${esc(PASSIVES[id].name)} Lv.${lv}</small></span>`).join('')}</div><div class="hunt-supplies">${Object.entries(SUPPLIES).filter(([id])=>state.armory?.supplies?.[id]>0).map(([id,d])=>btn({action:'hunt.supply',args:{id},label:`${assetIcon(`skills/${d.icon}`)}${d.name} ${state.armory.supplies[id]}`})).join('')}</div><small>드래그로 이동 · 가까운 적 자동 공격 · 위험 표시 밖으로 피하세요</small></div>`;}
+// 이번 단계 목표: 준비 시간 → 보스 등장 → 보스 처치 = 클리어
+function huntGoal(h,state){const w=getHuntWorld(state),boss=w&&findBoss(w)>=0;if(boss||h.bossSpawned)return '<b class="hunt-goal boss">보스 처치 = 클리어</b>';const left=Math.max(0,stageDef(h.depth).prepMs-(h.stageMs||0));return `<span class="hunt-goal">보스까지 ${fmtTime(left)}</span>`;}
+function huntPanel(state){const h=state.hunt;return `<div class="hunt-dock"><div class="row"><b class="grow">${h.hunterId==='seohanbi'?'서한비':'영냥이'} · 성장 Lv.${h.careerLevel} · ${h.depth}/100단계</b>${huntGoal(h,state)}<span>처치 ${h.kills}</span>${btn({action:h.status==='running'?'hunt.retreat':'overlay.hunt',label:h.status==='running'?'귀환':'결과'})}</div><div class="hunt-kit">${h.weapons.map(w=>`<span class="hunt-skill" title="${esc(WEAPONS[w.id].name)}">${assetIcon(`skills/${w.id}`)}<small>${esc(WEAPONS[w.id].name)} ${w.evo?'★':'Lv.'+w.level}</small></span>`).join('')}${Object.entries(h.passives).map(([id,lv])=>`<span class="hunt-skill" title="${esc(PASSIVES[id].name)}">${assetIcon(`skills/${id}`)}<small>${esc(PASSIVES[id].name)} Lv.${lv}</small></span>`).join('')}</div><div class="hunt-supplies">${Object.entries(SUPPLIES).filter(([id])=>state.armory?.supplies?.[id]>0).map(([id,d])=>btn({action:'hunt.supply',args:{id},label:`${assetIcon(`skills/${d.icon}`)}${d.name} ${state.armory.supplies[id]}`})).join('')}</div><small>드래그로 이동 · 가까운 적 자동 공격 · 붉은 예고 밖으로 피하세요</small></div>`;}
 
 // ── 무대 위 DOM 층. 동료 수다는 하단 패널 높이를 먹지 않도록 무대 왼쪽 아래에 띄운다(주문 카드가 밀려 잘리지 않게).
 export function bubblesHtml(ui){return chatterRibbon(ui);}

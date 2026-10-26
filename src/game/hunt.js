@@ -295,7 +295,7 @@ const spawnMinion = (state, w, x, y) => spawnEnemy(state, w, pickType(state), x,
 function runEvent(state, w, ev) {
   const p = w.player;
   if (ev.kind === 'horde') {
-    const a = nextRandom(state.rng) * Math.PI * 2;
+    const a = -Math.PI / 2 + (nextRandom(state.rng) - .5) * Math.PI * .6; // 화면 위쪽 반원(세로 화면에서도 보이게)
     for (let i = 0; i < 16; i++) {
       const side = (i - 7.5) * 26;
       spawnEnemy(state, w, 'shade_hand', p.x + Math.cos(a) * 430 - Math.sin(a) * side, p.y + Math.sin(a) * 430 + Math.cos(a) * side);
@@ -335,8 +335,8 @@ function events(state, w, t) {
   }
   // 네오가 아직 모르는 검은 호랑이가 멀리서 지켜본다(연출만, 전장과 함께 사라진다)
   if (hs.hunterId === 'neo' && !state.roster.seohanbi && HANBI_STAGES.includes(n) && n < 100 && st >= prep * .5 && once(`${n}:cameo`)) {
-    const a = nextRandom(state.rng) * Math.PI * 2;
-    w.cameo = { x: w.player.x + Math.cos(a) * 250, y: w.player.y + Math.sin(a) * 250, until: t + 4000 };
+    const a = -Math.PI / 2 + (nextRandom(state.rng) - .5) * Math.PI * .6; // 화면 위쪽 반원(세로 화면에서도 보이게)
+    w.cameo = { x: w.player.x + Math.cos(a) * 210, y: w.player.y + Math.sin(a) * 210, until: t + 4000 };
     w.banner = { label: '??? · 검은 그림자가 이쪽을 보고 있다', warn: false, until: t + 3000 };
     emit('huntEvent', { kind: 'cameo', label: '???', warn: false });
   }

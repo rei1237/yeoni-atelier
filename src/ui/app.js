@@ -15,7 +15,8 @@ import { TEMP } from '../config/balance.temp.js';
 import { createGame, personName, personDef } from '../game/state.js';
 import { dispatch, tick, helperAvailable, HELPERS } from '../game/engine.js';
 import { findServeTarget } from '../game/cafe.js';
-import { getHuntWorld } from '../game/hunt.js';
+import { getHuntWorld, paused as huntPaused } from '../game/hunt.js';
+import { ENEMIES } from '../data/hunt-kit.js';
 import { preview as interiorPreview } from '../game/interior.js';
 import { furnitureCells } from '../game/space.js';
 import { recordWallClock } from '../game/offline.js';
@@ -321,7 +322,7 @@ const ACTIONS = {
   'stress.shelter': d => run({ type: 'stress.shelter', id: d.id }),
 };
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
-  'hunt.retreat', 'hunt.finish', 'expand.table']) ACTIONS[t] = () => run({ type: t });
+  'hunt.retreat', 'hunt.finish', 'hunt.next', 'hunt.chest', 'expand.table']) ACTIONS[t] = () => run({ type: t });
 ACTIONS['hunt.pick'] = d => run({ type: 'hunt.pick', index: n(d.index) });
 ACTIONS['yun.quest']=()=>run({type:'yun.quest'});
 ACTIONS['farm.delegate']=()=>run({type:'farm.delegate'});
@@ -447,11 +448,10 @@ function handleEvents(events) {
       case 'areaOpened': resize(); toast(`🔓 ${ev.name} 증축 완료 · 인테리어에서 테이블과 장식을 놓아 보세요`, 'good', 3600); break;
       case 'decorBought': toast(`📦 ${ev.name} 보관함에 도착 · 인테리어에서 놓아 주세요`, 'good'); break;
       case 'huntFinished': pixelFx(el.stage,'transform',{frames:8}); if ((ev.bag?.moonstone || 0) > 0) gagOnce('hunt', pickLine(GAG_HUNT_RETURN), 0); break;
-      case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast(state.hunt.hunterId==='seohanbi'?'검은 호랑이 서한비가 출발했어요':'영냥이가 출발했어요 · 오래 버틸수록 추가 보상', 'good'); break;
+      case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast(`${state.hunt.hunterId==='seohanbi'?'검은 호랑이 서한비':'영냥이'}가 ${state.hunt.depth}단계로 출발했어요 · 보스를 쓰러뜨리면 클리어`, 'good'); break;
       case 'huntPickup': floater(cssW / 2, cssH * 0.4, `+${ev.name}`, '#7d86e8'); break;
       case 'huntHurt': if(!matchMedia('(prefers-reduced-motion: reduce)').matches)shake(el.stage); break;
       case 'huntEvolve': toast(`🌟 진화! ${ev.name}`, 'good', 3200); break;
-      case 'huntChest': toast(`🎁 상자: ${ev.label}`, 'good'); break;
       case 'huntPower': toast(ev.label, 'good', 1800); break;
       case 'payrollPaid': toast(`동료 급여 ${ev.paid.toLocaleString('ko-KR')}G 지급${ev.arrears?` · 미지급 ${ev.arrears.toLocaleString('ko-KR')}G`:''}`);break;
       case 'interestCharged': toast(`💸 ${ev.month}월 이자 ${ev.due.toLocaleString('ko-KR')}G${ev.added ? ` · 골드가 모자라 ${ev.added.toLocaleString('ko-KR')}G는 빚에 붙었어요` : ' 납부'}`, ev.added ? 'bad' : '', 3600); break;
@@ -485,7 +485,7 @@ function render(force = false) {
   morph(el.hits, hitsHtml(state, view, ui));
   document.getElementById('camera-controls').hidden=!state||state.mode==='hunt';
   const hunting=state?.mode==='hunt', h=state?.hunt;
-  const bossAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>e.type==='boss_hand');
+  const bossAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>ENEMIES[e.type]?.boss);
   setAudioScene(novelActive()?'story':hunting?(h.status!=='running'?'huntResult':bossAlive?'huntBoss':h.depth>=55?'huntDeep':'hunt'):state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind==='hunt'?'huntPrep':ui.sheet?.kind||(state?'cafe':'title'));
   const guide=({kitchen:'cook',craft:'cook',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop'})[ui.sheet?.kind] || (state?.interior.draft?'interior':null);
   if(state && guide && (guide!=='outfits'||state.hostbar.open) && !state.tutorials?.[guide] && !novelActive()){
@@ -533,7 +533,7 @@ const loop = createFrameLoop({
     const raw = last == null ? 0 : Math.min(now - last, TEMP.FRAME_DT_CAP_MS);
     last = now;
     if (state) {
-      const huntOn = state.mode === 'hunt' && state.hunt?.status === 'running' && !state.paused && !state.hunt.picks?.length;
+      const huntOn = state.mode === 'hunt' && state.hunt?.status === 'running' && !state.paused && !huntPaused(state.hunt);
       if (huntOn && !joystick.state.enabled) joystick.enable();
       if (!huntOn && joystick.state.enabled) joystick.disable();
       const running = !state.paused && ui.sheet?.kind!=='tutorial' && !novelActive() && (state.mode === 'shift' || state.mode === 'hunt');

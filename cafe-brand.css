@@ -90,7 +90,9 @@ body:not([data-mode=hunt]) #topbar>.status{grid-column:4/6;grid-row:2;min-width:
 .nv-pt{width:52%;max-height:100%;object-fit:contain}
 .nv-pt.l{left:-9%}.nv-pt.c{left:24%}.nv-pt.r{right:-9%}
 .novel[data-cast-count="1"] .nv-pt.show{left:15%;right:auto;width:70%}
-.nv-box{border-radius:20px;max-height:34svh;overflow:auto;padding:24px 20px 28px;background:rgba(15,20,40,.96)}
+.nv-box{border-radius:20px;max-height:34svh;overflow:visible;padding:24px 20px 28px;background:rgba(15,20,40,.96)}
+/* 이름표는 상자 위로 걸쳐 있으니 상자는 자르지 않고, 긴 대사만 안에서 스크롤한다 */
+.nv-text{max-height:calc(34svh - 52px);overflow-y:auto}
 .nv-text{font-family:var(--font-body,'Noto Sans KR'),sans-serif;font-size:16px;line-height:1.8;color:#fff4e5;letter-spacing:0}
 .sp-nar .nv-text{font-style:normal;color:#f5ebdf}
 .sp-sys .nv-text{color:#e5dcff}
@@ -118,3 +120,18 @@ body:not([data-mode=hunt]) #topbar>.status{grid-column:4/6;grid-row:2;min-width:
 
 /* 주문 카드가 있으면 빈 서빙대 안내 줄은 숨겨 작은 화면에서 카드가 패널 밖으로 밀리지 않게 한다 */
 .customer-orders:has(.customer-order)+.tray:not(:has(.slot)){display:none}
+
+/* 사냥 단계 목표 · 클리어 선택 · 희귀 상자 룰렛(결과는 엔진이 저장, 여기는 연출만) */
+.hunt-goal{font-size:12px;font-weight:800;padding:2px 8px;border-radius:999px;background:#3a3350;color:#ffe6a8;white-space:nowrap}
+.hunt-goal.boss{background:#7a2238;color:#ffe0e6}
+.dialog.stage-clear,.dialog.chest-roll{width:min(94vw,440px);color:#48382e}
+.dialog.stage-clear h2,.dialog.chest-roll h2{font-size:22px}
+.dialog.stage-clear .stack,.dialog.chest-roll .stack{gap:8px}
+.chest-wheel{--cell:56px;height:var(--cell);overflow:hidden;margin:12px auto;width:min(100%,220px);border:2px solid #c99a4b;border-radius:14px;background:#fff3dc;box-shadow:inset 0 0 0 4px #fffaf1}
+.cw-strip{display:flex;flex-direction:column;transform:translateY(calc(var(--stop) * var(--cell) * -1));animation:cw-spin 1.6s cubic-bezier(.15,.75,.25,1) both}
+.cw-strip span{flex:none;height:var(--cell);display:grid;place-items:center;font-size:22px;font-weight:800;color:#6b4a2a}
+@keyframes cw-spin{from{transform:translateY(0)}to{transform:translateY(calc(var(--stop) * var(--cell) * -1))}}
+.chest-result{text-align:center;font-size:15px;line-height:1.6;animation:cw-reveal .3s 1.5s both}
+.chest-result .lv-icon{display:inline-grid;width:28px;height:28px;flex:none;margin-right:4px;vertical-align:middle;background:transparent}.chest-result .lv-icon .pixel-icon{width:28px;height:28px}
+@keyframes cw-reveal{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.cw-strip,.chest-result{animation:none}}
