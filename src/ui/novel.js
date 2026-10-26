@@ -31,7 +31,7 @@ export function playNovel(input,{onEnd,onChoose,onGuideSeen,onCancel}={}){
   for(const k of ['l','c','r']){
    const cv=pts[k],slot=slots[k];cv.classList.toggle('show',!!slot);if(!slot)continue;
    const [key,expression='normal']=slot.split(':');const speaking=key.split('@')[0]===speaker;
-   cv.classList.toggle('dim',!!speaker&&!speaking);cv.classList.toggle('speaking',!!speaker&&speaking);
+   cv.classList.toggle('dim',!!speaker&&!speaking);cv.classList.toggle('shadow',expression==='shadow');cv.classList.toggle('speaking',!!speaker&&speaking);
    if(speaking)box.dataset.speakerSlot=k;
    paintTalkingPortrait(cv,{key,expression,now,talking:typing&&speaking,reduced:reduced(),pauseUntil});
   }

@@ -85,7 +85,7 @@ test('지연 만족도와 방문 평가는 저장 뒤에도 중복 반영되지 
 test('인연 단계에 따라 고민이 바뀌고 숨은 초대장은 다음 단서만 표시할 수 있다',()=>{
  const s=createGame(),first=bondQuestion(s,'neo');s.affinity.neo=180;const later=bondQuestion(s,'neo');
  assert.notEqual(first.question,later.question);assert.notEqual(first.token,later.token);assert.equal(new Set(later.answers.map(a=>a.gain)).size,3);
- assert.equal(hiddenGuestQuest(s).next,0);s.day=37;assert.equal(hiddenGuestQuest(s).next,1);
+ assert.equal(hiddenGuestQuest(s).next,0);s.ledger.story['hanbi:30']=true;assert.equal(hiddenGuestQuest(s).next,1);
 });
 test('윤달의 부탁은 공방 거래 누적 뒤 수락해야 하며 영입 완료와 분리된다',()=>{
  const s=createGame();assert.equal(cmd(s,'yun.quest').ok,false);recordYunTrade(s,10000);

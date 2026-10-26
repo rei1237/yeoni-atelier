@@ -9,6 +9,7 @@ import { BONDS, BOND_IDS, bondTier, bondFx } from '../data/bonds.js';
 import { advanceFarm } from './farm.js';
 import { cafeProgress } from './cafe-growth.js';
 import { grantEventOutfits } from './outfits.js';
+import { HANBI_STAGES } from '../data/hunt-stages.js';
 
 const C = TEMP.CALENDAR;
 export const PARTS = Object.freeze(['상순', '중순', '하순']);
@@ -98,12 +99,22 @@ export function advanceTurn(state) {
 export function pendingStory(state) {
   if (state.mode !== 'prep') return null;
   // 후일담: 결말을 본 뒤에도 인연 이야기는 이어진다
-  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : pendingBondStory(state);
+  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : pendingHanbiStory(state) || pendingBondStory(state);
   const c = calendarOf(state.day);
   const id = `m${c.monthIdx}`;
   if (!state.ledger.story[id]) return id;
   if (!state.huntUnlocked && !state.ledger.story['ev:hunt']) return 'ev:hunt';
-  return pendingBondStory(state);
+  return pendingHanbiStory(state) || pendingBondStory(state);
+}
+
+// 네오가 30·40·50·70·100단계를 처음 클리어하면 귀환 뒤 검은 호랑이 사건을 순서대로 하나씩 튼다(건너뛸 수 없다)
+export function pendingHanbiStory(state) {
+  if (state.roster.seohanbi) return null;
+  for (const n of HANBI_STAGES) {
+    if (state.ledger.story[`hanbi:${n}`]) continue;
+    return state.ledger.rewards[`stage:neo:${n}`] ? `hanbi:${n}` : null;
+  }
+  return null;
 }
 
 // 아직 안 본 인연 이야기 id(낮은 단계부터). 달 이야기를 본 뒤에 나온다.
@@ -117,7 +128,7 @@ export function pendingBondStory(state) {
 }
 
 export function markStory(state, id) {
-  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+)$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
+  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+|hanbi:\d+)$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
   if (state.ledger.story[id]) return { ok: true, duplicate: true };
   if (state.mode !== 'prep' || pendingStory(state) !== id) return { ok: false, reason: '지금 볼 수 있는 이야기가 아닙니다' };
   state.ledger.story[id] = true;

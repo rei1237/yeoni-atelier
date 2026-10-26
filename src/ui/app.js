@@ -40,6 +40,7 @@ import { applyAssetTheme } from './asset-html.js';
 import { pixelFx } from './pixel-fx.js';
 import { playNovel, novelActive } from './novel.js';
 import { EVENT_STORIES } from '../story/events.js';
+import { HANBI_STORIES } from '../story/hanbi.js';
 import { VISIT_STORIES } from '../story/visits.js';
 import { PROLOGUE } from '../story/prologue.js';
 import { MONTH_STORIES, ENDINGS } from '../story/months.js';
@@ -129,6 +130,7 @@ function storyBeats(id) {
   if (id.startsWith('ending:')) return ENDINGS[id.slice(7)]?.beats || null;
   if (id.startsWith('bond:')) { const [, who, k] = id.split(':'); return BOND_STORIES[who]?.[Number(k) - 1] || castBondStory(who,Number(k)); }
   if (id.startsWith('ev:')) return EVENT_STORIES[id] || null;
+  if (id.startsWith('hanbi:')) return HANBI_STORIES[id.slice(6)] || null;
   return careerMonthStory(Number(id.slice(1)), state);
 }
 

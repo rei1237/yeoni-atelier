@@ -7,6 +7,7 @@ export const SPEAKERS = Object.freeze({
  neo:{name:'네오',portrait:'neo'},neo_cat:{name:'영냥이',portrait:'neo_cat'},
  luna:{name:'루나',portrait:'luna'},luna_sis:{name:'루나 언니',portrait:'luna_sis'},
  rab:{name:'청토끼',portrait:'cheongtokki'},moka:{name:'모카',portrait:'moka'},
+ shadow_tiger:{name:'???',portrait:'seohanbi_tiger'}, // 100단계 전 검은 호랑이: 이름 비노출
 });
 export const PROLOGUE = Object.freeze([
   {

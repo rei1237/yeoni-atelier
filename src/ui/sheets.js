@@ -470,7 +470,7 @@ function companionSheet(state) {
     const def = personDef(state, r.id);
     if(r.id === 'seohanbi' && !state.roster.seohanbi) {
       const quest = hiddenGuestQuest(state);
-      rows.push(`<article class="hidden-guest"><div class="mystery-silhouette" aria-label="정체를 알 수 없는 손님">?</div><h3>??? · 붉은 봉인의 손님</h3><p>장부 사이에 붉은 봉인이 찍힌 편지가 놓여 있어요. 마지막 서명은 아직 읽히지 않아요.</p><ul>${quest.steps.map((step,i)=>`<li>${step.done?'✓':i===quest.next?'◇':'·'} ${esc(step.done||i===quest.next?step.text:'아직 읽히지 않는 문장')}</li>`).join('')}</ul>${btn({action:'recruit.event',args:{id:r.id},disabled:!quest.ready || state.mode!=='prep',cls:'primary',label:quest.ready?'봉인된 초대장 열기':'단서를 더 모으기'})}</article>`);
+      rows.push(`<article class="hidden-guest"><div class="mystery-silhouette" aria-label="정체를 알 수 없는 손님">?</div><h3>??? · 붉은 봉인의 손님</h3><p>달그늘 깊은 곳에서 붉은 눈의 그림자가 네오를 지켜보고 있어요. 네오로 단계를 깊이 클리어할수록 단서가 이어져요.</p><ul>${quest.steps.map((step,i)=>`<li>${step.done?'✓':i===quest.next?'◇':'·'} ${esc(step.done||i===quest.next?step.text:'아직 읽히지 않는 문장')}</li>`).join('')}</ul>${btn({action:'recruit.event',args:{id:r.id},disabled:!quest.ready || state.mode!=='prep',cls:'primary',label:quest.ready?'봉인된 초대장 열기':'단서를 더 모으기'})}</article>`);
       continue;
     }
     const tag = r.devOnly ? '<span class="tag dev">DEV 임시</span> ' : '';

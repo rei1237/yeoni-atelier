@@ -136,6 +136,8 @@
 .nv-pt.l{left:-5%;}.nv-pt.c{left:26%;}.nv-pt.r{right:-5%;transform:none;}
 .nv-pt.r.show{transform:none;}.nv-bg-layer.on{animation:none;}
 .nv-pt.dim{filter:brightness(.6) saturate(.85);}
+/* 100단계 전 검은 호랑이: 이름·모습을 감춘 실루엣 */
+.nv-pt.shadow,.nv-pt.shadow.dim,.nv-pt.shadow.speaking{filter:brightness(0) drop-shadow(0 0 10px rgba(150,44,64,.75));}
 
 /* 장면 효과(fx): 흔들림·빛. 동작 줄이기 설정에서는 novel.js 가 붙이지 않는다 */
 #novel.fx-shake .nv-portraits{animation:nv-shake .5s ease-out}

@@ -8,6 +8,10 @@ import { dispatch, tick } from '../src/game/engine.js';
 import { getHuntWorld, spawnEnemy, findBoss } from '../src/game/hunt.js';
 import { stepBoss, initBoss } from '../src/game/hunt-boss.js';
 import { serialize, deserialize } from '../src/core/save.js';
+import { pendingStory, calendarOf } from '../src/game/calendar.js';
+import { hiddenGuestQuest } from '../src/game/hidden-guest.js';
+import { recruitView } from '../src/game/economy.js';
+import { HANBI_STORIES } from '../src/story/hanbi.js';
 
 // 저장 → 불러오기 → 이어하기(사냥 중 저장은 일시정지로 열린다)
 const roundTrip = s => { const r = deserialize(serialize(s)); assert.ok(r.ok, r.reason); dispatch(r.state, { type: 'resume' }); return r.state; };
@@ -145,4 +149,36 @@ test('보스 페이즈가 바뀌면 남은 예고·탄을 지우고 회복 시�
   assert.equal(w.zones.length, 0);
   assert.equal(e.taskPhase, 'recover');
   assert.ok(e.taskUntil >= 100 + 2000);
+});
+
+test('검은 호랑이 사건은 네오 클리어 순서대로만 열리고, 100단계 뒤에야 이름이 드러나며 영입은 한 번', () => {
+  let s = createGame();
+  s.huntUnlocked = true; s.ledger.story['ev:hunt'] = true; s.ledger.story['m' + calendarOf(s.day).monthIdx] = true; // 테스트 준비: 달 이야기는 이미 봤다
+  const seen = id => dispatch(s, { type: 'story.seen', id }).ok;
+  assert.equal(pendingStory(s), null);
+  s.ledger.rewards['stage:seohanbi:30'] = true;
+  assert.equal(pendingStory(s), null, '네오가 아닌 클리어로는 열리지 않는다');
+  s.ledger.rewards['stage:neo:30'] = s.ledger.rewards['stage:neo:40'] = true;
+  assert.equal(pendingStory(s), 'hanbi:30');
+  assert.equal(seen('hanbi:40'), false, '순서를 건너뛸 수 없다');
+  assert.ok(seen('hanbi:30')); assert.equal(pendingStory(s), 'hanbi:40'); assert.ok(seen('hanbi:40'));
+  for (const n of [50, 70]) { s.ledger.rewards['stage:neo:' + n] = true; assert.ok(seen('hanbi:' + n)); }
+  assert.equal(hiddenGuestQuest(s).ready, false);
+  assert.equal(recruitView(s).find(v => v.id === 'seohanbi').status, 'locked');
+  assert.equal(dispatch(s, { type: 'recruit.complete', id: 'seohanbi' }).ok, false);
+  // 100단계 전 사건·단서에는 이름과 사람 모습이 없다
+  const early = [30, 40, 50, 70].flatMap(n => HANBI_STORIES[n]);
+  assert.ok(early.every(b => !/서한비/.test(JSON.stringify(b)) && b.s !== 'seohanbi' && !/(^|")seohanbi:/.test(JSON.stringify(b))));
+  assert.ok(hiddenGuestQuest(s).steps.every(x => !/서한비/.test(x.text)));
+  s.ledger.rewards['stage:neo:100'] = true;
+  assert.ok(seen('hanbi:100'));
+  assert.ok(HANBI_STORIES[100].some(b => b.s === 'seohanbi'));
+  assert.ok(hiddenGuestQuest(s).ready);
+  assert.equal(recruitView(s).find(v => v.id === 'seohanbi').status, 'available', '연차와 무관하게 100단계 사건 뒤 영입');
+  assert.ok(dispatch(s, { type: 'recruit.complete', id: 'seohanbi' }).ok);
+  s = deserialize(serialize(s)).state;
+  assert.equal(dispatch(s, { type: 'recruit.complete', id: 'seohanbi' }).ok, false, '영입은 한 번');
+  assert.ok(s.roster.seohanbi);
+  assert.equal(pendingStory(s)?.startsWith('hanbi:') ?? false, false);
+  assert.equal(bossFor(100, 'neo', true), 'boss_core', '합류 뒤 100단계는 흑월의 핵');
 });
