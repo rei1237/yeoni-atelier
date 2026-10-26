@@ -17,7 +17,8 @@
 
 ## 검증(재현 방법)
 - `npm test` → 125/125
-- `node tools/check-assets.mjs` → 408/409. 남은 실패 1건은 이전부터 있던 `ui/town-node-finance` 크기 불일치(파일 320×384, 정의 384×576). 전체 17.77MB로 15MB 예산 초과(이전부터, 한도는 올리지 않음)
+- `node tools/check-assets.mjs` → 409/409(금융 아이콘 별칭 크기 정정). 전체 17.77MB로 15MB 예산 초과가 남아 CI "game"이 실패한다. 한도는 올리지 않았다. q90 재인코딩으로는 17.05MB까지만 줄어든다(ASSETS.md "등록과 검사")
+- `py tools/check-sprites.py` → 93시트/1048프레임 오류 0
 - 시뮬(자동 봇, 사람 플레이테스트 아님): `node tools/sim-year.mjs [--with-hunt] [--loan]`, `node tools/sim-hunt.mjs`. 시드 7/42/20261025. 결과는 docs/QA.md·docs/TUNING.md·docs/qa/*.json
 - 화면: 개발 서버 `PORT=5291 npm start` 후 `/?dev=1`. 360/390/430/1280 캡처는 `D:/yeoni-qa/phase6/shots`(흐름·수동 주방·마을·인연·사냥, reduced-motion 사냥 1회). 콘솔 오류·HTTP 400 이상 0, 가로 스크롤 없음
 
@@ -31,3 +32,4 @@
 - 하단 탭 이름은 바꾸지 않았다. 인연 소설 선택은 친밀도 차이 외 분기 없음
 - `cafe-brand.css`가 쓰는 `--rose`·`--sage`·`--cream`·`--rose-dark` 변수가 정의되어 있지 않다(이전부터)
 - `src/game/hunt.js`의 `totalMonths` import는 쓰이지 않는다
+- 15MB 전송 예산: talking·wardrobe·actors 시트의 품질 하향(q80 이하) 또는 해상도 축소 중 무엇을 할지 아트 검수와 함께 결정할 것
