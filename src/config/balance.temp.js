@@ -72,6 +72,7 @@ export const TEMP = Object.freeze({
     SPAWN_RATE_MIN: 1.056,    // 초당 생성 수 = min(MAX, MIN + PER_MISSING × 모자란 수)
     SPAWN_RATE_MAX: 2.64,
     SPAWN_RATE_PER_MISSING: 0.45,
+    STAGES_PER_RUN: 3,        // 한 번 출발에 클리어할 수 있는 단계 수(다음 출발에 이어 간다)
     BOSS_DENSITY: 0.35,       // 보스가 있는 동안 잡몹 밀도 배율
     MAX_ENEMIES: 140,         // 안전 상한(단계 상한이 먼저 걸린다)
     MONTH_HP: 0.08,           // 달이 지날 때마다 적 HP +8% (3월 0, 다음 해 2월 +88%)

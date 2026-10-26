@@ -28,7 +28,7 @@ import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe } from '../render
 import { drawHunt } from '../render/hunt-view.js';
 import { $, morph, toast, floater, shake } from './dom.js';
 import { topbarHtml, panelHtml, bubblesHtml, hitsHtml } from './hud.js';
-import { sheetHtml, overlayHtml } from './sheets.js';
+import { sheetHtml, overlayHtml, tiredLine } from './sheets.js';
 import { drawDressroom, drawInlinePortraits } from './dressroom.js';
 import { outfitLine } from '../data/outfit-lines.js';
 import { stressStage } from '../game/stress.js';
@@ -412,6 +412,7 @@ function handleEvents(events) {
     const p = ev.tableNo != null ? tableAt(ev.tableNo) : null;
     switch (ev.type) {
       case 'huntCritical': ui.critLine=(ui.critLine||0)+1;showCafeLine(CAFE_LINES.critical[ui.critLine%CAFE_LINES.critical.length],'영냥이','neo_cat');sound('level');break;
+      case 'huntStageClear': if(ev.tired)showCafeLine(tiredLine(ev.hunterId),ev.hunterId==='seohanbi'?'서한비':'영냥이',ev.hunterId==='seohanbi'?'seohanbi':'neo_cat');break;
       case 'huntObjectBroken': sound('gem');break;
       case 'guestChatter': showCafeLine(ev.line,ev.kind==='takeaway'?'포장 손님':ev.tableNo?`${ev.tableNo}번 손님`:'손님','customer'); break;
       case 'paidAtCounter': sound('moon'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;

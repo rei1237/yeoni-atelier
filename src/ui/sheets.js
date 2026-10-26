@@ -613,6 +613,9 @@ function chestDialog(state) {
     <div class="stack">${btn({ action: 'hunt.chest', cls: 'primary', label: h.chests.length > 1 ? `받기 · 남은 상자 ${h.chests.length - 1}개` : '받기' })}</div></div>`;
 }
 
+// 한 번 출발에 3단계를 마친 사냥꾼의 한마디
+export const tiredLine = id => id === 'seohanbi' ? '오늘 사냥은 여기까지. 무리하면 내일이 무뎌져' : '영냥이가 피곤하군… 오늘은 여기까지만 할까?';
+
 // 단계 클리어: 다음 단계로 이어 가거나 귀환해 정산한다. 고르는 동안 시간이 멈춘다
 function stageClearDialog(state) {
   const h = state.hunt, c = h.stageChoice;
@@ -622,7 +625,8 @@ function stageClearDialog(state) {
     ${story ? '<p class="ok">달그늘 깊은 곳에서 무언가가 지켜보고 있었어요. 귀환하면 이야기가 이어져요.</p>' : ''}
     <div class="kv"><span>가방 월정석</span><b>${h.bag.moonstone || 0}</b><span>처치</span><b>${h.kills}</b><span>남은 체력</span><b>${Math.ceil(h.hp)} / ${h.maxHp}</b><span>열린 단계</span><b>${state.hunter.maxStage} / 100</b></div>
     <p class="small muted">이어 가면 체력과 이번 사냥의 기술이 그대로 이어져요. 쓰러져도 모은 월정석은 가져와요.</p>
-    <div class="stack">${c.next ? btn({ action: 'hunt.next', cls: 'primary', label: `다음 단계로 · ${c.stage + 1}단계` }) : '<p class="ok">달그늘 100단계를 모두 정복했어요!</p>'}${btn({ action: 'hunt.retreat', cls: c.next ? '' : 'primary', label: '귀환해서 정산하기' })}</div></div>`;
+    ${c.tired ? `<p class="ok">${tiredLine(h.hunterId)}</p><p class="small muted">다음 출발에서 ${c.stage + 1}단계부터 이어 갈 수 있어요.</p>` : ''}
+    <div class="stack">${c.next ? btn({ action: 'hunt.next', cls: 'primary', label: `다음 단계로 · ${c.stage + 1}단계` }) : c.tired ? '' : '<p class="ok">달그늘 100단계를 모두 정복했어요!</p>'}${btn({ action: 'hunt.retreat', cls: c.next ? '' : 'primary', label: c.tired ? '귀환' : '귀환해서 정산하기' })}</div></div>`;
 }
 
 function huntResult(state) {

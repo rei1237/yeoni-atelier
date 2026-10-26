@@ -652,11 +652,13 @@ function clearStage(state, w, def) {
     hs.bag.moonstone = (hs.bag.moonstone || 0) + bonus;
   }
   state.hunter.maxStage = Math.min(100, Math.max(state.hunter.maxStage || 1, n + 1));
-  hs.stageChoice = { stage: n, first, bonus, next: n < 100 };
+  // 한 번 출발에 STAGES_PER_RUN 단계까지. 그 뒤로는 귀환만 남는다
+  const tired = n < 100 && hs.cleared >= H.STAGES_PER_RUN;
+  hs.stageChoice = { stage: n, first, bonus, next: n < 100 && !tired, tired };
   w.sweep = true;
   w.banner = { label: `${def.name} 처치 · ${n}단계 클리어!`, warn: false, until: hs.elapsedMs + 2400 };
   emit('huntEvent', { kind: 'bossDown', label: `${n}단계 클리어!`, warn: false });
-  emit('huntStageClear', { stage: n, first, bonus });
+  emit('huntStageClear', { stage: n, first, bonus, tired, hunterId: hs.hunterId });
 }
 
 // 클리어 뒤 전장 정리: 남은 적·공격을 지우고 떨어진 월정석·별조각·상자는 모두 거둔다(적 순회가 끝난 뒤 실행)
@@ -677,6 +679,7 @@ function sweepField(state, w) {
 export function nextStage(state) {
   const hs = state.hunt;
   if (state.mode !== 'hunt' || !hs || hs.status !== 'running' || !hs.stageChoice) return { ok: false, reason: '보스를 쓰러뜨려야 다음 단계로 갈 수 있어요' };
+  if (hs.cleared >= H.STAGES_PER_RUN) return { ok: false, reason: '오늘은 여기까지 · 다음 출발에 이어 가요' };
   if (hs.depth >= 100 || hs.depth >= maxHuntDepth(state)) return { ok: false, reason: '더 깊은 단계가 없어요 · 귀환해 정산해 주세요' };
   if (hs.picks.length || hs.chests.length) return { ok: false, reason: '레벨업 카드와 상자를 먼저 정리해 주세요' };
   hs.depth += 1; hs.stageMs = 0; hs.boss = null; hs.bossSpawned = false; hs.bossDown = false; hs.fired = []; hs.stageChoice = null;

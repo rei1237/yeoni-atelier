@@ -27,10 +27,10 @@ function start(depth = 1, seed = 3) {
 }
 const alive = s => { const w = getHuntWorld(s); return w.enemies.items.slice(0, w.enemies.count); };
 // 카드는 첫 장, 상자는 바로 열며 클리어 선택이 뜰 때까지 진행
-function untilClear(s, maxMs = 600000) {
+function untilClear(s, maxMs = 600000, input = { x: 0.4, y: 0.2 }) {
   const end = s.hunt.elapsedMs + maxMs;
   while (s.hunt.status === 'running' && !s.hunt.stageChoice && s.hunt.elapsedMs < end) {
-    tick(s, 500, { input: { x: 0.4, y: 0.2 } });
+    tick(s, 500, { input });
     while (s.hunt.picks.length) dispatch(s, { type: 'hunt.pick', index: 0 });
     while (s.hunt.chests.length) dispatch(s, { type: 'hunt.chest' });
   }
@@ -245,4 +245,30 @@ test('모카의 회복 수프는 3개까지만 챙긴다', () => {
   const m = s.moonstone, r = dispatch(s, { type: 'armory.buy', id: 'tonic' });
   assert.equal(r.ok, false); assert.equal(r.reason, '회복 수프는 3개까지만 챙길 수 있어요');
   assert.equal(s.moonstone, m); assert.equal(s.armory.supplies.tonic, 3);
+});
+
+test('한 번 출발에 3단계까지: 3단계 클리어 뒤 다음 단계는 거절되고 귀환·정산은 한 번', () => {
+  const s = start(1);
+  s.hunt.hp = s.hunt.maxHp = 1e9; // 테스트 준비
+  for (let n = 1; n <= TEMP.HUNT.STAGES_PER_RUN; n++) {
+    s.hunt.stageMs = stageDef(n).prepMs;
+    untilClear(s, 600000, { x: 0, y: 0 });
+    assert.equal(s.hunt.stageChoice?.stage, n);
+    if (n < TEMP.HUNT.STAGES_PER_RUN) assert.ok(dispatch(s, { type: 'hunt.next' }).ok);
+  }
+  assert.equal(s.hunt.stageChoice.tired, true);
+  assert.equal(s.hunt.stageChoice.next, false);
+  const r = dispatch(s, { type: 'hunt.next' });
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, '오늘은 여기까지 · 다음 출발에 이어 가요');
+  assert.equal(s.hunt.depth, 3);
+  assert.equal(s.hunter.maxStage, 4, '다음 출발은 4단계부터 고를 수 있다');
+  assert.ok(dispatch(s, { type: 'hunt.retreat' }).ok);
+  const moon0 = s.moonstone, bag = s.hunt.bag.moonstone;
+  assert.ok(dispatch(s, { type: 'hunt.finish' }).ok);
+  const paid = s.moonstone;
+  assert.ok(paid >= moon0 + bag, '가방 월정석은 모두 받는다');
+  assert.equal(dispatch(s, { type: 'hunt.finish' }).ok, false);
+  assert.equal(s.moonstone, paid, '정산은 한 번');
+  assert.deepEqual([1, 2, 3].map(n => s.ledger.rewards[`stage:neo:${n}`]), [true, true, true]);
 });
