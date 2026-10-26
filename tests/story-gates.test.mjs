@@ -13,6 +13,10 @@ import { topbarHtml, panelHtml } from '../src/ui/hud.js';
 import { sheetHtml, overlayHtml } from '../src/ui/sheets.js';
 import { MONTH_STORIES } from '../src/story/months.js';
 import { EVENT_STORIES } from '../src/story/events.js';
+import { HANBI_STORIES } from '../src/story/hanbi.js';
+import { PROLOGUE } from '../src/story/prologue.js';
+import { BOND_STORIES } from '../src/story/bonds.js';
+import { VISIT_STORIES } from '../src/story/visits.js';
 
 test('개장 전 HUD·결산은 일반 카페이며 5월 이벤트 뒤 지명 조작을 공개한다', () => {
   const s = createGame(), ui = { dev:false, speed:1 };
@@ -131,4 +135,10 @@ test('영업 중 카페 레벨이 올라도 그 자리에서 행동력을 더하
   dispatch(s, { type: 'settlement.close' });
   assert.equal(s.ap.left, maxActionPoints(s));
   assert.ok(s.ap.left >= TEMP.CALENDAR.AP_PER_TURN + 1);
+});
+
+test('보스곡은 서한비 에피소드 전용: 모든 서한비 이야기는 boss로 시작하고 다른 이야기는 쓰지 않는다', () => {
+  for (const [n, beats] of Object.entries(HANBI_STORIES)) assert.equal(beats[0].bgm, 'boss', `${n}단계 이야기`);
+  const others = [PROLOGUE, ...Object.values(MONTH_STORIES), ...Object.values(EVENT_STORIES), ...Object.values(BOND_STORIES).flatMap(x => Array.isArray(x) ? [x] : Object.values(x)), ...Object.values(VISIT_STORIES)];
+  for (const beats of others) assert.ok(!beats.flat(Infinity).some(b => b?.bgm === 'boss'));
 });

@@ -16,7 +16,6 @@ import { createGame, personName, personDef } from '../game/state.js';
 import { dispatch, tick, helperAvailable, HELPERS } from '../game/engine.js';
 import { findServeTarget } from '../game/cafe.js';
 import { getHuntWorld, paused as huntPaused } from '../game/hunt.js';
-import { ENEMIES } from '../data/hunt-kit.js';
 import { preview as interiorPreview } from '../game/interior.js';
 import { furnitureCells } from '../game/space.js';
 import { recordWallClock } from '../game/offline.js';
@@ -487,8 +486,9 @@ function render(force = false) {
   morph(el.hits, hitsHtml(state, view, ui));
   document.getElementById('camera-controls').hidden=!state||state.mode==='hunt';
   const hunting=state?.mode==='hunt', h=state?.hunt;
-  const bossAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>ENEMIES[e.type]?.boss);
-  setAudioScene(novelActive()?'story':hunting?(h.status!=='running'?'huntResult':bossAlive?'huntBoss':h.depth>=55?'huntDeep':'hunt'):state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind==='hunt'?'huntPrep':ui.sheet?.kind||(state?'cafe':'title'));
+  // 보스곡은 서한비(검은 호랑이) 전용. 일반 단계 보스는 깊이별 사냥곡
+  const hanbiAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>e.type==='boss_hanbi');
+  setAudioScene(novelActive()?'story':hunting?(h.status!=='running'?'huntResult':hanbiAlive?'huntBoss':h.depth>=55?'huntDeep':'hunt'):state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind==='hunt'?'huntPrep':ui.sheet?.kind||(state?'cafe':'title'));
   const guide=({kitchen:'cook',craft:'cook',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop'})[ui.sheet?.kind] || (state?.interior.draft?'interior':null);
   // 잠긴 농장·공방에서는 안내를 띄우지 않는다
   const guideLocked=guide==='farm'?placeLock(state,'farm'):guide==='armory'?placeLock(state,'gear'):'';
