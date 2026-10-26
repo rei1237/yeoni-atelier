@@ -423,7 +423,7 @@ export function stepStaff(state, dt) {
     if (!j) {
       if (Math.floor(s.x) !== s.home.x || Math.floor(s.y) !== s.home.y) sendHome(state, s);
     } else if (j.kind === 'home') {
-      if (arrived) s.job = null;
+      if (arrived) { s.job = null; s.facing = s.id === 'yeoni' ? 'right' : 'down'; } // 제자리에 오면 등 돌리지 않고 홀을 본다
     } else if (j.kind === 'deliver') {
       const task = state.tasks.find(t => t.id === j.taskId);
       const order = task && state.orders[task.orderId];

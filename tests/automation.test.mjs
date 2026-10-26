@@ -8,6 +8,7 @@ import { TEMP } from '../src/config/balance.temp.js';
 import { RULES } from '../src/config/rules.js';
 import { CROPS } from '../src/data/farm.js';
 import { automationStatus } from '../src/game/auto.js';
+import { sendHome } from '../src/game/cafe.js';
 import { talkCheck } from '../src/game/bonds.js';
 import { bondQuestion } from '../src/data/bond-dialogues.js';
 import { BOND_STORIES } from '../src/story/bonds.js';
@@ -68,6 +69,16 @@ test('서빙 중 한계에 닿은 직원은 음식을 넘기고, 주문은 사�
   assert.equal(s.staff[carrier.id].carry, null, '들고 있던 음식은 트레이·보관칸으로 넘어갔다');
   for (let i = 0; i < 1800 && s.customers[reg.cid]; i++) tick(s, 100);
   assert.ok(s.visits[reg.vid].servedTotal > 0, '넘긴 음식도 결국 손님에게 간다');
+});
+
+test('서빙·접대를 마치고 위쪽 벽 앞 제자리로 돌아온 직원은 뒤돌아 서 있지 않는다', () => {
+  const s = quietShift();
+  const st = s.staff.luna; // 제자리가 맨 위 벽 앞이라 마지막 걸음이 위쪽이다(네오 대기 자리와 같음)
+  st.x = st.home.x + 0.5; st.y = st.home.y + 2.5;
+  sendHome(s, st);
+  for (let i = 0; i < 50 && st.job; i++) tick(s, 100);
+  assert.equal(st.job, null, '제자리에 돌아왔다');
+  assert.equal(st.facing, 'down', '홀을 본다');
 });
 
 test('스트레스 한계 직원은 그 영업을 쉬고, 휴무를 주면 다음 결산에서 크게 회복한다', () => {
