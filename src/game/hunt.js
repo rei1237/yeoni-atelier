@@ -612,7 +612,7 @@ function subStep(state, dt, input) {
     if (!ENEMIES[e.type].boss) continue;
     const phase = stepBoss(state, w, e, t, dt, spawnMinion);
     if (hs.boss) { hs.boss.hp = Math.max(0, e.hp); hs.boss.phase = e.phaseNo || 0; }
-    if (phase != null) { const label = `${ENEMIES[e.type].name}의 기세가 바뀌었다!`; w.banner = { label, warn: true, until: t + 2000 }; emit('huntEvent', { kind: 'bossPhase', label, warn: true }); }
+    if (phase != null) { const def = ENEMIES[e.type], label = def.phases?.[phase]?.enrage ? `${def.name} 격노! · 공격이 빨라진다` : `${def.name}의 기세가 바뀌었다!`; w.banner = { label, warn: true, until: t + 2000 }; emit('huntEvent', { kind: 'bossPhase', label, warn: true }); }
   }
   stepZones(state, w, t);
   collect(state, w, t, m, dt);

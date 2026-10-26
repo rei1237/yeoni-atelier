@@ -47,6 +47,9 @@ export const PASSIVES = Object.freeze({
 });
 
 // 적: r = 충돌 반지름, size = 그릴 크기, xp = 떨어뜨리는 별조각 값
+// 일반 보스 페이즈: 처음 → 체력 50% 아래 격노(예고·회복이 짧아지고 빨라진다, src/game/hunt-boss.js)
+const rage = (calm, angry) => [{ below: 1.01, tasks: calm }, { below: .5, tasks: angry, enrage: true }];
+
 export const ENEMIES = Object.freeze({
   rabbit_scout:{name:'청토끼 정찰병',hp:20,speed:66,dmg:7,xp:1,r:14,size:44},
   moon_bomber:{name:'불안정한 월광',hp:38,speed:70,dmg:24,xp:2,r:15,size:44,role:'bomber'},
@@ -61,17 +64,18 @@ export const ENEMIES = Object.freeze({
   shade_wisp: { name: '도깨비불', hp: 26, speed: 76, dmg: 7, xp: 2, r: 12, size: 36, zigzag: true },
   elite_hand: { name: '큰 검은 손', hp: 520, speed: 60, dmg: 15, xp: 20, r: 26, size: 72, chest: true, elite: true },
   // 보스: art = 그릴 그림 키, tasks = 예고→행동→회복을 도는 공격 순서(src/game/hunt-boss.js), phases = 체력 비율별 공격 순서
-  boss_hand: { name: '거대한 검은 손', art: 'boss_hand', hp: 700, speed: 52, dmg: 18, xp: 40, r: 40, size: 108, chest: true, elite: true, boss: true, tasks: ['charge'] },
-  boss_brute: { name: '변이 청토끼 대장', art: 'rabbit_brute', hp: 900, speed: 56, dmg: 20, xp: 45, r: 34, size: 100, chest: true, elite: true, boss: true, tasks: ['slam', 'charge'] },
-  boss_stalker: { name: '달그늘 추적자', art: 'shade_wisp', hp: 820, speed: 70, dmg: 16, xp: 45, r: 30, size: 92, chest: true, elite: true, boss: true, tasks: ['stalk', 'slam'] },
-  boss_blob: { name: '늪의 검은 덩어리', art: 'shade_blob', hp: 1100, speed: 40, dmg: 18, xp: 50, r: 38, size: 108, chest: true, elite: true, boss: true, tasks: ['puddle', 'summon'] },
-  boss_lord: { name: '검은 손 군주', art: 'elite_hand', hp: 1300, speed: 54, dmg: 20, xp: 55, r: 40, size: 116, chest: true, elite: true, boss: true, tasks: ['summon', 'charge', 'slam'] },
-  boss_clock: { name: '멈춘 시계의 그림자', art: 'shade_clock', hp: 1200, speed: 64, dmg: 18, xp: 55, r: 34, size: 100, chest: true, elite: true, boss: true, tasks: ['fault', 'stalk'] },
-  boss_thorn: { name: '가시 십자', art: 'shade_thorn', hp: 1400, speed: 46, dmg: 20, xp: 60, r: 36, size: 104, chest: true, elite: true, boss: true, tasks: ['cross', 'crossx', 'fault'] },
-  boss_core: { name: '흑월의 핵', art: 'heukwol_fragment', hp: 1800, speed: 50, dmg: 24, xp: 70, r: 40, size: 116, chest: true, elite: true, boss: true, tasks: ['barrage', 'cross', 'summon'] },
+  // 일반 보스는 체력 50% 아래에서 격노(enrage) 페이즈로 바뀐다
+  boss_hand: { name: '거대한 검은 손', art: 'boss_hand', hp: 875, speed: 52, dmg: 21, xp: 40, r: 40, size: 108, chest: true, elite: true, boss: true, phases: rage(['charge', 'slam'], ['charge2', 'slam', 'fan']) },
+  boss_brute: { name: '변이 청토끼 대장', art: 'rabbit_brute', hp: 1125, speed: 56, dmg: 23, xp: 45, r: 34, size: 100, chest: true, elite: true, boss: true, phases: rage(['slam', 'charge', 'ripple'], ['charge2', 'ripple', 'slam']) },
+  boss_stalker: { name: '달그늘 추적자', art: 'shade_wisp', hp: 1025, speed: 70, dmg: 18, xp: 45, r: 30, size: 92, chest: true, elite: true, boss: true, phases: rage(['stalk', 'slam', 'rain'], ['stalk', 'rain', 'charge2']) },
+  boss_blob: { name: '늪의 검은 덩어리', art: 'shade_blob', hp: 1375, speed: 40, dmg: 21, xp: 50, r: 38, size: 108, chest: true, elite: true, boss: true, phases: rage(['puddle', 'summon', 'ripple'], ['puddle', 'rain', 'summon', 'ripple']) },
+  boss_lord: { name: '검은 손 군주', art: 'elite_hand', hp: 1625, speed: 54, dmg: 23, xp: 55, r: 40, size: 116, chest: true, elite: true, boss: true, phases: rage(['summon', 'charge', 'slam', 'fan'], ['charge2', 'fan', 'summon', 'ripple']) },
+  boss_clock: { name: '멈춘 시계의 그림자', art: 'shade_clock', hp: 1500, speed: 64, dmg: 21, xp: 55, r: 34, size: 100, chest: true, elite: true, boss: true, phases: rage(['fault', 'stalk', 'rain'], ['fault', 'rain', 'stalk', 'charge2']) },
+  boss_thorn: { name: '가시 십자', art: 'shade_thorn', hp: 1750, speed: 46, dmg: 23, xp: 60, r: 36, size: 104, chest: true, elite: true, boss: true, phases: rage(['cross', 'crossx', 'fault', 'fan'], ['cross', 'rain', 'crossx', 'ripple']) },
+  boss_core: { name: '흑월의 핵', art: 'heukwol_fragment', hp: 2250, speed: 50, dmg: 28, xp: 70, r: 40, size: 116, chest: true, elite: true, boss: true, phases: rage(['barrage', 'cross', 'summon', 'fan'], ['barrage', 'rain', 'crossx', 'fan', 'ripple']) },
   // 100단계: 네오와 서한비(정체는 영입 전까지 숨김)의 결투. 이름은 "검은 호랑이"로만 보인다
-  boss_hanbi: { name: '검은 호랑이', art: 'seohanbi_tiger', hp: 2600, speed: 62, dmg: 26, xp: 90, r: 40, size: 124, chest: true, elite: true, boss: true,
-    phases: [{ below: 1.01, tasks: ['charge', 'cross', 'stalk'] }, { below: .66, tasks: ['fault', 'barrage', 'charge'] }, { below: .33, tasks: ['slam', 'barrage', 'crossx', 'stalk'] }] },
+  boss_hanbi: { name: '검은 호랑이', art: 'seohanbi_tiger', hp: 3200, speed: 62, dmg: 30, xp: 90, r: 40, size: 124, chest: true, elite: true, boss: true,
+    phases: [{ below: 1.01, tasks: ['charge', 'cross', 'stalk', 'charge2'] }, { below: .66, tasks: ['fault', 'barrage', 'charge2', 'ripple'] }, { below: .33, tasks: ['slam', 'barrage', 'crossx', 'rain', 'stalk'], enrage: true }] },
 });
 
 // 단계별 등장 적·사건·보스는 src/data/hunt-stages.js

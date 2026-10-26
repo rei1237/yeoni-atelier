@@ -10,9 +10,9 @@ const SK = TEMP.HUNT_SKILLS;
 export const HUNTERS = ['neo', 'seohanbi'];
 // 강화·소모품 월정석 값은 임시(TEMP). 10-26: 단계 사냥 월정석 수급에 맞춰 두 배로 올림
 export const UPGRADES = Object.freeze({
-  power: { name:'무기 연마', base:90, step:8, value:.045, detail:'피해 배율 +4.5%p' },
-  vitality: { name:'수호 부적', base:70, step:6, value:7, detail:'최대 체력 +7' },
-  magnet: { name:'월광 수집기', base:80, step:6, value:.035, detail:'줍기 범위 +3.5%p' },
+  power: { name:'무기 연마', base:320, step:60, value:.045, detail:'피해 배율 +4.5%p' },
+  vitality: { name:'수호 부적', base:260, step:50, value:7, detail:'최대 체력 +7' },
+  magnet: { name:'월광 수집기', base:280, step:50, value:.035, detail:'줍기 범위 +3.5%p' },
 });
 export const SUPPLIES = Object.freeze({
   tonic:{name:'모카의 회복 수프', cost:36, tier:0, icon:'heal', detail:'최대 체력의 35% 회복 · 사냥터에는 회복 아이템이 없어요', limit:3},

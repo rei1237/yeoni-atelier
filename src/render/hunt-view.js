@@ -54,6 +54,9 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
     if (z.kind === 'circle') {
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2); ctx.stroke();
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r * k, 0, Math.PI * 2); ctx.fill();
+    } else if (z.kind === 'ring') { // 도넛: 안쪽은 안전
+      ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2); ctx.moveTo(z.x + z.r0, z.y); ctx.arc(z.x, z.y, z.r0, 0, Math.PI * 2, true); ctx.stroke();
+      ctx.beginPath(); ctx.arc(z.x, z.y, z.r0 + (z.r - z.r0) * k, 0, Math.PI * 2); ctx.moveTo(z.x + z.r0, z.y); ctx.arc(z.x, z.y, z.r0, 0, Math.PI * 2, true); ctx.fill();
     } else {
       const len = Math.hypot(z.x2 - z.x, z.y2 - z.y);
       ctx.translate(z.x, z.y); ctx.rotate(Math.atan2(z.y2 - z.y, z.x2 - z.x));

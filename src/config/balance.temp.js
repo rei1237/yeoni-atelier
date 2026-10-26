@@ -66,11 +66,14 @@ export const TEMP = Object.freeze({
     // 무기·보조 능력·적 수치는 src/data/hunt-kit.js (모두 임시)
     PLAYER_SPEED: 165,        // px/s (필드 좌표)
     PLAYER_HP: 100,
-    HURT_IFRAME_MS: 700,
+    HURT_IFRAME_MS: 600,
+    DEPTH_HP0: 1.15,          // 1단계 적 체력 배율(단계마다 hunt-growth.js depthScale 로 오른다)
+    DEPTH_DMG0: 1.2,          // 1단계 받는 피해 배율
+    DEPTH_DMG_STEP: 0.03,     // 단계당 받는 피해 증가
     SUB_STEP_MS: 34,          // 탄이 적을 뚫고 지나가지 않도록 탐색 안에서 더 잘게 나눈다
     // 단계별 준비 시간·밀도·동시 상한은 src/data/hunt-stages.js. 생성은 밀도 목표보다 모자랄 때만 한다
-    SPAWN_RATE_MIN: 1.056,    // 초당 생성 수 = min(MAX, MIN + PER_MISSING × 모자란 수)
-    SPAWN_RATE_MAX: 2.64,
+    SPAWN_RATE_MIN: 1.35,    // 초당 생성 수 = min(MAX, MIN + PER_MISSING × 모자란 수)
+    SPAWN_RATE_MAX: 3.3,
     SPAWN_RATE_PER_MISSING: 0.45,
     STAGES_PER_RUN: 3,        // 한 번 출발에 클리어할 수 있는 단계 수(다음 출발에 이어 간다)
     BOSS_DENSITY: 0.35,       // 보스가 있는 동안 잡몹 밀도 배율
@@ -87,7 +90,7 @@ export const TEMP = Object.freeze({
     MAGNET_RADIUS: 150,
     PICKUP_RADIUS: 42,
     GEM_CAP: 140,             // 넘으면 새 별조각을 기존 별조각에 합친다
-    HEAL_FISH: 30,
+    HEAL_FISH: 24,
     BOMB_RADIUS: 280,
     BOMB_DAMAGE: 200,
     POWER_DROP: Object.freeze([ // 일반 적 처치 시 확률

@@ -10,7 +10,7 @@ import { skillCost, skillRank, skillMaxRank } from '../src/game/moka-armory.js';
 import { placeLock } from '../src/game/unlocks.js';
 import { hunterProgress } from '../src/game/hunt-growth.js';
 import { TEMP } from '../src/config/balance.temp.js';
-import { stepBoss, initBoss } from '../src/game/hunt-boss.js';
+import { stepBoss, initBoss, BOSS_TASKS, warnMs, bossPhaseOf, isEnraged, zoneHits } from '../src/game/hunt-boss.js';
 import { serialize, deserialize } from '../src/core/save.js';
 import { pendingStory, calendarOf } from '../src/game/calendar.js';
 import { hiddenGuestQuest } from '../src/game/hidden-guest.js';
@@ -73,7 +73,8 @@ test('준비 시간이 끝나면 보스가 반드시 나오고, 처치해야 클
   assert.ok(findBoss(w) >= 0, '보스 생성');
   assert.equal(alive(s).find(e => ENEMIES[e.type].boss).type, bossFor(1));
   assert.ok(s.hunt.boss && s.hunt.boss.hp > 0);
-  untilClear(s);
+  // 끝없는 들판이라 한 방향으로만 달리면 보스가 못 따라온다. 제자리에서 상대한다
+  untilClear(s, 600000, { x: 0, y: 0 });
   assert.ok(s.hunt.stageChoice?.first);
   const moon = s.hunt.bag.moonstone;
   assert.equal(s.hunter.maxStage, 2);
@@ -84,7 +85,7 @@ test('준비 시간이 끝나면 보스가 반드시 나오고, 처치해야 클
   assert.ok(dispatch(again, { type: 'hunt.start', depth: 1 }).ok);
   again.hunt.hp = again.hunt.maxHp = 1e9;
   again.hunt.stageMs = stageDef(1).prepMs;
-  untilClear(again);
+  untilClear(again, 600000, { x: 0, y: 0 });
   assert.equal(again.hunt.stageChoice.first, false);
   assert.equal(again.hunt.stageChoice.bonus, 0);
   assert.equal(again.hunter.maxStage, 2);
@@ -271,4 +272,48 @@ test('한 번 출발에 3단계까지: 3단계 클리어 뒤 다음 단계는 �
   assert.equal(dispatch(s, { type: 'hunt.finish' }).ok, false);
   assert.equal(s.moonstone, paid, '정산은 한 번');
   assert.deepEqual([1, 2, 3].map(n => s.ledger.rewards[`stage:neo:${n}`]), [true, true, true]);
+});
+
+// 보스 패턴 공정성: 예고 1.0초 이상, 격노 전환, 도넛 안쪽 안전, 탄막 빈틈
+const BOSSES = Object.entries(ENEMIES).filter(([, d]) => d.boss);
+test('모든 보스 패턴 예고는 격노·두 번째 돌진까지 1.0초 이상이다', () => {
+  for (const [id, def] of BOSSES) def.phases.forEach((ph, n) => {
+    for (const task of ph.tasks) {
+      assert.ok(BOSS_TASKS[task], `${id} ${task}`);
+      assert.ok(warnMs(def, n, task) >= 1000, `${id} ${n} ${task}`);
+      if (BOSS_TASKS[task].warn2) assert.ok(warnMs(def, n, task, true) >= 1000, `${id} ${task} 2nd`);
+    }
+  });
+});
+test('일반 보스는 체력 50% 아래에서 격노 페이즈로 바뀐다', () => {
+  for (const [id, def] of BOSSES.filter(([id]) => id !== 'boss_hanbi')) {
+    assert.equal(bossPhaseOf(def, .51), 0, id);
+    const n = bossPhaseOf(def, .49);
+    assert.ok(n > 0 && isEnraged(def, n), id);
+  }
+});
+test('ring 구역은 안쪽 r0 에서 피해가 없고 고리 띠에서만 맞는다', () => {
+  const z = { kind: 'ring', x: 0, y: 0, r0: 130, r: 250 };
+  assert.equal(zoneHits(z, 0, 0), false);
+  assert.equal(zoneHits(z, 100, 0), false);
+  assert.equal(zoneHits(z, 190, 0), true);
+  assert.equal(zoneHits(z, 300, 0), false);
+});
+test('fan·barrage 탄막에는 지나갈 빈틈이 있다', () => {
+  const s = createGame({ seed: 7 });
+  const fire = (task, idx) => {
+    const w = { player: { x: 0, y: 600 }, hostile: [], zones: [], fx: [], enemies: { count: 0, items: [] } };
+    const e = { type: 'boss_core', x: 0, y: 0, hp: 100, maxHp: 100 };
+    initBoss(e, 0); e.taskIdx = idx;
+    stepBoss(s, w, e, 2200, 16, () => {});
+    assert.equal(e.task, task);
+    stepBoss(s, w, e, 2200 + warnMs(ENEMIES.boss_core, 0, task), 16, () => {});
+    return w.hostile.map(b => Math.atan2(b.vy, b.vx)).sort((a, b) => a - b);
+  };
+  const fan = fire('fan', 3), F = BOSS_TASKS.fan;
+  assert.equal(fan.length, F.slots - F.gaps);
+  const bar = fire('barrage', 0), B = BOSS_TASKS.barrage;
+  assert.ok(bar.length <= B.slots - B.gaps * 2);
+  const gaps = bar.map((a, i) => ((bar[(i + 1) % bar.length] - a) + Math.PI * 2) % (Math.PI * 2));
+  assert.ok(Math.max(...gaps) >= Math.PI * 2 / B.slots * 2.5, '원형 탄막 빈틈');
 });

@@ -1,31 +1,31 @@
 {
-  "method": "사냥 조이스틱 봇 / 사람 플레이테스트 아님 / 신규 무장비",
+  "method": "사냥 조이스틱 봇(붉은 예고·적 탄 회피) / 사람 플레이테스트 아님 / 신규 무장비",
   "rows": [
     {
       "seed": 7,
       "run": 1,
       "from": 1,
-      "depth": 11,
-      "cleared": 10,
-      "maxStage": 11,
-      "status": "retreat",
-      "kills": 2649,
-      "moonstone": 2419,
-      "xp": 10817,
-      "careerLevel": 6
+      "depth": 2,
+      "cleared": 1,
+      "maxStage": 2,
+      "status": "down",
+      "kills": 226,
+      "moonstone": 176,
+      "xp": 696,
+      "careerLevel": 1
     },
     {
       "seed": 7,
       "run": 2,
-      "from": 11,
-      "depth": 19,
-      "cleared": 8,
-      "maxStage": 19,
-      "status": "retreat",
-      "kills": 3273,
-      "moonstone": 4259,
-      "xp": 18773,
-      "careerLevel": 11
+      "from": 2,
+      "depth": 3,
+      "cleared": 1,
+      "maxStage": 3,
+      "status": "down",
+      "kills": 327,
+      "moonstone": 242,
+      "xp": 1089,
+      "careerLevel": 2
     },
     {
       "seed": 7,
@@ -33,33 +33,33 @@
       "depth": 1,
       "cleared": 0,
       "status": "down",
-      "kills": 46,
-      "moonstone": 17
+      "kills": 78,
+      "moonstone": 20
     },
     {
       "seed": 42,
       "run": 1,
       "from": 1,
       "depth": 3,
-      "cleared": 2,
-      "maxStage": 3,
-      "status": "down",
-      "kills": 358,
-      "moonstone": 283,
-      "xp": 1229,
+      "cleared": 3,
+      "maxStage": 4,
+      "status": "retreat",
+      "kills": 498,
+      "moonstone": 478,
+      "xp": 1736,
       "careerLevel": 2
     },
     {
       "seed": 42,
       "run": 2,
-      "from": 3,
-      "depth": 5,
+      "from": 4,
+      "depth": 6,
       "cleared": 2,
-      "maxStage": 5,
+      "maxStage": 6,
       "status": "down",
-      "kills": 573,
-      "moonstone": 461,
-      "xp": 1963,
+      "kills": 721,
+      "moonstone": 638,
+      "xp": 2427,
       "careerLevel": 3
     },
     {
@@ -68,34 +68,34 @@
       "depth": 1,
       "cleared": 0,
       "status": "down",
-      "kills": 46,
-      "moonstone": 15
+      "kills": 77,
+      "moonstone": 20
     },
     {
       "seed": 20261025,
       "run": 1,
       "from": 1,
-      "depth": 11,
-      "cleared": 10,
-      "maxStage": 11,
+      "depth": 3,
+      "cleared": 3,
+      "maxStage": 4,
       "status": "retreat",
-      "kills": 1702,
-      "moonstone": 2075,
-      "xp": 7437,
-      "careerLevel": 5
+      "kills": 465,
+      "moonstone": 525,
+      "xp": 1634,
+      "careerLevel": 2
     },
     {
       "seed": 20261025,
       "run": 2,
-      "from": 11,
-      "depth": 18,
-      "cleared": 7,
-      "maxStage": 18,
-      "status": "retreat",
-      "kills": 2569,
-      "moonstone": 3504,
-      "xp": 14770,
-      "careerLevel": 9
+      "from": 4,
+      "depth": 5,
+      "cleared": 1,
+      "maxStage": 5,
+      "status": "down",
+      "kills": 411,
+      "moonstone": 319,
+      "xp": 1360,
+      "careerLevel": 3
     },
     {
       "seed": 20261025,
@@ -103,8 +103,8 @@
       "depth": 1,
       "cleared": 0,
       "status": "down",
-      "kills": 56,
-      "moonstone": 18
+      "kills": 80,
+      "moonstone": 21
     }
   ]
 }
