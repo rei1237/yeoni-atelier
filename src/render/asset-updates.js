@@ -4646,16 +4646,107 @@ export const ASSET_UPDATES = {
       "label": "neo",
       "path": "assets/illustrated/actors/neo_cat_attack.webp",
       "dimensions": [
-        512,
-        512
+        768,
+        640
       ],
       "frame": {
-        "w": 128,
-        "h": 128
+        "w": 192,
+        "h": 160
       },
       "anchor": {
-        "x": 64,
-        "y": 122
+        "x": 96,
+        "y": 154
+      },
+      "columns": 4,
+      "directionRows": 1,
+      "directions": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ],
+      "stateRows": {
+        "idle": 0,
+        "walk": 0,
+        "cook": 0,
+        "serve": 0,
+        "host": 0,
+        "react": 0,
+        "attack": 0,
+        "hurt": 0
+      },
+      "states": {
+        "idle": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 0
+        },
+        "cook": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "serve": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "host": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "react": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "attack": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        },
+        "hurt": {
+          "frames": 1,
+          "fps": 8,
+          "loop": true,
+          "frameOffset": 1
+        }
+      },
+      "fallback": {
+        "shape": "person",
+        "body": "#51486b",
+        "skin": "#ffe6da",
+        "hair": "#332344"
+      }
+    },
+    "neo_cat_cast": {
+      "kind": "actor",
+      "label": "neo",
+      "path": "assets/illustrated/actors/neo_cat_cast.webp",
+      "dimensions": [
+        768,
+        640
+      ],
+      "frame": {
+        "w": 192,
+        "h": 160
+      },
+      "anchor": {
+        "x": 96,
+        "y": 154
       },
       "columns": 4,
       "directionRows": 1,

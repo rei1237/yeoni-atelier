@@ -341,6 +341,7 @@
     "wardrobe/neo@neo_swim",
     "wardrobe/neo",
     "actors/neo_cat_attack",
+    "actors/neo_cat_cast",
     "backgrounds/cafe_room",
     "ui/loading",
     "actors/neo_idle",

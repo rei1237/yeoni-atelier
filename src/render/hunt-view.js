@@ -137,8 +137,15 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const hurt = now < p.hurtUntil;
   const st = p.action !== 'idle' ? p.action : p.moving ? 'walk' : 'idle';
   if (hurt && Math.floor(t / 80) % 2) ctx.globalAlpha = 0.5;
-  const attacking=swing&&now<swing.until;
-  drawActor(ctx, hs.hunterId==='seohanbi'?'seohanbi_tiger':attacking?'neo_cat_attack':'neo_cat', {x:p.x,y:p.y+20,size:hs.hunterId==='seohanbi'?76:68,state:attacking?'walk':st,facing:attacking?p.attackFacing:p.facing,t:now,animationFrame:attacking?Math.min(3,Math.floor((now-swing.at)/90)):undefined});
+  const attacking=swing&&now<swing.until,casting=!attacking&&p.cast&&now<p.cast.until;
+  if(hs.hunterId==='seohanbi')drawActor(ctx,'seohanbi_tiger',{x:p.x,y:p.y+20,size:76,state:attacking?'walk':st,facing:attacking?p.attackFacing:p.facing,t:now,animationFrame:attacking?Math.min(3,Math.floor((now-swing.at)/90)):undefined});
+  else{
+    // 참격 > 시전 > 걷기. 공격·시전 셀은 192×160이라 크기 68×160/128=85로 몸 크기를 맞춘다
+    const act=attacking?{key:'neo_cat_attack',at:swing.at,step:90,facing:p.attackFacing}:casting?{key:'neo_cat_cast',at:p.cast.at,step:80,facing:p.cast.facing}:null;
+    const walkFps=8+3*Math.max(0,Math.min(1,(m.speed-1)/.5));
+    const frame=opts.reducedMotion?1:act?Math.min(3,Math.floor((now-act.at)/act.step)):st==='walk'?Math.floor(now/1000*walkFps)%4:undefined;
+    drawActor(ctx,act?act.key:'neo_cat',{x:p.x,y:p.y+20,size:act?85:68,state:act?'walk':st,facing:act?act.facing:p.facing,t:now,animationFrame:frame});
+  }
   ctx.globalAlpha = 1;
 
   // 별자리 궤도(플레이어 위에 그림)

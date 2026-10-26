@@ -464,6 +464,8 @@ function fireWeapons(state, w, t, m, sec) {
         Object.assign(st, { x, y, at: t + s.warnMs + k * 70, r: s.radius, dmg: s.damage, boomUntil: 0 });
       }
     }
+    // 부메랑·타로는 시전 동작(그리기 전용)
+    if(wp.id==='crescent'||wp.id==='tarot')p.cast={at:t,until:t+320,facing:wp.id==='crescent'?facingAngle(Math.atan2(p.dirY,p.dirX)):p.facing};
     if(wp.id!=='bolt')emit('huntAttack',{weapon:wp.id});
     w.cool[wp.id] = t + s.cooldown;
   }
