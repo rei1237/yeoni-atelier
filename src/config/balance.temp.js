@@ -94,13 +94,13 @@ export const TEMP = Object.freeze({
       { id: 'magnet', chance: 0.005 },
       { id: 'bomb', chance: 0.005 },
     ]),
-    MOON_DROP: Object.freeze({ chance: 0.16, elite: 14, boss: 75 }), // 일반 적 확률 1개, 정예·보스는 고정 개수(임시)
+    MOON_DROP: Object.freeze({ chance: 0.16, elite: 6, boss: 20 }), // 일반 적 확률 1개, 정예·보스는 고정 개수(임시). 단계마다 보스가 나와 보스 75→20·정예 14→6으로 낮춤
     FIELD_W: 1400,
     FIELD_H: 1800,
   }),
 
   // ── 마을(임시). 월정석 환전·모카 긴급 배달·가게 확장
-  MOONSTONE_GOLD: 1200,         // 청토끼 금융 센터 기본 환율
+  MOONSTONE_GOLD: 500,          // 청토끼 금융 센터 기본 환율(임시). 10-26: 단계 사냥 수급 증가로 1,200→500
   DELIVERY_FEE_RATE: 0.25,    // 영업 중 모카 긴급 배달 = 재료값 +25%
   TABLE_PRICE_BASE: 2500,     // 6번 테이블 값. 한 개 들일 때마다 ×1.6 (2,500 → 4,000 → 6,400 …)
   TABLE_PRICE_GROWTH: 1.6,
@@ -133,5 +133,5 @@ export const TEMP = Object.freeze({
 
   // ── 자동 운영
   AUTO_DECIDE_MS: 600,
-  HUNT_CAREER: Object.freeze({ xpBase: 1100, xpStep: 350, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.5, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100 }),
+  HUNT_CAREER: Object.freeze({ xpBase: 1100, xpStep: 350, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.1, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100 }),
 });

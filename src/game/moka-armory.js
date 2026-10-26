@@ -4,16 +4,17 @@ import { emit } from './state.js';
 import { bondTier } from '../data/bonds.js';
 import { workShop } from './bonds.js';
 export const HUNTERS = ['neo', 'seohanbi'];
+// 강화·소모품 월정석 값은 임시(TEMP). 10-26: 단계 사냥 월정석 수급에 맞춰 두 배로 올림
 export const UPGRADES = Object.freeze({
-  power: { name:'무기 연마', base:45, step:4, value:.045, detail:'피해 배율 +4.5%p' },
-  vitality: { name:'수호 부적', base:35, step:3, value:7, detail:'최대 체력 +7' },
-  magnet: { name:'월광 수집기', base:40, step:3, value:.035, detail:'줍기 범위 +3.5%p' },
+  power: { name:'무기 연마', base:90, step:8, value:.045, detail:'피해 배율 +4.5%p' },
+  vitality: { name:'수호 부적', base:70, step:6, value:7, detail:'최대 체력 +7' },
+  magnet: { name:'월광 수집기', base:80, step:6, value:.035, detail:'줍기 범위 +3.5%p' },
 });
 export const SUPPLIES = Object.freeze({
-  tonic:{name:'모카의 회복 수프', cost:18, tier:0, icon:'heal', detail:'최대 체력의 35% 회복'},
-  magnet:{name:'달빛 수집 향', cost:30, tier:1, icon:'whisker', detail:'필드에 떨어진 모든 보상을 끌어오기'},
-  shield:{name:'검은 밤의 방패', cost:45, tier:2, icon:'hat', detail:'8초 동안 접촉 피해 방지'},
-  nova:{name:'모카의 비밀 향신료', cost:65, tier:3, icon:'tarot', detail:'주변 적에게 현재 공격력 기준 큰 피해'},
+  tonic:{name:'모카의 회복 수프', cost:36, tier:0, icon:'heal', detail:'최대 체력의 35% 회복'},
+  magnet:{name:'달빛 수집 향', cost:60, tier:1, icon:'whisker', detail:'필드에 떨어진 모든 보상을 끌어오기'},
+  shield:{name:'검은 밤의 방패', cost:90, tier:2, icon:'hat', detail:'8초 동안 접촉 피해 방지'},
+  nova:{name:'모카의 비밀 향신료', cost:130, tier:3, icon:'tarot', detail:'주변 적에게 현재 공격력 기준 큰 피해'},
 });
 export function armory(state) { return state.armory || { upgrades:{}, supplies:{} }; }
 export function upgradeLevel(state, who, id) { return armory(state).upgrades?.[who]?.[id] || 0; }

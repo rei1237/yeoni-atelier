@@ -31,5 +31,6 @@ test('히든 사냥꾼은 영입 전 금지, 영입 후 같은 조건에서 영�
 test('단계 해금은 100에서 멈추며 최상위 적의 체력·공격·보상 모두 초입보다 크다',()=>{
  const s=createGame();s.hunter.maxStage=10000;assert.equal(maxHuntDepth(s),100);
  const a=depthScale(1,{hp:1,dmg:1},0),b=depthScale(100,{hp:1,dmg:1},0);
- assert.ok(b.hp>a.hp*20);assert.ok(b.dmg>a.dmg*3);assert.ok(b.reward>a.reward*40);
+ // 한 번에 여러 단계를 내려가므로 단계 보상 배율은 완만하다(TEMP depthReward 0.1, 10-26 경제 재조정)
+ assert.ok(b.hp>a.hp*20);assert.ok(b.dmg>a.dmg*3);assert.ok(b.reward>a.reward*8);
 });

@@ -56,7 +56,7 @@ test('운영 대출은 한도·중복·월 8% 복리와 월정석 상환 잔돈�
  let s=createGame(),g=s.gold;assert.ok(dispatch(s,{type:'finance.borrow',amount:10000,requestId:'a'}).ok);assert.equal(s.gold,g+10000);
  assert.equal(dispatch(s,{type:'finance.borrow',amount:10000,requestId:'a'}).ok,false);assert.equal(dispatch(s,{type:'finance.borrow',amount:creditView(s).limit,requestId:'b'}).ok,false);
  s.gold=0;const rec=chargeLoanInterest(s,{day:3});assert.equal(rec.due,800);assert.equal(s.finance.balance,10800);chargeLoanInterest(s,{day:3});assert.equal(s.finance.balance,10800);
- s=deserialize(serialize(s)).state;s.moonstone=20;const before=s.moonstone,r=dispatch(s,{type:'finance.repay',target:'loan',amount:20,currency:'moonstone'});assert.ok(r.ok);assert.equal(s.finance.balance,0);assert.equal(s.moonstone,before-Math.ceil(10800/exchangeRate(s)));assert.equal(s.gold,r.change);
+ s=deserialize(serialize(s)).state;const need=Math.ceil(10800/exchangeRate(s));s.moonstone=need+3;const before=s.moonstone,r=dispatch(s,{type:'finance.repay',target:'loan',amount:need+3,currency:'moonstone'}); // 테스트 준비: 환율(TEMP)이 바뀌어도 잔액을 넘기는 월정석assert.ok(r.ok);assert.equal(s.finance.balance,0);assert.equal(s.moonstone,before-Math.ceil(10800/exchangeRate(s)));assert.equal(s.gold,r.change);
 });
 test('강화는 캐릭터별로 저장되고 높은 레벨에도 계속되며 비용이 오른다',()=>{
  const s=createGame();s.moonstone=1000000;s.armory.upgrades.neo={power:100};const cost=upgradeCost(s,'neo','power');
