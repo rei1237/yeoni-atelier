@@ -142,3 +142,13 @@ test('보스곡은 서한비 에피소드 전용: 모든 서한비 이야기는 
   const others = [PROLOGUE, ...Object.values(MONTH_STORIES), ...Object.values(EVENT_STORIES), ...Object.values(BOND_STORIES).flatMap(x => Array.isArray(x) ? [x] : Object.values(x)), ...Object.values(VISIT_STORIES)];
   for (const beats of others) assert.ok(!beats.flat(Infinity).some(b => b?.bgm === 'boss'));
 });
+
+test('월정석 원정은 챕터·변신·환전 설명이 한 번이며 마지막 시스템 안내를 보존한다', () => {
+  const beats = EVENT_STORIES['ev:hunt'];
+  assert.equal(beats.filter(b => b.chapter).length, 1);
+  assert.equal(beats.filter(b => b.s === 'nar' && b.c?.startsWith('neo_cat')).length, 1);
+  assert.equal(beats.filter(b => b.fx === 'transform').length, 1);
+  assert.equal(beats.filter(b => b.s !== 'sys' && /골드로 바/.test(b.t || '')).length, 1);
+  assert.ok(beats.slice(-2).every(b => b.s === 'sys'));
+  assert.match(beats.map(b => b.t).join(' '), /도시락.*별 다섯/);
+});
