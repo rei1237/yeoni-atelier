@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ASSETS } from '../src/render/assets.js';
 import { actorSocket } from '../src/data/actor-sockets.js';
-import { talkingKey } from '../src/render/sprite-renderer.js';
+import { talkingKey, talkingFrame } from '../src/render/sprite-renderer.js';
 import { PEOPLE, STAFF_CREW, RECRUITABLE } from '../src/data/companions.js';
 import { dispatch, tick } from '../src/game/engine.js';
 import { quietShift, seat } from './helpers.mjs';
@@ -61,4 +61,11 @@ test('직원이 든 음식은 언제나 그 배달이 가리키는 주문의 메
   }
   assert.equal(order.status, 'served');
   assert.ok(carried > 0, '운반 장면이 한 번도 없었다');
+});
+
+test('루나·루나 언니는 입 벌림 칸 대신 기본 칸으로 말하고 깜빡임은 유지한다', () => {
+  assert.equal(talkingFrame('luna', 2), 0);
+  assert.equal(talkingFrame('luna_sis', 3), 0);
+  assert.equal(talkingFrame('luna', 1), 1);
+  assert.equal(talkingFrame('yeoni', 2), 2);
 });

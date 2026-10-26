@@ -9337,6 +9337,7 @@ export const ASSET_UPDATES = {
         "normal"
       ],
       "static": false,
+      "mouth": false,
       "path": "assets/illustrated/talking/luna.webp",
       "dimensions": [
         1280,
@@ -9354,6 +9355,7 @@ export const ASSET_UPDATES = {
         "normal"
       ],
       "static": false,
+      "mouth": false,
       "path": "assets/illustrated/talking/luna_sis.webp",
       "dimensions": [
         1280,

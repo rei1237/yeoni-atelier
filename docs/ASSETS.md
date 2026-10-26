@@ -445,6 +445,8 @@
 | talking/yeoni_pig | assets/illustrated/talking/yeoni_pig.webp | 1280×384 | 완료 |
 | talking/luna | assets/illustrated/talking/luna.webp | 1280×384 | 완료 |
 | talking/luna_sis | assets/illustrated/talking/luna_sis.webp | 1280×384 | 완료 |
+
+루나·루나 언니 talking 2·3프레임(입 벌림)은 입 주변에 덧댄 자국이 있어 쓰지 않는다(`"mouth": false`, 기본 칸으로 말함). 다시 그리기 전까지 유지.
 | talking/moka | assets/illustrated/talking/moka.webp | 1280×384 | 완료 |
 | talking/solv | assets/illustrated/talking/solv.webp | 1280×384 | 완료 |
 | talking/bambi | assets/illustrated/talking/bambi.webp | 1280×384 | 완료 |
