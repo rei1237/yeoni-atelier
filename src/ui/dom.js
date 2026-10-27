@@ -52,7 +52,7 @@ function patchAttrs(x, y) {
 export function toast(text, kind = '', ms = 2600) {
   const box = $('#toasts');
   if (!box) return;
-  while (box.children.length >= 3) box.firstChild.remove();
+  while (box.children.length >= 1) box.firstChild.remove();
   const el = document.createElement('div');
   el.className = `toast ${kind}`;
   el.textContent = text;

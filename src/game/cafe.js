@@ -1,3 +1,8 @@
+import {cafeCapacity,assignedHosts} from './capacity.js';
+import {activeSlotNames,heldKey,runningJobs,queuedJobs,stationJobs,stationItems} from './station-slots.js';
+export {stationJobs,stationItems} from './station-slots.js';
+import { HALL_ABILITIES, ABILITIES, hallAutomationOn } from './permissions.js';
+import {qualityForTiming,qualityOf,foodScore} from '../data/cooking-quality.js';
 import { customerLook } from '../data/customer-looks.js';
 import {wealthEligible} from './cafe-growth.js';
 import {changePopularity,guestChatter,waitingSatisfaction,reviewVisit} from './reputation.js';
@@ -26,7 +31,7 @@ const gridCache = new WeakMap();
 export function getGrid(state) {
   const list = state.interior.furniture;
   const open = state.interior.areas || [];
-  const sig = open.join(',');
+  const sig = open.join(',')+'|'+list.map(f=>[f.uid,f.defId,f.x,f.y,f.rot].join(':')).join(';');
   let g = gridCache.get(list);
   if (!g || g.sig !== sig) { g = buildGrid(list.filter(f => f.x != null), open); g.sig = sig; gridCache.set(list, g); }
   return g;
@@ -51,20 +56,21 @@ export function setupWorld(state) {
   state.tables = state.interior.furniture
     .filter(f => FURNITURE[f.defId].table && f.x != null)
     .sort((a, b) => a.tableNo - b.tableNo)
-    .map(f => ({ no: f.tableNo, uid: f.uid, ...tableGeometry(grid, f), state: 'empty', customerId: null, cleanQueued: false, cleanEndAt: null }));
+    .map(f => ({ no: f.tableNo, uid: f.uid, ...tableGeometry(grid, f), state: 'empty', customerId: null, cleanQueued: false, cleanEndAt: null })).filter(t=>t.chair&&t.service);
   state.customers = {}; state.visits = {}; state.orders = {}; state.tasks = [];
   state.stations = { drink: { current: null, next: null, held: null }, oven: { current: null, next: null, held: null } };
-  state.tray = Array(RULES.TRAY_SLOTS).fill(null);
+  state.tray = Array(cafeCapacity(state).traySlots).fill(null);
   state.staff = {};
   const mk = (id, home) => ({ id, home, x: home.x + 0.5, y: home.y + 0.5, path: [], job: null, action: 'idle', facing: 'down', carry: null, actionUntil: 0 });
   state.staff.yeoni = mk('yeoni', { ...SPOTS.yeoniHome });
   state.staff.yeoni.facing = 'right'; // 계산대 너머 입구를 본다
   const crewHome = { luna_sis: SPOTS.sisHome, luna: SPOTS.lunaHome };
   for (const id of STAFF_CREW) state.staff[id] = mk(id, { ...crewHome[id] });
-  usableHosts(state).forEach((id, i) => {
+  assignedHosts(state).forEach((id, i) => {
     const home = i === 0 ? { ...SPOTS.neoHome } : nearestWalkable(grid, { x: 1 + ((i - 1) % 4) * 2, y: 2 + Math.floor((i - 1) / 4) * 4 });
     state.staff[id] = mk(id, home);
   });
+  if(state.shift)state.shift.staffIds=Object.keys(state.staff);
 }
 
 export const tableByNo = (state, no) => state.tables.find(t => t.no === no) || null;
@@ -104,19 +110,18 @@ function moveAlong(e, dt, tilesPerS) {
 
 // ── 재고·조리
 // 주문 말풍선 한 번: 완성 음식은 그 테이블로 보내고, 없으면 한 개만 조리 예약한다.
-export function quickOrder(state, orderId) {
+export function quickOrder(state, orderId, timing) {
   const order = state.orders[orderId];
   if (!order || order.status !== 'waiting') return { ok: false, reason: '이미 서빙 중이거나 끝난 주문이에요' };
-  const item = state.tray.find(it => it && !it.reservedFor && it.menuId === order.menuId);
-  if (item && state.visits[order.visitId]?.kind==='takeaway') {state.tray[state.tray.indexOf(item)]=null;recordServe(state,order);return {ok:true};}
+  const item = state.tray.find(it => it && !it.reservedFor && it.menuId === order.menuId && (!it.orderId||it.orderId===orderId));
+  if (item && state.visits[order.visitId]?.kind==='takeaway') {state.tray[state.tray.indexOf(item)]=null;recordServe(state,order,item);return {ok:true};}
   if (item) return serve(state, item.id, order.tableNo);
   const station = state.stations[MENUS[order.menuId].station];
-  if ([station.current, station.next].some(job => job?.orderId === orderId)) return { ok: false, reason: '이 주문은 만들고 있어요. 완성 트레이를 눌러 주세요' };
-  const prepared = [station.current, station.next, station.held].filter(job => job?.menuId === order.menuId).length;
+  if ([...stationJobs(station),...stationItems(station)].some(job => job.orderId === orderId)) return { ok: false, reason: '이 주문은 만들고 있어요. 완성 트레이를 눌러 주세요' };
+  const prepared = [...stationJobs(station),...stationItems(station)].filter(job => !job.orderId && job.menuId === order.menuId).length;
   const waiting = Object.values(state.orders).filter(o => o.status === 'waiting' && o.menuId === order.menuId);
   if (prepared > waiting.findIndex(o => o.id === orderId)) return { ok: false, reason: '이 주문은 만들고 있어요. 완성 트레이를 눌러 주세요' };
-  const result = cook(state, order.menuId, order.id);
-  if (result.ok) (result.started ? station.current : station.next).orderId = orderId;
+  const result = cook(state, order.menuId, order.id, timing);
   return result;
 }
 
@@ -136,29 +141,37 @@ function consume(state, job) {
   if (state.shift) state.shift.ingredientCost += ingredientCostOf(job.menuId);
 }
 
-function startJob(state, sid, job) {
+function startJob(state, sid, job, slot='current') {
   const st = state.stations[sid];
   const chk = stockCheck(state, job.menuId);
   if (!chk.ok) { emit('cookCancelled', { station: sid, menuId: job.menuId, reason: chk.reason }); return false; }
   consume(state, job);
-  st.current = { ...job, progressMs: 0, startedAt: state.shift.elapsedMs };
+  st[slot] = { ...job, progressMs: 0, startedAt: state.shift.elapsedMs };
   emit('cookStart', { station: sid, menuId: job.menuId });
   return true;
 }
 
-export function cook(state, menuId, orderId=null) {
+export function cook(state, menuId, orderId=null, timing) {
   const m = MENUS[menuId];
   if (!m) return { ok: false, reason: '없는 메뉴입니다' };
   if (!state.learned[menuId]) return { ok: false, reason: `${m.name} 레시피를 아직 배우지 않았습니다` };
   const st = state.stations[m.station];
+  if(orderId && (!state.orders[orderId] || state.orders[orderId].status!=='waiting' || state.orders[orderId].menuId!==menuId))return {ok:false,reason:'조리할 주문을 확인해 주세요'};
+  if(orderId && [...stationJobs(st),...stationItems(st),...state.tray.filter(Boolean)].some(j=>j.orderId===orderId))return {ok:false,reason:'이미 준비 중인 주문입니다'};
   const chk = stockCheck(state, menuId);
   if (!chk.ok) return { ok: false, reason: chk.reason };
   // 루나 언니 친밀도 능력: 조리 시간 단축
   const takeaway=state.visits[state.orders[orderId]?.visitId]?.kind==='takeaway';
-  const job = { id: nextId(state, 'job'), menuId, orderId, durationMs: Math.round(m.cookMs * (1 - bondFx(state.affinity).cookSpeed)*(takeaway?.55:1)) };
-  if (!st.current && !st.held && !st.next) { startJob(state, m.station, job); return { ok: true, started: true }; }
-  if (!st.next) { st.next = job; emit('cookQueued', { station: m.station, menuId }); return { ok: true, queued: true }; }
-  return { ok: false, reason: `${STATION_NAMES[m.station]} 대기열이 가득 찼습니다 (현재 1 + 다음 1)` };
+  const job = { id: nextId(state, 'job'), menuId, orderId, quality:qualityForTiming(timing,menuId), durationMs: Math.round(m.cookMs * (1 - bondFx(state.affinity).cookSpeed)*(takeaway?.55:1)) };
+  const capacity=cafeCapacity(state);
+  const slots=['current','parallel',...Array.from({length:Math.max(0,capacity.stationSlots-2)},(_,i)=>'slot'+(i+2))];
+  if(capacity.stationSlots>1){for(const slot of slots){if(!st[slot]&&!st[heldKey(slot)]&&!queuedJobs(st).length){startJob(state,m.station,job,slot);return {ok:true,started:true,jobId:job.id};}}}
+  if (!st.current && !st.held && !queuedJobs(st).length) { startJob(state, m.station, job); return { ok: true, started: true, jobId:job.id }; }
+  // 같은 손님의 두 주문은 같은 설비에서도 별도 슬롯에서 함께 조리한다.
+  if(orderId && st.current?.orderId && state.orders[st.current.orderId]?.visitId===state.orders[orderId].visitId && !st.parallel && !st.parallelHeld){startJob(state,m.station,job,'parallel');return {ok:true,started:true,parallel:true,jobId:job.id};}
+  if (!st.next) { st.next = job; emit('cookQueued', { station: m.station, menuId }); return { ok: true, queued: true, jobId:job.id }; }
+  if(queuedJobs(st).length<capacity.stationSlots){(st.queue??=[]).push(job);return {ok:true,queued:true,jobId:job.id};}
+  return { ok: false, reason: `${STATION_NAMES[m.station]} 대기열이 가득 찼습니다 (대기 ${capacity.stationSlots}건)` };
 }
 
 // 시작 전인 다음 작업 취소: 재료를 아직 쓰지 않았으므로 돌려줄 것도 없다
@@ -179,26 +192,39 @@ function placeInTray(state, item) {
 
 export function stepStations(state, dt) {
   for (const sid of STATION_IDS) {
-    const st = state.stations[sid];
-    if (st.held && placeInTray(state, st.held)) { emit('heldToTray', { station: sid }); st.held = null; }
-    if (st.current) {
-      st.current.progressMs += dt;
-      if (st.current.progressMs >= st.current.durationMs) {
-        const item = { id: nextId(state, 'item'), menuId: st.current.menuId, reservedFor: null };
-        const order=state.orders[st.current.orderId];
-        const pickup=order?.status==='waiting' && state.visits[order.visitId]?.kind==='takeaway' && state.visits[order.visitId].status==='active';
-        st.current = null;
-        if (state.staff.luna_sis && !isResting(state, 'luna_sis')) changeStress(state, 'cook', 'luna_sis');
-        if(pickup){recordServe(state,order);emit('takeawayDone',{price:order.price});}
-        else if (placeInTray(state, item)) emit('cooked', { station: sid, menuId: item.menuId });
-        else { st.held = item; emit('trayFull', { station: sid, menuId: item.menuId }); }
-      }
+    const st=state.stations[sid];
+    for(const held of activeSlotNames(st).map(heldKey))if(st[held]&&placeInTray(state,st[held])){emit('heldToTray',{station:sid});st[held]=null;}
+    for(const slot of activeSlotNames(st)){
+      const job=st[slot];if(!job)continue;
+      job.progressMs+=dt;
+      if(job.progressMs<job.durationMs)continue;
+      const item={id:nextId(state,'item'),menuId:job.menuId,jobId:job.id,orderId:job.orderId||null,quality:job.quality||'good',reservedFor:null};
+      const order=state.orders[job.orderId];
+      const pickup=order?.status==='waiting'&&state.visits[order.visitId]?.kind==='takeaway'&&state.visits[order.visitId].status==='active';
+      st[slot]=null;
+      if(state.staff.luna_sis&&!isResting(state,'luna_sis'))changeStress(state,'cook','luna_sis');
+      if(pickup){recordServe(state,order,item);emit('takeawayDone',{price:order.price});}
+      else if(placeInTray(state,item))emit('cooked',{station:sid,menuId:item.menuId});
+      else{st[heldKey(slot)]=item;emit('trayFull',{station:sid,menuId:item.menuId});}
     }
-    if (!st.current && !st.held && st.next) {
-      const job = st.next; st.next = null;
-      startJob(state, sid, job);
-    }
+    const cap=cafeCapacity(state).stationSlots,slots=['current',...(cap>1?['parallel']:[]),...Array.from({length:Math.max(0,cap-2)},(_,i)=>'slot'+(i+2))];
+    for(const slot of slots)if(!st[slot]&&!st[heldKey(slot)]){const job=st.next||(st.queue||[]).shift();if(job){if(st.next===job)st.next=(st.queue||[]).shift()||null;startJob(state,sid,job,slot);}}
   }
+}
+
+// 작업 하나만 취소한다. 이미 시작한 재료는 같은 작업에 한 번만 돌려준다.
+export function cancelCook(state,jobId){
+ for(const sid of STATION_IDS){
+  const st=state.stations[sid],queued=(st.queue||[]).findIndex(j=>j.id===jobId);if(queued>=0){st.queue.splice(queued,1);return {ok:true};}
+  const slot=[...activeSlotNames(st),'next'].find(k=>st[k]?.id===jobId);if(!slot)continue;
+  const job=st[slot];state.ledger.cookRefunds??={};
+  if(state.ledger.consumes[job.id]&&!state.ledger.cookRefunds[job.id]){
+   for(const [id,n] of Object.entries(MENUS[job.menuId].ingredients))state.stock[id]=(state.stock[id]||0)+n;
+   state.shift.ingredientCost-=ingredientCostOf(job.menuId);state.ledger.cookRefunds[job.id]=true;
+  }
+  st[slot]=null;emit('cookCancelled',{station:sid,menuId:job.menuId,reason:'선택한 조리 취소'});return {ok:true};
+ }
+ return {ok:false,reason:'취소할 조리가 없습니다'};
 }
 
 // ── 메뉴 선택(늦은 주문 제한 포함)
@@ -228,31 +254,32 @@ export function placeOrder(state, visit, menuId) {
 }
 
 // ── 서빙
-export function serve(state, itemId, tableNo) {
+export function serve(state, itemId, tableNo, autoHall=false) {
+  if(autoHall&&!HALL_ABILITIES.some(key=>hallAutomationOn(state,ABILITIES[key].id)))return {ok:false,reason:'켜진 홀 자동이 없어요'};
   const item = state.tray.find(it => it && it.id === itemId);
   if (!item) return { ok: false, reason: '트레이에 그 음식이 없습니다' };
   if (item.reservedFor) return { ok: false, reason: '이미 운반이 예약된 음식입니다' };
   const visit = visitAt(state, tableNo);
-  const order = visit && openOrdersOfVisit(state, visit).find(o => o.status === 'waiting' && o.menuId === item.menuId);
+  const order = visit && openOrdersOfVisit(state, visit).find(o => o.status === 'waiting' && o.menuId === item.menuId && (!item.orderId||o.id===item.orderId));
   if (!order) {
-    const right = Object.values(state.orders).find(o => o.status === 'waiting' && o.menuId === item.menuId);
+    const right = Object.values(state.orders).find(o => o.status === 'waiting' && o.menuId === item.menuId && (!item.orderId||o.id===item.orderId));
     const name = MENUS[item.menuId].name;
     return { ok: false, reason: right ? `${name}은(는) ${right.tableNo}번 테이블 주문입니다. 음식은 트레이에 그대로 있어요.` : `${name}을(를) 기다리는 테이블이 없습니다. 음식은 트레이에 그대로 있어요.`, rightTable: right?.tableNo ?? null };
   }
   order.status = 'assigned';
   order.itemId = item.id;
   item.reservedFor = order.id;
-  state.tasks.push({ id: nextId(state, 'task'), type: 'deliver', orderId: order.id, itemId: item.id, tableNo, assignedTo: null });
+  state.tasks.push({ id: nextId(state, 'task'), type: 'deliver', orderId: order.id, itemId: item.id, tableNo, assignedTo: null, autoHall:!!autoHall });
   emit('serveQueued', { tableNo, menuId: item.menuId });
   return { ok: true };
 }
 
 export function findServeTarget(state, item) {
-  const o = Object.values(state.orders).find(x => x.status === 'waiting' && state.visits[x.visitId]?.kind!=='takeaway' && x.menuId === item.menuId);
+  const o = Object.values(state.orders).find(x => x.status === 'waiting' && state.visits[x.visitId]?.kind!=='takeaway' && x.menuId === item.menuId && (!item.orderId||x.id===item.orderId));
   return o ? o.tableNo : null;
 }
 
-function recordServe(state, order) {
+function recordServe(state, order, item) {
   if (state.ledger.sales[order.id] != null) return; // 같은 주문을 두 번 매출로 잡지 않는다
   const now = state.shift.elapsedMs;
   const visit = state.visits[order.visitId];
@@ -269,8 +296,9 @@ function recordServe(state, order) {
   order.servedAt = now;
   visit.servedTotal += order.price;
   const waitS = (now - order.placedAt) / 1000;
-  const food = Math.max(30, Math.min(100, 100 - Math.max(0, waitS - 30) * 0.8)) + Math.min(10, ambience(state));
-  visit.foodScores.push(Math.min(100, Math.round(food)));
+  const quality=item?.quality||'good',rating=foodScore(waitS,ambience(state),quality),food=rating.score;
+  Object.assign(order,{quality,qualityDelta:rating.qualityDelta,foodBase:rating.base,foodScore:food,jobId:item?.jobId||null,servedItemId:item?.id||order.itemId||null});
+  visit.foodScores.push(food);
   const c = state.customers[visit.customerId];
   if (c) {
     c.action = 'eat'; c.actionUntil = now + TEMP.EAT_MS;
@@ -278,7 +306,7 @@ function recordServe(state, order) {
   }
   // 연이의 계산 동작은 실제 카운터 결제 때 실행한다.
   if(!openOrdersOfVisit(state,visit).length)guestChatter(state,visit,(state.shift.servedCount%7)/7,food>=70?'served':'late');
-  emit('served', { tableNo: order.tableNo||null, menuId: order.menuId, price: revenue });
+  emit('served', { tableNo: order.tableNo||null, menuId: order.menuId, price: revenue, quality:qualityOf(quality).label, foodScore:food, qualityDelta:rating.qualityDelta });
   // 마을 행동력은 순을 넘길 때 카페 Lv로 다시 채운다(calendar.maxActionPoints). 영업 중에는 쓸 곳이 없으니 여기서 더하지 않고 알리기만 한다.
   if(cafeProgress(state).level>levelBefore){const next=cafeProgress(state).level;emit('cafeLevelUp',{level:next,apGain:Math.floor((next-1)/3)-Math.floor((levelBefore-1)/3)});};
   if(visit.kind==='takeaway' && c && !openOrdersOfVisit(state,visit).length){state.stats.takeaways=(state.stats.takeaways||0)+1;customerLeave(state,c,'포장 수령');}
@@ -286,13 +314,14 @@ function recordServe(state, order) {
 }
 
 // ── 정리
-export function requestClean(state, tableNo) {
+export function requestClean(state, tableNo, autoHall=false) {
+  if(autoHall&&!HALL_ABILITIES.some(key=>hallAutomationOn(state,ABILITIES[key].id)))return {ok:false,reason:'켜진 홀 자동이 없어요'};
   const t = tableByNo(state, tableNo);
   if (!t) return { ok: false, reason: '없는 테이블입니다' };
   if (t.state !== 'dirty') return { ok: false, reason: t.state === 'cleaning' ? '이미 정리 중입니다' : '정리할 필요가 없습니다' };
   if (t.cleanQueued) return { ok: false, reason: '정리가 이미 예약되어 있습니다' };
   t.cleanQueued = true;
-  state.tasks.push({ id: nextId(state, 'task'), type: 'clean', tableNo, assignedTo: null });
+  state.tasks.push({ id: nextId(state, 'task'), type: 'clean', tableNo, assignedTo: null, autoHall:!!autoHall });
   return { ok: true };
 }
 
@@ -327,14 +356,14 @@ function assignTasks(state) {
     const target = task.type === 'deliver' ? SPOTS.pickup : t.service;
     let best = null;
     for (const id of Object.keys(state.staff)) {
-      if (!staffAvailable(state, id)) continue;
+      if (!staffAvailable(state, id) || (task.autoHall && !hallAutomationOn(state,id))) continue;
       const s = state.staff[id];
       const d = Math.abs(s.x - target.x) + Math.abs(s.y - target.y) + (PEOPLE[id]?.work === 'runner' ? 0 : 0.5);
       if (!best || d < best.d) best = { id, d };
     }
     // 쉬는 직원이 있어 손이 모자라면 연이가 계산대를 잠시 비우고 대신 나른다(막힘 방지)
     const y = state.staff.yeoni;
-    if (!best && y && (!y.job || y.job.kind === 'home') && Object.values(state.resting || {}).some(Boolean)) best = { id: 'yeoni' };
+    if (!task.autoHall && !best && y && (!y.job || y.job.kind === 'home') && Object.values(state.resting || {}).some(Boolean)) best = { id: 'yeoni' };
     if (!best) continue;
     const s = state.staff[best.id];
     task.assignedTo = best.id;
@@ -399,8 +428,8 @@ function stepBaker(state, s, dt) {
     s.action = s.path.length ? 'walk' : 'idle'; s.facing = 'down';
     return;
   }
-  const busy = STATION_IDS.filter(id => state.stations[id].current)
-    .sort((a, b) => state.stations[b].current.startedAt - state.stations[a].current.startedAt);
+  const recent=id=>Math.max(...runningJobs(state.stations[id]).map(j=>j.startedAt||0));
+  const busy = STATION_IDS.filter(id => runningJobs(state.stations[id]).length).sort((a,b)=>recent(b)-recent(a));
   const sid = busy[0] || null;
   const goal = sid ? STATION_FRONT[sid] : s.home;
   const j = s.job;
@@ -437,7 +466,7 @@ export function stepStaff(state, dt) {
         setPath(state, s, tableByNo(state, j.tableNo).service);
       } else if (j.stage === 'toTable' && arrived) {
         if (order && order.status === 'assigned') {
-          recordServe(state, order);
+          recordServe(state, order, s.carry);
           changeStress(state, 'deliver', s.id);
           s.carry = null;
           s.action = 'serve'; s.actionUntil = now + 600;
@@ -507,7 +536,7 @@ export function customerLeave(state, c, reason) {
   state.cafeGesture={kind:'bow',at:state.shift.elapsedMs};
   c.state = visit.bill>0 && !visit.paid ? 'checkout' : 'leaving';
   c.action = 'walk';c.payAt=null;
-  setPath(state,c,c.state==='checkout'?nearestWalkable(getGrid(state),{x:5,y:14}):SPOTS.entrance);
+  setPath(state,c,c.state==='checkout'?nearestWalkable(getGrid(state),SPOTS.checkout):SPOTS.entrance);
   emit('leave', { tableNo: c.tableNo, reason });
 }
 
@@ -515,9 +544,10 @@ export function spawnCustomer(state, spec) {
   if (!state.hostbar.open && spec.kind === 'nomination') spec = { ...spec, kind: 'regular', nominee: null };
   const empty = state.tables.filter(t => t.state === 'empty');
   const takeaway=spec.kind==='takeaway';
-  if(takeaway && Object.values(state.visits).filter(v=>v.kind==='takeaway'&&v.status==='active').length>=2)return null;
+  if(Object.keys(state.customers).length>=cafeCapacity(state).guestLimit)return null;
+  if(takeaway && Object.values(state.visits).filter(v=>v.kind==='takeaway'&&v.status==='active').length>=cafeCapacity(state).takeawayLimit)return null;
   if (!takeaway && !empty.length) return null;
-  const t = takeaway?{no:0,chair:nearestWalkable(getGrid(state),{x:5,y:14})}:pick(state.rng, empty);
+  const t = takeaway?{no:0,chair:nearestWalkable(getGrid(state),SPOTS.checkout)}:pick(state.rng, empty);
   const profile = spec.profileId ? PDF.PROFILES.find(p => p.id === spec.profileId) : pick(state.rng, PDF.PROFILES);
   const wealthId = CUSTOMER_WEALTH[spec.wealthId] && (state.meta.devData||wealthEligible(state,spec.wealthId)) ? spec.wealthId : customerWealth(state,nextRandom(state.rng));
   const cid = nextId(state, 'customer');
@@ -559,7 +589,7 @@ export function stepCustomers(state, dt, hooks) {
       case 'entering':
         if (arrived) {
           c.action = 'idle';
-          c.facing = 'up';
+          c.facing = tableByNo(state,c.tableNo)?.facing||'up';
           if (visit.kind === 'nomination') {
             c.state = 'requesting';
             visit.requestAt = now; // 요청만 생긴다. 예약도 300초 타이머도 시작하지 않는다.
@@ -615,4 +645,13 @@ export function checkout(state,visit){
  const yeoni=state.staff.yeoni;if(yeoni){yeoni.action='react';yeoni.actionUntil=state.shift.elapsedMs+650;yeoni.facing='right';}
  state.cafeGesture={kind:'cashier',at:state.shift.elapsedMs};
  if(amount)emit('paidAtCounter',{amount});return true;
+}
+
+// 이전 영업 저장의 계산 동선만 새 고정 설비 위치로 연결한다.
+export function migrateCounter(state){
+ if(state.cafeLayoutVersion===2)return;
+ if(state.mode==='shift'&&state.staff?.yeoni){const s=state.staff.yeoni;s.home={...SPOTS.yeoniHome};s.x=s.home.x+.5;s.y=s.home.y+.5;s.path=[];s.facing='right';
+  for(const c of Object.values(state.customers||{})){if(c.state==='checkout')setPath(state,c,nearestWalkable(getGrid(state),SPOTS.checkout));else if(state.visits[c.visitId]?.kind==='takeaway'&&c.state==='entering')setPath(state,c,nearestWalkable(getGrid(state),SPOTS.checkout));}
+ }
+ state.cafeLayoutVersion=2;
 }

@@ -10,7 +10,7 @@ export function accruePayroll(state,sh){
  if(rec.shifts[sh.id])return rec;
  rec.shifts[sh.id]=true;
  const turnover=sh.sales+sh.baseTips+sh.feverTips;
- for(const id of salariedStaff(state)){const fee=Math.ceil(TEMP.PAYROLL_BASE/3+turnover*TEMP.PAYROLL_SHARE);rec.staff[id]=(rec.staff[id]||0)+fee;rec.due+=fee;}
+ for(const id of salariedStaff(state).filter(id=>!sh.staffIds||sh.staffIds.includes(id))){const fee=Math.ceil(TEMP.PAYROLL_BASE/3+turnover*TEMP.PAYROLL_SHARE);rec.staff[id]=(rec.staff[id]||0)+fee;rec.due+=fee;}
  if(c.part===2&&!rec.closed){const total=rec.due+p.arrears;rec.previousArrears=p.arrears;rec.paid=Math.min(state.gold,total);state.gold-=rec.paid;p.arrears=total-rec.paid;rec.arrears=p.arrears;rec.closed=true;emit('payrollPaid',{due:total,paid:rec.paid,arrears:p.arrears});}
  return rec;
 }

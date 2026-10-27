@@ -16,7 +16,7 @@ test('지도·의뢰를 그리는 것만으로 행동력·보상·난수는 바�
  for(const screen of ['world','quests'])assert.ok(worldScreenHtml(s,{screen}).length>100);
  assert.equal(serialize(s),before);
  assert.match(worldScreenHtml(s,{screen:'world',worldPlace:'hunt'}),/첫 영업을 마치면/);
- assert.match(worldScreenHtml(s,{screen:'quests'}),/data-talking-portrait="luna"/);
+ assert.match(worldScreenHtml(s,{screen:'quests'}),/data-static-portrait="luna"/);
 });
 test('의뢰 보상 버튼은 엔진의 1회 수령과 저장 복원을 따른다',()=>{
  const s=createGame();s.stats.served=1;const gold=s.gold;
@@ -47,4 +47,16 @@ test('같은 시드의 손님 옷색은 같고 저장 왕복과 옛 hue를 보�
  delete ca.look;ca.hue=270;const rng=a.rng.seed,restored=deserialize(serialize(a)).state;
  assert.equal(restored.customers[ca.id].look,6);assert.equal(restored.rng.seed,rng);
  assert.deepEqual(Array.from({length:8},(_,i)=>customerLook({hue:i*45})),[0,1,2,3,4,5,6,7]);
+});
+
+test('부탁 노트 사연은 기존 완료 원장을 따르고 전용 정지 초상을 쓴다',()=>{
+ const s=createGame();s.stats.served=1;
+ const before=worldScreenHtml(s,{screen:'quests',questId:'q_first_serve'});
+ assert.match(before,/부탁을 남긴 이유/);assert.match(before,/첫 접시/);assert.doesNotMatch(before,/data-talking-portrait/);
+ assert.ok(dispatch(s,{type:'quest.claim',questId:'q_first_serve'}).ok);const gold=s.gold;
+ const after=worldScreenHtml(s,{screen:'quests',questId:'q_first_serve'});
+ assert.match(after,/함께 남긴 이야기/);assert.match(after,/빈 접시/);
+ assert.equal(s.ledger.rewards['quest:q_first_serve'],true);
+ assert.equal(dispatch(s,{type:'quest.claim',questId:'q_first_serve'}).ok,false);assert.equal(s.gold,gold);
+ assert.match(worldScreenHtml(deserialize(serialize(s)).state,{screen:'quests',questId:'q_first_serve'}),/빈 접시/);
 });

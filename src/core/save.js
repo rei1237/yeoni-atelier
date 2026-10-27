@@ -1,3 +1,7 @@
+import {migrateFurniture} from '../data/layout.js';
+import {migrateHuntVisits} from '../game/hunt-visits.js';
+import {migrateCounter} from '../game/cafe.js';
+import {ensureBranches} from '../game/branches.js';
 import { customerLook } from '../data/customer-looks.js';
 // 저장·불러오기. 연이의 아틀리에 전용 키만 쓴다(killerflowerpig 의 kfp.* 키는 읽지도 쓰지도 않는다).
 // 개발 모드는 별도 키를 쓰므로 일반 저장을 건드리지 않는다.
@@ -25,7 +29,7 @@ export function browserStorage() {
 
 // 저장하지 않는 칸: 인테리어 초안(편집 중 취소와 같은 효과), 사냥 전장(이어하기 때 새로 생성)
 export function serialize(state) {
-  const copy = { ...state, interior: { ...state.interior, draft: null } };
+  const copy = { ...state, outdoor:state.outdoor?{...state.outdoor,draft:null}:undefined, interior: { ...state.interior, draft: null } };
   return JSON.stringify(copy);
 }
 
@@ -40,10 +44,14 @@ function migrate(data) {
     if (data.huntUnlocked) (data.ledger.story ||= {})['ev:hunt'] = true;
     if (data.shift) { data.shift.durationMs ??= 1800000; data.shift.nominationMs ??= 300000; }
   }
+  ensureBranches(data);
+  migrateFurniture(data);
+  migrateCounter(data);
   data.startingDebt ??= 120000; // 이전 저장의 원금과 상환 진척은 보존
   if (data.armory && !data.armory.skills) data.armory.skills = legacySkillRanks(data); // 기술 단련 이전 저장
   data.huntCodex ??= legacyCodex(data); // 수집 도감 이전 저장: 깬 단계로 소급
   const base = createGame({ dev: !!data.meta?.devData });
+  data.learned??={};data.learned.americano??=true; // 새 기본 메뉴는 옛 저장에서도 사용한다
   if (!data.farm) data.farm = { ...newFarm(data.rng?.seed), lastAdvancedDay: data.day };
   data.farm.energy = Number.isFinite(data.farm.energy) ? Math.max(0,Math.min(data.farm.energy,maxFarmEnergy(data.farm))) : maxFarmEnergy(data.farm);
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
@@ -57,7 +65,7 @@ function migrate(data) {
   for (const k of ['stress', 'resting', 'dayOff']) if (!data[k] || typeof data[k] !== 'object') data[k] = {};
   for (const [id, v] of Object.entries(data.stress)) data.stress[id] = Math.max(0, Math.min(100, Math.floor(Number(v) || 0)));
   if ('autoKitchen' in data) { delete data.autoKitchen; data.auto = false; }
-  data.automation = { hall: false, kitchen: false, farm: false, ...(data.automation || {}) };
+  data.automation = { hall: false, hall_neo: false, kitchen: false, farm: false, ...(data.automation || {}) };
   for (const k of Object.keys(data.automation)) data.automation[k] = data.automation[k] === true;
   if (legacy && data.hostbar.open && !data.ledger.rewards['outfit:host_first']) {
     data.ledger.rewards['outfit:host_first'] = true;
@@ -72,6 +80,9 @@ function migrate(data) {
   data.outfits.equipped = {...base.outfits.equipped,...data.outfits.equipped};
   for(const id of Object.keys(data.roster)) { const outfit=`${id}_formal`; if(['yun','museong','solv','bambi','lune','raven'].includes(id) && !data.outfits.owned.includes(outfit)){data.outfits.owned.push(outfit);data.ledger.rewards[`outfit:${outfit}`]=true;data.outfits.equipped[id].outfit=outfit;} }
   for (const c of Object.values(data.customers || {})) c.look = customerLook(c);
+  // 기존 저장에는 도입부 기록이 없다. 이어하기는 프롤로그를 생략하고 다른 이야기 기록은 보존한다.
+  data.ledger.story = {...data.ledger.story, prologue:true};
+  migrateHuntVisits(data);
   data.interior.areas ||= []; // 증축 구역 이전 저장
   checkAchievements(data, { quiet: true }); // 업적 소급(원장으로 보상 1회)
   return data;

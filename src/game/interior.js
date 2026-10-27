@@ -9,6 +9,7 @@ export function editCheck(state) {
   return { ok: true };
 }
 
+const previewCache=new WeakMap();
 const findDraft = (state, uid) => state.interior.draft?.furniture.find(f => f.uid === uid) || null;
 
 export function begin(state) {
@@ -59,7 +60,9 @@ export function store(state, uid) {
   const { f, error } = needDraft(state, uid);
   if (error) return error;
   if (FURNITURE[f.defId].storable === false) return { ok: false, reason: `${FURNITURE[f.defId].name}은(는) 보관할 수 없습니다 (테이블은 늘릴 수만 있어요)` };
+  (state.interior.draft.undo??=[]).push({uid,before:{...(state.interior.draft.itemBefore||f)}});
   f.x = null; f.y = null; f.rot = 0;
+  state.interior.draft.itemBefore=null;
   return { ok: true };
 }
 
@@ -81,7 +84,7 @@ export function place(state, uid, x, y) {
 
 export function preview(state) {
   const list = state.interior.draft ? state.interior.draft.furniture : state.interior.furniture;
-  return validateLayout(list, state.interior.areas);
+  const sig=JSON.stringify([state.interior.areas,list]);let v=previewCache.get(list);if(v?.sig!==sig){v={sig,result:validateLayout(list,state.interior.areas)};previewCache.set(list,v);}return v.result;
 }
 
 export function cancel(state) {
@@ -94,9 +97,28 @@ export function apply(state) {
   if (!state.interior.draft) return { ok: false, reason: '편집 모드가 아닙니다' };
   const chk = editCheck(state);
   if (!chk.ok) return chk;
+  if(state.interior.draft.itemBefore)return {ok:false,reason:'선택한 가구를 놓거나 이동 취소한 뒤 저장해 주세요'};
   const v = validateLayout(state.interior.draft.furniture, state.interior.areas);
   if (!v.ok) return { ok: false, reason: v.problems[0].msg, reasons: v.problems.map(p => p.msg) };
   state.interior.furniture = state.interior.draft.furniture.map(f => ({ ...f }));
   state.interior.draft = null;
   return { ok: true };
 }
+
+export function pickItem(state,uid){
+ const {f,error}=needDraft(state,uid);if(error)return error;
+ const d=state.interior.draft;if(d.itemBefore&&d.selected!==uid)return {ok:false,reason:'고른 가구를 놓거나 이동 취소한 뒤 다른 가구를 선택해 주세요'};
+ d.selected=uid;d.itemBefore??={...f};return {ok:true};
+}
+export function confirmItem(state){
+ const d=state.interior.draft;if(!d?.itemBefore)return {ok:false,reason:'먼저 가구를 선택해 주세요'};
+ const f=findDraft(state,d.selected);if(f?.x==null)return {ok:false,reason:'바닥을 눌러 놓을 자리를 선택해 주세요'};
+ const v=preview(state);if(!v.ok)return {ok:false,reason:v.problems[0].msg};
+ (d.undo??=[]).push({uid:d.selected,before:{...d.itemBefore}});if(d.undo.length>30)d.undo.shift();d.itemBefore=null;return {ok:true};
+}
+export function cancelItem(state){
+ const d=state.interior.draft;if(!d?.itemBefore)return {ok:false,reason:'이동 중인 가구가 없습니다'};
+ Object.assign(findDraft(state,d.itemBefore.uid),d.itemBefore);d.itemBefore=null;return {ok:true};
+}
+
+export function undoItem(state){const d=state.interior.draft;if(!d||d.itemBefore||!d.undo?.length)return {ok:false,reason:'이동을 마친 뒤 확정한 배치를 되돌릴 수 있어요'};const prior=d.undo.pop();Object.assign(findDraft(state,prior.uid),prior.before);d.selected=prior.uid;return {ok:true};}

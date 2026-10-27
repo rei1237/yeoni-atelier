@@ -43,7 +43,7 @@ export const BOND_STORIES = Object.freeze({
         ] },
       ] },
       { s: 'nar', t: '다음 날 영냥이의 발톱은 장갑 끝에서 달빛처럼 반짝였다.' },
-      { s: 'sys', t: '[ 네오 ♥2 · 사냥 무기 피해 +35% ]' },
+      { s: 'sys', t: '[ 네오 ♥2 · 사냥 무기 피해 +35% · 네오 홀 자동(서빙·정리) 해금 — 접대 중에는 홀 보조를 기다려요 ]' },
     ],
     [
       { chapter: ['인연 · 네오 ♥3', '영냥이, 농부가 되다'], bg: 'atelier_lit', l: 'yeoni:surprised', c: 'neo_cat:smug', r: null },
@@ -125,7 +125,7 @@ export const BOND_STORIES = Object.freeze({
         ] },
       ] },
       { s: 'nar', t: '루나는 쟁반을 두 손으로 꼭 쥐고 홀 한가운데서 깡충 뛰었다.' },
-      { s: 'sys', t: '[ 루나 ♥2 · 손님이 음식을 15% 더 기다려 줍니다 · 홀 자동(서빙·정리) 해금 — 주방 화면에서 켜고 끌 수 있어요 ]' },
+      { s: 'sys', t: '[ 루나 ♥2 · 손님이 음식을 15% 더 기다려 줍니다 · 루나 홀 자동(서빙·정리) 해금 — 주방 화면에서 켜고 끌 수 있어요 ]' },
     ],
     [
       { chapter: ['인연 · 루나 ♥3', '백까지 세는 아이'], bg: 'atelier_dark', l: 'yeoni:normal', c: 'luna:surprised', r: null },

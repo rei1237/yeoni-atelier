@@ -44,7 +44,7 @@ export function buildGrid(furniture, open = []) {
     }
   }
   return {
-    fixture, block, floor, locked,
+    fixture, block, floor, locked, furniture,
     walkable: (x, y) => inBounds(x, y) && !fixture[key(x, y)] && !block[key(x, y)] && !locked.has(key(x, y)),
     blockAt: (x, y) => (inBounds(x, y) ? block[key(x, y)] : null),
   };
@@ -84,17 +84,22 @@ export function findPath(grid, from, to, { goalBlocked = false } = {}) {
 // 테이블 세트의 테이블 칸·의자 칸·서빙 칸(서빙대에서 가장 가까운 테이블 옆 통로)
 export function tableGeometry(grid, f) {
   const cells = furnitureCells(f);
-  const table = cells.find(c => c.kind === 'table');
-  const chair = cells.find(c => c.kind === 'chair');
-  if (!table || !chair) return null;
+  const tableCells=cells.filter(c=>c.kind==='table');
+  let table = tableCells[0];
+  if(!table)return null;
+  let chair=cells.find(c=>c.kind==='chair'),chairUid=f.uid,facing=['up','right','down','left'][f.rot&3];
+  if(!chair){const candidates=(grid.furniture||[]).filter(x=>FURNITURE[x.defId]?.chair&&x.x!=null).sort((a,b)=>a.uid.localeCompare(b.uid));
+   const seat=candidates.find(x=>{const [dx,dy]=[[0,-1],[1,0],[0,1],[-1,0]][x.rot&3];return tableCells.some(t=>x.x+dx===t.x&&x.y+dy===t.y);});
+   if(seat){chair={x:seat.x,y:seat.y};chairUid=seat.uid;facing=['up','right','down','left'][seat.rot&3];const [dx,dy]=DIRS[seat.rot&3];table=tableCells.find(t=>seat.x+dx===t.x&&seat.y+dy===t.y);}
+  }
   let best = null;
-  for (const [dx, dy] of DIRS) {
-    const sx = table.x + dx, sy = table.y + dy;
+  for (const edge of tableCells) for (const [dx, dy] of DIRS) {
+    const sx = edge.x + dx, sy = edge.y + dy;
     if (!grid.walkable(sx, sy)) continue;
     const p = findPath(grid, SPOTS.pickup, { x: sx, y: sy });
     if (p && (!best || p.length < best.len)) best = { x: sx, y: sy, len: p.length };
   }
-  return { table: { x: table.x, y: table.y }, chair: { x: chair.x, y: chair.y }, service: best ? { x: best.x, y: best.y } : null };
+  return { table: { x: table.x, y: table.y }, chair: chair?{ x: chair.x, y: chair.y }:null, chairUid:chair?chairUid:null, facing, service: best ? { x: best.x, y: best.y } : null };
 }
 
 const RESERVED_SET = new Set(RESERVED.map(([x, y]) => key(x, y)));
@@ -122,7 +127,7 @@ export function validateLayout(furniture, open = []) {
   }
   const tables = placed.filter(f => FURNITURE[f.defId].table);
   const totalTables = furniture.filter(f => FURNITURE[f.defId].table).length;
-  if (tables.length !== totalTables) problems.push({ code: 'tables', msg: '테이블 세트는 모두 배치해야 합니다' });
+  if (placed.filter(f=>FURNITURE[f.defId].table&&FURNITURE[f.defId].storable===false).length !== furniture.filter(f=>FURNITURE[f.defId].table&&FURNITURE[f.defId].storable===false).length) problems.push({ code: 'tables', msg: '테이블 세트는 모두 배치해야 합니다' });
 
   if (!problems.length) {
     const grid = buildGrid(placed, open);
@@ -130,6 +135,7 @@ export function validateLayout(furniture, open = []) {
     for (const f of tables) {
       const g = tableGeometry(grid, f);
       const label = `${f.tableNo}번 테이블`;
+      if(!g.chair)continue;
       if (!g.service) problems.push({ code: 'service', uid: f.uid, msg: `${label}: 서빙대에서 갈 수 있는 테이블 옆 통로가 없습니다` });
       if (!reach(SPOTS.entrance, g.chair, { goalBlocked: true })) problems.push({ code: 'seat', uid: f.uid, msg: `${label}: 입구에서 의자까지 길이 막혔습니다` });
     }

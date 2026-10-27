@@ -81,7 +81,7 @@ test('준비 시간이 끝나면 보스가 반드시 나오고, 처치해야 클
   // 같은 단계를 다시 깨면 해금·보상이 겹치지 않는다
   dispatch(s, { type: 'hunt.retreat' }); dispatch(s, { type: 'hunt.finish' });
   const again = roundTrip(s);
-  again.ap.left = 3; // 테스트 준비
+  again.day++; again.ap.left = 3; // 다음 게임 날짜의 재도전
   assert.ok(dispatch(again, { type: 'hunt.start', depth: 1 }).ok);
   again.hunt.hp = again.hunt.maxHp = 1e9;
   again.hunt.stageMs = stageDef(1).prepMs;
@@ -136,7 +136,7 @@ test('후퇴해도 고르지 않은 레벨업 카드는 다음 사냥으로 넘�
   assert.ok(dispatch(s, { type: 'hunt.finish' }).ok);
   assert.equal(dispatch(s, { type: 'hunt.finish' }).ok, false);
   assert.equal(s.hunter.builds.neo.picks.length, 1);
-  s.ap.left = 3; // 테스트 준비
+  s.day++; s.ap.left = 3; // 다음 게임 날짜의 재도전
   assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
   assert.equal(s.hunt.picks.length, 1);
   assert.ok(dispatch(s, { type: 'hunt.pick', index: 0 }).ok);

@@ -4,7 +4,7 @@ import { RULES } from '../config/rules.js';
 import { PDF } from '../config/balance.pdf.js';
 import { TEMP } from '../config/balance.temp.js';
 import { MENUS } from '../data/menus.js';
-import { START_FURNITURE } from '../data/layout.js';
+import { START_FURNITURE, splitFurniture } from '../data/layout.js';
 import { PEOPLE, RECRUITABLE } from '../data/companions.js';
 import { DEV_RECRUITABLE } from '../data/dev-companions.js';
 import { START_OUTFITS, OUTFIT_WEARERS } from '../data/outfits.js';
@@ -26,7 +26,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     day: 1,                 // 다음(또는 진행 중) 정규 영업 번호
     paused: false,
     auto: false,           // 전체 자동(접대 판단 포함) — 시뮬·테스트 전용
-    automation: { hall: false, kitchen: false, farm: false }, // 인연으로 연 뒤에도 기본은 꺼짐(permissions.js)
+    automation: { hall: false, hall_neo: false, kitchen: false, farm: false }, // 인연으로 연 뒤에도 기본은 꺼짐(permissions.js)
     hostbar: { open: false, openedDay: null },
     huntUnlocked: false,
     stress: {},            // 직원 id → 0~100(stress.js). 없으면 0
@@ -55,7 +55,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     people: Object.fromEntries(RULES.STARTING_ROSTER.map(id => [id, { activity: 'idle', form: 'human', visitId: null, tableNo: null, endAt: null }])),
     recruitment: {},
     fever: { gauge: 0, activeUntil: null },
-    interior: { furniture: START_FURNITURE.map(f => ({ ...f })), areas: [], draft: null },
+    interior: { furniture: splitFurniture(START_FURNITURE), areas: [], draft: null },
     outfits: { owned: [...START_OUTFITS], equipped },
     quests: { claimed: {} },
     stats: { served: 0, servedSpecial: 0, shiftsCompleted: 0, repayCount: 0, nightDewObtained: 0, recruited: 0, huntsCompleted: 0, moonstonesObtained: 0, moonstonesExchanged: 0, expansions: 0, areasOpened: 0 },

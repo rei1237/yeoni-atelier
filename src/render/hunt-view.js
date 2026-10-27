@@ -1,3 +1,4 @@
+import {enemyVisualSize,drawSaju} from './hunt-visuals.js';
 // 영냥이 월정석 사냥 화면(뱀서식). 플레이어를 따라가는 카메라, 필드, 적, 무기 효과, 드롭, 피해 숫자, 사건 알림, 조이스틱.
 // 상태는 읽기만 한다. 화면 흔들림 같은 연출에만 Math.random 을 쓴다.
 
@@ -89,7 +90,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const now = hs.elapsedMs;
   let camX = p.x-vw/2;
   let camY = p.y-vh/2;
-  if (now < world.shakeUntil && !state.paused && !opts.reducedMotion) { camX += (Math.random() - 0.5) * 8; camY += (Math.random() - 0.5) * 8; }
+  if (now < world.shakeUntil && !state.paused && !opts.reducedMotion) { camX += Math.sin(now*.071)*4; camY += Math.cos(now*.097)*4; }
 
   ctx.fillStyle = '#141a2b'; ctx.fillRect(0, 0, w, h);
   ctx.save();
@@ -161,11 +162,13 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
     if(e.x<camX-120||e.x>camX+vw+120||e.y<camY-120||e.y>camY+vh+120)continue;
     drawEnemyWarning(ctx,e,def,now);
     const hit = e.hitAt > 0 && now - e.hitAt < 90;
-    drawActor(ctx, def.art || e.type, { x: e.x, y: e.y + def.size * 0.3, size: def.size, state:e.rolePhase==='warning'||e.rolePhase==='fuse'?'attack':hit?'hurt':'walk', facing:e.facing||'down', t:now+e.uid*73, seed:e.uid, flash:hit, flipX:e.facing==='left' });
+    const visualSize=enemyVisualSize(def,scale);ctx.save();
+    if(!def.boss&&def.size<48){ctx.fillStyle='rgba(13,19,35,.5)';ctx.beginPath();ctx.ellipse(e.x,e.y+def.r*.6,def.r,def.r*.45,0,0,Math.PI*2);ctx.fill();ctx.shadowColor=hit?'#fff2b5':'#b3a5ce';ctx.shadowBlur=2;}
+    drawActor(ctx, def.art || e.type, { x: e.x, y: e.y + visualSize * 0.3, size: visualSize, state:e.rolePhase==='warning'||e.rolePhase==='fuse'?'attack':hit?'hurt':'walk', facing:e.facing||'down', t:now+e.uid*73, seed:e.uid, flash:hit&&!opts.reducedMotion, flipX:e.facing==='left' });ctx.restore();
     if (def.elite && !def.boss) {
-      const bw = def.size * 0.8, k = Math.max(0, e.hp / e.maxHp);
-      ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(e.x - bw / 2, e.y - def.size * 0.62, bw, 5);
-      ctx.fillStyle = '#ffd38a'; ctx.fillRect(e.x - bw / 2, e.y - def.size * 0.62, bw * k, 5);
+      const bw = visualSize * 0.8, k = Math.max(0, e.hp / e.maxHp);
+      ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(e.x - bw / 2, e.y - visualSize * 0.62, bw, 5);
+      ctx.fillStyle = '#ffd38a'; ctx.fillRect(e.x - bw / 2, e.y - visualSize * 0.62, bw * k, 5);
     }
   }
 
@@ -195,7 +198,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
 
   for(const shot of world.hostile){ctx.strokeStyle='#c69bdb';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(shot.x-shot.vx*.045,shot.y-shot.vy*.045);ctx.lineTo(shot.x,shot.y);ctx.stroke();ctx.fillStyle='#ffdda9';ctx.beginPath();ctx.arc(shot.x,shot.y,shot.r,0,Math.PI*2);ctx.fill();}
   const swing=p.swing;
-  if(swing&&now>=swing.hitAt&&now<swing.until){const q=(now-swing.hitAt)/(swing.until-swing.hitAt);ctx.save();ctx.translate(swing.x,swing.y);ctx.rotate(swing.angle);ctx.globalAlpha=1-q;const grad=ctx.createRadialGradient(0,0,swing.radius*.25,0,0,swing.radius);grad.addColorStop(0,'#fff0c000');grad.addColorStop(.76,swing.evo?'#d9b7f6aa':'#ffd58a88');grad.addColorStop(1,'#fff8e8ee');ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,swing.radius,-swing.halfArc,swing.halfArc);ctx.closePath();ctx.fill();ctx.strokeStyle='#fffbea';ctx.lineWidth=opts.reducedMotion?2:5*(1-q)+1;ctx.beginPath();ctx.arc(0,0,swing.radius,-swing.halfArc+swing.halfArc*2*q,swing.halfArc);ctx.stroke();ctx.restore();}
+  drawSaju(ctx,swing,now,opts.reducedMotion);
   for(const burst of world.fx){if(burst.kind==='ward')continue;const q=(now-burst.at)/(burst.until-burst.at);ctx.save();ctx.globalAlpha=1-q;ctx.strokeStyle=burst.kind==='burst'?'#ffb37d':'#fff4b8';ctx.lineWidth=burst.kind==='burst'?3:2;ctx.beginPath();ctx.arc(burst.x,burst.y,burst.r*(.35+.65*q),0,Math.PI*2);ctx.stroke();if(!opts.reducedMotion)for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(burst.x+Math.cos(a)*burst.r*q*.6,burst.y+Math.sin(a)*burst.r*q*.6);ctx.lineTo(burst.x+Math.cos(a)*burst.r*q,burst.y+Math.sin(a)*burst.r*q);ctx.stroke();}ctx.restore();}
   // 영냥이
   const hurt = now < p.hurtUntil;
@@ -292,14 +295,15 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   // 조이스틱(화면 좌표)
   const joy = opts.joy;
   if (joy?.active && opts.rect) {
-    const ox = joy.ox - opts.rect.left, oy = joy.oy - opts.rect.top;
+    const sx=w/opts.rect.width,sy=h/opts.rect.height,joyRadius=joy.radius*Math.min(sx,sy);
+    const ox = (joy.ox - opts.rect.left)*sx, oy = (joy.oy - opts.rect.top)*sy;
     // 금 테 반투명 달 원
     ctx.fillStyle = 'rgba(20,26,51,0.32)'; ctx.strokeStyle = 'rgba(217,178,106,0.8)'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(ox, oy, joy.radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(ox, oy, joyRadius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     ctx.strokeStyle = 'rgba(217,178,106,0.3)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(ox, oy, joy.radius * .62, 0, Math.PI * 2); ctx.stroke();
-    const kx = joy.x - opts.rect.left, ky = joy.y - opts.rect.top;
-    const dx = kx - ox, dy = ky - oy, d = Math.hypot(dx, dy), k = d > joy.radius ? joy.radius / d : 1;
+    ctx.beginPath(); ctx.arc(ox, oy, joyRadius * .62, 0, Math.PI * 2); ctx.stroke();
+    const kx = (joy.x - opts.rect.left)*sx, ky = (joy.y - opts.rect.top)*sy;
+    const dx = kx - ox, dy = ky - oy, d = Math.hypot(dx, dy), k = d > joyRadius ? joyRadius / d : 1;
     ctx.fillStyle = 'rgba(246,227,180,0.55)'; ctx.strokeStyle = WARD.gold; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(ox + dx * k, oy + dy * k, 22, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   }

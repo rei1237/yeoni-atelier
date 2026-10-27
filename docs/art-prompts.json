@@ -45,29 +45,33 @@
     "id": "ui/town-map-spring",
     "tool": "image_gen built-in",
     "sourceFile": "exec-cc3b0bf2-0150-492f-a3d7-634619f12fec.png",
-    "prompt": "Use case: illustration-story. A production full-bleed scenic background for a premium mobile fantasy cafe game: spring fantasy village map, river from upper right to lower left, atelier cafe at bottom center, notice board center, otter ingredient shop lower left, moonstone weighing shop lower right, equipment stall upper left, dark violet hunting woods upper right, pink blossoms and cream stone paths, no text or people. Sophisticated smooth hand-painted anime storybook art with luminous natural lighting, soft elegant contours and painterly material shading, cream rose-gold and deep indigo visual identity. No characters, no text, no interface. No pixel art, no dithering, no tiny noisy speckles, no blocky mosaic, no harsh outlines. Landscape 6:5 composition, believable perspective, spacious readable calm scene.",
-    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
+    "prompt": "사용자가 요청한 원작 재성의 섬 1536×1024 정본 재사용. 신규 생성·단순 확대 없음.",
+    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows",
+    "source": "https://assets.code-destiny.com/CodeDestinyNovel/background/재성의 섬.webp"
   },
   {
     "id": "ui/town-map-summer",
     "tool": "image_gen built-in",
     "sourceFile": "exec-e3a33ec8-0dc9-4e59-944f-067fa124be76.png",
-    "prompt": "Use case: illustration-story. A production full-bleed scenic background for a premium mobile fantasy cafe game: summer fantasy village map, river from upper right to lower left, atelier cafe at bottom center, notice board center, otter ingredient shop lower left, moonstone weighing shop lower right, equipment stall upper left, dark violet hunting woods upper right, rich green leaves, cream stone paths, no text or people. Sophisticated smooth hand-painted anime storybook art with luminous natural lighting, soft elegant contours and painterly material shading, cream rose-gold and deep indigo visual identity. No characters, no text, no interface. No pixel art, no dithering, no tiny noisy speckles, no blocky mosaic, no harsh outlines. Landscape 6:5 composition, believable perspective, spacious readable calm scene.",
-    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
+    "prompt": "사용자가 요청한 원작 재성의 섬 1536×1024 정본 재사용. 신규 생성·단순 확대 없음.",
+    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows",
+    "source": "https://assets.code-destiny.com/CodeDestinyNovel/background/재성의 섬.webp"
   },
   {
     "id": "ui/town-map-autumn",
     "tool": "image_gen built-in",
     "sourceFile": "exec-445dd1d8-72f9-4187-870d-53aaa5050ea5.png",
-    "prompt": "Use case: illustration-story. A production full-bleed scenic background for a premium mobile fantasy cafe game: autumn fantasy village map, river from upper right to lower left, atelier cafe at bottom center, notice board center, otter ingredient shop lower left, moonstone weighing shop lower right, equipment stall upper left, dark violet hunting woods upper right, golden orange leaves, cream stone paths, no text or people. Sophisticated smooth hand-painted anime storybook art with luminous natural lighting, soft elegant contours and painterly material shading, cream rose-gold and deep indigo visual identity. No characters, no text, no interface. No pixel art, no dithering, no tiny noisy speckles, no blocky mosaic, no harsh outlines. Landscape 6:5 composition, believable perspective, spacious readable calm scene.",
-    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
+    "prompt": "사용자가 요청한 원작 재성의 섬 1536×1024 정본 재사용. 신규 생성·단순 확대 없음.",
+    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows",
+    "source": "https://assets.code-destiny.com/CodeDestinyNovel/background/재성의 섬.webp"
   },
   {
     "id": "ui/town-map-winter",
     "tool": "image_gen built-in",
     "sourceFile": "exec-18e3f40d-71c0-4fa2-a729-7b572e6fb6fe.png",
-    "prompt": "Use case: illustration-story. A production full-bleed scenic background for a premium mobile fantasy cafe game: winter fantasy village map, river from upper right to lower left, atelier cafe at bottom center, notice board center, otter ingredient shop lower left, moonstone weighing shop lower right, equipment stall upper left, dark violet hunting woods upper right, snowy roofs and warm golden windows, no text or people. Sophisticated smooth hand-painted anime storybook art with luminous natural lighting, soft elegant contours and painterly material shading, cream rose-gold and deep indigo visual identity. No characters, no text, no interface. No pixel art, no dithering, no tiny noisy speckles, no blocky mosaic, no harsh outlines. Landscape 6:5 composition, believable perspective, spacious readable calm scene.",
-    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
+    "prompt": "사용자가 요청한 원작 재성의 섬 1536×1024 정본 재사용. 신규 생성·단순 확대 없음.",
+    "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows",
+    "source": "https://assets.code-destiny.com/CodeDestinyNovel/background/재성의 섬.webp"
   },
   {
     "id": "icons/bean",
@@ -3427,5 +3431,197 @@
     "id": "actors/customer@look7",
     "aliasOf": "actors/customer",
     "prompt": "기존 손님 치마 마스크에만 315도 색상 회전. 원본 시트를 공유하는 8색 중 8번째. 새 인물·앉은 자세를 생성한 것이 아님."
+  },
+  {
+    "id": "buildings/cafe_original",
+    "tool": "parent image generation",
+    "sourceFile": "first-cafe-simple.png",
+    "sourceArchive": "cafe-remodel-facades.zip",
+    "prompt": "부모가 기존 카페 정본을 참조해 생성한 서로 다른 외벽·지붕의 투명 독립 건물. 원문 프롬프트 미수신; 다운로드한 원본과 INTEGRATION 명세를 보존했다.",
+    "normalization": "256×256, 문턱128/240.64, 종횡비 유지, alpha<=4 정리, WebP q68/method6. 원본1254×1254는D보존."
+  },
+  {
+    "id": "buildings/cafe_blossom",
+    "tool": "parent image generation",
+    "sourceFile": "blooming-entrance.png",
+    "sourceArchive": "cafe-remodel-facades.zip",
+    "prompt": "부모가 기존 카페 정본을 참조해 생성한 서로 다른 외벽·지붕의 투명 독립 건물. 원문 프롬프트 미수신; 다운로드한 원본과 INTEGRATION 명세를 보존했다.",
+    "normalization": "256×256, 문턱128/240.64, 종횡비 유지, alpha<=4 정리, WebP q68/method6. 원본1254×1254는D보존."
+  },
+  {
+    "id": "buildings/cafe_salon",
+    "tool": "parent image generation",
+    "sourceFile": "lotus-salon.png",
+    "sourceArchive": "cafe-remodel-facades.zip",
+    "prompt": "부모가 기존 카페 정본을 참조해 생성한 서로 다른 외벽·지붕의 투명 독립 건물. 원문 프롬프트 미수신; 다운로드한 원본과 INTEGRATION 명세를 보존했다.",
+    "normalization": "256×256, 문턱128/240.64, 종횡비 유지, alpha<=4 정리, WebP q68/method6. 원본1254×1254는D보존."
+  },
+  {
+    "id": "actors/customer_original",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "service/original_walk_clothes_mask",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_original_seated",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "service/original_seated_clothes_mask",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_student",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "service/student_walk_clothes_mask",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_student_seated",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "service/student_seated_clothes_mask",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_office",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "service/office_walk_clothes_mask",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_office_seated",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "service/office_seated_clothes_mask",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_elder",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "service/elder_walk_clothes_mask",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_elder_seated",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "service/elder_seated_clothes_mask",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "objects/chair_down",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "objects/chair_up",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "objects/chair_left",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "objects/chair_right",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "ui/botanical_left",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "ui/botanical_right",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "ui/botanical_divider",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "ui/botanical_pot",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/yeoni_idle_right",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "icons/americano",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "ui/neo_cat_tired",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/luna_sis_cook",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "service/cook_bowl",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "service/cook_pitcher",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_seated@look0",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_seated@look1",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_seated@look2",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_seated@look3",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_seated@look4",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_seated@look5",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_seated@look6",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_seated@look7",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "actors/customer_seated",
+    "prompt": "사용자가 전달한 기존 캐릭터 참조 생성 원본. 방향별 독립 이미지, 비율 유지, 고정 셀 정규화. 원본과 INTEGRATION은 D:/yeoni-qa/art/cafe-ux/generated-source-v1 보존."
+  },
+  {
+    "id": "objects/grand_table",
+    "aliasOf": "objects/table"
+  },
+  {
+    "id": "objects/grand_planter",
+    "aliasOf": "objects/plant"
+  },
+  {
+    "id": "objects/long_cabinet",
+    "aliasOf": "objects/pass"
   }
 ]

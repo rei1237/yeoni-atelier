@@ -1,3 +1,5 @@
+import {cafeCapacity} from './capacity.js';
+import {areaAvailable} from './branches.js';
 // 마을 나가기(영업 준비 중에만): 청토끼 금융 센터(월정석 환전) · 윤달의 무기 공방(영냥이 장비) · 무성의 가구·꽃 상점(테이블·구역·장식).
 // 모카 식재료점 구매는 economy.buy 를 그대로 쓴다. 가격·환율은 모두 임시값(balance.temp.js, data/gear.js).
 // 장소 이름과 역할(청토끼 금융 센터, 윤달 무기 공방, 무성 가구·꽃 상점)은 게임 오리지널 설정이다.
@@ -7,7 +9,7 @@ import { TEMP } from '../config/balance.temp.js';
 import { RULES } from '../config/rules.js';
 import { GEAR } from '../data/gear.js';
 import { FURNITURE, GRID, AREAS } from '../data/layout.js';
-import { validateLayout } from './space.js';
+import { validateLayout, buildGrid } from './space.js';
 import { emit, nextId } from './state.js';
 import { bondFx } from '../data/bonds.js';
 import { placeLock } from './unlocks.js';
@@ -83,19 +85,19 @@ export function equipGear(state, slot, id) {
 export const tableCount = state => state.interior.furniture.filter(f => FURNITURE[f.defId].table).length;
 
 export function tablePrice(count) {
-  return Math.round(TEMP.TABLE_PRICE_BASE * TEMP.TABLE_PRICE_GROWTH ** Math.max(0, count - RULES.TABLE_COUNT) / 100) * 100;
+  return Math.round(TEMP.TABLE_PRICE_BASE * TEMP.TABLE_PRICE_GROWTH ** Math.max(0, Math.min(count,12) - RULES.TABLE_COUNT) * (1+Math.max(0,count-12)*.12) / 100) * 100;
 }
 
 export function nextExpansion(state) {
   const n = tableCount(state);
-  if (n >= TEMP.MAX_TABLES) return null;
+  if (n >= cafeCapacity(state).tableLimit) return null;
   const tableNo = Math.max(0, ...state.interior.furniture.filter(f => FURNITURE[f.defId].table).map(f => f.tableNo)) + 1;
-  return { id: `table${tableNo}`, tableNo, label: `${tableNo}번 테이블 세트`, cost: tablePrice(n) };
+  return { id: `table${tableNo}`, tableNo, label: `${tableNo}번 테이블 (의자 별도)`, cost: tablePrice(n) };
 }
 
 // 다음 증축 가격: 연 구역 수에 따라 오른다
 export function areaPrice(state) {
-  return TEMP.AREA_COSTS[(state.interior.areas || []).length] ?? null;
+  const n=(state.interior.areas||[]).length;return n<AREAS.length?(TEMP.AREA_COSTS[n]??Math.round(TEMP.AREA_COSTS.at(-1)*1.5**(n-TEMP.AREA_COSTS.length+1))):null;
 }
 
 function expandCheck(state) {
@@ -109,23 +111,13 @@ export function buyExpansion(state) {
   const chk = expandCheck(state);
   if (!chk.ok) return chk;
   const ex = nextExpansion(state);
-  if (!ex) return { ok: false, reason: `테이블은 ${TEMP.MAX_TABLES}개까지 들일 수 있습니다` };
+  if (!ex) return { ok: false, reason: `테이블은 ${cafeCapacity(state).tableLimit}개까지 들일 수 있습니다` };
   if (state.gold < ex.cost) return { ok: false, reason: `골드가 부족합니다 (${ex.cost}G 필요)` };
   const furniture = state.interior.furniture;
   const areas = state.interior.areas || [];
-  const piece = { uid: ex.id, defId: 'table_set', x: null, y: null, rot: 0, tableNo: ex.tableNo };
-  const list = [...furniture, piece];
-  // 테이블은 보관할 수 없으니 문제없는 첫 빈자리에 바로 놓는다. 자리가 없으면 돈을 받지 않는다.
-  let spot = null;
-  for (let y = 2; y < GRID.rows - 1 && !spot; y++) {
-    for (let x = 0; x < GRID.cols && !spot; x++) {
-      piece.x = x; piece.y = y;
-      if (validateLayout(list, areas).ok) spot = { x, y };
-    }
-  }
-  if (!spot) return { ok: false, reason: '테이블을 놓을 빈자리가 없습니다. 공방에서 구역을 증축하거나 장식을 보관해 주세요' };
+  const piece = { uid: ex.id, defId: 'table', x: null, y: null, rot: 0, tableNo: ex.tableNo };
   state.gold -= ex.cost;
-  furniture.push({ ...piece, ...spot });
+  furniture.push(piece);
   state.stats.expansions += 1;
   emit('expanded', { tableNo: ex.tableNo, label: ex.label });
   return { ok: true, tableNo: ex.tableNo };
@@ -137,6 +129,8 @@ export function buyArea(state, id) {
   if (!chk.ok) return chk;
   const area = AREAS.find(a => a.id === id);
   if (!area) return { ok: false, reason: '없는 구역입니다' };
+  if(!areaAvailable(state,area))return {ok:false,reason:'이 지점의 최대 면적이에요. 다음 지점을 확인해 주세요'};
+  if(area.branchMin && !(state.interior.areas||[]).includes(area.branchMin===2?'garden_wing':'branch_annex_'+(area.branchMin-2)))return {ok:false,reason:'연결된 앞 구역부터 증축해 주세요'};
   const areas = state.interior.areas || (state.interior.areas = []);
   if (areas.includes(id)) return { ok: false, reason: '이미 연 구역입니다' };
   const cost = areaPrice(state);
@@ -150,14 +144,18 @@ export function buyArea(state, id) {
 }
 
 // 장식 들이기: 보관함으로 들어온다(인테리어에서 놓으면 분위기 보너스)
+export function decorPrice(state,defId){const d=FURNITURE[defId],base=TEMP.DECOR_PRICES[defId];return d?.table?Math.max(base||0,tablePrice(tableCount(state))*d.area):base;}
 export function buyDecor(state, defId) {
-  const chk = expandCheck(state);
+  const chk = townCheck(state);
   if (!chk.ok) return chk;
-  const price = TEMP.DECOR_PRICES[defId];
+  const price = decorPrice(state,defId);
   if (!price || !FURNITURE[defId]) return { ok: false, reason: '팔지 않는 장식입니다' };
   if (state.gold < price) return { ok: false, reason: `골드가 부족합니다 (${price}G 필요)` };
+  const table=FURNITURE[defId].table,ex=table?nextExpansion(state):null;if(table&&!ex)return {ok:false,reason:'이 지점의 테이블 수용 한도예요'};
   state.gold -= price;
-  state.interior.furniture.push({ uid: nextId(state, 'decor'), defId, x: null, y: null, rot: 0 });
+  const bought={uid:nextId(state,'decor'),defId,x:null,y:null,rot:0,...(table?{tableNo:ex.tableNo}:{})};
+  state.interior.furniture.push(bought);if(state.interior.draft)state.interior.draft.furniture.push({...bought});
+  if(table)state.stats.expansions+=1;
   emit('decorBought', { defId, name: FURNITURE[defId].name });
   return { ok: true };
 }

@@ -45,6 +45,8 @@ export function drawInlinePortraits(now) {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   for(const cv of document.querySelectorAll('canvas[data-outfit]')){const ctx=cv.getContext('2d');ctx.clearRect(0,0,128,128);drawActor(ctx,cv.dataset.outfit,{x:64,y:125,size:120,state:'idle',facing:'down',t:0});}
   for(const cv of document.querySelectorAll('canvas[data-codex-actor]')){const ctx=cv.getContext('2d');ctx.clearRect(0,0,128,128);drawActor(ctx,cv.dataset.codexActor,{x:64,y:120,size:104,state:'walk',facing:'down',t:0});} // 사냥터 도감
+  // 부탁 노트는 눈·입이 움직이지 않는 첫 프레임만 사용한다.
+  for(const cv of document.querySelectorAll('canvas[data-static-portrait]'))paintTalkingPortrait(cv,{key:cv.dataset.staticPortrait,expression:'normal',now,talking:false,reduced:true});
   for (const cv of document.querySelectorAll('canvas[data-talking-portrait]')) {
     const text = cv.parentElement.textContent;
     let speech = inlineSpeech.get(cv);

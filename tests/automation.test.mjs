@@ -38,7 +38,7 @@ test('예전 저장의 자동 켜짐과 네오 스트레스는 권한 없이 꺼
   delete old.automation; delete old.stress; delete old.resting; delete old.dayOff;
   Object.assign(old, { autoKitchen: true, auto: true, neoStress: 55, neoResting: true });
   const m = deserialize(JSON.stringify(old)).state;
-  assert.deepEqual(m.automation, { hall: false, kitchen: false, farm: false });
+  assert.deepEqual(m.automation, { hall: false, hall_neo: false, kitchen: false, farm: false });
   assert.equal(m.auto, false);
   assert.equal(m.stress.neo, 55); assert.equal(m.resting.neo, true);
   assert.ok(!('neoStress' in m) && !('autoKitchen' in m));
@@ -56,6 +56,7 @@ test('주방 자동은 루나 언니가 쉬면 멈추고 사유를 알려 준다
 
 test('서빙 중 한계에 닿은 직원은 음식을 넘기고, 주문은 사라지지 않고 다른 사람이 마무리한다', () => {
   const s = quietShift({ kitchen: true });
+  enableAutomation(s,['hall_neo']);
   const reg = seat(s, { kind: 'regular' });
   let carrier = null;
   for (let i = 0; i < 1200 && !carrier; i++) {
@@ -175,4 +176,19 @@ test('정리 직원은 서비스 칸에서 테이블을 바라보고 닦는다',
   const vector={left:[-1,0],right:[1,0],up:[0,-1],down:[0,1]}[worker.facing];
   const toward=[t.table.x+.5-worker.x,t.table.y+.5-worker.y];
   assert.ok(vector[0]*toward[0]+vector[1]*toward[1]>0,'정면 방향이 테이블 중심을 향해야 한다');
+});
+
+test('수동·자동 정리는 이동을 마친 뒤 0.5초만 닦고 중복 할당하지 않는다',()=>{
+ for(const kitchen of [false,true]){
+  const s=quietShift({kitchen}),t=s.tables[0];t.state='dirty';const gold=s.gold;
+  if(!kitchen)assert.ok(cmd(s,'clean',{tableNo:t.no}).ok);
+  tick(s,100);assert.notEqual(t.state,'empty','원격 즉시 정리를 하면 안 된다');
+  assert.equal(cmd(s,'clean',{tableNo:t.no}).ok,false);
+  for(let i=0;i<600&&t.state!=='cleaning';i++)tick(s,10);
+  assert.equal(t.state,'cleaning');assert.equal(t.cleanMs,500);
+  assert.equal(s.tasks.filter(j=>j.type==='clean'&&j.tableNo===t.no).length,1);
+  const remaining=t.cleanEndAt-s.shift.elapsedMs;tick(s,remaining-10);assert.equal(t.state,'cleaning');
+  tick(s,10);assert.equal(t.state,'empty');assert.equal(t.cleanQueued,false);
+  assert.equal(cmd(s,'clean',{tableNo:t.no}).ok,false);assert.equal(s.gold,gold);
+ }
 });

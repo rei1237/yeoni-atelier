@@ -1,3 +1,4 @@
+import {runningJobs,queuedJobs,stationJobs,stationItems,activeSlotNames,heldKey} from './station-slots.js';
 import {chargeLoanInterest} from './finance.js';
 import {accruePayroll} from './payroll.js';
 // 정규 영업: 시작 → 활성 시간 1,800초 동안 진행 → 30:00 마지막 접대 정산 → 마감 → 결산.
@@ -108,7 +109,7 @@ export function closeShift(state) {
   for (const c of Object.values(state.customers)) if (c.state !== 'leaving') customerLeave(state, c, '영업 종료');
   for(const visit of Object.values(state.visits))checkout(state,visit); // 마감 직전 계산대 대기도 같은 원장으로 정산
   let wasted = state.tray.filter(Boolean).length;
-  for (const st of Object.values(state.stations)) wasted += (st.current ? 1 : 0) + (st.held ? 1 : 0);
+  for (const st of Object.values(state.stations)) wasted += runningJobs(st).length+stationItems(st).length;
   for (const s of Object.values(state.staff)) if (s.carry) wasted += 1;
   sh.wasted = wasted;
   const settlement = {

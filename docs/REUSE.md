@@ -78,3 +78,17 @@ Code Destiny 로컬 원본의 공개 프로필·라이트노벨 이미지·운�
 - [sierrassets 가구 팩](https://sierrassets.itch.io/pixel-art-furniture-pack)은 픽셀 스타일 후보로 검토하고 가져오지 않았다. 사용 권한을 확보한 신규 에셋으로 기재하지 않는다.
 - [Restaurant Game Canvas JS](https://github.com/enesbabekoglu/Restaurant-Game-Canvas-JS)는 공개 게임 참고 후보로 확인했으며 코드·그림을 복사하지 않았다.
 - 고객 8색은 기존 고객 시트와 Python HSV 옷 영역 마스크를 공유하고 런타임 Canvas에서 치마 색만 회전한다. 머리·피부를 통째로 회전하지 않는다. 신규 3인물이나 앉은 자세를 생성한 결과는 아니다.
+
+### 재성의 섬 지도
+사용자의 원작 라이트 노벨 이미지 재사용 요청에 따라 `public/codedestiny-novel.html`의 `jae` 매핑이 가리키는 https://assets.code-destiny.com/CodeDestinyNovel/background/재성의%20섬.webp 정본을 사용한다. 원본 1536×1024·240,258바이트를 그대로 보존한다. 공개 무료 라이선스 에셋으로 주장하지 않는다. 원작 저장소는 읽기만 했다.
+
+재성의 섬 런타임 파생 파일은 동일1536×1024 q76 WebP(199,442바이트)이다. 원본 정본은 D:/yeoni-qa/art/world-reference/재성의 섬.webp에 보존했다. PSNR36.80dB 및 나란히 픽셀 비교를 확인했다. cafe-engine/cafe는 부모가 공식 README의 Rust/SDL2 범용 프레임워크 구조를 확인한 참고이며 코드·아트를 가져오거나 엔진을 전환하지 않았다.
+
+### 가구 편집 상호작용 참고
+부모가 공식 자료를 조사해 전달한 선택→회전→확정, 보유 목록 검색·분류 흐름을 참고했다. 제3자 코드·그림·브랜드는 복사하지 않았다.
+- EA Sims4 회전: https://help.ea.com/en/articles/the-sims/the-sims-4/how-to-rotate-sims-4/
+- Disney Dreamlight Valley 검색/정렬: https://disneydreamlightvalley.com/news/update-aug-21-2024
+- Nintendo Happy Home Designer 설명서21–25쪽: https://www.nintendo.com/eu/media/downloads/games_8/emanuals/nintendo_3ds_2/animal_crossing__happy_home_designer/ElectronicManual_Nintendo3DS_AnimalCrossingHappyHomeDesigner_EN.pdf
+
+### 음악실 확장 (로컬)
+원작 `app/music/_data/musicManifest.ts`의 곡·아티스트·공개 URL·표지 메타데이터를 읽어 103곡을 수록하고 artistKey=neo인20곡을 제외했다. `music-lounge.module.css`의 현재곡/앨범/분류/목록/재생바 정보 구조와 달빛 팔레트를 참고했으며 게임용 컨트롤은 새로 작성했다. 원작 정책 파일은 읽기만 했고 인증·결제·API·DB를 변경하지 않았다. 음원과 표지를 로컬 assets로 복사하지 않고 사용자 재생 시 공개 스트리밍하며 오프라인 사전 캐시/다운로드를 제공하지 않는다. 정확한 목록은 MUSIC-CATALOG.md.

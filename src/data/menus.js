@@ -25,6 +25,7 @@ export const INGREDIENTS = Object.freeze({
 // station: 'drink' = 음료 머신, 'oven' = 오븐
 // group: 기획서 조리 시간 구분(drink / dessert / meal)
 export const MENUS = Object.freeze({
+  americano:{id:'americano',name:'새벽별 아메리카노',short:'아메리카노',station:'drink',group:'drink',cookMs:10000,price:100,ingredients:{bean:1},color:'#684732',learned:true}, // TEMP: 원가30G, 물은 재고가 아니다
   lotus_moon:{id:'lotus_moon',name:'달빛 연꽃차',short:'달빛 연꽃차',station:'drink',group:'drink',cookMs:36000,price:2800,ingredients:{moon_lotus:2,tea:1},color:'#b48bc6',learned:false,special:true,nominationOnly:true,huntStage:20},
   honey_peach:{id:'honey_peach',name:'꿀복숭아차',short:'꿀복숭아차',station:'drink',group:'drink',cookMs:38000,price:3200,ingredients:{dream_honey:2,tea:1},color:'#b48bc6',learned:false,special:true,nominationOnly:true,huntStage:30},
   star_black_tea:{id:'star_black_tea',name:'별가루 홍차',short:'별가루 홍차',station:'drink',group:'drink',cookMs:40000,price:4200,ingredients:{star_leaf:2,tea:1},color:'#b48bc6',learned:false,special:true,nominationOnly:true,huntStage:45},
@@ -48,7 +49,7 @@ export const MENUS = Object.freeze({
   night_dew_latte: { id: 'night_dew_latte', name: '밤이슬 라테', short: '밤라테', station: 'drink', group: 'drink',   cookMs: 16000, price: 320, ingredients: { night_dew: 1, milk: 1, bean: 1 }, color: '#7d86e8', learned: false, special: true },
 });
 
-export const MENU_ORDER = Object.freeze(['fortune_latte', 'starlight_tea', 'flower_cookie', 'moon_pudding', 'lucky_sand', 'moon_milk_tea', 'stardust_castella', 'oink_cream_latte', 'night_dew_latte', 'lotus_berry_tart', 'moon_rice_bowl', 'golden_pumpkin_soup','lotus_moon','honey_peach','star_black_tea','gold_cinnamon','white_lotus_healing','black_moon_brown_rice']);
+export const MENU_ORDER = Object.freeze(['americano','fortune_latte', 'starlight_tea', 'flower_cookie', 'moon_pudding', 'lucky_sand', 'moon_milk_tea', 'stardust_castella', 'oink_cream_latte', 'night_dew_latte', 'lotus_berry_tart', 'moon_rice_bowl', 'golden_pumpkin_soup','lotus_moon','honey_peach','star_black_tea','gold_cinnamon','white_lotus_healing','black_moon_brown_rice']);
 
 export function ingredientCostOf(menuId) {
   const m = MENUS[menuId];

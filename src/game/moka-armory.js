@@ -15,6 +15,7 @@ export const UPGRADES = Object.freeze({
   magnet: { name:'월광 수집기', base:280, step:50, value:.035, detail:'줍기 범위 +3.5%p' },
 });
 export const SUPPLIES = Object.freeze({
+  bomb:{name:'달빛 폭탄',cost:130,tier:0,shop:'gear',icon:'tarot',limit:1,detail:'주변 적에게 피해 200 · 최대 보유 1개 · 사용 후 재구매 가능 (TEMP)'},
   tonic:{name:'모카의 회복 수프', cost:36, tier:0, icon:'heal', detail:'최대 체력의 35% 회복 · 사냥터에는 회복 아이템이 없어요', limit:3},
   magnet:{name:'달빛 수집 향', cost:60, tier:1, icon:'whisker', detail:'필드에 떨어진 모든 보상을 끌어오기'},
   shield:{name:'검은 밤의 방패', cost:90, tier:2, icon:'hat', detail:'8초 동안 접촉 피해 방지'},
@@ -51,7 +52,7 @@ export function enhance(state,who,id) {
   const cost=upgradeCost(state,who,id); if(!Number.isSafeInteger(cost)||state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
   const a=ensure(state), n=upgradeLevel(state,who,id); if(!Number.isSafeInteger(n+1))return {ok:false,reason:'저장할 수 있는 수치 범위를 넘었습니다'};
   state.moonstone-=cost; (a.upgrades[who] ||= {})[id]=n+1;
-  recordYunTrade(state,0,cost); emit('armoryUpgrade',{who,id,level:n+1,cost}); return {ok:true,cost,level:n+1};
+  state.stats.workshopEnhances=(state.stats.workshopEnhances||0)+1;recordYunTrade(state,0,cost); emit('armoryUpgrade',{who,id,level:n+1,cost}); return {ok:true,cost,level:n+1};
 }
 // 배우기와 단련은 같은 명령(armory.learn). 사냥꾼 둘이 함께 쓴다
 export function learnSkill(state,id) {
@@ -65,9 +66,10 @@ export function learnSkill(state,id) {
   recordYunTrade(state,0,cost); emit('skillLearned',{id,name:(WEAPONS[id]||PASSIVES[id]).name,rank:rank+1,cost}); return {ok:true,cost,rank:rank+1};
 }
 export function buySupply(state,id) {
-  const chk=check(state,'모카 식재료점');if(!chk.ok)return chk;const item=SUPPLIES[id];
+  const item=SUPPLIES[id],chk=check(state,item?.shop==='gear'?'윤달의 무기 공방':'모카 식재료점');if(!chk.ok)return chk;
+  if(item?.shop==='gear'){const lock=placeLock(state,'gear');if(lock)return {ok:false,reason:lock};}
   if(!item || bondTier(state.affinity.moka||0)<item.tier)return {ok:false,reason:'모카와 인연을 쌓으면 새 물품이 열려요'};
-  if(item?.limit && (armory(state).supplies?.[id]||0)>=item.limit)return {ok:false,reason:'회복 수프는 3개까지만 챙길 수 있어요'};
+  if(item?.limit && (armory(state).supplies?.[id]||0)>=item.limit)return {ok:false,reason:id==='tonic'?'회복 수프는 3개까지만 챙길 수 있어요':`${item.name} 최대 보유 ${item.limit}개 · 사용한 뒤 다시 구매할 수 있어요`};
   if(state.moonstone<item.cost)return {ok:false,reason:`월정석 ${item.cost}개가 필요해요`};
   const a=ensure(state);state.moonstone-=item.cost;a.supplies[id]=(a.supplies[id]||0)+1;workShop(state);emit('supplyBought',{id});return {ok:true};
 }

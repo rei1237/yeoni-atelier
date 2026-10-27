@@ -1,3 +1,4 @@
+import {furnitureMetrics} from './furniture-metrics.js';
 // 게임 오리지널 인테리어. 가격·분위기 효과는 임시(TEMP), 전부 확정 구매.
 const decor = (id, name, theme, width, height, floor, color, price, ambience) => ({ id, name, theme, width, height, color, price, ambience:ambience*(price>=1600?4:price>=900?2:1),
   grade:price>=1600?'명품':price>=900?'고급':'기본',
@@ -20,3 +21,10 @@ export const DECOR_CATALOG = Object.freeze([
   decor('herb_shelf', '허브 화분 선반', '연이의 농장', 2, 1, false, '#81926c', 1000, 3),
   decor('greenhouse_rug', '새싹 발매트', '연이의 농장', 2, 2, true, '#8fa38b', 900, 2),
 ]);
+
+// 기존 저장 품목은 크기를 유지한다. 대형 규격은 별도 제품으로 판매한다.
+export const LARGE_CATALOG=Object.freeze([
+ {id:'grand_table',name:'대형 원형 테이블',width:2,height:2,price:3600,baseAmbience:3,table:true,art:'table'},
+ {id:'grand_planter',name:'대형 꽃 정원',width:2,height:2,price:2200,baseAmbience:3,art:'plant'},
+ {id:'long_cabinet',name:'긴 수납 카운터',width:3,height:2,price:4200,baseAmbience:4,art:'pass'},
+].map(d=>{const cells=Array.from({length:d.width*d.height},(_,i)=>({dx:i%d.width,dy:Math.floor(i/d.width),kind:d.table?'table':'block'}));const base={...d,cells,theme:'넓은 공간 가구',grade:d.baseAmbience===4?'명품':'고급',color:'#c79a6b',storable:true};return {...base,...furnitureMetrics(base)};}));

@@ -33,7 +33,7 @@ test('일반 손님은 접대 없이 주문·식사하고 떠난다', () => {
 });
 
 test('편한 수동이 기본이며 주방 자동을 켜면 조리·서빙만 하고 지명 수락은 사람에게 남긴다', () => {
-  assert.deepEqual(createGame().automation, { hall: false, kitchen: false, farm: false }, '새 게임은 수동 조리·서빙으로 시작한다');
+  assert.deepEqual(createGame().automation, { hall: false, hall_neo: false, kitchen: false, farm: false }, '새 게임은 수동 조리·서빙으로 시작한다');
   const s = quietShift({ kitchen: true });
   assert.equal(s.auto, false);
   const reg = seat(s, { kind: 'regular' });

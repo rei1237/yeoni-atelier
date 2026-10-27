@@ -58,7 +58,7 @@ test('수동 조리 준비는 재고를 건드리지 않고 담아 젓기·타�
 test('사망 정산 후 기술 구성·단계는 유지하고 영구 강화와 보급품은 별도 적용',()=>{
  let s=createGame();s.huntUnlocked=true;s.hunter.maxStage=8;cmd(s,'hunt.start',{depth:8});
  Object.assign(s.hunt,{level:9,xp:21,status:'down',weapons:[{id:'bolt',level:4,evo:false},{id:'orbit',level:2,evo:false}],passives:{fish_stock:2}});
- cmd(s,'hunt.finish');s=deserialize(serialize(s)).state;s.paused=false;s.ap.left=3;s.moonstone=100000;
+ cmd(s,'hunt.finish');s=deserialize(serialize(s)).state;s.paused=false;s.day++;s.ap.left=3;s.moonstone=100000;
  const before=s.armory.supplies.fish||0;assert.ok(cmd(s,'armory.enhance',{who:'neo',id:'power'}).ok);
  assert.ok(cmd(s,'hunt.start',{depth:s.hunter.lastStage}).ok);assert.equal(s.hunt.depth,8);assert.equal(s.hunt.level,9);
  assert.equal(s.hunt.weapons[0].level,4);assert.equal(s.hunt.passives.fish_stock,2);assert.ok(s.hunt.gear.dmg>0);

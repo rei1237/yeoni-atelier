@@ -11,7 +11,7 @@ import { changeStress } from './stress.js';
 
 const B = TEMP.BONDS;
 
-function gain(state, id, v) {
+export function gainBond(state, id, v) {
   const before = state.affinity[id] || 0;
   const after = Math.min(B.MAX, before + v);
   state.affinity[id] = after;
@@ -39,7 +39,7 @@ export function talk(state, id, choiceId, token) {
   spendAp(state, 1);
   changeStress(state, 'talk', id);
   state.ap.talked = { ...state.ap.talked, [id]: true };
-  const v = gain(state, id, answer.gain);
+  const v = gainBond(state, id, answer.gain);
   const speaker=id, line=answer.response;
   emit('bondTalk', { id, speaker, line, gain: v });
   return { ok: true, gain: v, speaker, line };
@@ -57,7 +57,7 @@ export function gift(state, id, giftId) {
   if (state.gold < g.cost) return { ok: false, reason: `골드가 부족합니다 (${g.cost} 필요, 보유 ${state.gold})` };
   state.gold -= g.cost;
   state.ap.gifted = { ...state.ap.gifted, [id]: true };
-  const v = gain(state, id, g === b.gift ? B.GIFT_LIKED : B.GIFT_COMMON);
+  const v = gainBond(state, id, g === b.gift ? B.GIFT_LIKED : B.GIFT_COMMON);
   changeStress(state, 'gift', id);
   emit('bondGift', { id, giftId: g.id, gain: v, liked: g === b.gift });
   return { ok: true, gain: v, liked: g === b.gift };
@@ -65,17 +65,17 @@ export function gift(state, id, giftId) {
 
 // 함께 일한 몫: 영업 마감(루나·루나 언니), 사냥 마침(네오), 준비 중 재료 구매(모카, 순마다 한 번)
 export function workShift(state) {
-  gain(state, 'luna', B.WORK_SHIFT);
-  gain(state, 'luna_sis', B.WORK_SHIFT);
-  for (const id of Object.keys(state.roster)) if (BONDS[id]?.requiresRecruit && state.roster[id].usableFrom <= state.day) gain(state, id, B.WORK_SHIFT);
+  gainBond(state, 'luna', B.WORK_SHIFT);
+  gainBond(state, 'luna_sis', B.WORK_SHIFT);
+  for (const id of Object.keys(state.roster)) if (BONDS[id]?.requiresRecruit && state.roster[id].usableFrom <= state.day) gainBond(state, id, B.WORK_SHIFT);
 }
 
 export function workHunt(state, done, who='neo') {
-  gain(state, who, done ? B.WORK_HUNT : B.WORK_HUNT_DOWN);
+  gainBond(state, who, done ? B.WORK_HUNT : B.WORK_HUNT_DOWN);
 }
 
 export function workShop(state) {
   if (state.mode !== 'prep' || state.ap.shopped) return;
   state.ap.shopped = true;
-  gain(state, 'moka', B.WORK_SHOP);
+  gainBond(state, 'moka', B.WORK_SHOP);
 }

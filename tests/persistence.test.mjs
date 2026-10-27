@@ -286,8 +286,10 @@ test('영입: 조건 전에는 사용 불가 → 이벤트 완료 → 보상 1�
   const r = roundTrip(s);
   assert.equal(r.recruitment[id].status, 'recruited');
   assert.deepEqual(usableHosts(r).sort(), ['dev_temp_01', 'neo']);
+  assert.ok(dispatch(r,{type:'staffing.select',id:'neo',on:false}).ok);
+  assert.ok(dispatch(r,{type:'staffing.select',id,on:true}).ok);
   assert.ok(dispatch(r, { type: 'shift.start' }).ok);
-  assert.ok(r.staff[id], '다음 영업에 출근');
+  assert.ok(r.staff[id], '배치한 동료가 다음 영업에 출근');
   r.shift.scriptIndex = 99; r.shift.nextSpawnAt = Number.MAX_SAFE_INTEGER;
   const req = seat(r);
   assert.ok(dispatch(r, { type: 'nomination.propose', tableNo: req.tableNo, personId: id }).ok);

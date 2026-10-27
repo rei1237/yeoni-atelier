@@ -14,6 +14,12 @@
 - 누락된 포즈는 같은 방향의 가까운 포즈를 재사용할 수 있다. 생성된 표정·손·방향 연결은 전문 아티스트의 추가 검수 대상이다. 기본 의상 4개는 기본 캐릭터 그림 별칭이다.
 
 ## 등록과 검사
+2026-10-26 최신 로컬 검사: 419/419 등록 에셋, 런타임+글꼴 14,356,576바이트. Git 추적 파일과 무시되지 않은 신규 파일을 합친 배포 대상 assets/는 397파일 14,970,657바이트로 15MB 및 파일당 1.5MB를 통과한다. 미등록 파일·생성 기록·라이선스도 배포 대상이면 계산한다. Git 없는 환경은 실제 전체 폴더를 검사한다.
+
+물리 폴더는 원본을 보존하여 774파일 27,437,775바이트다. 정확한 archive-assets.json 목록 377파일(미사용 WebP 81·생성 기록 296)은 D:/yeoni-qa/cafe-ux/archived-unused-assets-20261026에 복사하고 SHA256 일치를 확인한 뒤 Git 추적만 제외했다. 저장소 로컬 원본도 남아 있다. 이 변경은 아직 로컬이며 새 배포를 하지 않았다.
+
+지도·대화 초상 등 9파일은 해상도를 유지한 q76/q82 파생 WebP로 222,974바이트를 줄였다. PSNR 33dB 이상과 원본/결과 픽셀 비교를 함께 확인했다. 정확한 SHA256·파일별 품질은 D:/yeoni-qa/cafe-ux/budget-final/applied.json, 이전 파일은 같은 폴더 originals/에 보존한다. 남은 예산은 약 29KB이므로 새 아트 추가 전 교체·추가 최적화가 필요하다. 아래 과거 초과 수치는 당시 기록이다.
+
 1. src/render/assets.js 정의와 아래 표를 함께 유지한다.
 2. 실제 확인한 키만 assets/manifest.json ready에 등록한다. DEV 임시 동료만 의도적으로 도형이다.
 3. node tools/check-assets.mjs는 WebP 컨테이너·크기·알파 채널·문서 표·프롬프트 기록을 검사한다. 개별 1.5MB, 전체 15MB 전송 예산을 넘으면 실패한다. 픽셀 내용의 미적 품질은 자동 판정하지 않는다.
@@ -93,7 +99,7 @@
 | actors/yeoni_pig | assets/illustrated/actors/yeoni_pig.webp | 512×512 | 완료 |
 | actors/neo | assets/illustrated/actors/neo.webp | 512×512 | 완료 |
 | actors/neo_cat | assets/illustrated/actors/neo_cat.webp | 512×512 | 완료 |
-| actors/customer | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
+| actors/customer | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | actors/luna | assets/illustrated/actors/luna.webp | 512×512 | 완료 |
 | actors/luna_sis | assets/illustrated/actors/luna_sis.webp | 512×512 | 완료 |
 | actors/cheongtokki | assets/illustrated/actors/cheongtokki.webp | 512×512 | 완료 |
@@ -120,16 +126,16 @@
 | objects/harvest_basket | assets/illustrated/objects/harvest_basket.webp | 128×128 | 완료 |
 | objects/herb_shelf | assets/illustrated/objects/herb_shelf.webp | 256×128 | 완료 |
 | objects/greenhouse_rug | assets/illustrated/objects/greenhouse_rug.webp | 256×256 | 완료 |
-| objects/table | assets/illustrated/objects/table.webp | 128×128 | 완료 |
-| objects/chair | assets/illustrated/objects/chair.webp | 128×128 | 완료 |
-| objects/drink | assets/illustrated/objects/drink.webp | 256×128 | 완료 |
-| objects/oven | assets/illustrated/objects/oven.webp | 256×128 | 완료 |
-| objects/pass | assets/illustrated/objects/pass.webp | 256×128 | 완료 |
-| objects/counter | assets/illustrated/objects/counter.webp | 128×256 | 완료 |
-| objects/plant | assets/illustrated/objects/plant.webp | 128×128 | 완료 |
+| objects/table | 256×256 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/chair | 128×128 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/drink | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/oven | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/pass | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/counter | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/plant | 128×160 | 완료 | 새 식물 원본 · botanical_pot 공유 |
 | objects/bookshelf | assets/illustrated/objects/bookshelf.webp | 256×128 | 완료 |
 | objects/lamp | assets/illustrated/objects/lamp.webp | 128×128 | 완료 |
-| objects/rug | assets/illustrated/objects/rug.webp | 256×256 | 완료 |
+| objects/rug | 256×160 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | objects/pot | assets/illustrated/objects/pot.webp | 128×128 | 완료 |
 | icons/berry | assets/sprites/icons/berry.webp | 96×96 | 완료 |
 | icons/rice | assets/sprites/icons/rice.webp | 96×96 | 완료 |
@@ -202,10 +208,10 @@
 | backgrounds/river_night | assets/backgrounds/river_night.webp | 720×600 | 완료 |
 | backgrounds/dressroom | assets/illustrated/backgrounds/dressroom.webp | 960×640 | 완료 |
 | backgrounds/farm | assets/illustrated/backgrounds/farm.webp | 960×640 | 완료 |
-| ui/town-map-spring | assets/ui/town-map-spring.webp | 720×600 | 완료 |
-| ui/town-map-summer | assets/ui/town-map-summer.webp | 720×600 | 완료 |
-| ui/town-map-autumn | assets/ui/town-map-autumn.webp | 720×600 | 완료 |
-| ui/town-map-winter | assets/ui/town-map-winter.webp | 720×600 | 완료 |
+| ui/town-map-spring | assets/ui/town-map-spring.webp | 1536×1024 | 완료 |
+| ui/town-map-summer | assets/ui/town-map-summer.webp | 1536×1024 | 완료 |
+| ui/town-map-autumn | assets/ui/town-map-autumn.webp | 1536×1024 | 완료 |
+| ui/town-map-winter | assets/ui/town-map-winter.webp | 1536×1024 | 완료 |
 | ui/town-node-atelier | assets/ui/town-node-atelier.webp | 128×128 | 완료 |
 | ui/town-node-expand | assets/ui/town-node-expand.webp | 128×128 | 완료 |
 | ui/town-node-moka | assets/ui/town-node-moka.webp | 128×128 | 완료 |
@@ -359,12 +365,12 @@
 | icons/gold_cinnamon | assets/illustrated/icons/gold_cinnamon.webp | 160×160 | 완료 |
 | icons/white_lotus_healing | assets/illustrated/icons/white_lotus_healing.webp | 160×160 | 완료 |
 | icons/black_moon_brown_rice | assets/illustrated/icons/black_moon_brown_rice.webp | 160×160 | 완료 |
-| objects/basic_table | assets/illustrated/objects/basic_table.webp | 128×128 | 완료 |
-| objects/basic_chair | assets/illustrated/objects/basic_chair.webp | 128×128 | 완료 |
-| objects/basic_drink | assets/sprites/objects/drink.webp | 256×128 | 완료 |
-| objects/basic_oven | assets/sprites/objects/oven.webp | 256×128 | 완료 |
-| objects/basic_pass | assets/sprites/objects/pass.webp | 256×128 | 완료 |
-| objects/basic_counter | assets/sprites/objects/counter.webp | 128×256 | 완료 |
+| objects/basic_table | 256×256 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/basic_chair | 128×128 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/basic_drink | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/basic_oven | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/basic_pass | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/basic_counter | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | interactions/tray-down | assets/illustrated/interactions/tray-down.webp | 160×160 | 완료 |
 | interactions/tray-left | assets/illustrated/interactions/tray-left.webp | 160×160 | 완료 |
 | interactions/tray-right | assets/illustrated/interactions/tray-right.webp | 160×160 | 완료 |
@@ -502,14 +508,14 @@
 | 키 | 경로 | 크기 | 상태 |
 |---|---|---|---|
 | service/customer-clothes-mask | assets/illustrated/service/customer-clothes-mask.webp | 512×512 | 완료 |
-| actors/customer@look0 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
-| actors/customer@look1 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
-| actors/customer@look2 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
-| actors/customer@look3 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
-| actors/customer@look4 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
-| actors/customer@look5 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
-| actors/customer@look6 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
-| actors/customer@look7 | assets/illustrated/actors/customer.webp | 512×512 | 완료 |
+| actors/customer@look0 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer@look1 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer@look2 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer@look3 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer@look4 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer@look5 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer@look6 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer@look7 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 
 8색은 같은 원본과 치마 마스크를 재사용한다. 후드티·정장·노신사 신규 시트 및 앉기·먹기·마시기 전용 자세는 미완료다.
 
@@ -522,3 +528,76 @@
 comparison-00~19.jpg를 직접 열어 변경 전후를 비교했다. 마을 4계절 지도·타이틀·농장·대화 시트·대표 얼굴에서 비교 이미지 크기상 뚜렷한 추가 압축 손상은 찾지 못했다. 원래 시트의 잘못된 크롭이나 자세까지 해결했다는 뜻은 아니다. 의뢰의 루나는 대화 시트의 올바른 320×384 프레임을 써서 다른 프레임의 귀 조각을 제외한다.
 
 글꼴: assets/fonts/YeoniUI-Subset.woff2, 이름 Yeoni UI, OFL은 assets/fonts/OFL.txt. 출처와 수정 기록은 REUSE.md 참조.
+
+### 재성의 섬 지도 정본 교체
+`ui/town-map-*` 네 표시 키는 원작의 동일한 `assets/ui/jaeseong-island.webp`(1536×1024, 240,258바이트)를 공유한다. 원작 CDN 파일을 재인코딩·확대하지 않고 복사했다. 기존 720×600 계절 지도 파일은 현재 로컬·Git에 남아 있으며, 아직 배포 제외한 것으로 계산하지 않는다.
+
+### 기존 화분·조명의 표시 범위 보정
+원본 WebP와 생성 기록은 보존했다. src/render/assets.js에서 objects/plant의 [34,0,94,120], objects/lamp의 [14,0,70,128] source rect를 로드 시 한 번 적용하여 옆 물체 조각을 제외한다. 같은 결과를 상점·편집 썸네일과 카페 Canvas에서 쓴다. 새로 그린 에셋이 아니며 러그의 원본 잘림은 해결한 것으로 보고하지 않는다.
+신규 개별 가구9종·4종 걷기/방향별 착석·연이 오른쪽·아메리카노·지친 영냥이는 원본 로컬 미도착으로 아직 미등록이다. 기존 전체 ZIP은 사용자 첨부 실패했고 최신 전달 정본은 cafe-furniture-individual.zip, cafe-customers-walking.zip, cafe-customers-seated.zip, cafe-character-menu-extras.zip 네 묶음이다.
+
+### 추가 외관·조리 아트 연결 준비 (원본 미도착)
+아래는 레지스트리와 연결 코드만 있다. manifest.ready·생성완료 기록에 추가하지 않았고, 새 파일을 다운로드하거나 생성하지 않았다.
+
+| 키 | 런타임 규격 | 상태 | 연결 |
+|---|---|---|---|
+| buildings/cafe_original | 256×256 | 완료 | 첫 카페 외벽·지붕 |
+| buildings/cafe_blossom | 256×256 | 완료 | 꽃 입구 외벽·지붕 |
+| buildings/cafe_salon | 256×256 | 완료 | 연꽃 살롱 외벽·지붕 |
+| actors/luna_sis_cook | 512×384 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| service/cook_bowl | 128×128 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| service/cook_pitcher | 128×128 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+
+외관은 `assets/illustrated/buildings/cafe_<theme>.webp`, 배우는 `assets/illustrated/actors/luna_sis_cook.webp`, 소품은 `assets/illustrated/service/cook_<name>.webp`를 예정 경로로 쓴다. 실제 크롭·배율 검수 후 규격은 통합 시 조정 가능하다. 현재는 기존 건물 아이콘과 입구 장식이 그대로 표시된다. 신형 건물이 실제 로드됐을 때만 기존 입구 장식을 중복 합성하지 않는다.
+조리 진행0~22%는 prepare(0행),22~82% 음료는 extract(1행)/오븐은 bake(2행),82~100%는 plate(2행)다. 4프레임은 해당 단계의 job.progressMs에서160ms 단위로 결정한다. UI 시간 누적 없이 저장 복원·일시정지에 같은 프레임을 유지하고 reduced motion은0프레임이다. 완료·취소·이동 중에는 전용 시트를 쓰지 않는다.
+소켓은 추정하지 않는다. 원본 수신 후 `ASSET_UPDATES.actors.luna_sis_cook.cookSockets`에 `verified:true`와 phase별4개 프레임 배열을 작성한다. 각 프레임의 bowl/pitcher/ingredient/dish는 `{x,y,width,layer:'front'|'back'}`로, x/y는128셀 내 소품 바닥중앙, width도셀단위다. 그 전에는 소품을 그리지 않는다. 재료는 해당 메뉴의 실제 재료 첫 키, 접시는 실제 menuId를 사용한다. 연이·다른 직원 역할은 바꾸지 않았다.
+
+### 외관 원본 도착 및 로컬 적용
+외관 ZIP 5,394,584B의 CRC·경로를 검사하고 D:/yeoni-qa/art/cafe-ux/generated-source-v1에 원본 ZIP/PNG 및 패키지별 INTEGRATION을 보존했다. SHA256 c3ae3e7e363c6d30dac1b03f33770d2c99f54596f54c7ad2690d6de870bd3050. 위 외관 3개만 ready 등록했다. 앞 절의 외관 미도착 상태는 이 기록으로 갱신하며 조리 아트는 여전히 대기다.
+미리보기는 최대200 CSS px, 게임용 외관은256px다. 고DPR용 고해상도 완성은 아니며 원본1254px는 보존한다. 세 문턱은 같은 정규화 앵커128/240.64로 배치했다. 외관 합계42,860B를 추가하며 농장 바닥을 같은800×800 WebP q60으로 최적화(158,618→137,732B, 기존대비 PSNR33.51dB)했다. 전후 픽셀 직접 비교, 원본해시 검증 백업은 generated-source-v1/preserved-runtime/farm_ground.webp.
+
+| actors/customer_original | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| service/original_walk_clothes_mask | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_original_seated | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| service/original_seated_clothes_mask | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_student | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| service/student_walk_clothes_mask | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_student_seated | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| service/student_seated_clothes_mask | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_office | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| service/office_walk_clothes_mask | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_office_seated | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| service/office_seated_clothes_mask | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_elder | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| service/elder_walk_clothes_mask | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_elder_seated | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| service/elder_seated_clothes_mask | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/chair_down | 128×128 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/chair_up | 128×128 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/chair_left | 128×128 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/chair_right | 128×128 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| ui/botanical_left | 192×224 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| ui/botanical_right | 192×224 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| ui/botanical_divider | 256×68 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| ui/botanical_pot | 128×160 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/yeoni_idle_right | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| icons/americano | 96×96 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| ui/neo_cat_tired | 256×256 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_seated@look0 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_seated@look1 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_seated@look2 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_seated@look3 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_seated@look4 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_seated@look5 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_seated@look6 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_seated@look7 | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| actors/customer_seated | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+
+신규 원본 25개는 D:/yeoni-qa/art/cafe-ux/generated-source-v1에 보존한다. normalized-runtime/normalization.json에 셀별 visible bounds를 기록했다. 이전 계절 지도 사본은 현재 재성의 섬 정본 경로로 대체되어 128px 보관용으로 축소했고 이전 원본은 preserved-runtime-new-art에 해시와 함께 보존했다. 신규 손님은 4종×걷기/방향별 착석이며 추가 4종은 옷 마스크만 변색한다.
+
+| objects/grand_table | 256×256 | 완료 | 기존 테이블 아트 비율 유지 재사용 |
+| objects/grand_planter | 128×160 | 완료 | 식물 아트 재사용 |
+| objects/long_cabinet | 256×192 | 완료 | 픽업 선반 그림을 장식 수납용으로 재사용 |
+
+
+최종 알파 검수: 신규 런타임의 떨어진 조각 제거·안전 여백 보정 후103시트/1,204프레임오류0. 원본은 수정하지 않았으며 cleaned-runtime/alpha-cleanup.json 및 seated-margin-cleanup.json, runtime-before-alpha-clean에 가공 기록과 이전 결과를 보존한다. 현재 배포assets 전체14,875,442B,단일1.5MB이하.

@@ -5,6 +5,7 @@ import { dispatch } from '../src/game/engine.js';
 import { recruitView } from '../src/game/economy.js';
 import { MONTHLY_CAST } from '../src/data/monthly-cast.js';
 import { DEST1NOVA_CAST } from '../src/data/dest1nova-cast.js';
+import { AREAS } from '../src/data/layout.js';
 import { validateLayout } from '../src/game/space.js';
 import { serialize, deserialize } from '../src/core/save.js';
 
@@ -35,6 +36,8 @@ test('아홉 접대 동료가 모두 영입되어도 가게 안의 통로에서 
     assert.ok(dispatch(s, { type: 'recruit.complete', id: c.id }).ok);
   }
   s.day = 180; s.hostbar.open = true;
+  // 최대 지점 공간을 확보한 뒤 전원 출근·통로를 검증한다.
+  s.interior.areas=AREAS.map(a=>a.id);
   assert.ok(dispatch(s, { type: 'shift.start' }).ok);
   assert.ok(validateLayout(s.interior.furniture, []).ok);
   for (const id of Object.keys(s.roster)) {

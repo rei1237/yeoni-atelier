@@ -1,7 +1,7 @@
 // 임시 구현 결정값. 기획서에 수치가 없어서 이번 프로토타입이 정한 값이다.
 // 확정 규칙도, 기획서 제안 수치도 아니다. 플레이테스트로 바꾼다.
 
-import { DECOR_CATALOG } from '../data/decor-catalog.js';
+import { DECOR_CATALOG,LARGE_CATALOG } from '../data/decor-catalog.js';
 export const TEMP = Object.freeze({
   INITIAL_DEBT: 100_000_000, // 사용자 결정 2026-10-26: 1억 골드, 외전 속 현실 약 10억 원 규모
   CAFE_PRICE_GROWTH: 1.45, // 레벨별 메뉴 가격 배율(임시, 5년 시뮬레이션 기준)
@@ -41,7 +41,8 @@ export const TEMP = Object.freeze({
   SHELTER_COST: 300,          // 루나의 쉼터 한 사람 한 번(순마다)
   // 자동화 권한(임시): 그 동료의 인연 단계와, 같은 단계 인연 이야기(ledger.story['bond:<id>:<단계>'])를 본 기록이 함께 있어야 연다.
   AUTOMATION: Object.freeze({
-    hall: Object.freeze({ id: 'luna', tier: 2, label: '홀 자동 · 서빙·정리' }),
+    hall: Object.freeze({ id: 'luna', tier: 2, label: '루나 홀 자동 · 서빙·정리' }),
+    hall_neo: Object.freeze({ id: 'neo', tier: 2, label: '네오 홀 자동 · 서빙·정리' }), // TEMP: 홀 보조는 루나와 같은 ♥2, 농장 ♥3과 별개
     kitchen: Object.freeze({ id: 'luna_sis', tier: 2, label: '주방 자동 · 대기 주문 조리' }),
     farm: Object.freeze({ id: 'neo', tier: 3, label: '농장 맡기기 · 수확·재파종·물·돌봄' }),
   }),
@@ -95,7 +96,6 @@ export const TEMP = Object.freeze({
     BOMB_DAMAGE: 200,
     POWER_DROP: Object.freeze([ // 일반 적 처치 시 확률
       { id: 'magnet', chance: 0.005 },
-      { id: 'bomb', chance: 0.005 },
     ]),
     MOON_DROP: Object.freeze({ chance: 0.16, elite: 6, boss: 20 }), // 일반 적 확률 1개, 정예·보스는 고정 개수(임시). 단계마다 보스가 나와 보스 75→20·정예 14→6으로 낮춤
     FIELD_W: 1400,
@@ -110,7 +110,7 @@ export const TEMP = Object.freeze({
   MAX_TABLES: 24,
   AREA_COSTS: Object.freeze([6000, 18000, 40000, 85000, 160000]), // 공방 증축: 연 구역 수에 따라 오른다
   SPAWN_TABLE_BASE: 5,        // 시작 5테이블은 기본 입장 간격. 증축 이후에만 비례 단축(임시)
-  DECOR_PRICES: Object.freeze({ plant: 400, lamp: 700, bookshelf: 1200, rug: 1500, ...Object.fromEntries(DECOR_CATALOG.map(d => [d.id, d.price])) }),
+  DECOR_PRICES: Object.freeze({ chair:600, plant: 400, lamp: 700, bookshelf: 1200, rug: 1500, ...Object.fromEntries([...DECOR_CATALOG,...LARGE_CATALOG].map(d => [d.id, d.price])) }),
 
   // ── 달력·이자·행동력(임시). 영업 1회 = 한 순, 3순 = 한 달. 3월부터 60개월(180순), 5년 운영 뒤 결말.
   CALENDAR: Object.freeze({

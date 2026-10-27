@@ -84,17 +84,16 @@ test('결말: 마지막 순 결산을 닫으면 한 번 정해지고, 이후는 
   assert.equal(decideEnding(t), 'grand');
 });
 
-test('행동력: 사냥은 순마다 2번까지, 결산을 닫으면 다시 채워진다', () => {
+test('행동력과 별개로 영냥이 사냥은 게임 날짜마다 1번, 결산을 닫아야 다시 열린다', () => {
   const s = createGame();
   s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
-  for (let i = 0; i < C.AP_PER_TURN; i++) {
-    assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
-    assert.ok(dispatch(s, { type: 'hunt.retreat' }).ok);
-    assert.ok(dispatch(s, { type: 'hunt.finish' }).ok);
-  }
+  assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
+  assert.ok(dispatch(s, { type: 'hunt.retreat' }).ok);
+  assert.ok(dispatch(s, { type: 'hunt.finish' }).ok);
+  assert.equal(s.ap.left,C.AP_PER_TURN-1);
   const r = dispatch(s, { type: 'hunt.start' });
   assert.equal(r.ok, false);
-  assert.match(r.reason, /행동력/);
+  assert.match(r.reason, /오늘 다녀왔어/);
   quietTurn(s);
   assert.equal(s.ap.left, C.AP_PER_TURN);
   assert.ok(dispatch(s, { type: 'hunt.start' }).ok);

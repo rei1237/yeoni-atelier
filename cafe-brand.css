@@ -197,3 +197,10 @@ body[data-mode=hunt] .cafe-chatter p{color:var(--night-ink)}
 .hh-cell i{font-style:normal;font-size:22px;line-height:1.3;color:#F6E3B4}.hh-cell b{font-size:13px;line-height:1.25}.hh-cell .small{font-size:11px}.hh-cell canvas{width:64px;height:64px}
 .hh-cell.boss{border-color:#E7A3B5aa}.hh-cell.unknown{border-color:#8D86B040;background:#161B38}.hh-cell.unknown canvas,.hh-cell.unknown i{filter:brightness(0);opacity:.55}.hh-cell.unknown b{color:#8D86B0}
 @media(min-width:700px){.hh-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.hh-grid.foes{grid-template-columns:repeat(5,minmax(0,1fr))}}
+
+/* 실제 전달 아트: 텍스트 영역 밖의 모서리 장식과 실제 조리 단계. */
+.quest-paper{position:relative;isolation:isolate}.quest-botanical{position:absolute;inset:0;pointer-events:none;z-index:-1;opacity:.42;overflow:hidden;border-radius:inherit}.quest-botanical img{position:absolute;width:100px;height:116px;object-fit:contain;bottom:0}.quest-botanical img:first-child{left:0}.quest-botanical img:last-child{right:0}
+.hunt-return-art{text-align:center}.hunt-return-art img{width:min(200px,40vw);height:auto;object-fit:contain}
+.craft-equipment{position:relative;min-height:172px;padding-top:70px}.craft-chef{position:absolute;top:-8px;left:calc(50% - 64px);width:128px;height:128px;background-size:400% 300%;background-position:calc(var(--frame)*100%/3) calc(var(--row)*50%);background-repeat:no-repeat}.craft-equipment>b,.craft-equipment>.pixel-icon{position:relative}.craft-prop{position:absolute;bottom:8px;right:0;z-index:1}.craft-prop img{width:40px;height:40px;object-fit:contain}
+@media(prefers-reduced-motion:reduce){.craft-chef{background-position-x:0%}}
+@media(max-width:600px){.quest-botanical img{width:68px;height:80px}.craft-chef{width:104px;height:104px;left:calc(50% - 52px)}}

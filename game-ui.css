@@ -2,7 +2,7 @@
 :root{--accent:#33446a;--ink:#302c36;--muted:#6a5e69;--line:#d5c5ad;--bg:#e5d9c8;--paper:#fffaf1}
 body{font-family:"Noto Sans KR",system-ui,"Malgun Gothic",sans-serif;line-height:1.55;word-break:keep-all;overflow-wrap:anywhere}
 button{line-height:1.35;transition:background-color .16s ease;border-radius:9px}
-button:hover:not([aria-disabled="true"]){background-color:#f0e6d7}
+button:where(:hover):where(:not([aria-disabled="true"])){background-color:#f0e6d7}
 button.primary:hover{background-color:#455d83}button.on{background:#435878}
 button[aria-disabled="true"]{opacity:.55;cursor:default}
 :focus-visible{outline:3px solid #2a639e;outline-offset:3px}

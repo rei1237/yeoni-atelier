@@ -1,0 +1,132 @@
+# 달빛 음악실 수록 명세
+
+원본: D:/Development/code-destiny/app/music/_data/musicManifest.ts (읽기 전용). 정책 lib/music-access-policy.js에서 유효 곡 전체 free_full 스트리밍 확인. 다운로드 구매 정책은 변경하지 않고 다운로드 UI도 제공하지 않는다.
+
+수록 103곡, 네오 솔로 제외 20곡. audioFolder가 DEST1NOVA여도 artistKey=neo면 제외한다. DestinyWar는 artistKey=dest1nova이므로 포함한다. null 1칸은 존재하는 곡으로 취급하지 않는다.
+
+## 수록
+- yeoni-01 · Yeoni · Gisin Out Yongsin In · `DEST1NOVA/Gisin Out Yongsin In.mp3`
+- yeoni-02 · Yeoni · Moonlight Daydream · `DEST1NOVA/Moonlight Daydream.mp3`
+- yeoni-03 · Yeoni · Mystery of Life new · `DEST1NOVA/Mystery of Life_new.mp3`
+- yeoni-04 · Yeoni · Star ink Heartstorm · `DEST1NOVA/Star-ink Heartstorm.mp3`
+- yeoni-05 · Yeoni · 탐랑 플러팅 주의보 · `DEST1NOVA/탐랑 플러팅 주의보.mp3`
+- yeoni-06 · Yeoni · 원진귀문 러브 알고리즘 · `DEST1NOVA/원진귀문 러브 알고리즘.mp3`
+- yeoni-07 · Yeoni · 재회운아 도와줘 · `DEST1NOVA/재회운아 도와줘.mp3`
+- yeoni-08 · Yeoni · 달빛 운명여행 main title · `DEST1NOVA/달빛 운명여행 main title.mp3`
+- yeoni-09 · Yeoni · 달빛 운명여행 remix ver · `DEST1NOVA/달빛 운명여행 remix ver.mp3`
+- yeoni-11 · Yeoni · 러브 포츈 · `DEST1NOVA/러브 포츈.mp3`
+- yeoni-12 · Yeoni · 별자리 지도 위에서 · `DEST1NOVA/별자리 지도 위에서.mp3`
+- yeoni-13 · Yeoni · 숙요점 레슨 · `DEST1NOVA/숙요점 레슨.mp3`
+- yeoni-14 · Yeoni · 연이의 Moonlight Code · `DEST1NOVA/연이의 Moonlight Code.mp3`
+- yeoni-15 · Yeoni · Flower pig 매력살 · `yeonisongmini1/Flower pig 매력살.mp3`
+- yeoni-16 · Yeoni · 기신은 bye bye · `DEST1NOVA/기신은 bye bye.mp3`
+- yeoni-17 · Yeoni · 달빛처럼 닿을게 · `DEST1NOVA/달빛처럼 닿을게.mp3`
+- yeoni-18 · Yeoni · 도화 화개 love charm · `yeonisongmini1/도화 화개 love charm.mp3`
+- yeoni-19 · Yeoni · 별빛 재판 · `yeonisongmini1/별빛 재판.mp3`
+- yeoni-20 · Yeoni · 손끝 숨결 · `yeonisongmini1/손끝 숨결.mp3`
+- dest1nova-01 · DEST1NOVA · Flip the Card · `DEST1NOVA/Flip the Card.mp3`
+- dest1nova-02 · DEST1NOVA · I am your fate · `DEST1NOVA/I am your fate.mp3`
+- dest1nova-03 · DEST1NOVA · Karma, karma · `DEST1NOVA/Karma, karma.mp3`
+- dest1nova-04 · DEST1NOVA · LUCKY THIEF · `DEST1NOVA/LUCKY THIEF.mp3`
+- dest1nova-05 · DEST1NOVA · Synastry gravity · `DEST1NOVA/Synastry gravity.mp3`
+- dest1nova-06 · DEST1NOVA · Zero hour, we don’t run · `DEST1NOVA/Zero hour, we don’t run.mp3`
+- dest1nova-07 · DEST1NOVA · 별빛 궤도속 fatal sign · `DEST1NOVA/별빛 궤도속 fatal-sign.mp3`
+- dest1nova-08 · DEST1NOVA · 별이 말해 · `DEST1NOVA/별이 말해.mp3`
+- dest1nova-09 · DEST1NOVA · 오행 FLEX · `DEST1NOVA/오행 FLEX.mp3`
+- dest1nova-10 · DEST1NOVA · 운세 soda pop · `DEST1NOVA/운세 soda pop.mp3`
+- dest1nova-11 · DEST1NOVA · 자미제왕 컴백 · `DEST1NOVA/자미제왕 컴백.mp3`
+- dest1nova-12 · DEST1NOVA · 천동성 힐링남 · `DEST1NOVA/천동성 힐링남.mp3`
+- dest1nova-13 · DEST1NOVA · 편관의 궤도 · `DEST1NOVA/편관의 궤도.mp3`
+- dest1nova-14 · DEST1NOVA · 11PM · `DEST1NOVA/DEST1NOVA 2집/11PM.mp3`
+- dest1nova-15 · DEST1NOVA · ANDROMEDA · `DEST1NOVA/DEST1NOVA 2집/ANDROMEDA.mp3`
+- dest1nova-16 · DEST1NOVA · Burn My Fate · `DEST1NOVA/DEST1NOVA 2집/Burn My Fate.mp3`
+- dest1nova-17 · DEST1NOVA · CONSTELLATION · `DEST1NOVA/DEST1NOVA 2집/CONSTELLATION.mp3`
+- dest1nova-18 · DEST1NOVA · Draw My Fate · `DEST1NOVA/DEST1NOVA 2집/Draw My Fate.mp3`
+- dest1nova-19 · DEST1NOVA · Fatal Code feat. yeoni · `DEST1NOVA/DEST1NOVA 2집/Fatal Code feat. yeoni.mp3`
+- dest1nova-20 · DEST1NOVA · Fate Rider · `DEST1NOVA/DEST1NOVA 2집/Fate Rider.mp3`
+- dest1nova-21 · DEST1NOVA · Golden Kindness · `DEST1NOVA/DEST1NOVA 2집/Golden Kindness.mp3`
+- dest1nova-22 · DEST1NOVA · HEAVEN LIGHT · `DEST1NOVA/DEST1NOVA 2집/HEAVEN LIGHT.mp3`
+- dest1nova-23 · DEST1NOVA · LUCKY RUSH Title · `DEST1NOVA/DEST1NOVA 2집/LUCKY RUSH_Title.mp3`
+- dest1nova-24 · DEST1NOVA · Milky Way Angle · `DEST1NOVA/DEST1NOVA 2집/Milky Way Angle.mp3`
+- dest1nova-25 · DEST1NOVA · STARLINE · `DEST1NOVA/DEST1NOVA 2집/STARLINE.mp3`
+- dest1nova-26 · DEST1NOVA · Scarlet Orbit · `DEST1NOVA/DEST1NOVA 2집/Scarlet Orbit.mp3`
+- dest1nova-27 · DEST1NOVA · Starry Way · `DEST1NOVA/DEST1NOVA 2집/Starry Way.mp3`
+- dest1nova-28 · DEST1NOVA · saju Destiny · `DEST1NOVA/DEST1NOVA 2집/saju Destiny.mp3`
+- dest1nova-29 · DEST1NOVA · 달의 인력 · `DEST1NOVA/DEST1NOVA 2집/달의 인력.mp3`
+- dest1nova-30 · DEST1NOVA · 별이 될 거야 · `DEST1NOVA/DEST1NOVA 2집/별이 될 거야.mp3`
+- dest1nova-31 · DEST1NOVA · 불꽃의 운명 · `DEST1NOVA/DEST1NOVA 2집/불꽃의 운명.mp3`
+- dest1nova-32 · DEST1NOVA · 은하수 아래 · `DEST1NOVA/DEST1NOVA 2집/은하수 아래.mp3`
+- dest1nova-33 · DEST1NOVA · 은하수를 건너 니 곁으로 feat.yeoni · `DEST1NOVA/DEST1NOVA 2집/은하수를 건너 니 곁으로 feat.yeoni.mp3`
+- dest1nova-34 · DEST1NOVA · Dream · `DestinyWar/Dream.mp3`
+- dest1nova-35 · DEST1NOVA · Moonlit Strategy Map · `DestinyWar/Moonlit Strategy Map.mp3`
+- dest1nova-36 · DEST1NOVA · Moonlit War Command Chamber · `DestinyWar/Moonlit War Command Chamber.mp3`
+- dest1nova-37 · DEST1NOVA · The Moonlit War Room · `DestinyWar/The Moonlit War Room.mp3`
+- dest1nova-38 · DEST1NOVA · The war · `DestinyWar/The war.mp3`
+- dest1nova-39 · DEST1NOVA · White Lion · `DestinyWar/White Lion.mp3`
+- lunabloom-01 · Luna bloom · Devil’s draw · `lunabloom/Devil’s draw.mp3`
+- lunabloom-02 · Luna bloom · Fate couture · `lunabloom/Fate couture.mp3`
+- lunabloom-03 · Luna bloom · Month by month · `lunabloom/Month by month.mp3`
+- lunabloom-04 · Luna bloom · Reverse Card · `lunabloom/Reverse Card.mp3`
+- lunabloom-05 · Luna bloom · Star line · `lunabloom/Star line.mp3`
+- lunabloom-06 · Luna bloom · Starline Destiny · `lunabloom/Starline Destiny.mp3`
+- lunabloom-07 · Luna bloom · Velvet Tarot · `lunabloom/Velvet Tarot.mp3`
+- lunabloom-08 · Luna bloom · Welcome to Code Destiny · `lunabloom/Welcome to Code Destiny.mp3`
+- lunabloom-09 · Luna bloom · 귀인 NPC Key · `lunabloom/귀인 NPC Key.mp3`
+- lunabloom-10 · Luna bloom · 꽃과 칼 사이 · `lunabloom/꽃과 칼 사이.mp3`
+- lunabloom-11 · Luna bloom · 달의 궤도선 · `lunabloom/달의 궤도선.mp3`
+- lunabloom-12 · Luna bloom · 럭키 컬러 · `lunabloom/럭키 컬러.mp3`
+- lunabloom-13 · Luna bloom · 삼재 Escape · `lunabloom/삼재 Escape.mp3`
+- lunabloom-14 · Luna bloom · 원진 귀문 Gate · `lunabloom/원진 귀문 Gate.mp3`
+- lunabloom-15 · Luna bloom · 포카 달빛코드 · `lunabloom/포카 달빛코드.mp3`
+- lunabloom-16 · Luna bloom · 형충파해 break · `lunabloom/형충파해 break.mp3`
+- destinycafe-01 · Yeoni · Fortune Reveal · `DestinyCafe/Fortune Reveal.mp3`
+- destinycafe-02 · Yeoni · Gentle Oriental Girl · `DestinyCafe/Gentle Oriental Girl.mp3`
+- destinycafe-03 · Yeoni · Kindness · `DestinyCafe/Kindness.mp3`
+- destinycafe-04 · Yeoni · Moonlit Destiny Room · `DestinyCafe/Moonlit Destiny Room.mp3`
+- destinycafe-05 · Yeoni · Moonlit Tea House · `DestinyCafe/Moonlit Tea House.mp3`
+- destinycafe-06 · Yeoni · Moonlight Tea · `DestinyCafe/Moonlight Tea.mp3`
+- meditation-01 · Meditation · Crystal Garden · `Meditation/Crystal Garden.mp3`
+- meditation-02 · Meditation · Dawn in the Temple · `Meditation/Dawn in the Temple.mp3`
+- meditation-03 · Meditation · Fire Festival · `Meditation/Fire Festival.mp3`
+- meditation-04 · Meditation · First Light on Water · `Meditation/First Light on Water.mp3`
+- meditation-05 · Meditation · Flowing Light · `Meditation/Flowing Light.mp3`
+- meditation-06 · Meditation · Focus Flow · `Meditation/Focus Flow.mp3`
+- meditation-07 · Meditation · Inner Flame Awakening · `Meditation/Inner Flame Awakening.mp3`
+- meditation-08 · Meditation · Midnight Pulse · `Meditation/Midnight Pulse.mp3`
+- meditation-09 · Meditation · Moonlit Dawn · `Meditation/Moonlit Dawn.mp3`
+- meditation-10 · Meditation · Moonlit Forest Temple · `Meditation/Moonlit Forest Temple.mp3`
+- meditation-11 · Meditation · Moonlit Glass Box · `Meditation/Moonlit Glass Box.mp3`
+- meditation-12 · Meditation · Moonlit River Return · `Meditation/Moonlit River Return.mp3`
+- meditation-13 · Meditation · Moonlit Strategy Map · `Meditation/Moonlit Strategy Map.mp3`
+- meditation-14 · Meditation · Moonlit Temple Gate · `Meditation/Moonlit Temple Gate.mp3`
+- meditation-15 · Meditation · Rain Window Renewal · `Meditation/Rain Window Renewal.mp3`
+- meditation-16 · Meditation · Sacred Flame · `Meditation/Sacred Flame.mp3`
+- meditation-17 · Meditation · Starlight Drift · `Meditation/Starlight Drift.mp3`
+- meditation-18 · Meditation · Still Lake Dawn · `Meditation/Still Lake Dawn.mp3`
+- meditation-19 · Meditation · Still Lake Mind · `Meditation/Still Lake Mind.mp3`
+- meditation-20 · Meditation · Sunrise Drum Circle · `Meditation/Sunrise Drum Circle.mp3`
+- meditation-21 · Meditation · The Memory of Water · `Meditation/The Memory of Water.mp3`
+- meditation-22 · Meditation · The Stars Remember Your Name · `Meditation/The Stars Remember Your Name.mp3`
+- meditation-23 · Meditation · Zero Point · `Meditation/Zero Point.mp3`
+
+## 제외: Neo 솔로
+- Code Destiny · `DEST1NOVA/Code Destiny.mp3`
+- 정재의 사랑 · `DEST1NOVA/정재의 사랑.mp3`
+- 인성 과다 생각감옥 · `DEST1NOVA/인성 과다 생각감옥.mp3`
+- 합충형파해 Spicy Love · `DEST1NOVA/합충형파해 Spicy Love.mp3`
+- MBTI 물어보지마 · `DEST1NOVA/MBTI 물어보지마.mp3`
+- STAR CROSSED · `DEST1NOVA/STAR-CROSSED.mp3`
+- 내 사랑의 총량 · `DEST1NOVA/내 사랑의 총량.mp3`
+- 너는 나의 용신 · `DEST1NOVA/너는 나의 용신.mp3`
+- 대운 업데이트! · `DEST1NOVA/대운 업데이트!.mp3`
+- 십성 로큰롤 · `DEST1NOVA/십성 로큰롤.mp3`
+- 안괴 안돼 · `DEST1NOVA/안괴 안돼.mp3`
+- 운명에게 지지 않아 · `DEST1NOVA/운명에게 지지 않아.mp3`
+- 운명은 위대하다 · `DEST1NOVA/운명은 위대하다.mp3`
+- 매력의 sign · `DEST1NOVA/매력의 sign.mp3`
+- 비겁다자의 우정 지옥 · `DEST1NOVA/비겁다자의 우정 지옥.mp3`
+- 새벽 끝 · `neosongmini1/새벽 끝.mp3`
+- 식상 폭발 말빨천재 · `DEST1NOVA/식상 폭발 말빨천재.mp3`
+- 역마살 열차창 · `DEST1NOVA/역마살 열차창.mp3`
+- 재성아 나 돈 좀 줘 · `DEST1NOVA/재성아 나 돈 좀 줘.mp3`
+- 탐랑성 Danger · `DEST1NOVA/탐랑성 Danger.mp3`

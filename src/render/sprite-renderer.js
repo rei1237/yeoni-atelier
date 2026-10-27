@@ -1,3 +1,4 @@
+import {cookingSockets} from './cooking-pose.js';
 // 캐릭터 그리기: 스프라이트 시트가 있으면 프레임을, 없으면 도형 대체를 그린다.
 // 같은 입력(상태·방향·시간)을 받으므로 시트를 넣어도 호출하는 쪽은 바뀌지 않는다.
 
@@ -14,6 +15,8 @@ export function cafeIdlePose(key, o) {
 }
 
 export function drawActor(ctx, key, o) {
+  if(key==='luna_sis'&&o.cooking&&o.facing==='up'&&imageFor('actors/luna_sis_cook')){key='luna_sis_cook';o={...o,state:o.cooking.phase,animationFrame:o.cooking.frame,idleMotion:false,outfitId:null};}
+  if(key==='yeoni'&&o.facing==='right'&&!o.carry&&!o.cleaning&&(o.state||'idle')==='idle'&&imageFor('actors/yeoni_idle_right')){key='yeoni_idle_right';o={...o,state:o.gesture?.kind||'idle',animationFrame:o.reducedMotion?0:o.gesture?Math.min(3,Math.floor(o.gesture.age/260)):undefined,idleMotion:false,outfitId:null};}
   const gesture=key==='yeoni'&&o.gesture;
   if(gesture && o.facing==='down' && imageFor('yeoni_idle')){key='yeoni_idle';o={...o,state:gesture.kind,facing:'down',animationFrame:Math.min(3,Math.floor(gesture.age/260)),idleMotion:false,outfitId:null};}
   // 쟁반·천을 든 동안에는 손 위치가 정해진 기본 시트를 쓴다(대기 전용 시트는 손에 다른 물건이 있다).
@@ -22,7 +25,7 @@ export function drawActor(ctx, key, o) {
   key = imageFor(dressed) ? dressed : key.split('@')[0];
   const def = actorDef(key) || ASSETS.actors.customer;
   const st = resolveState(def, o.state || 'idle');
-  const img = customerTint(imageFor(key), def.clothesHue);
+  const img = customerTint(imageFor(key), def);
   o={...o,actorKey:key};
   const pose=cafeIdlePose(key,o);
   if (pose) {
@@ -45,6 +48,7 @@ function drawFromSheet(ctx, def, img, st, o) {
   const scale = o.size / def.frame.h;
   const sock = o.carry || o.cleaning ? actorSocket(o.actorKey || '', o.facing || 'down') : null;
   if (sock?.layer === 'back' && !o.cleaning) drawWorkProps(ctx, o, sock, scale, frame);
+  drawCookingProps(ctx,def,o,scale,'back');
   const prev = ctx.imageSmoothingEnabled;
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   if(o.flipX){ctx.save();ctx.translate(o.x,0);ctx.scale(-1,1);ctx.translate(-o.x,0);}
@@ -54,8 +58,19 @@ function drawFromSheet(ctx, def, img, st, o) {
   ctx.filter = 'none';
   if(o.flipX)ctx.restore();
   ctx.imageSmoothingEnabled = prev;
+  drawCookingProps(ctx,def,o,scale,'front');
   if (sock && (sock.layer !== 'back' || o.cleaning)) drawWorkProps(ctx, o, sock, scale, frame);
   if (o.name) nameTag(ctx, o.name, o.x, o.y + 4 + (o.nameOffsetY || 0), o.size, o.tagColor);
+}
+
+function drawCookingProps(ctx,def,o,scale,layer){
+ for(const [kind,socket] of cookingSockets(def,o.cooking)){
+  if(socket.layer!==layer)continue;
+  const key=kind==='ingredient'?'icons/'+o.cooking.ingredientId:kind==='dish'?'icons/'+o.cooking.menuId:'service/cook_'+kind;
+  const img=imageFor(key);if(!img)continue;
+  const w=socket.width*scale,h=w*img.height/img.width;
+  ctx.drawImage(img,o.x+(socket.x-def.anchor.x)*scale-w/2,o.y+(socket.y-def.anchor.y)*scale-h,w,h);
+ }
 }
 
 // 손이 없는 서빙 소품을 배우별 손 위치(actor-sockets.js)에 맞춰 붙인다. 위를 보면 몸 뒤, 그 외에는 몸 앞에 그린다.
@@ -400,13 +415,13 @@ export function drawObjectImage(ctx, group, key, x, y, w, h) {
 
 const customerTints = new Map();
 // 색상 회전 결과를 저장해 매 프레임 픽셀 작업을 하지 않는다. 마스크 밖은 원본 그대로다.
-function customerTint(image, hue) {
-  const mask=imageFor('service/customer-clothes-mask');
+function customerTint(image, def) {
+  const hue=def.clothesHue,mask=hue&&imageFor(def.clothesMask||'service/customer-clothes-mask'),cacheKey=(image?.src||'')+'|'+def.clothesMask+'|'+hue;
   if(!image || !hue || !mask || typeof document==='undefined')return image;
-  if(customerTints.has(hue))return customerTints.get(hue);
+  if(customerTints.has(cacheKey))return customerTints.get(cacheKey);
   const cv=document.createElement('canvas');cv.width=image.width;cv.height=image.height;
   const ctx=cv.getContext('2d');ctx.filter=`hue-rotate(${hue}deg)`;ctx.drawImage(image,0,0);ctx.filter='none';
   ctx.globalCompositeOperation='destination-in';ctx.drawImage(mask,0,0);
   ctx.globalCompositeOperation='destination-over';ctx.drawImage(image,0,0);
-  customerTints.set(hue,cv);return cv;
+  customerTints.set(cacheKey,cv);return cv;
 }

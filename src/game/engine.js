@@ -1,3 +1,7 @@
+import {beginGiftCook,stepGiftCook,cancelGiftCook,giftFood} from './food-gifts.js';
+import {workshopQuestAction} from './workshop-quests.js';
+import {groundCommand,buyRemodel,applyRemodel} from './grounds.js';
+import {buyBranch,switchBranch} from './branches.js';
 import {acceptYunQuest} from './yun-quest.js';
 import * as finance from './finance.js';
 // 엔진 진입점. 화면(UI)·자동 운영·테스트는 모두 dispatch(명령)와 tick(활성 시간 진행)만 쓴다.
@@ -20,6 +24,7 @@ import * as armory from './moka-armory.js';
 import * as farm from './farm.js';
 import { unlockOutfit } from './outfits.js';
 import { autoStep } from './auto.js';
+import {selectStaff} from './capacity.js';
 import { toggleAutomation } from './permissions.js';
 import { setDayOff, shelter } from './stress.js';
 import { delegateFarm } from './farm-delegate.js';
@@ -27,7 +32,7 @@ import { delegateFarm } from './farm-delegate.js';
 // 일시정지 중에도 받는 명령
 const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle', 'automation.toggle', 'tutorial.seen']);
 // 영업 중에만 의미가 있는 명령
-const SHIFT_ONLY = new Set(['order.quick', 'cook', 'cook.cancelNext', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate']);
+const SHIFT_ONLY = new Set(['order.quick', 'cook', 'cook.cancelNext', 'cook.cancel', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate']);
 
 const FARM_ACTIONS = new Set(['farm.harvest','farm.plant','farm.water','farm.tend']);
 export const HELPERS = Object.freeze({neo:{tier:1,actions:['farm.water','farm.tend']},moka:{tier:2,actions:['farm.water','farm.tend']},yun:{tier:3,actions:['farm.harvest']}});
@@ -44,12 +49,18 @@ function route(state, cmd) {
 }
 function execute(state, cmd) {
   const t = cmd?.type;
-  if (state.paused && !ALLOWED_WHILE_PAUSED.has(t)) return { ok: false, reason: '일시정지 중입니다 — 계속하기를 눌러 주세요' };
+  if(state.foodGifts?.job&&['shift.start','hunt.start','branch.switch'].includes(t))return {ok:false,reason:'루나 언니의 선물 조리를 마치거나 취소해 주세요'};
+  if (state.paused && !ALLOWED_WHILE_PAUSED.has(t) && !(t==='hunt.finish' && state.mode==='hunt' && state.hunt && state.hunt.status!=='running')) return { ok: false, reason: '일시정지 중입니다 — 계속하기를 눌러 주세요' };
   if (SHIFT_ONLY.has(t) && state.mode !== 'shift') return { ok: false, reason: '정규 영업 중에만 할 수 있습니다' };
+  if(t?.startsWith('grounds.'))return groundCommand(state,cmd);
   switch (t) {
+    case 'remodel.buy':return buyRemodel(state,cmd.id);
+    case 'remodel.apply':return applyRemodel(state,cmd.id);
     case 'tutorial.seen':
       if(!/^[a-z]+$/.test(cmd.id||''))return {ok:false,reason:'안내를 찾을 수 없어요'};
       state.tutorials??={};state.tutorials[cmd.id]=true;return {ok:true};
+    case 'branch.buy': return buyBranch(state,Number(cmd.id),cmd.confirmed===true);
+    case 'branch.switch': return switchBranch(state,Number(cmd.id));
     case 'shift.start': return shift.startShift(state);
     case 'settlement.close': return shift.closeSettlement(state);
     case 'pause':
@@ -60,16 +71,18 @@ function execute(state, cmd) {
     case 'auto.toggle':
       if (cmd.sim !== true) return { ok: false, reason: '전체 자동은 시뮬레이션 전용이에요. 홀·주방 자동은 인연으로 열려요' };
       state.auto = cmd.on ?? !state.auto; return { ok: true, auto: state.auto };
+    case 'staffing.select': return selectStaff(state,cmd.id,cmd.on);
     case 'automation.toggle': return toggleAutomation(state, cmd.ability, cmd.on);
     case 'staff.dayOff': return setDayOff(state, cmd.id, cmd.on);
     case 'stress.shelter': return shelter(state, cmd.id);
 
-    case 'cook': return cafe.cook(state, cmd.menuId);
-    case 'order.quick': return cafe.quickOrder(state, cmd.orderId);
+    case 'cook': return cafe.cook(state, cmd.menuId, null, cmd.timing);
+    case 'order.quick': return cafe.quickOrder(state, cmd.orderId, cmd.timing);
     case 'recipe.try': return recipe.tryCombo(state, cmd.ingredients);
+    case 'cook.cancel': return cafe.cancelCook(state,cmd.jobId);
     case 'cook.cancelNext': return cafe.cancelNext(state, cmd.station);
-    case 'serve': return cafe.serve(state, cmd.itemId, cmd.tableNo);
-    case 'clean': return cafe.requestClean(state, cmd.tableNo);
+    case 'serve': return cafe.serve(state, cmd.itemId, cmd.tableNo, cmd.autoHall===true);
+    case 'clean': return cafe.requestClean(state, cmd.tableNo, cmd.autoHall===true);
 
     case 'nomination.accept': return nom.accept(state, cmd.tableNo);
     case 'nomination.decline': return nom.decline(state, cmd.tableNo);
@@ -102,6 +115,10 @@ function execute(state, cmd) {
     case 'outfit.equip': return eco.equip(state, cmd.who, cmd.slot, cmd.itemId);
     case 'outfit.unlock': return unlockOutfit(state, cmd.id);
 
+    case 'interior.undo': return interior.undoItem(state);
+    case 'interior.pick': return interior.pickItem(state,cmd.uid);
+    case 'interior.confirmItem': return interior.confirmItem(state);
+    case 'interior.cancelItem': return interior.cancelItem(state);
     case 'interior.begin': return interior.begin(state);
     case 'interior.select': return interior.select(state, cmd.uid);
     case 'interior.move': return interior.move(state, cmd.uid, cmd.x, cmd.y);
@@ -113,11 +130,15 @@ function execute(state, cmd) {
     case 'interior.apply': return interior.apply(state);
 
     case 'bond.talk': return bonds.talk(state, cmd.id, cmd.choiceId, cmd.token);
+    case 'workshop.quest':return workshopQuestAction(state,cmd.id,cmd.action);
     case 'yun.quest': return acceptYunQuest(state);
     case 'armory.enhance': return armory.enhance(state,cmd.who,cmd.id);
     case 'armory.buy': return armory.buySupply(state,cmd.id);
     case 'armory.learn': return armory.learnSkill(state,cmd.id);
     case 'hunt.supply': return hunt.useSupply(state,cmd.id);
+    case 'gift.cook':return beginGiftCook(state,cmd.menuId,cmd.timing,cmd.requestId);
+    case 'gift.cancel':return cancelGiftCook(state,cmd.id);
+    case 'gift.food':return giftFood(state,cmd.id,cmd.itemId);
     case 'bond.gift': return bonds.gift(state, cmd.id, cmd.giftId);
     case 'story.seen': return calendar.markStory(state, cmd.id);
     case 'hunt.start': return hunt.startHunt(state, cmd.depth, cmd.hunterId);
@@ -155,6 +176,7 @@ export function tick(state, dtMs, { input } = {}) {
       left -= dt;
       if (state.mode === 'shift') shift.stepShift(state, dt, runAuto);
       else if (state.mode === 'hunt') hunt.stepHunt(state, dt, input);
+      else if(state.mode==='prep'&&state.foodGifts?.job)stepGiftCook(state,dt);
       else break;
       if (state.paused) break;
     }

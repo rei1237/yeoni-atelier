@@ -142,9 +142,11 @@ let available = new Set(), manifestTask;
 const allEntries = () => Object.entries(ASSETS).flatMap(([g,group])=>Object.entries(group).map(([k,d])=>[`${g}/${k}`,d]));
 const definitions = new Map(allEntries());
 export const BOOT_ASSETS = ['backgrounds/title','ui/loading','actors/yeoni','actors/neo','actors/luna','actors/luna_sis','portraits/yeoni','portraits/neo','portraits/neo_cat','portraits/luna','portraits/luna_sis','backgrounds/atelier_lit','backgrounds/cafe_room','tiles/cafe_floor','tiles/cafe_wall',...allEntries().filter(([id])=>id.startsWith('objects/')||id.startsWith('icons/')).map(([id])=>id)];
+// 기존 atlas 절단에 섞인 옆 물체만 제외한다. 디스크 원본은 보존한다.
+const contentCrops={'objects/lamp':[14,0,70,128]};
 async function requestImage(id){
  if(!available.has(id))return null;const d=definitions.get(id);if(!d)return null;const src=d.image||d.path;
- if(!requests.has(src))requests.set(src,new Promise(resolve=>{const img=new Image();let timer=setTimeout(()=>resolve(null),12000);img.onload=()=>{clearTimeout(timer);resolve(img);};img.onerror=()=>{clearTimeout(timer);resolve(null);};img.src=src;}));
+ if(!requests.has(src))requests.set(src,new Promise(resolve=>{const img=new Image();let timer=setTimeout(()=>resolve(null),12000);img.onload=()=>{clearTimeout(timer);const rect=contentCrops[id];if(!rect){resolve(img);return;}const cv=document.createElement('canvas');cv.width=rect[2];cv.height=rect[3];cv.getContext('2d').drawImage(img,...rect,0,0,cv.width,cv.height);const cropped=new Image();cropped.onload=()=>resolve(cropped);cropped.onerror=()=>resolve(img);cropped.src=cv.toDataURL('image/png');};img.onerror=()=>{clearTimeout(timer);resolve(null);};img.src=src;}));
  const img=await requests.get(src);if(img)loaded.set(id,img);return img;
 }
 export async function loadAssetImages(manifestUrl='assets/manifest.json',{keys=BOOT_ASSETS,onProgress=()=>{}}={}){

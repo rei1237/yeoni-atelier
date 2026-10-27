@@ -1,4 +1,5 @@
 // 마을 나가기: 루나의 저울(월정석 환전) · 무인 장비 좌판 · 가게 확장 · 모카 식재료점/긴급 배달
+import {placePurchasedSeat} from './seat-helpers.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { TEMP } from '../src/config/balance.temp.js';
@@ -84,6 +85,8 @@ test('가게 확장: 테이블 값은 들일수록 오르고, 6·7번 테이블�
   assert.ok(dispatch(s, { type: 'expand.table' }).ok);
   assert.equal(s.gold, 20000 - p4 - p5);
   assert.equal(s.stats.expansions, 2);
+  assert.equal(s.interior.furniture.find(f=>f.tableNo===6).x,null);
+  placePurchasedSeat(s,6);placePurchasedSeat(s,7);
   assert.ok(validateLayout(s.interior.furniture, s.interior.areas).ok);
 
   assert.ok(dispatch(s, { type: 'shift.start' }).ok);

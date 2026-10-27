@@ -1,3 +1,5 @@
+import {SUPPLY_TEMP} from '../data/hunt-supplies.js';
+import {huntVisitReason,recordHuntVisit} from './hunt-visits.js';
 import {nearbyProps,hitFieldProp} from './hunt-field.js';
 import {withinMeleeArc,facingAngle} from './melee.js';
 import {stepEnemyBehaviors,addBattleFx} from './enemy-behaviors.js';
@@ -46,6 +48,7 @@ export const gemTier = v => (v < 4 ? 0 : v < 20 ? 1 : 2);
 
 export function huntCheck(state, hunterId = 'neo') {
   const reasons = [];
+  const visitLock=huntVisitReason(state,hunterId);if(visitLock)reasons.push(visitLock);
   if (!['neo','seohanbi'].includes(hunterId) || (hunterId === 'seohanbi' && !state.roster.seohanbi)) reasons.push('아직 함께 사냥할 수 없는 동료입니다');
   const lock = placeLock(state, 'hunt'); if (lock) reasons.push(lock);
   const busy = state.shift ? personBusyReason(state, hunterId) : null;
@@ -91,6 +94,7 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
     fieldSeed:Math.floor(nextRandom(state.rng)*2147483647),brokenProps:{},propDamage:{},
     ...(saved?{level:saved.level,xp:saved.xp,weapons:structuredClone(saved.weapons),passives:{...saved.passives},picks:structuredClone(saved.picks||[])}:{}),
   });
+  state.hunt.startedDay=state.day;recordHuntVisit(state,hunterId,state.hunt.id);
   emit('huntStart', {});
   return { ok: true };
 }
@@ -559,13 +563,7 @@ function collect(state, w, t, m, dt) {
     } else if (it.kind === 'magnet') {
       for (let j = 0; j < w.drops.count; j++) if (w.drops.items[j].kind === 'gem') w.drops.items[j].magnet = true;
       emit('huntPower', { kind: 'magnet', label: `${POWER_NAMES.magnet} · 별조각을 모두 끌어온다` });
-    } else if (it.kind === 'bomb') {
-      for (let j = w.enemies.count - 1; j >= 0; j--) {
-        const e = w.enemies.items[j];
-        if ((e.x - p.x) ** 2 + (e.y - p.y) ** 2 < H.BOMB_RADIUS ** 2) hurt(state, w, j, H.BOMB_DAMAGE, m, e.x - p.x, e.y - p.y);
-      }
-      w.shakeUntil = t + 400;
-      emit('huntPower', { kind: 'bomb', label: POWER_NAMES.bomb });
+
     } else if (it.kind === 'chest') queueChest(state);
   }
 }
@@ -773,7 +771,7 @@ export function finishHunt(state) {
     recordHunt(state, hs, totalBag);
     checkAchievements(state);
   }
-  state.lastHunt = { id: hs.id, status: hs.status, hunterId:hs.hunterId, bonus, fieldBag:{...hs.bag}, bag: totalBag, kills: hs.kills, elapsedMs: hs.elapsedMs, level: hs.level ?? 1, bossDown: !!hs.bossDown, depth: hs.depth, startDepth: hs.startDepth ?? hs.depth, cleared: hs.cleared || 0, maxStage: state.hunter.maxStage || 1, careerXP: hs.careerXP || 0, careerLevel: hunterProgress(state.hunter.xp).level };
+  state.lastHunt = { id: hs.id, startedDay:hs.startedDay??state.day, status: hs.status, hunterId:hs.hunterId, bonus, fieldBag:{...hs.bag}, bag: totalBag, kills: hs.kills, elapsedMs: hs.elapsedMs, level: hs.level ?? 1, bossDown: !!hs.bossDown, depth: hs.depth, startDepth: hs.startDepth ?? hs.depth, cleared: hs.cleared || 0, maxStage: state.hunter.maxStage || 1, careerXP: hs.careerXP || 0, careerLevel: hunterProgress(state.hunter.xp).level };
   worlds.delete(hs);
   state.hunt = null;
   state.mode = 'prep';
@@ -783,12 +781,30 @@ export function finishHunt(state) {
   return { ok: true };
 }
 
+export function supplyStatus(state,id) {
+ const h=state.hunt,d=SUPPLIES[id],count=state.armory?.supplies?.[id]||0;
+ const no=(reason,leftMs=0)=>({ok:false,reason,leftMs,count});
+ if(!d)return no('알 수 없는 물품이에요');
+ if(state.mode!=='hunt'||!h||h.status!=='running'||h.hp<=0)return no('진행 중인 사냥에서 사용해요');
+ if(state.paused||(h.picks?.length||0)||(h.chests?.length||0)||h.stageChoice)return no('사냥을 계속한 뒤 사용해요');
+ if(count<=0)return no(id==='bomb'?'윤달 공방에서 준비 · 최대 1개':'모카 식재료점에서 준비해요');
+ const now=h.elapsedMs||0,last=h.supplyUsedAt?.[id]??(id==='bomb'?h.bombUsedAt:null);
+ const left=Math.max(0,last==null?0:last+SUPPLY_TEMP.cooldownMs[id]-now,h.supplyAnyAt==null?0:h.supplyAnyAt+SUPPLY_TEMP.globalMs-now);
+ if(left>0)return no(`${Math.ceil(left/1000)}초 뒤 사용 가능`,left);
+ if(id==='tonic'&&h.hp>=h.maxHp)return no('체력이 가득해요 · 소모하지 않아요');
+ if(id==='shield'&&h.shieldUntil>now)return no('이미 보호받고 있어요',h.shieldUntil-now);
+ if(id==='magnet'||id==='nova'){
+  const w=getHuntWorld(state);
+  if(id==='magnet'&&!w.drops.items.slice(0,w.drops.count).some(x=>!x.magnet))return no('끌어올 아이템이 없어요');
+  if(id==='nova'&&!w.enemies.items.slice(0,w.enemies.count).some(e=>e.hp>0&&Math.hypot(e.x-w.player.x,e.y-w.player.y)<300))return no('주변에 적이 없어요');
+ }
+ return {ok:true,reason:d.detail,leftMs:0,count};
+}
 export function useSupply(state,id) {
- const hs=state.hunt, d=SUPPLIES[id];
- if(state.mode!=='hunt'||!hs||hs.status!=='running'||paused(normalizeHunt(hs)))return {ok:false,reason:'사냥 중에 사용할 수 있어요'};
- if(!d || !(state.armory?.supplies?.[id]>0))return {ok:false,reason:'먼저 모카 식재료점에서 준비해 주세요'};
- if(id==='tonic' && hs.hp>=hs.maxHp)return {ok:false,reason:'이미 체력이 가득해요'};
- const w=getHuntWorld(state);state.armory.supplies[id]-=1;
+ const check=supplyStatus(state,id);if(!check.ok)return check;
+ const hs=state.hunt,d=SUPPLIES[id],w=getHuntWorld(state);
+ state.armory.supplies[id]-=1;(hs.supplyUsedAt||={})[id]=hs.elapsedMs;hs.supplyAnyAt=hs.elapsedMs;
+ if(id==='bomb'){hs.bombUsedAt=hs.elapsedMs;const m=mods(hs);for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(Math.hypot(e.x-w.player.x,e.y-w.player.y)<H.BOMB_RADIUS)hurt(state,w,i,H.BOMB_DAMAGE,m,e.x-w.player.x,e.y-w.player.y);}w.shakeUntil=hs.elapsedMs+400;}
  if(id==='tonic'){hs.hp=Math.min(hs.maxHp,hs.hp+Math.ceil(hs.maxHp*.35));hs.tonicsUsed=(hs.tonicsUsed||0)+1;}
  if(id==='shield')hs.shieldUntil=hs.elapsedMs+8000;
  if(id==='magnet')for(let i=0;i<w.drops.count;i++)w.drops.items[i].magnet=true;

@@ -35,6 +35,7 @@ test('사냥 성장 보상은 저장 왕복·재처리에도 1회, 다음 사냥
   s.mode = 'hunt'; s.hunt = oldHunt;
   dispatch(s, { type: 'hunt.finish' });
   assert.equal(s.hunter.xp, 1200); assert.equal(s.hunter.kills, 300);
+  s.day++;
   assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
   assert.ok(s.hunt.maxHp > hp); assert.ok(s.hunt.gear.dmg > damage);
   assert.equal(s.hunt.level, 1); assert.equal(s.hunt.careerLevel, 2);
@@ -58,6 +59,7 @@ test('사냥터 업적은 귀환 정산 때 1회만 기록·지급되고 도감�
   assert.deepEqual(checkAchievements(s), []);
   s = deserialize(serialize(s)).state;
   assert.equal(s.moonstone, paid, '불러오기 소급도 다시 주지 않는다');
+  s.day++;
   assert.ok(dispatch(s, { type: 'hunt.start' }).ok);
   s.hunt.seen = { shade_hand: 3 }; s.hunt.weapons.push({ id: 'orbit', level: 5, evo: true }); s.hunt.tonicsUsed = 1;
   dispatch(s, { type: 'hunt.retreat' }); dispatch(s, { type: 'hunt.finish' });

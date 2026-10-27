@@ -29,25 +29,25 @@ colors:
   nv-glass: "rgba(6, 8, 22, 0.86)"
 typography:
   display:
-    fontFamily: '"Noto Sans KR", system-ui, "Malgun Gothic", sans-serif'
+    fontFamily: '"Yeoni UI", "Malgun Gothic", sans-serif'
     fontSize: "25px"
     fontWeight: 700
     letterSpacing: "-.02em"
   headline:
-    fontFamily: '"Noto Sans KR", system-ui, "Malgun Gothic", sans-serif'
+    fontFamily: '"Yeoni UI", "Malgun Gothic", sans-serif'
     fontSize: "20px"
     fontWeight: 700
     lineHeight: 1.4
   title:
-    fontFamily: '"Noto Sans KR", system-ui, "Malgun Gothic", sans-serif'
+    fontFamily: '"Yeoni UI", "Malgun Gothic", sans-serif'
     fontSize: "16px"
     fontWeight: 700
   body:
-    fontFamily: '"Noto Sans KR", system-ui, "Malgun Gothic", sans-serif'
+    fontFamily: '"Yeoni UI", "Malgun Gothic", sans-serif'
     fontSize: "14px"
     lineHeight: 1.55
   label:
-    fontFamily: '"Noto Sans KR", system-ui, "Malgun Gothic", sans-serif'
+    fontFamily: '"Yeoni UI", "Malgun Gothic", sans-serif'
     fontSize: "12px"
     lineHeight: 1.35
   dialogue:
@@ -121,6 +121,8 @@ components:
 
 ## Overview
 
+현재 카페 변경은 기존 크림·로즈·원목 미감을 유지한 로컬 부분 개선이다. 신규 손님 착석 그림, 주방 바, 온전한 러그, 꽃 장식, 새 외벽 그림은 미완료이며 전체 재디자인 완료를 뜻하지 않는다.
+
 **Creative North Star: "Code Destiny 일러스트 호스트 카페"**
 
 버터 크림 표면, 꿀빛 목재 테두리, 딸기 로즈 실행색, 피스타치오 세이지 성공·정보색, 코코아 먹색 본문으로 카페를 만든다. 남색과 금빛은 라이트노벨 대화 장면과 사냥 화면에만 쓴다. 가구와 인물이 주인공인 부드러운 일러스트 세계를 유지하고, 운영 정보는 짧고 선명한 HTML 조작부에 담는다. 소박한 시작과 고급스러운 성장 과정은 같은 세계 안에서 이어진다.
@@ -155,6 +157,8 @@ components:
 **The Operational Contrast Rule.** 일러스트 위 문장은 크림 보호 면이나 어두운 대화창 위에 놓아 인물과 글을 함께 읽을 수 있게 한다.
 
 ## Typography
+
+운영 UI의 Yeoni UI는 로컬 제공하는 Pretendard OFL 수정 서브셋이다. 출처와 라이선스는 docs/REUSE.md를 따른다. 운영 패널 최소 글자는 12px이며 숫자는 고정 폭으로 표시한다. 대화 전용 서체는 별도로 유지한다.
 
 **Display / Body Font:** Noto Sans KR, system-ui, Malgun Gothic, sans-serif.
 **Dialogue Font:** Noto Serif KR, Nanum Myeongjo, serif.
@@ -196,6 +200,8 @@ components:
 투명 캐릭터는 신체·의상·소품의 실루엣을 보존한다. 대화 초상화와 이동 시트를 혼용하지 않으며, 이동 시트는 네 방향과 고정 셀을 따른다. 실제 셀 규격·크롭 기준은 에셋 정의와 docs/ASSETS.md를 따른다. 이 문서에서 별도 크롭 수치를 만들어 원본과 분리하지 않는다.
 
 ## Components
+
+조리 작업대는 재료·설비·완성 예상의 세 칸이다. 예상 음식은 흐리게, 실제 완료된 음식은 선명하게 표시한다. 진행률과 남은 시간은 실제 작업 ID에 연결하며 텍스트로도 제공한다. 기존 그림을 재사용한 단계이며 신규 조리 직원 동작은 미완료다.
 
 ### Buttons
 크림 기본형, 로즈 주요형, 투명 보조형을 쓴다. 주요형은 굵은 글씨다. 기본 padding은 frontmatter 값을 따르되 조작 크기는 최소 44px을 확보한다. hover는 배경색, active는 1px 아래 이동과 밝기 감소, aria-disabled는 불투명도(.55)로 구분한다. 버튼의 실제 focus 규칙은 styles.css의 더 높은 specificity 때문에 정보색 외곽선(3px)과 간격(2px)이 적용된다. 일반 요소의 focus 규칙과 혼동하지 않는다.
@@ -254,3 +260,17 @@ components:
 - 현재 주방은 기존 설비 그림과 Canvas 하부장을 재사용한다. 새 통합 주방 일러스트·앉기/먹기 전용 손님 자세는 별도 아트 보완 대상이다.
 
 카페·지도·의뢰의 최신 UI 서체는 `Yeoni UI`다. 12/13/14/15/16/18/20/24/26px 단계로 상태·본문·제목을 구분하고, 8/10/14/16px 모서리는 작은 툴팁부터 큰 종이 패널에 쓴다. 세이지 CTA #536c40·hover #405632, 크림 #fff8eb·#fff9ea, 목재 잉크 #493927, 금색 테두리 #aa8d61은 이 화면의 의도된 파생색이다.
+
+### 2026-10-26 로컬 카페 배치 조정
+벽을 바닥 좌표 밖에 두고 배우·테이블·터치 영역은 하나의 변환을 쓴다. 가구와 배우는 실제 바닥 깊이로 함께 정렬한다. 계산대는 주방 오른쪽, 출입구는 비운다. 데스크톱 준비 패널은 메뉴/테이블/직원 요약과 꾸미기 진입, 영업 패널은 주문 다음 주방/픽업을 위쪽에 배치한다. 기존 아트를 재배치한 단계이며 새 주방·앉은 손님 그림 적용 완료를 뜻하지 않는다. 꽃 장식은 실제 전달된 이미지를 확인한 뒤 추가한다.
+
+### 실내 가구 편집기
+테이블과 의자는 개별 가구로 선택·이동·회전·보관한다. 테이블당 손님은1명이며 테이블을 향한 의자와 서빙 공간이 있어야 좌석으로 계산한다. 데스크톱(900px 이상)은 오른쪽360px 패널, 모바일은 가로 가구 목록을 쓰며 이동 중에는 목록을 숨기고 하단 조작 패널 높이를318px로 둔다. 이름 검색·배치됨/보관함·카테고리와 실제 크기를 표시한다. 주요 조작은44px 이상이다.
+미리보기는 바닥 칸의 색·윤곽선과 구체적 사유를 함께 표시한다. 「여기에 놓기」는 선택 가구를 초안에 확정하고 「이동 취소」는 해당 이동만, 「되돌리기」는 확정한 변경 한 단계를 되돌린다. 「전체 취소」는 초안을 버리며 실제 카페에는 「배치 저장」으로 적용한다. 화면 이동 후 클릭은 배치로 처리하지 않는다.
+방향별 의자 원화가 없는 방향은 임시 도형이다. 신규 손님·가구 아트는 미도착으로 미적용이며 카페 전체 재디자인 완료를 뜻하지 않는다. 최대 확장에서는 기본 확대와 화면 이동을 사용하고, 전체 보기의 겹치는 좌석 안내를 줄인다.
+
+
+카페 HUD의 꾸미기는 준비 중에만 열리며 카페 장면을 유지한다. 수첩은 퀘스트·이야기 중심이다. 편집 상점 구매는 명시적인 별도 거래이므로 배치 전체 취소 뒤에도 보관함에 남는다. 닫기/Esc/브라우저 뒤로가기는 미확정 배치만 취소하며, 배치 저장은 검증 성공 후 적용한다.
+
+
+꽃 테마 공통 토큰은 floral-theme.css에 둔다. 크림 종이·로즈 주 행동·잎색 선택·짙은 달빛 타이틀 버튼·가는 금테를 타이틀/카페/상점/꾸미기/수첩/지도/대화·결과·확인창에 공유한다. 위험·비활성·초점 의미는 별도로 보존한다. 타이틀 인물은 기존 공식 인간형 네오·연이와 루나 자매·모카의 정지 초상을 사용하며 실제 영입 상태를 변경하지 않는다. 별도 달빛 예화 서비스의 정확한 버튼 규격 및 최신 첨부는 확인되지 않았으므로 동일 복제로 표현하지 않는다.

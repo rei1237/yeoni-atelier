@@ -1,3 +1,4 @@
+import {pendingBranchStory} from './branches.js';
 // 달력: 정규 영업 1회 = 한 순(상순·중순·하순). 3순이 한 달, 3월에서 시작해 정해진 달까지 간다(프린세스 메이커식 월 단위 진행).
 // 하순 영업을 마치면 청토끼 금융 이자가 나간다. 마지막 순을 마치면 결말이 정해지고, 그 뒤로는 후일담(자유 영업)이다.
 // 순 수·시작 달·이자율·행동력은 모두 임시값(TEMP.CALENDAR). 달·이자·결말은 게임 오리지널 설정이다.
@@ -100,13 +101,13 @@ export function advanceTurn(state) {
 export function pendingStory(state) {
   if (state.mode !== 'prep') return null;
   // 후일담: 결말을 본 뒤에도 인연 이야기는 이어진다
-  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : pendingHanbiStory(state) || pendingBondStory(state);
+  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : pendingHanbiStory(state) || pendingBondStory(state) || pendingBranchStory(state);
   const c = calendarOf(state.day);
   const id = `m${c.monthIdx}`;
   if (!state.ledger.story[id]) return id;
   // 첫 영업을 마친 뒤에야 「돈 벌어 와, 네오!」가 나온다
   if (!state.huntUnlocked && !state.ledger.story['ev:hunt'] && state.stats.shiftsCompleted >= 1) return 'ev:hunt';
-  return pendingHanbiStory(state) || pendingBondStory(state);
+  return pendingHanbiStory(state) || pendingBondStory(state) || pendingBranchStory(state);
 }
 
 // 네오가 30·40·50·70·100단계를 처음 클리어하면 귀환 뒤 검은 호랑이 사건을 순서대로 하나씩 튼다(건너뛸 수 없다)
@@ -130,7 +131,9 @@ export function pendingBondStory(state) {
 }
 
 export function markStory(state, id) {
-  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+|hanbi:\d+)$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
+  // 프롤로그는 새 게임의 도입부이며 달 이야기·보상과 별도로 기록한다.
+  if(id==='prologue'){if(state.ledger.story.prologue)return {ok:true,duplicate:true};if(state.mode!=='prep')return {ok:false,reason:'영업 준비 중에만 볼 수 있어요'};state.ledger.story.prologue=true;return {ok:true};}
+  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+|hanbi:\d+|branch:[2-5])$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
   if (state.ledger.story[id]) return { ok: true, duplicate: true };
   if (state.mode !== 'prep' || pendingStory(state) !== id) return { ok: false, reason: '지금 볼 수 있는 이야기가 아닙니다' };
   const farmLocked = id === 'm1' && !!placeLock(state, 'farm');
@@ -146,5 +149,5 @@ export function markStory(state, id) {
   }
   if (id === 'ev:hunt') state.huntUnlocked = true;
   grantEventOutfits(state, id);
-  return { ok: true };
+  return { ok: true, ...(id==='ev:hunt'&&!placeLock(state,'hunt')?{destination:'hunt'}:{}) };
 }

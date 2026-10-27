@@ -19,7 +19,7 @@ export const BONDS = Object.freeze({
     gift: { id: 'tuna_churu', name: '참치 츄르', cost: 180 },
     perks: [
       { label: '백사자의 수호 · 사냥 HP +40 · 마을 대행 해금', fx: { huntHp: 40 } },
-      { label: '빈틈을 읽는 눈 · 사냥 피해 +35%', fx: { huntDmg: 0.35 } },
+      { label: '빈틈을 읽는 눈 · 사냥 피해 +35% · 네오 홀 자동 해금', fx: { huntDmg: 0.35 } },
       { label: '달빛 전략가 · 보스 월정석 +80% · 농장 맡기기 해금', fx: { bossMoon: 0.8 } },
       { label: '함께 쓰는 내일 · 행동력 +2', fx: { ap: 2 } },
     ],
@@ -35,7 +35,7 @@ export const BONDS = Object.freeze({
     gift: { id: 'star_ribbon', name: '별 리본', cost: 220 },
     perks: [
       { label: '손님이 음식을 10% 더 기다려 줌 · 직원 스트레스 증가 −15%', fx: { patience: 0.1, stressResist: 0.15 } },
-      { label: '손님이 음식을 15% 더 기다려 줌 · 홀 자동(서빙·정리) 해금', fx: { patience: 0.15 } },
+      { label: '손님이 음식을 15% 더 기다려 줌 · 루나 홀 자동(서빙·정리) 해금', fx: { patience: 0.15 } },
       { label: '루나의 검산: 월 이자 −10%', fx: { interestCut: 0.1 } },
       { label: '루나의 검산: 월 이자 −15%', fx: { interestCut: 0.15 } },
     ],
