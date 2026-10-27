@@ -1,6 +1,6 @@
 // 공간: 격자, 길찾기(BFS), 배치 검증, 테이블 위치 계산.
 
-import { GRID, FIXTURES, RESERVED, FURNITURE, SPOTS, AREAS, areaCells } from '../data/layout.js';
+import { GRID, FIXTURES, RESERVED, FURNITURE, SPOTS, AREAS, areaCells, cafeLayout } from '../data/layout.js';
 
 const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 
@@ -29,13 +29,13 @@ export function lockedSet(open = []) {
   return set;
 }
 
-export function buildGrid(furniture, open = []) {
+export function buildGrid(furniture, open = [], layout = cafeLayout()) {
   const n = GRID.cols * GRID.rows;
   const locked = lockedSet(open);
   const fixture = new Array(n).fill(null);
   const block = new Array(n).fill(null);
   const floor = new Array(n).fill(null);
-  for (const fx of FIXTURES) for (const [x, y] of fx.cells) fixture[key(x, y)] = fx.id;
+  for (const fx of layout.fixtures) for (const [x, y] of fx.cells) fixture[key(x, y)] = fx.id;
   for (const f of furniture) {
     for (const c of furnitureCells(f)) {
       if (!inBounds(c.x, c.y)) continue;
@@ -44,7 +44,7 @@ export function buildGrid(furniture, open = []) {
     }
   }
   return {
-    fixture, block, floor, locked, furniture,
+    fixture, block, floor, locked, furniture, layout,
     walkable: (x, y) => inBounds(x, y) && !fixture[key(x, y)] && !block[key(x, y)] && !locked.has(key(x, y)),
     blockAt: (x, y) => (inBounds(x, y) ? block[key(x, y)] : null),
   };
@@ -96,7 +96,7 @@ export function tableGeometry(grid, f) {
   for (const edge of tableCells) for (const [dx, dy] of DIRS) {
     const sx = edge.x + dx, sy = edge.y + dy;
     if (!grid.walkable(sx, sy)) continue;
-    const p = findPath(grid, SPOTS.pickup, { x: sx, y: sy });
+    const p = findPath(grid, (grid.layout?.spots||SPOTS).pickup, { x: sx, y: sy });
     if (p && (!best || p.length < best.len)) best = { x: sx, y: sy, len: p.length };
   }
   return { table: { x: table.x, y: table.y }, chair: chair?{ x: chair.x, y: chair.y }:null, chairUid:chair?chairUid:null, facing, service: best ? { x: best.x, y: best.y } : null };
@@ -106,7 +106,8 @@ const RESERVED_SET = new Set(RESERVED.map(([x, y]) => key(x, y)));
 const FIXTURE_SET = new Set(FIXTURES.flatMap(f => f.cells.map(([x, y]) => key(x, y))));
 
 // 배치 검증: 겹침, 입구 막기, 통로(입구→좌석, 서빙대→테이블, 입구→서빙대·주방·대기 자리)
-export function validateLayout(furniture, open = []) {
+export function validateLayout(furniture, open = [], layout = cafeLayout()) {
+  const SPOTS=layout.spots,RESERVED_SET=new Set(layout.reserved.map(([x,y])=>key(x,y))),FIXTURE_SET=new Set(layout.fixtures.flatMap(f=>f.cells.map(([x,y])=>key(x,y))));
   const problems = [];
   const locked = lockedSet(open);
   const blockOwner = new Map();
@@ -117,8 +118,8 @@ export function validateLayout(furniture, open = []) {
     for (const c of furnitureCells(f)) {
       if (!inBounds(c.x, c.y)) { problems.push({ code: 'bounds', uid: f.uid, msg: `${name}: 가게 밖으로 나갔습니다` }); continue; }
       const k = key(c.x, c.y);
-      if (FIXTURE_SET.has(k)) problems.push({ code: 'fixture', uid: f.uid, msg: `${name}: 고정 설비와 겹칩니다` });
-      if (RESERVED_SET.has(k)) problems.push({ code: 'reserved', uid: f.uid, msg: `${name}: 주방 통로·입구·계산대 뒤는 비워 두어야 합니다` });
+      if (FIXTURE_SET.has(k)) problems.push({ code: 'fixture', uid: f.uid, x:c.x,y:c.y,msg: `${name}: 고정 설비와 겹칩니다 (${c.x+1}열 ${c.y+1}행)` });
+      if (RESERVED_SET.has(k)) problems.push({ code: 'reserved', uid: f.uid, x:c.x,y:c.y,msg: `${name}: 주방·입구·계산 대기칸은 비워 주세요 (${c.x+1}열 ${c.y+1}행)` });
       if (locked.has(k)) problems.push({ code: 'locked', uid: f.uid, msg: `${name}: 아직 열지 않은 구역입니다 (마을 공방에서 증축)` });
       const owners = c.kind === 'floor' ? floorOwner : blockOwner;
       if (owners.has(k) && owners.get(k) !== f.uid) problems.push({ code: 'overlap', uid: f.uid, msg: `${name}: 다른 가구와 겹칩니다` });
@@ -130,7 +131,7 @@ export function validateLayout(furniture, open = []) {
   if (placed.filter(f=>FURNITURE[f.defId].table&&FURNITURE[f.defId].storable===false).length !== furniture.filter(f=>FURNITURE[f.defId].table&&FURNITURE[f.defId].storable===false).length) problems.push({ code: 'tables', msg: '테이블 세트는 모두 배치해야 합니다' });
 
   if (!problems.length) {
-    const grid = buildGrid(placed, open);
+    const grid = buildGrid(placed, open, layout);
     const reach = (from, to, opts) => !!findPath(grid, from, to, opts);
     for (const f of tables) {
       const g = tableGeometry(grid, f);
@@ -139,7 +140,8 @@ export function validateLayout(furniture, open = []) {
       if (!g.service) problems.push({ code: 'service', uid: f.uid, msg: `${label}: 서빙대에서 갈 수 있는 테이블 옆 통로가 없습니다` });
       if (!reach(SPOTS.entrance, g.chair, { goalBlocked: true })) problems.push({ code: 'seat', uid: f.uid, msg: `${label}: 입구에서 의자까지 길이 막혔습니다` });
     }
-    const must = [['pickup', '서빙대'], ['yeoniHome', '계산대'], ['neoHome', '대기 자리'], ['drinkFront', '음료 머신'], ['ovenFront', '오븐']];
+    const must = [['pickup', '서빙대'], ['yeoniHome', '연이 계산 자리'], ['checkout','손님 계산 자리'], ['neoHome', '대기 자리'], ['drinkFront', '음료 머신'], ['ovenFront', '오븐']];
+    for(const point of layout.queue||[])if(!reach(SPOTS.entrance,point))problems.push({code:'queue',msg:'계산 대기칸까지 통로가 막혔습니다'});
     for (const [spot, label] of must) {
       if (!reach(SPOTS.entrance, SPOTS[spot])) problems.push({ code: 'aisle', msg: `입구에서 ${label}까지 통로가 막혔습니다` });
     }

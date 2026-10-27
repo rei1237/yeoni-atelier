@@ -15,7 +15,7 @@ import { RULES } from '../config/rules.js';
 import { PDF } from '../config/balance.pdf.js';
 import { TEMP } from '../config/balance.temp.js';
 import { MENUS, MENU_ORDER, INGREDIENTS, ingredientCostOf } from '../data/menus.js';
-import { SPOTS, FURNITURE } from '../data/layout.js';
+import { SPOTS, FURNITURE, cafeSpots, cafeLayout } from '../data/layout.js';
 import { PEOPLE, STAFF_CREW } from '../data/companions.js';
 import { emit, nextId, remainingShift, usableHosts } from './state.js';
 import { buildGrid, findPath, tableGeometry } from './space.js';
@@ -31,9 +31,9 @@ const gridCache = new WeakMap();
 export function getGrid(state) {
   const list = state.interior.furniture;
   const open = state.interior.areas || [];
-  const sig = open.join(',')+'|'+list.map(f=>[f.uid,f.defId,f.x,f.y,f.rot].join(':')).join(';');
+  const sig = cafeLayout(state).id+'|'+open.join(',')+'|'+list.map(f=>[f.uid,f.defId,f.x,f.y,f.rot].join(':')).join(';');
   let g = gridCache.get(list);
-  if (!g || g.sig !== sig) { g = buildGrid(list.filter(f => f.x != null), open); g.sig = sig; gridCache.set(list, g); }
+  if (!g || g.sig !== sig) { g = buildGrid(list.filter(f => f.x != null), open,cafeLayout(state)); g.sig = sig; gridCache.set(list, g); }
   return g;
 }
 
@@ -62,12 +62,12 @@ export function setupWorld(state) {
   state.tray = Array(cafeCapacity(state).traySlots).fill(null);
   state.staff = {};
   const mk = (id, home) => ({ id, home, x: home.x + 0.5, y: home.y + 0.5, path: [], job: null, action: 'idle', facing: 'down', carry: null, actionUntil: 0 });
-  state.staff.yeoni = mk('yeoni', { ...SPOTS.yeoniHome });
-  state.staff.yeoni.facing = 'right'; // 계산대 너머 입구를 본다
-  const crewHome = { luna_sis: SPOTS.sisHome, luna: SPOTS.lunaHome };
+  state.staff.yeoni = mk('yeoni', { ...cafeSpots(state).yeoniHome });
+  state.staff.yeoni.facing = cafeLayout(state).yeoniFacing; // 계산대 너머 입구를 본다
+  const crewHome = { luna_sis: cafeSpots(state).sisHome, luna: cafeSpots(state).lunaHome };
   for (const id of STAFF_CREW) state.staff[id] = mk(id, { ...crewHome[id] });
   assignedHosts(state).forEach((id, i) => {
-    const home = i === 0 ? { ...SPOTS.neoHome } : nearestWalkable(grid, { x: 1 + ((i - 1) % 4) * 2, y: 2 + Math.floor((i - 1) / 4) * 4 });
+    const home = i === 0 ? { ...cafeSpots(state).neoHome } : nearestWalkable(grid, { x: 1 + ((i - 1) % 4) * 2, y: 2 + Math.floor((i - 1) / 4) * 4 });
     state.staff[id] = mk(id, home);
   });
   if(state.shift)state.shift.staffIds=Object.keys(state.staff);
@@ -101,6 +101,7 @@ function moveAlong(e, dt, tilesPerS) {
     const dx = cx - e.x, dy = cy - e.y;
     const d = Math.hypot(dx, dy);
     if (d > 1e-6) e.facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+    e.walkDistance=((e.walkDistance||0)+Math.min(d,dist))%1024;
     if (d <= dist) { e.x = cx; e.y = cy; e.path.shift(); dist -= d; } else { e.x += dx / d * dist; e.y += dy / d * dist; dist = 0; }
   }
   const arrived = e.moving && e.path.length === 0;
@@ -328,7 +329,7 @@ export function requestClean(state, tableNo, autoHall=false) {
 // ── 직원
 export function staffAvailable(state, id) {
   const s = state.staff[id];
-  if (!s || (s.job && s.job.kind !== 'home') || isResting(state, id)) return false;
+  if (!s || (s.job && s.job.kind !== 'home') || s.actionUntil > state.shift.elapsedMs || isResting(state, id)) return false;
   const work = PEOPLE[id]?.work;
   if (work) return work === 'runner'; // 연이(계산)·루나 언니(굽기)는 운반하지 않는다
   return state.people[id]?.activity === 'idle'; // 접대 중인 동료는 서빙·정리에 투입하지 않는다
@@ -353,7 +354,7 @@ function assignTasks(state) {
   for (const task of state.tasks) {
     if (task.assignedTo) continue;
     const t = tableByNo(state, task.tableNo);
-    const target = task.type === 'deliver' ? SPOTS.pickup : t.service;
+    const target = task.type === 'deliver' ? cafeSpots(state).pickup : t.service;
     let best = null;
     for (const id of Object.keys(state.staff)) {
       if (!staffAvailable(state, id) || (task.autoHall && !hallAutomationOn(state,id))) continue;
@@ -361,15 +362,13 @@ function assignTasks(state) {
       const d = Math.abs(s.x - target.x) + Math.abs(s.y - target.y) + (PEOPLE[id]?.work === 'runner' ? 0 : 0.5);
       if (!best || d < best.d) best = { id, d };
     }
-    // 쉬는 직원이 있어 손이 모자라면 연이가 계산대를 잠시 비우고 대신 나른다(막힘 방지)
-    const y = state.staff.yeoni;
-    if (!task.autoHall && !best && y && (!y.job || y.job.kind === 'home') && Object.values(state.resting || {}).some(Boolean)) best = { id: 'yeoni' };
+    // 계산 담당 연이는 홀 일을 대신하지 않는다. 주문은 가능한 직원이 맡을 때까지 보존한다.
     if (!best) continue;
     const s = state.staff[best.id];
     task.assignedTo = best.id;
     if (task.type === 'deliver') {
       s.job = { kind: 'deliver', taskId: task.id, tableNo: task.tableNo, stage: 'toPickup' };
-      setPath(state, s, SPOTS.pickup);
+      setPath(state, s, cafeSpots(state).pickup);
     } else {
       s.job = { kind: 'clean', taskId: task.id, tableNo: task.tableNo, stage: 'toTable' };
       setPath(state, s, t.service);
@@ -404,7 +403,12 @@ function finishTask(state, s) {
   s.job = null;
 }
 
+export function facingTarget(actor,target){
+  const dx=target.x+.5-actor.x,dy=target.y+.5-actor.y;
+  return Math.abs(dx)>Math.abs(dy)?(dx<0?'left':'right'):(dy<0?'up':'down');
+}
 export function sendHome(state, s) {
+  s.servicePose=null;
   s.job = { kind: 'home' };
   setPath(state, s, s.home);
 }
@@ -425,7 +429,8 @@ function stepBaker(state, s, dt) {
   moveAlong(s, dt, TEMP.WALK_TILES_PER_S);
   if (isResting(state, s.id)) { // 쉬는 동안 조리는 기계에 그대로 남고, 연이(플레이어)가 이어서 만든다
     if (s.job?.kind !== 'home' && (Math.floor(s.x) !== s.home.x || Math.floor(s.y) !== s.home.y)) sendHome(state, s);
-    s.action = s.path.length ? 'walk' : 'idle'; s.facing = 'down';
+    s.action = s.path.length ? 'walk' : 'idle';
+    if (!s.path.length) { s.facing = 'down'; s.job = null; }
     return;
   }
   const recent=id=>Math.max(...runningJobs(state.stations[id]).map(j=>j.startedAt||0));
@@ -449,11 +454,13 @@ export function stepStaff(state, dt) {
     if (isResting(state, s.id) && (s.job?.kind === 'deliver' || s.job?.kind === 'clean')) handOver(state, s);
     const arrived = moveAlong(s, dt, TEMP.WALK_TILES_PER_S);
     const j = s.job;
-    if (s.actionUntil && now >= s.actionUntil) { s.actionUntil = 0; if (s.action === 'serve' || s.action === 'react') s.action = 'idle'; }
+    if (s.actionUntil && now >= s.actionUntil) { s.actionUntil = 0; s.servicePose = null; if (s.action === 'serve' || s.action === 'react') s.action = 'idle'; }
     if (!j) {
+      if (s.actionUntil > now) continue; // 내려놓기를 마치고 복귀한다.
       if (Math.floor(s.x) !== s.home.x || Math.floor(s.y) !== s.home.y) sendHome(state, s);
+      else if (s.id !== 'yeoni') s.facing = 'down';
     } else if (j.kind === 'home') {
-      if (arrived) { s.job = null; s.facing = s.id === 'yeoni' ? 'right' : 'down'; } // 제자리에 오면 등 돌리지 않고 홀을 본다
+      if (arrived) { s.job = null; s.facing = s.id === 'yeoni' ? cafeLayout(state).yeoniFacing : 'down'; } // 제자리에 오면 등 돌리지 않고 홀을 본다
     } else if (j.kind === 'deliver') {
       const task = state.tasks.find(t => t.id === j.taskId);
       const order = task && state.orders[task.orderId];
@@ -466,6 +473,9 @@ export function stepStaff(state, dt) {
         setPath(state, s, tableByNo(state, j.tableNo).service);
       } else if (j.stage === 'toTable' && arrived) {
         if (order && order.status === 'assigned') {
+          const target = tableByNo(state, j.tableNo);
+          s.facing = facingTarget(s, target.table);
+          s.servicePose = {kind:'serve', at:now, until:now+600, tableNo:j.tableNo, menuId:s.carry.menuId};
           recordServe(state, order, s.carry);
           changeStress(state, 'deliver', s.id);
           s.carry = null;
@@ -473,7 +483,7 @@ export function stepStaff(state, dt) {
           finishTask(state, s);
         } else {
           j.stage = 'return';
-          setPath(state, s, SPOTS.pickup);
+          setPath(state, s, cafeSpots(state).pickup);
         }
       } else if (j.stage === 'return' && !s.path.length) {
         // 손님이 떠난 음식은 버리지 않고 트레이로 돌려놓는다. 자리가 날 때까지 서빙대 앞에서 기다린다.
@@ -488,10 +498,11 @@ export function stepStaff(state, dt) {
         t.cleanMs = PDF.CLEAN_MS;
         t.cleanEndAt = now + t.cleanMs;
         s.action = 'clean';
-        s.facing = t.table.x < s.x - 0.5 ? 'left' : t.table.x > s.x - 0.5 ? 'right' : (t.table.y < s.y - 0.5 ? 'up' : 'down');
+        s.facing = facingTarget(s, t.table);
+        s.servicePose = {kind:'clean',at:now,until:t.cleanEndAt,tableNo:t.no};
       } else if (j.stage === 'cleaning' && now >= t.cleanEndAt) {
         t.state = 'empty'; t.cleanQueued = false; t.cleanEndAt = null;
-        s.action = 'idle';
+        s.action = 'idle'; s.servicePose = null;
         emit('cleaned', { tableNo: t.no });
         changeStress(state, 'clean', s.id);
         finishTask(state, s);
@@ -525,18 +536,21 @@ function cancelVisitOrders(state, visit) {
 }
 
 export function customerLeave(state, c, reason) {
+  if(['checkout','leaving'].includes(c.state))return;
   const visit = state.visits[c.visitId];
   reviewVisit(state,visit,reason);
   if(visit.reviewScore>=65)guestChatter(state,visit,(state.shift.spawnCount%5)/5,'farewell');
   cancelVisitOrders(state, visit);
   const t = tableByNo(state, c.tableNo);
-  if (t && t.customerId === c.id) { t.customerId = null; t.state = 'dirty'; }
+  const stand=t?.chair&&t.customerId===c.id&&!c.path?.length&&Math.hypot(c.x-t.chair.x-.5,c.y-t.chair.y-.5)<.08&&reason!=='영업 종료';
+  if(stand)c.standing={at:state.shift.elapsedMs,until:state.shift.elapsedMs+640,facing:t.facing||c.facing};
+  else if(t&&t.customerId===c.id){t.customerId=null;t.state='dirty';}
   visit.status = 'done';
   visit.leaveReason = reason;
   state.cafeGesture={kind:'bow',at:state.shift.elapsedMs};
   c.state = visit.bill>0 && !visit.paid ? 'checkout' : 'leaving';
   c.action = 'walk';c.payAt=null;c.checkoutJoinedAt=state.shift.elapsedMs;
-  setPath(state,c,c.state==='checkout'?nearestWalkable(getGrid(state),SPOTS.checkout):SPOTS.entrance);
+  if(c.standing)c.path=[];else setPath(state,c,c.state==='checkout'?nearestWalkable(getGrid(state),cafeSpots(state).checkout):cafeSpots(state).entrance);
   emit('leave', { tableNo: c.tableNo, reason });
 }
 
@@ -547,7 +561,7 @@ export function spawnCustomer(state, spec) {
   if(Object.keys(state.customers).length>=cafeCapacity(state).guestLimit)return null;
   if(takeaway && Object.values(state.visits).filter(v=>v.kind==='takeaway'&&v.status==='active').length>=cafeCapacity(state).takeawayLimit)return null;
   if (!takeaway && !empty.length) return null;
-  const t = takeaway?{no:0,chair:nearestWalkable(getGrid(state),SPOTS.checkout)}:pick(state.rng, empty);
+  const t = takeaway?{no:0,chair:nearestWalkable(getGrid(state),cafeSpots(state).checkout)}:pick(state.rng, empty);
   const profile = spec.profileId ? PDF.PROFILES.find(p => p.id === spec.profileId) : pick(state.rng, PDF.PROFILES);
   const wealthId = CUSTOMER_WEALTH[spec.wealthId] && (state.meta.devData||wealthEligible(state,spec.wealthId)) ? spec.wealthId : customerWealth(state,nextRandom(state.rng));
   const cid = nextId(state, 'customer');
@@ -555,7 +569,7 @@ export function spawnCustomer(state, spec) {
   state.shift.spawnCount += 1;
   const c = {
     id: cid, visitId: vid, tableNo: t.no, wealthId, label: `${takeaway?'포장 · ':''}${CUSTOMER_WEALTH[wealthId].name} ${state.shift.spawnCount}`,
-    x: SPOTS.entrance.x + 0.5, y: SPOTS.entrance.y + 0.5, path: [], moving: false, facing: 'up',
+    x: cafeSpots(state).entrance.x + 0.5, y: cafeSpots(state).entrance.y + 0.5, path: [], moving: false, facing: 'up',
     state: 'entering', action: 'walk', actionUntil: 0, orderAt: null, eatEndAt: null,
     hue: Math.floor(nextRandom(state.rng) * 360),
   };
@@ -584,9 +598,12 @@ export function checkoutQueue(state){
  return Object.values(state.customers).filter(c=>c.state==='checkout').sort((a,b)=>(a.checkoutJoinedAt??0)-(b.checkoutJoinedAt??0)||a.id.localeCompare(b.id,undefined,{numeric:true}));
 }
 function arrangeCheckout(state){
- const queue=checkoutQueue(state),grid=getGrid(state),route=findPath(grid,SPOTS.checkout,SPOTS.entrance)||[];
- const slots=[SPOTS.checkout,...route.filter((_,i)=>i%2===1).map(([x,y])=>({x,y}))];
- queue.forEach((c,i)=>{const goal=slots[Math.min(i,slots.length-1)];
+ const queue=checkoutQueue(state),grid=getGrid(state),route=findPath(grid,cafeSpots(state).checkout,cafeSpots(state).entrance)||[];
+ const slots=cafeLayout(state).queue||[cafeSpots(state).checkout,...route.filter((_,i)=>i%2===1).map(([x,y])=>({x,y}))];
+ queue.forEach((c,i)=>{
+  if(cafeLayout(state).queue&&i>=slots.length){c.checkoutWaiting=true;c.path=[];return;}
+  if(c.checkoutWaiting){c.checkoutWaiting=false;if(c.standing){c.standing.at=state.shift.elapsedMs;c.standing.until=state.shift.elapsedMs+640;}}
+  if(c.standing&&state.shift.elapsedMs<c.standing.until)return;const goal=slots[Math.min(i,slots.length-1)];
   if(c.checkoutTarget?.x!==goal.x||c.checkoutTarget?.y!==goal.y){c.checkoutTarget={...goal};setPath(state,c,goal);c.payAt=null;}
  });
  return queue[0]?.id;
@@ -594,13 +611,19 @@ function arrangeCheckout(state){
 export function stepCustomers(state, dt, hooks) {
   const now = state.shift.elapsedMs, payingId=arrangeCheckout(state);
   for (const c of Object.values(state.customers)) {
+    if(c.checkoutWaiting)continue;
+    if(c.standing){
+      if(now<c.standing.until)continue;
+      const table=tableByNo(state,c.tableNo);if(table?.customerId===c.id){table.customerId=null;table.state='dirty';}
+      c.standing=null;if(!c.path?.length)setPath(state,c,c.state==='checkout'?cafeSpots(state).checkout:cafeSpots(state).entrance);
+    }
     const arrived = moveAlong(c, dt, TEMP.CUSTOMER_TILES_PER_S);
     const visit = state.visits[c.visitId];
     if (c.actionUntil && now >= c.actionUntil) { c.actionUntil = 0; if (c.action === 'eat' || c.action === 'react') c.action = 'idle'; }
     switch (c.state) {
       case 'entering':
         if (arrived) {
-          c.action = 'idle';
+          c.action = 'idle';c.sitAt=now;
           c.facing = tableByNo(state,c.tableNo)?.facing||'up';
           if (visit.kind === 'nomination') {
             c.state = 'requesting';
@@ -638,12 +661,12 @@ export function stepCustomers(state, dt, hooks) {
         break;
       case 'checkout':
         if(arrived||!c.path.length){
-          c.action='idle';c.facing='left';
+          c.action='idle';c.facing=cafeLayout(state).customerFacing;
           if(c.id!==payingId)break;
-          const atCounter=Math.hypot(c.x-SPOTS.checkout.x-.5,c.y-SPOTS.checkout.y-.5)<.08;
+          const atCounter=Math.hypot(c.x-cafeSpots(state).checkout.x-.5,c.y-cafeSpots(state).checkout.y-.5)<.08;
           if(!atCounter)break;
           if(c.payAt==null){c.payAt=now+1040;state.cafeGesture={kind:'cashier',at:now,customerId:c.id};}
-          if(now>=c.payAt){checkout(state,visit);c.state='leaving';c.action='walk';setPath(state,c,SPOTS.entrance);}
+          if(now>=c.payAt){checkout(state,visit);c.state='leaving';c.action='walk';setPath(state,c,cafeSpots(state).entrance);}
         }
         break;
       case 'leaving':
@@ -661,16 +684,16 @@ export function checkout(state,visit){
  state.ledger.checkouts ||= {};
  if(state.ledger.checkouts[visit.id]!=null){visit.paid=true;return false;}
  const amount=Math.max(0,visit.bill||0);state.ledger.checkouts[visit.id]=amount;visit.paid=true;state.gold+=amount;
- const yeoni=state.staff.yeoni;if(yeoni){yeoni.action='react';yeoni.actionUntil=state.shift.elapsedMs+650;yeoni.facing='right';}
+ const yeoni=state.staff.yeoni;if(yeoni){yeoni.action='react';yeoni.actionUntil=state.shift.elapsedMs+650;yeoni.facing=cafeLayout(state).yeoniFacing;}
  state.cafeGesture={kind:'bow',at:state.shift.elapsedMs};
  if(amount)emit('paidAtCounter',{amount});return true;
 }
 
 // 이전 영업 저장의 계산 동선만 새 고정 설비 위치로 연결한다.
 export function migrateCounter(state){
- if(state.cafeLayoutVersion===2)return;
- if(state.mode==='shift'&&state.staff?.yeoni){const s=state.staff.yeoni;s.home={...SPOTS.yeoniHome};s.x=s.home.x+.5;s.y=s.home.y+.5;s.path=[];s.facing='right';
-  for(const c of Object.values(state.customers||{})){if(c.state==='checkout')setPath(state,c,nearestWalkable(getGrid(state),SPOTS.checkout));else if(state.visits[c.visitId]?.kind==='takeaway'&&c.state==='entering')setPath(state,c,nearestWalkable(getGrid(state),SPOTS.checkout));}
+ if(state.cafeLayoutVersion===2||state.interior?.checkoutLayout==='entrance')return;
+ if(state.mode==='shift'&&state.staff?.yeoni){const s=state.staff.yeoni;s.home={...cafeSpots(state).yeoniHome};s.x=s.home.x+.5;s.y=s.home.y+.5;s.path=[];s.facing=cafeLayout(state).yeoniFacing;
+  for(const c of Object.values(state.customers||{})){if(c.state==='checkout')setPath(state,c,nearestWalkable(getGrid(state),cafeSpots(state).checkout));else if(state.visits[c.visitId]?.kind==='takeaway'&&c.state==='entering')setPath(state,c,nearestWalkable(getGrid(state),cafeSpots(state).checkout));}
  }
  state.cafeLayoutVersion=2;
 }

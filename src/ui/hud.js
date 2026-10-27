@@ -25,7 +25,7 @@ import { RULES } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
 import { MENUS, INGREDIENTS } from '../data/menus.js';
 import { GEAR } from '../data/gear.js';
-import { FURNITURE, SPOTS, FIXTURES } from '../data/layout.js';
+import { FURNITURE, SPOTS, FIXTURES, cafeLayout } from '../data/layout.js';
 import { HELP_KINDS } from '../data/lines.js';
 import { fmtTime, personName, remainingShift, usableHosts, shiftDuration, lastAcceptAt } from '../game/state.js';
 import { STATION_NAMES, findServeTarget, openOrdersOfVisit, staffStatusText } from '../game/cafe.js';
@@ -136,7 +136,7 @@ function cafePanel(state,ui){
   kitchen:shift?`${stationDock(state)}<h3>픽업 선반</h3>${slots||'<p>루나 언니가 완성한 메뉴가 여기에 놓여요.</p>'}${btn({action:'sheet.open',args:{sheet:'kitchen'},label:'레시피 · 재료 보기'})}`:btn({action:'sheet.open',args:{sheet:'kitchen'},label:'레시피 · 재료 보기'}),
   crew:`${state.hostbar.open?hostServiceControls(state):''}<div class="cafe-scores">${scoreChip('reputation',popularity(state))}${scoreChip('atmosphere',atmosphere(state))}</div>${automationChips(state)}${btn({action:'sheet.open',args:{sheet:'companions'},label:'동료와 이야기'})}${btn({action:'sheet.open',args:{sheet:'staffing'},label:'직원 배치'})}`,
   counter:`<p>연이가 한 분씩 계산해 드려요.</p>${queue.length?queue.map((c,i)=>`<p>${i+1}번째 · ${esc(c.label)} · ${won(state.visits[c.visitId]?.bill||0)}${c.payAt?' · 계산 중':' · 기다리는 중'}</p>`).join(''):'<p>아직 계산을 기다리는 손님은 없어요.</p>'}`,
-  prepare:`<p>의자 ${capacity.seats}석 · 루나는 홀, 루나 언니는 주방을 맡아요.</p>${btn({action:'interior.begin',label:'가구 구매 · 배치'})}${btn({action:'sheet.open',args:{sheet:'shop'},label:'모카에게 재료 사기'})}${btn({action:'sheet.open',args:{sheet:'grounds'},label:'정원 · 외관 꾸미기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}`,
+  prepare:`<p>의자 ${capacity.seats}석 · 루나는 홀, 루나 언니는 주방을 맡아요.</p>${btn({action:'interior.begin',label:'가구 구매 · 배치'})}${state.interior.checkoutLayout!=='entrance'?btn({action:'interior.checkoutPreview',label:'입구 계산대 미리보기'}):''}${btn({action:'sheet.open',args:{sheet:'shop'},label:'모카에게 재료 사기'})}${btn({action:'sheet.open',args:{sheet:'grounds'},label:'정원 · 외관 꾸미기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}`,
   menu:navRow([['town','월드맵'],['shop','재료'],['companions','동료'],['manage','수첩']]),
  };
  return `<div class="cafe-commandbar"><p class="cafe-live-line" role="status">${shift?(ready?`완성 ${ready}개 · 픽업 선반에서 전해 주세요`:`손님 ${count}명 · 테이블을 눌러 주문을 받아요`):'오늘은 어떤 손님이 찾아올까요?'}</p><nav class="cafe-actions" aria-label="카페 조작">${!shift?btn({action:'shift.start',cls:'primary cafe-open',disabled:!sc.ok,title:sc.ok?'10분 영업 시작':sc.reasons.join(' · '),label:'문 열기'}):''}${tabs.map(([tab,label])=>btn({action:'cafe.drawer',args:{tab},cls:selected===tab?'selected':'',label})).join('')}</nav></div><section class="cafe-drawer" ${selected?'':'hidden'} aria-label="카페 상세 조작"><header><b>${({orders:'손님 주문',kitchen:'주방 · 픽업',crew:'카페와 동료',counter:'연이의 계산대',prepare:'영업 준비',menu:'수첩'})[selected]||''}</b>${btn({action:'cafe.drawer.close',label:'닫기'})}</header><div class="cafe-drawer-body">${Object.entries(panels).map(([id,content])=>`<div data-cafe-tab="${id}" ${selected===id?'':'hidden'}>${content}</div>`).join('')}</div></section>`;
@@ -239,7 +239,7 @@ export function hitsHtml(state, v, ui) {
   const size = Math.max(44, Math.round(v.tile * 1.3));
   const sel = ui.selectedSlot != null ? state.tray[ui.selectedSlot] : null;
   const target = sel && !sel.reservedFor ? findServeTarget(state, sel) : null;
-  const fixtures=FIXTURES.filter(f=>!f.wall).map(f=>{const x=f.cells[0][0],p=cellToPx(v,x+1,1);return `<button class="hit fixture-hit" data-key="fixture-${f.id}" data-action="cafe.drawer" data-tab="${f.id==='counter'?'counter':'kitchen'}" aria-label="${f.name} 누르기" style="left:${p.x-30}px;top:${p.y-36}px;width:60px;height:44px"></button>`;}).join('');
+  const fixtures=cafeLayout(state).fixtures.filter(f=>!f.wall).map(f=>{const x=f.cells.reduce((n,c)=>n+c[0],0)/f.cells.length+.5,y=f.cells.reduce((n,c)=>n+c[1],0)/f.cells.length+1,p=cellToPx(v,x,y);return `<button class="hit fixture-hit" data-key="fixture-${f.id}" data-action="cafe.drawer" data-tab="${f.id==='counter'?'counter':'kitchen'}" aria-label="${f.name} 누르기" style="left:${p.x-30}px;top:${p.y-36}px;width:60px;height:44px"></button>`;}).join('');
   return fixtures+state.tables.map(t => {
     const p = cellToPx(v, t.table.x + 0.5, t.table.y + 0.5);
     const cls = target === t.no ? 'hit target' : 'hit';
@@ -277,6 +277,6 @@ function chatterRibbon(ui){const c=ui.chatter;if(!c||performance.now()>c.until)r
 export function automationChips(state) {
  return `<div class="automation-chips">${['kitchen','hall','hall_neo'].map(ability=>{
   const st=automationStatus(state,ability),a=abilityCheck(state,ability),label=ability==='kitchen'?'자동 조리':'홀 자동',detail=`${a.name} · 지금 ♥${a.current} / 필요 ♥${a.need} · ${st.reason}`;
-  return `<span class="automation-tip"><button data-action="automation.toggle" data-ability="${ability}" title="${esc(detail)}" aria-label="${esc(a.name+' '+label+' · '+detail)}" aria-describedby="auto-tip-${ability}" aria-pressed="${st.on}"><b>${esc(a.name)}</b><span>${st.locked?'🔒 ':''}${label}${st.locked?'':st.on?' 켜짐':' 꺼짐'}</span><small>♥${a.current} / ♥${a.need}</small></button><span id="auto-tip-${ability}" role="tooltip">${esc(detail)}</span></span>`;
+  return `<span class="automation-tip"><button data-action="automation.toggle" data-ability="${ability}" data-locked="${st.locked}" title="${esc(detail)}" aria-label="${esc(a.name+' '+label+' · '+detail)}" aria-describedby="auto-tip-${ability}" aria-pressed="${st.on}"><b>${esc(a.name)}</b><span>${st.locked?'🔒 ':''}${label}${st.locked?'':st.on?' 켜짐':' 꺼짐'}</span><small>♥${a.current} / ♥${a.need}</small></button><span id="auto-tip-${ability}" role="tooltip">${esc(detail)}</span></span>`;
  }).join('')}</div>`;
 }

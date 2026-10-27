@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.27-preview.1",
-  "name": "연이의 아틀리에 · 카페·사냥 프리뷰",
+  "version": "2026.10.27.2",
+  "name": "연이의 아틀리에 · 카페 모션과 입구 계산대 미리보기",
   "musicTracks": 103,
-  "assetBytes": 14914014,
-  "channel": "preview",
-  "baseCommit": "78210105ba90474e2567a33edb5e1dd8459089d8",
+  "assetBytes": 14865494,
+  "channel": "production",
+  "baseCommit": "f29398994b64c241508f3274947a6f764243cf23",
   "newTitleArt": false
 }

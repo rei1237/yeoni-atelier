@@ -615,3 +615,52 @@ comparison-00~19.jpg를 직접 열어 변경 전후를 비교했다. 마을 4계
 
 ### 프리뷰 원본 가변 프레임 검사
 KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실제 KFP_PLAYER의8개 프레임 경계·중첩·발앵커·빈프레임·전체폭과 검수 원본SHA256을 검사한다. 기존 일반시트의 투명여백/알파조각 검사는 그대로 유지한다.
+
+## 2026-10-27 모션 v2 로컬 통합
+
+공식 연분홍 머리 루나 언니 조리 4×3, 루나·네오 쟁반걷기/내려놓기/닦기 각4×4, 연이 왼쪽계산4×2. 셀128, 발64,122. 등분하지 않고 제공 rect를 사용했다. 연이 왼쪽 시트는 준비됐지만 기존 계산대 재배치는 승인 보류라 현재 방향을 유지한다.
+
+| actors/luna_place_plate | 39216 bytes | 원본 D:/yeoni-qa/art/cafe-ux/motion-v2 |
+| actors/luna_sis_cook | 35952 bytes | 원본 D:/yeoni-qa/art/cafe-ux/motion-v2 |
+| actors/luna_tray_walk | 38812 bytes | 원본 D:/yeoni-qa/art/cafe-ux/motion-v2 |
+| actors/luna_wipe | 41302 bytes | 원본 D:/yeoni-qa/art/cafe-ux/motion-v2 |
+| actors/neo_place_plate | 29140 bytes | 원본 D:/yeoni-qa/art/cafe-ux/motion-v2 |
+| actors/neo_tray_walk | 33446 bytes | 원본 D:/yeoni-qa/art/cafe-ux/motion-v2 |
+| actors/neo_wipe | 38470 bytes | 원본 D:/yeoni-qa/art/cafe-ux/motion-v2 |
+| actors/yeoni_idle_left | 24286 bytes | 원본 D:/yeoni-qa/art/cafe-ux/motion-v2 |
+
+기존20시트는 해상도 유지·q84·알파17단계로 최적화. 원본 백업/hash는 motion-v2/before-runtime-integration, 비교자료는 budget-trial. PSNR 및 실제 배경 합성 비교 후 채택했으며 걷기 반대발 교대와 뒤쪽 닦기 자세에는 원화 한계가 남는다. 고객 전환4종도 별도 행 등록 후 게임에 연결했다.
+
+| actors/luna_place_plate | 512×512 | 완료 | 모션 v2 정규화 |
+
+| actors/luna_tray_walk | 512×512 | 완료 | 모션 v2 정규화 |
+
+| actors/luna_wipe | 512×512 | 완료 | 모션 v2 정규화 |
+
+| actors/neo_place_plate | 512×512 | 완료 | 모션 v2 정규화 |
+
+| actors/neo_tray_walk | 512×512 | 완료 | 모션 v2 정규화 |
+
+| actors/neo_wipe | 512×512 | 완료 | 모션 v2 정규화 |
+
+| actors/yeoni_idle_left | 512×256 | 완료 | 모션 v2 정규화 |
+
+## 고객 전환 모션 v2
+
+| service/original_transition_clothes_mask | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| actors/customer_transition@look0 | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| actors/customer_transition@look4 | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| service/student_transition_clothes_mask | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| actors/customer_transition@look1 | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| actors/customer_transition@look5 | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| service/office_transition_clothes_mask | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| actors/customer_transition@look2 | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| actors/customer_transition@look6 | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| service/elder_transition_clothes_mask | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| actors/customer_transition@look3 | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| actors/customer_transition@look7 | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+
+앉기 4방향×4프레임, 일어서기는 역순, 오른쪽 결제4프레임(현재 왼쪽 결제는 좌우 반전). 옷 마스크는 기존4유형의 색 기준을 재사용한다. 기존 정지 착석과 연결되는 몸 크기/골반 접점은 실제 화면에서 별도로 검수한다. 전환 시트 끝자세의 골반은 셀 y105 부근이므로 기존 정지 시트의 y93과 같은 좌석에 맞추도록 렌더 발 위치를 보간한다.
+
+## 모션 v2 게시 전 여백 보정
+원본 크롭에서 12시트를 다시 정규화했다. 인물별 공통 스케일/발64,122를 유지하고 실제 알파 끝은121로 두어6px 이상 여백을 확보했다. 루나 홀3시트는 모두0.282051배, 네오는0.36배이며 프레임마다 몸을 확대하지 않는다. 조리 마지막 프레임의 몸에서 분리된12px 원본 잔점만 제거했다. 기존 런타임 및 정본 PNG는 D:/yeoni-qa/art/cafe-ux/motion-v2/margin-refinement에 보존한다. 손·쟁반·조리 음식 소켓도 같은 변환을 적용했다. 배포 assets 전체14,865,494B, 등록484개. 원화의 약한 뒤쪽 닦기 숙임/일부 반대발 교대는 그림을 왜곡해 만들지 않고 한계로 남긴다.

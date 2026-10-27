@@ -90,3 +90,15 @@ export function migrateFurniture(state){
 }
 
 for(const def of Object.values(FURNITURE))Object.assign(def,furnitureMetrics(def));
+
+// 계산대 이전은 명시 적용된 지점에만 쓴다. 값이 없는 저장은 기존 배치다.
+const LEGACY_CAFE_LAYOUT=Object.freeze({id:'legacy',spots:SPOTS,fixtures:FIXTURES,reserved:RESERVED,yeoniFacing:'right',customerFacing:'left'});
+const ENTRANCE_QUEUE=Object.freeze([{x:6,y:14},{x:6,y:13},{x:7,y:13},{x:8,y:13},{x:8,y:12},{x:8,y:11},{x:7,y:11},{x:7,y:12}]);
+const ENTRANCE_CAFE_LAYOUT=Object.freeze({id:'entrance',spots:{...SPOTS,yeoniHome:{x:8,y:14},checkout:ENTRANCE_QUEUE[0]},
+ fixtures:FIXTURES.map(f=>f.id==='counter'?{...f,cells:[[7,14],[7,15]]}:f),
+ reserved:[...RESERVED,[8,14],...ENTRANCE_QUEUE.map(p=>[p.x,p.y])],queue:ENTRANCE_QUEUE,yeoniFacing:'left',customerFacing:'right'});
+export function cafeLayout(state,preview=false){
+ const id=preview&&state?.interior?.draft?state.interior.draft.checkoutLayout:state?.interior?.checkoutLayout;
+ return id==='entrance'?ENTRANCE_CAFE_LAYOUT:LEGACY_CAFE_LAYOUT;
+}
+export const cafeSpots=state=>cafeLayout(state).spots;

@@ -7,7 +7,7 @@ import { customerLook } from '../data/customer-looks.js';
 // 카페 화면 그리기(Canvas 2D). 상태를 읽기만 한다. 모든 시각 상태는 실제 게임 상태에서 나온다.
 // 좌표: 상태의 x, y 는 타일 단위(칸 중심 = +0.5). view 가 타일 → 픽셀 변환을 맡는다.
 
-import { GRID, FIXTURES, FURNITURE, SPOTS, RESERVED, AREAS, areaCells } from '../data/layout.js';
+import { GRID, FIXTURES, FURNITURE, SPOTS, RESERVED, AREAS, areaCells, cafeLayout } from '../data/layout.js';
 import { PDF } from '../config/balance.pdf.js';
 import { PEOPLE, STAFF_CREW } from '../data/companions.js';
 import { MENUS } from '../data/menus.js';
@@ -43,10 +43,10 @@ function cellsBox(cells) {
 
 // 이름표는 모든 배우를 그린 뒤 한 번에 놓는다. 겹치면 앞(아래쪽) 이름표를 한 줄씩 아래로 민다.
 function drawNameTags(ctx, tags, size) {
-  const fs = Math.max(9, Math.min(11, Math.round(size * 0.17))), h = fs + 6, placed = [];
-  ctx.font = `600 ${fs}px system-ui, sans-serif`;
+  const fs = Math.max(12, Math.min(14, Math.round(size * 0.2))), h = fs + 10, placed = [];
+  ctx.font = `600 ${fs}px "Yeoni UI", sans-serif`;
   for (const g of tags.sort((a, b) => a.y - b.y)) {
-    const w = ctx.measureText(g.text).width + 10;
+    const w = ctx.measureText(g.text).width + 16;
     let y = g.y;
     for (let moved = true, n = 0; moved && n < 6; n++) {
       moved = false;
@@ -75,6 +75,7 @@ function outfitLook(state, who) {
 
 // opts: { selectedUid, problemUids:Set, t }
 export function drawCafe(ctx, state, v, opts = {}) {
+  const layout=cafeLayout(state,true),{spots:SPOTS,fixtures:FIXTURES,reserved:RESERVED}=layout;
   const T = v.tile, t = opts.t || 0;
   const P = (x, y) => cellToPx(v, x, y);
   ctx.fillStyle = '#eadbc8'; ctx.fillRect(0, 0, v.w, v.h);
@@ -122,6 +123,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   if (editing) {
     ctx.fillStyle = 'rgba(200,80,80,0.10)';
     for (const [x, y] of RESERVED) { const p = P(x, y); ctx.fillRect(p.x, p.y, T, T); }
+    for(const [i,spot]of (layout.queue||[]).entries()){const p=P(spot.x+.5,spot.y+.5);ctx.fillStyle='#6c998955';ctx.beginPath();ctx.arc(p.x,p.y,T*.24,0,Math.PI*2);ctx.fill();ctx.fillStyle='#365b4c';ctx.font=`600 ${Math.max(8,T*.32)}px sans-serif`;ctx.textAlign='center';ctx.fillText(String(i+1),p.x,p.y+T*.1);}
     ctx.strokeStyle = 'rgba(120,90,60,0.25)'; ctx.lineWidth = 1;
     for (let x = 0; x <= v.cols; x++) { const p = P(x, 0); ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y + T * v.rows); ctx.stroke(); }
     for (let y = 0; y <= v.rows; y++) { const p = P(0, y); ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + T * v.cols, p.y); ctx.stroke(); }
@@ -143,6 +145,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   for (const fx of FIXTURES) {
     if (fx.wall) continue;
     const b = cellsBox(fx.cells), p = P(b.x, b.y);
+    if(fx.id==='counter'&&layout.id==='entrance'){drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',P(6.7,13.7).x,P(6.7,13.7).y,T*1.6,T*1.5);continue;}
     if (!drawObjectImage(ctx, 'objects', !luxurious && ASSETS.objects[`basic_${fx.id}`] ? `basic_${fx.id}` : fx.id, p.x-T*.25, p.y, b.w*T+T*.5, T*1.9)) {
       ctx.fillStyle = fx.color;
       roundRect(ctx, p.x + 2, p.y + 2, b.w * T - 4, b.h * T - 4, T * 0.15); ctx.fill();
@@ -155,7 +158,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   const pieces=[];
   // 계산대 앞판은 직원의 다리 앞, 손님의 몸 뒤다. 상판 위 손과 얼굴은 가리지 않는다.
   const cashier=FIXTURES.find(f=>f.id==='counter'),cb=cellsBox(cashier.cells),cp=P(cb.x,cb.y);
-  pieces.push({depth:SPOTS.yeoniHome.y+1,paint:()=>{ctx.save();ctx.beginPath();ctx.rect(cp.x-T*.25,cp.y+T*1.05,cb.w*T+T*.5,T*.85);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',cp.x-T*.25,cp.y,cb.w*T+T*.5,T*1.9);ctx.restore();}});
+  pieces.push({depth:SPOTS.yeoniHome.y+1,paint:()=>{ctx.save();ctx.beginPath();if(layout.id==='entrance'){const p=P(6.7,13.7);ctx.rect(p.x,P(0,14.8).y,T*1.6,T*.4);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',p.x,p.y,T*1.6,T*1.5);}else{ctx.rect(cp.x-T*.25,cp.y+T*1.05,cb.w*T+T*.5,T*.85);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',cp.x-T*.25,cp.y,cb.w*T+T*.5,T*1.9);}ctx.restore();}});
   const tablesByUid = new Map((state.tables || []).map(tb => [tb.uid, tb]));
   for(const f of list){
     const def=FURNITURE[f.defId];if(isFloorDef(def))continue;
@@ -174,17 +177,17 @@ export function drawCafe(ctx, state, v, opts = {}) {
   const actors = [];
   if (state.mode === 'shift') {
     for (const c of Object.values(state.customers)) {
-      const pose=customerPose(state,c);
-      actors.push({key:pose.key,x:c.x,y:c.y,seated:pose.seated,cashierFront:c.state==='checkout'&&c.x>SPOTS.yeoniHome.x&&c.y<SPOTS.checkout.y+1.2,o:{state:pose.state,facing:pose.facing,name:null}});
+      const pose=customerPose(state,c,opts.reducedMotion);
+      actors.push({key:pose.key,x:c.x,y:c.y,seated:pose.seated,seatBlend:pose.seatBlend,cashierFront:layout.id==='legacy'&&c.state==='checkout'&&c.x>SPOTS.yeoniHome.x&&c.y<SPOTS.checkout.y+1.2,o:{state:pose.state,facing:pose.facing,walkDistance:c.walkDistance,animationFrame:pose.animationFrame,flipX:pose.flipX,name:null}});
     }
     for (const s of Object.values(state.staff)) {
       const map = { walk: 'walk', serve: 'serve', clean: 'clean', host: 'host', react: 'react' };
       let st = map[s.action] || 'idle';
       if (s.action === 'cook') st = 'cook'; // 루나 언니가 굽는 중
-      actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, cooking:staffCookingPose(state,s,opts.reducedMotion), gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, ...outfitLook(state, s.id) } });
+      actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, walkDistance:s.walkDistance, servicePose:s.servicePose?{...s.servicePose,progress:Math.max(0,Math.min(1,(state.shift.elapsedMs-s.servicePose.at)/(s.servicePose.until-s.servicePose.at)))}:null, cooking:staffCookingPose(state,s,opts.reducedMotion), gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, ...outfitLook(state, s.id) } });
     }
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
-    actors.push({ key: 'yeoni', x: SPOTS.yeoniHome.x + 0.5, y: SPOTS.yeoniHome.y + 0.5, o: { state: 'idle', facing: 'right', name: '연이', ...outfitLook(state, 'yeoni') } });
+    actors.push({ key: 'yeoni', x: SPOTS.yeoniHome.x + 0.5, y: SPOTS.yeoniHome.y + 0.5, o: { state: 'idle', facing: layout.yeoniFacing, name: '연이', ...outfitLook(state, 'yeoni') } });
     for (const id of STAFF_CREW) {
       const home = id === 'luna' ? SPOTS.lunaHome : SPOTS.sisHome;
       actors.push({ key: id, x: home.x + 0.5, y: home.y + 0.5, o: { state: id==='luna_sis'&&state.foodGifts?.job?'cook':'idle',cooking:id==='luna_sis'?cookingPose(state.foodGifts?.job,MENUS[state.foodGifts?.job?.menuId]?.station,opts.reducedMotion):null, facing: id==='luna_sis'&&state.foodGifts?.job?'up':'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
@@ -194,7 +197,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   }
   actors.sort((a, b) => a.y - b.y);
   const tags = [];
-  for(const a of actors){const p=P(a.x,a.y),foot=p.y+T*(a.seated?.04:.32);pieces.push({depth:a.cashierFront?SPOTS.yeoniHome.y+1.1:a.y+(a.seated?.28:.32),paint:()=>drawActor(ctx,a.key,{...a.o,name:null,x:p.x,y:foot,size:T*(a.seated?2.2:1.8),idleMotion:!a.seated&&!editing&&!state.paused,reducedMotion:opts.reducedMotion,t})});if(a.o.name)tags.push({text:a.o.name,x:p.x,y:foot+4+(a.o.state==='host'?Math.max(20,T*.65):0),color:a.o.tagColor});}
+  for(const a of actors){const p=P(a.x,a.y),blend=a.seatBlend,actorSize=blend==null?(a.seated?2.2:1.8):1.8+.4*blend,foot=p.y+T*(blend==null?(a.seated?.04:.32):.32+(.04+17/128*2.2-.32)*blend);pieces.push({depth:a.cashierFront?SPOTS.yeoniHome.y+1.1:a.y+(a.seated?.28:.32),paint:()=>drawActor(ctx,a.key,{...a.o,name:null,x:p.x,y:foot,size:T*actorSize,idleMotion:!a.seated&&!editing&&!state.paused,reducedMotion:opts.reducedMotion,t})});if(a.o.name)tags.push({text:a.o.name,x:p.x,y:['serve','clean'].includes(a.o.state)?foot-T*1.65-24:foot+4+(a.o.state==='host'?Math.max(20,T*.65):0),color:a.o.tagColor});}
   pieces.sort((a,b)=>a.depth-b.depth);for(const piece of pieces)piece.paint();
   if(state.mode==='shift')drawStations(ctx,state,v);
   drawNameTags(ctx, tags, T * 1.8);

@@ -1,7 +1,7 @@
 // 인테리어 편집: 영업 전·마감 후에만. 초안(draft)에서 이동·회전·보관·배치 → 미리보기 검증 → 적용 / 취소(원상 복구).
 // 초안은 저장하지 않는다. 적용할 때만 실제 배치(state.interior.furniture)가 바뀐다.
 
-import { FURNITURE, GRID } from '../data/layout.js';
+import { FURNITURE, GRID, cafeLayout } from '../data/layout.js';
 import { inBounds, validateLayout } from './space.js';
 
 export function editCheck(state) {
@@ -16,7 +16,7 @@ export function begin(state) {
   const chk = editCheck(state);
   if (!chk.ok) return chk;
   if (state.interior.draft) return { ok: true };
-  state.interior.draft = { furniture: state.interior.furniture.map(f => ({ ...f })), selected: null };
+  state.interior.draft = { furniture: state.interior.furniture.map(f => ({ ...f })), selected: null, checkoutLayout:state.interior.checkoutLayout||'legacy' };
   return { ok: true };
 }
 
@@ -73,7 +73,7 @@ export function place(state, uid, x, y) {
   if (f.x != null) return { ok: false, reason: '이미 배치된 가구입니다' };
   const tryAt = (px, py) => {
     f.x = px; f.y = py;
-    if (validateLayout(state.interior.draft.furniture, state.interior.areas).ok) return true;
+    if (validateLayout(state.interior.draft.furniture, state.interior.areas,cafeLayout(state,true)).ok) return true;
     f.x = null; f.y = null;
     return false;
   };
@@ -84,7 +84,7 @@ export function place(state, uid, x, y) {
 
 export function preview(state) {
   const list = state.interior.draft ? state.interior.draft.furniture : state.interior.furniture;
-  const sig=JSON.stringify([state.interior.areas,list]);let v=previewCache.get(list);if(v?.sig!==sig){v={sig,result:validateLayout(list,state.interior.areas)};previewCache.set(list,v);}return v.result;
+  const sig=JSON.stringify([state.interior.areas,list,cafeLayout(state,true).id]);let v=previewCache.get(list);if(v?.sig!==sig){v={sig,result:validateLayout(list,state.interior.areas,cafeLayout(state,true))};previewCache.set(list,v);}return v.result;
 }
 
 export function cancel(state) {
@@ -98,9 +98,12 @@ export function apply(state) {
   const chk = editCheck(state);
   if (!chk.ok) return chk;
   if(state.interior.draft.itemBefore)return {ok:false,reason:'선택한 가구를 놓거나 이동 취소한 뒤 저장해 주세요'};
-  const v = validateLayout(state.interior.draft.furniture, state.interior.areas);
+  const d=state.interior.draft;
+  if(d.checkoutPreview&&d.baseFingerprint!==layoutFingerprint(state))return {ok:false,reason:'원래 배치가 바뀌었어요. 취소한 뒤 다시 미리보기해 주세요'};
+  const v = validateLayout(d.furniture, state.interior.areas,cafeLayout(state,true));
   if (!v.ok) return { ok: false, reason: v.problems[0].msg, reasons: v.problems.map(p => p.msg) };
   state.interior.furniture = state.interior.draft.furniture.map(f => ({ ...f }));
+  state.interior.checkoutLayout=d.checkoutLayout||'legacy';
   state.interior.draft = null;
   return { ok: true };
 }
@@ -113,7 +116,7 @@ export function pickItem(state,uid){
 export function confirmItem(state){
  const d=state.interior.draft;if(!d?.itemBefore)return {ok:false,reason:'먼저 가구를 선택해 주세요'};
  const f=findDraft(state,d.selected);if(f?.x==null)return {ok:false,reason:'바닥을 눌러 놓을 자리를 선택해 주세요'};
- const v=preview(state);if(!v.ok)return {ok:false,reason:v.problems[0].msg};
+ const v=preview(state),blocking=d.checkoutPreview?v.problems.filter(p=>p.uid===f.uid):v.problems;if(blocking.length)return {ok:false,reason:blocking[0].msg};
  (d.undo??=[]).push({uid:d.selected,before:{...d.itemBefore}});if(d.undo.length>30)d.undo.shift();d.itemBefore=null;return {ok:true};
 }
 export function cancelItem(state){
@@ -122,3 +125,15 @@ export function cancelItem(state){
 }
 
 export function undoItem(state){const d=state.interior.draft;if(!d||d.itemBefore||!d.undo?.length)return {ok:false,reason:'이동을 마친 뒤 확정한 배치를 되돌릴 수 있어요'};const prior=d.undo.pop();Object.assign(findDraft(state,prior.uid),prior.before);d.selected=prior.uid;return {ok:true};}
+
+const layoutFingerprint=state=>JSON.stringify([state.interior.furniture,state.interior.areas,state.interior.checkoutLayout||'legacy']);
+export function previewCheckout(state){
+ const check=editCheck(state);if(!check.ok)return check;
+ if(state.foodGifts?.job)return {ok:false,reason:'진행 중인 선물 조리를 마친 뒤 미리보기해 주세요'};
+ if(state.interior.draft?.checkoutPreview)return {ok:true,duplicate:true};
+ if(state.interior.draft&&(state.interior.draft.itemBefore||JSON.stringify(state.interior.draft.furniture)!==JSON.stringify(state.interior.furniture)))return {ok:false,reason:'현재 꾸미기를 저장하거나 취소한 뒤 계산대 미리보기를 열어 주세요'};
+ if(state.interior.checkoutLayout==='entrance')return {ok:false,reason:'이미 입구 계산대를 사용하고 있어요'};
+ const baseFingerprint=layoutFingerprint(state);begin(state);
+ Object.assign(state.interior.draft,{checkoutLayout:'entrance',checkoutPreview:true,baseFingerprint});
+ return {ok:true};
+}

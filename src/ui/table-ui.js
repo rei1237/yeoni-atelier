@@ -20,6 +20,8 @@ export function tableBadgesHtml(state,v) {
     if(p.x<0||p.x>v.w||p.y<0||p.y>v.h)return '';
     if(dense&&!dirty&&!cleaning&&(!order||c?.state==='entering'))return '';
     if(dense&&placed.some(q=>Math.abs(q.x-p.x)<104&&Math.abs(q.y-p.y)<48))return '';
+    const worker=Object.values(state.staff||{}).find(s=>s.servicePose?.tableNo===t.no);
+    if(worker)p.x+=p.x<v.w/2?Math.max(62,v.tile*1.6):-Math.max(62,v.tile*1.6);
     placed.push(p);
     const text=cleaning?'닦는 중':dirty?(t.cleanQueued?'가는 중':'정리'):c.state==='eating'?'식사 중':c.state==='requesting'?'지명 요청':order?MENUS[order.menuId].short:'메뉴 고르는 중';
     const urgent=visit&&waitingSatisfaction(state,visit)<55;

@@ -64,3 +64,42 @@ body:has(.toast)[data-mode=hunt] .bubbles .hunt-chatter{top:80px}
 .grounds-viewport .ground-cell{min-width:44px;min-height:44px}
 
 @media(max-width:819px){body:not([data-mode=hunt]) #topbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px}body:not([data-mode=hunt]) #topbar>.tb-col{margin-right:auto}body:not([data-mode=hunt]) #topbar>.cafe-scores{order:10;flex:1 0 100%;min-width:0}body:not([data-mode=hunt]) #topbar>.status{flex:0 1 auto;white-space:normal}body:not([data-mode=hunt]) #topbar>.gold{max-width:100%;overflow-wrap:anywhere;white-space:normal}}
+
+/* 승인된 꽃 종이·달빛 금테: 공통 조작과 화면 테두리. */
+:root{--petal-control-shadow:0 2px 6px #59413214;--petal-focus:#805c27;--petal-disabled:#e9e3da;--petal-muted:#6e5c54}
+::selection{background:#e4b6c3;color:#382b35}input,textarea{caret-color:var(--petal-rose)}
+*{scrollbar-color:#baa38a #faf2e5;scrollbar-width:thin}
+button{min-height:44px;min-width:44px;line-height:1.35;border:1px solid var(--petal-line);border-radius:12px;box-shadow:var(--petal-control-shadow);font-weight:600}
+button:not(:disabled):not([aria-disabled=true]):hover{border-color:#aa7b67}
+button.primary{box-shadow:0 3px 8px #62334724,inset 0 1px #e8b7b255}
+button:disabled,button[aria-disabled=true]{opacity:1;background-color:var(--petal-disabled);color:#75685f;border-color:#cbbfb0;box-shadow:none}
+button:focus-visible,summary:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--petal-focus);outline-offset:3px}
+#topbar,.world-header{background-color:var(--petal-paper);border-bottom:1px solid var(--petal-line);box-shadow:0 3px 10px #59413212;color:var(--petal-ink)}
+#panel{border-top:1px solid var(--petal-line);background-color:var(--petal-paper)}
+.cafe-clock{border-left:0;padding-left:2px}.cafe-clock small{color:var(--petal-muted)}
+.cafe-commandbar{background-image:url('assets/illustrated/ui/botanical_divider.webp');background-position:center top;background-size:80px auto;background-repeat:no-repeat}
+.cafe-live-line{color:var(--petal-muted)}
+.cafe-actions button{background:#fffcf5;border-color:#d8bea4;box-shadow:0 2px 5px #59413210}
+.cafe-actions button.selected,.cafe-actions button.primary{background:var(--petal-rose);color:#fff9ef;border-color:#864257}
+.cafe-drawer header,.sheet>header,.editor-head{background-color:#f9efdf;border-bottom:1px solid var(--petal-line);color:var(--petal-deep)}
+.cafe-drawer header b,.sheet h2{font-weight:700;line-height:1.4;word-break:keep-all}
+.cafe-drawer header button,.sheet .close{border-radius:10px;flex-shrink:0}
+.automation-tip button[data-locked=true]{background:#f2ebdf;border:1px dashed #bca78c;color:#65544b;box-shadow:none}
+.automation-tip button[data-locked=true] small{color:#755d45}
+.world-node.locked{opacity:1;background:#f1eadf;color:#68564a;border-style:dashed}
+.world-node.locked small{font-weight:600;color:#755d45}
+.hunter-select .hunter-locked{opacity:1;border:1px dashed #b8a28c;background:#f1eadf;color:#68564a}
+.hunter-select .hunter-locked canvas{filter:brightness(0);opacity:.72}
+.nv-name{display:inline-block;max-width:100%;padding:5px 14px;background:#fff6e8;color:#6e3d54;border:1px solid #bea17c;border-radius:12px 12px 12px 3px;font-size:14px;line-height:1.4;word-break:keep-all;box-shadow:0 2px 6px #21152a20}
+.nv-tools button{border-radius:12px;border-color:#b59a75}.sheet,.dialog{overscroll-behavior:contain}
+@media(prefers-reduced-motion:reduce){button{transition:none}}
+
+/* 카페 알림은 헤더 수치와 조작을 가리지 않는 무대 여백에 둔다. */
+body[data-cafe-focus=true]:not(:has(#sheet-wrap:not([hidden]))) .toasts{top:72px;left:12px;right:auto;width:min(360px,calc(100vw - 140px));align-items:stretch;pointer-events:none}
+body[data-cafe-focus=true]:not(:has(#sheet-wrap:not([hidden]))) .toast{width:100%;max-width:100%;box-sizing:border-box;font-size:12px;padding:8px;line-height:1.45}
+body[data-cafe-focus=true] .toast .pixel-icon{width:32px!important;height:40px!important;flex-shrink:0}
+.music-tracks button[aria-pressed=true]{border-left:1px solid #ddb576}
+.workshop-dialogue{border-left:1px solid #be9567}
+
+.checkout-preview-info{font-size:12px;line-height:1.5;border:1px solid var(--petal-line);border-radius:10px;padding:6px 10px;max-height:180px;overflow:auto;flex:none}.checkout-preview-info summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:700}.checkout-preview-info p{margin:4px 0}.checkout-preview-info ul{padding-left:14px}.checkout-preview-info button{width:100%;text-align:left;white-space:normal;font-size:12px}.checkout-preview-info li+li{margin-top:6px}
+@media(max-width:899px){.checkout-preview-info{max-height:140px}.furniture-editor:has(.checkout-preview-info) .editor-library{overflow:auto;min-height:0}.furniture-editor:has(.checkout-preview-info) .furniture-catalog{flex:none}.furniture-editor:has(.checkout-preview-info) .editor-selection{padding-block:4px}.furniture-editor:has(.checkout-preview-info) .editor-selection>p{margin:3px 0}}

@@ -50,6 +50,7 @@ function route(state, cmd) {
 }
 function execute(state, cmd) {
   const t = cmd?.type;
+  if(state.interior.draft?.checkoutPreview&&!t?.startsWith('interior.'))return {ok:false,reason:'계산대 미리보기를 적용하거나 취소한 뒤 이용해 주세요'};
   if(state.foodGifts?.job&&['shift.start','hunt.start','branch.switch'].includes(t))return {ok:false,reason:'루나 언니의 선물 조리를 마치거나 취소해 주세요'};
   if (state.paused && !ALLOWED_WHILE_PAUSED.has(t) && !(t==='hunt.finish' && state.mode==='hunt' && state.hunt && state.hunt.status!=='running')) return { ok: false, reason: '일시정지 중입니다 — 계속하기를 눌러 주세요' };
   if (SHIFT_ONLY.has(t) && state.mode !== 'shift') return { ok: false, reason: '정규 영업 중에만 할 수 있습니다' };
@@ -120,6 +121,7 @@ function execute(state, cmd) {
     case 'interior.pick': return interior.pickItem(state,cmd.uid);
     case 'interior.confirmItem': return interior.confirmItem(state);
     case 'interior.cancelItem': return interior.cancelItem(state);
+    case 'interior.checkoutPreview': return interior.previewCheckout(state);
     case 'interior.begin': return interior.begin(state);
     case 'interior.select': return interior.select(state, cmd.uid);
     case 'interior.move': return interior.move(state, cmd.uid, cmd.x, cmd.y);

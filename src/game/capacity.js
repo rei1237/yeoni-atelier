@@ -1,4 +1,4 @@
-import {GRID,FURNITURE} from '../data/layout.js';
+import {GRID,FURNITURE,cafeLayout} from '../data/layout.js';
 import {lockedSet,buildGrid,tableGeometry} from './space.js';
 import {usableHosts} from './state.js';
 const capacities=new Map(),seatCache=new WeakMap();
@@ -7,8 +7,8 @@ export function cafeCapacity(state){
  const areas=state.interior.areas||[],key=[...areas].sort().join(',');let value=capacities.get(key);
  if(!value){const tiles=GRID.cols*GRID.rows-lockedSet(areas).size,extra=Math.max(0,tiles-135);
   value=Object.freeze({tiles,tableLimit:Math.min(60,24+Math.floor(extra/20)),hostSlots:Math.min(16,1+Math.floor(extra/48)),stationSlots:Math.min(6,1+Math.floor(extra/120)),traySlots:Math.min(12,3+Math.floor(extra/80)),takeawayLimit:Math.min(6,2+Math.floor(extra/160))});capacities.set(key,value);}
- const list=state.interior.furniture,sig=key+'|'+list.map(f=>[f.uid,f.defId,f.x,f.y,f.rot].join(':')).join(';');let found=seatCache.get(list);
- if(found?.sig!==sig){const grid=buildGrid(list,areas);found={sig,seats:list.filter(f=>FURNITURE[f.defId]?.table&&f.x!=null).filter(f=>{const g=tableGeometry(grid,f);return g.chair&&g.service;}).length};seatCache.set(list,found);}
+ const list=state.interior.furniture,sig=key+'|'+cafeLayout(state).id+'|'+list.map(f=>[f.uid,f.defId,f.x,f.y,f.rot].join(':')).join(';');let found=seatCache.get(list);
+ if(found?.sig!==sig){const grid=buildGrid(list,areas,cafeLayout(state));found={sig,seats:list.filter(f=>FURNITURE[f.defId]?.table&&f.x!=null).filter(f=>{const g=tableGeometry(grid,f);return g.chair&&g.service;}).length};seatCache.set(list,found);}
  const seats=found.seats;
  return {...value,seats,guestLimit:seats+value.takeawayLimit,staffSlots:value.hostSlots+3};
 }

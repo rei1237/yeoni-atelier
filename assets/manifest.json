@@ -464,6 +464,25 @@
     "objects/grand_table",
     "objects/grand_planter",
     "objects/long_cabinet",
-    "ui/kfp_player"
+    "ui/kfp_player",
+    "actors/luna_place_plate",
+    "actors/luna_tray_walk",
+    "actors/luna_wipe",
+    "actors/neo_place_plate",
+    "actors/neo_tray_walk",
+    "actors/neo_wipe",
+    "actors/yeoni_idle_left",
+    "service/original_transition_clothes_mask",
+    "actors/customer_transition@look0",
+    "actors/customer_transition@look4",
+    "service/student_transition_clothes_mask",
+    "actors/customer_transition@look1",
+    "actors/customer_transition@look5",
+    "service/office_transition_clothes_mask",
+    "actors/customer_transition@look2",
+    "actors/customer_transition@look6",
+    "service/elder_transition_clothes_mask",
+    "actors/customer_transition@look3",
+    "actors/customer_transition@look7"
   ]
 }

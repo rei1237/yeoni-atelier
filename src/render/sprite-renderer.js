@@ -1,3 +1,4 @@
+import {staffMotion} from './staff-motion.js';
 import {cookingSockets} from './cooking-pose.js';
 // 캐릭터 그리기: 스프라이트 시트가 있으면 프레임을, 없으면 도형 대체를 그린다.
 // 같은 입력(상태·방향·시간)을 받으므로 시트를 넣어도 호출하는 쪽은 바뀌지 않는다.
@@ -15,7 +16,15 @@ export function cafeIdlePose(key, o) {
 }
 
 export function drawActor(ctx, key, o) {
-  if(key==='luna_sis'&&o.cooking&&o.facing==='up'&&imageFor('actors/luna_sis_cook')){key='luna_sis_cook';const frame=o.cooking.phase==='plate'?2+o.cooking.frame%2:o.cooking.frame;o={...o,cooking:{...o.cooking,frame},state:o.cooking.phase,animationFrame:frame,idleMotion:false,outfitId:null};}
+  // 이동 중 다음 자세를 미리 읽어 착석 순간 도형 대체를 피한다.
+  if(key.startsWith('customer@look')){const look=key.split('@')[1];imageFor('customer_transition@'+look);imageFor('customer_seated@'+look);}
+  if(['luna','neo'].includes(key))for(const motion of ['tray_walk','place_plate','wipe'])imageFor(key+'_'+motion);
+  // 발 교대는 벽시계가 아니라 실제 이동량을 따른다. 멈추거나 배속해도 미끄러지지 않는다.
+  if(o.state==='walk'&&Number.isFinite(o.walkDistance))o={...o,animationFrame:o.reducedMotion?0:Math.floor(o.walkDistance*4)%4};
+  const work=staffMotion(key,o);
+  if(work&&imageFor(work.key)){key=work.key;o={...o,animationFrame:work.frame,idleMotion:false,outfitId:null};}
+  if(key==='yeoni'&&o.facing==='left'&&imageFor('yeoni_idle_left')){key='yeoni_idle_left';o={...o,state:o.gesture?.kind||'idle',animationFrame:o.reducedMotion?0:o.gesture?Math.min(3,Math.floor(o.gesture.age/260)):0,idleMotion:false,outfitId:null};}
+  if(key==='luna_sis'&&o.cooking&&o.facing==='up'&&imageFor('actors/luna_sis_cook')){key='luna_sis_cook';const frame=o.cooking.frame;o={...o,cooking:{...o.cooking,frame},state:o.cooking.phase,animationFrame:frame,idleMotion:false,outfitId:null};}
   if(key==='yeoni'&&o.facing==='right'&&!o.carry&&!o.cleaning&&(['idle','react'].includes(o.state||'idle')||o.gesture)&&imageFor('actors/yeoni_idle_right')){key='yeoni_idle_right';o={...o,state:o.gesture?.kind||'idle',animationFrame:o.reducedMotion?0:o.gesture?Math.min(3,Math.floor(o.gesture.age/260)):undefined,idleMotion:false,outfitId:null};}
   const gesture=key==='yeoni'&&o.gesture;
   if(gesture && o.facing==='down' && imageFor('yeoni_idle')){key='yeoni_idle';o={...o,state:gesture.kind,facing:'down',animationFrame:Math.min(3,Math.floor(gesture.age/260)),idleMotion:false,outfitId:null};}
@@ -42,11 +51,11 @@ export function drawActor(ctx, key, o) {
 
 function drawFromSheet(ctx, def, img, st, o) {
   const s = def.states[st];
-  const row = def.stateRows[st] + Math.max(0, def.directions.indexOf(o.facing || 'down')) * def.directionRows;
+  const row = def.stateRows[st] + (s.directional===false?0:Math.max(0, def.directions.indexOf(o.facing || 'down'))) * def.directionRows;
   const frame = (s.frameOffset || 0) + (o.animationFrame==null?Math.floor((o.t / 1000) * s.fps) % s.frames:Math.max(0,Math.min(s.frames-1,o.animationFrame)));
   // 고해상도 원본을 실제 화면 크기에 맞춰 축소한다.
   const scale = o.size / def.frame.h;
-  const sock = o.carry || o.cleaning ? actorSocket(o.actorKey || '', o.facing || 'down') : null;
+  const sock = !def.embeddedWorkProp && (o.carry || o.cleaning || o.servicePose?.kind==='serve') ? actorSocket(o.actorKey || '', o.facing || 'down') : null;
   if (sock?.layer === 'back' && !o.cleaning) drawWorkProps(ctx, o, sock, scale, frame);
   drawCookingProps(ctx,def,o,scale,'back');
   const prev = ctx.imageSmoothingEnabled;
@@ -59,6 +68,8 @@ function drawFromSheet(ctx, def, img, st, o) {
   if(o.flipX)ctx.restore();
   ctx.imageSmoothingEnabled = prev;
   drawCookingProps(ctx,def,o,scale,'front');
+  const tray=def.traySockets?.[o.facing];
+  if(tray&&o.carry?.menuId&&!o.cleaning){drawFood(ctx,o.carry.menuId,o.x+(tray[0]-def.anchor.x)*scale,o.y+(tray[1]-def.anchor.y)*scale,18*scale);}
   if (sock && (sock.layer !== 'back' || o.cleaning)) drawWorkProps(ctx, o, sock, scale, frame);
   if (o.name) nameTag(ctx, o.name, o.x, o.y + 4 + (o.nameOffsetY || 0), o.size, o.tagColor);
 }
@@ -82,10 +93,12 @@ function drawWorkProps(ctx, o, sock, scale, frame) {
   const hs = def.handSockets || [], [ax, ay] = def.anchor, span = hs.length > 1 ? hs[1][0] - hs[0][0] : 172;
   const k = sock.w * scale / span * (o.cleaning ? .8 : 1);
   const sx = o.flipX ? 128 - sock.x : sock.x;
+  const reach=o.servicePose?.kind==='serve'?Math.sin(Math.PI*(o.servicePose.progress||0))*(o.reducedMotion?0:8)*scale:0;
+  const direction={left:[-1,0],right:[1,0],up:[0,-1],down:[0,1]}[o.facing||'down'];
   const bob = o.state === 'walk' && !o.reducedMotion ? -(frame % 2) * scale : 0;
   const wipe = o.cleaning && !o.reducedMotion ? Math.sin(o.t / 140) * sock.w * .22 * scale : 0;
   ctx.save();
-  ctx.translate(o.x + (sx - 64) * scale + wipe, o.y + (sock.y - 122) * scale + bob + (o.cleaning&&!o.reducedMotion?Math.cos(o.t/140)*sock.w*.10*scale:0));
+  ctx.translate(o.x + (sx - 64) * scale + wipe + direction[0]*reach, o.y + (sock.y - 122) * scale + bob + direction[1]*reach + (o.cleaning&&!o.reducedMotion?Math.cos(o.t/140)*sock.w*.10*scale:0));
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(prop, -ax * k, -ay * k, def.dimensions[0] * k, def.dimensions[1] * k);
   if (o.carry?.menuId && !o.cleaning) drawFood(ctx, o.carry.menuId, (def.itemSocket[0] - ax) * k, (def.itemSocket[1] - ay) * k, 104 * k);
@@ -110,16 +123,16 @@ function roundRect(ctx, x, y, w, h, r) {
 }
 
 export function nameTag(ctx, text, x, y, size, color = '#3b2f2f') {
-  const fs = Math.max(9, Math.min(11, Math.round(size * 0.17)));
-  ctx.font = `600 ${fs}px system-ui, sans-serif`;
-  const w = ctx.measureText(text).width + 8;
-  ctx.fillStyle = 'rgba(255,255,255,0.88)';
-  roundRect(ctx, x - w / 2, y, w, fs + 4, 4);
-  ctx.fill();
+  const fs = Math.max(12, Math.min(14, Math.round(size * 0.2)));
+  ctx.font = `600 ${fs}px "Yeoni UI", sans-serif`;
+  const w = ctx.measureText(text).width + 16;
+  ctx.fillStyle = '#fff9eef2'; ctx.strokeStyle='#b6a181'; ctx.lineWidth=1;
+  roundRect(ctx, x - w / 2, y, w, fs + 8, 6);
+  ctx.fill(); ctx.stroke();
   ctx.fillStyle = color;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.fillText(text, x, y + 2);
+  ctx.fillText(text, x, y + 4);
 }
 
 // o: { x, y(발 위치), size(키 px), state, facing, t(ms), name, body?, accents?[], carry?{color}, hue? }
