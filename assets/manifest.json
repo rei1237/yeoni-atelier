@@ -463,6 +463,7 @@
     "actors/customer_seated",
     "objects/grand_table",
     "objects/grand_planter",
-    "objects/long_cabinet"
+    "objects/long_cabinet",
+    "ui/kfp_player"
   ]
 }

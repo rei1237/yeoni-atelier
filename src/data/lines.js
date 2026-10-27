@@ -51,7 +51,7 @@ export const GAG_KITCHEN = Object.freeze([
 // 모카 식재료점
 export const GAG_MOKA_BUY = Object.freeze([
   { who: '모카', text: '원두 고르는 눈은 별 셋. 아직 멀었어.' },
-  { who: '모카', text: '밀가루 한 포대 30G. 맛없으면? 그건 네 손 탓.' },
+  { who: '모카', text: '밀가루는 여기. 가격표보다 반죽 상태도 좀 봐.' },
   { who: '모카', text: '수달한테 궁합 보지 마. 재료 궁합만 봐.' },
   { who: '모카', text: '현금 박치기 좋아. 이 손님 별 넷.' },
 ]);
@@ -67,10 +67,10 @@ export const GAG_LUNA_EXCHANGE = Object.freeze([
   [{ who: '연이', text: '환율 확인, 개수 확인. 이번엔 내가 장부를 봐!' }],
 ]);
 
-// 모카의 무기 공방
+// 윤달의 무기 공방
 export const GAG_GEAR_STALL = Object.freeze([
-  { who: '모카', text: '손에 맞는지부터 봐. 가격표만 보면 별 하나야.' },
-  { who: '모카', text: '장비는 챙겼고, 돌아올 체력도 남겨 놔.' },
+  { who: '윤달', text: '손에 맞는지부터 봐. 쥐기 불편하면 다시 다듬어 줄게.' },
+  { who: '윤달', text: '장비는 준비됐어. 돌아올 힘도 남겨 두고 가.' },
   { who: '영냥이', text: '…잔소리까지 묶음 상품인가.' },
 ]);
 

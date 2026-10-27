@@ -1,3 +1,6 @@
+import {trailButton} from './trail-ui.js';
+import {kfpKit} from './kfp-ui.js';
+import {hunterName} from '../game/hunt-cast.js';
 import {huntSuppliesHtml} from './hunt-supplies.js';
 import {editorPanel} from './editor-panel.js';
 import {runningJobs,queuedJobs,stationJobs,stationItems,activeSlotNames,heldKey} from '../game/station-slots.js';
@@ -22,7 +25,7 @@ import { RULES } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
 import { MENUS, INGREDIENTS } from '../data/menus.js';
 import { GEAR } from '../data/gear.js';
-import { FURNITURE } from '../data/layout.js';
+import { FURNITURE, SPOTS, FIXTURES } from '../data/layout.js';
 import { HELP_KINDS } from '../data/lines.js';
 import { fmtTime, personName, remainingShift, usableHosts, shiftDuration, lastAcceptAt } from '../game/state.js';
 import { STATION_NAMES, findServeTarget, openOrdersOfVisit, staffStatusText } from '../game/cafe.js';
@@ -49,6 +52,7 @@ function scoreChip(kind,value){
 export function topbarHtml(state, ui) {
   const dev = ui.dev ? '<span class="tag dev">DEV</span>' : '';
   if (!state) return `<div class="tb-col"><span class="clock">연이의 아틀리에</span></div>${dev}`;
+  if(['prep','shift'].includes(state.mode)&&!state.interior.draft)return cafeTopbar(state,ui);
   const stress = state.hostbar.open ? `<span class="stress-chip ${stressStage(state)}" aria-label="네오 스트레스 ${Math.round(stressOf(state))}/100">${assetIcon(`ui/stress-${stressStage(state)}`)}네오 · ${stressLabel(state)}<meter min="0" max="100" value="${stressOf(state)}">${Math.round(stressOf(state))}</meter></span>` : '';
   const cp=cafeProgress(state);
   const gold = `<div class="cafe-scores"><span class="level-badge" aria-label="카페 레벨 ${cp.level}"><b>Lv.${cp.level}</b><progress max="${cp.next}" value="${cp.xp}" aria-label="다음 카페 레벨 경험치">${cp.xp}/${cp.next}</progress></span>${scoreChip('reputation',popularity(state))}${scoreChip('atmosphere',atmosphere(state))}</div><span class="gold" aria-label="골드">🪙 <span data-count-to="${Math.floor(state.gold)}" data-count-suffix="G">${won(state.gold)}</span></span>`;
@@ -104,11 +108,38 @@ function calendarStrip(state) {
 // ── 하단 패널
 export function panelHtml(state, ui) {
   if (!state) return '';
-  if (state.mode === 'shift') return shiftPanel(state, ui);
+  if (state.mode === 'shift'||state.mode==='prep'&&!state.interior.draft) return cafePanel(state, ui);
   if (state.mode === 'hunt') return huntPanel(state);
   if (state.mode === 'settlement') return `<div class="prep">${btn({ action: 'overlay.settlement', label: '📒 결산 보기', cls: 'primary big' })}</div>`;
   if (state.interior.draft) return editorPanel(state,ui);
   return prepPanel(state);
+}
+
+// 영업 정보는 요청할 때만 펼친다. 카페 크기는 주문 수와 무관하다.
+function cafeTopbar(state,ui){
+ const shift=state.mode==='shift', cp=cafeProgress(state);
+ return `<div class="cafe-clock"><b>${shift?fmtTime(remainingShift(state)):esc(shortDate(state))}</b><small>${shift?(state.paused?'잠시 쉬는 중':'카페 영업 중'):activeBranch(state)+'호점 · 영업 준비'}</small></div><span class="cafe-gold" aria-label="보유 골드">${won(state.gold)}</span>${btn({action:'cafe.drawer',args:{tab:'crew'},label:'Lv.'+cp.level,title:state.hostbar.open?'카페 성장 · 네오 스트레스 '+Math.round(stressOf(state))+'/100':'카페 성장과 직원'})}${btn({action:'play.cycle',label:(ui.playSpeed||1)+'배',title:'영업 속도'})}${shift?btn({action:'pause',label:state.paused?'계속':'멈춤',title:state.paused?'영업 계속하기':'영업 잠시 멈추기'}):btn({action:'interior.begin',label:'꾸미기',title:'카페 가구 배치'})}`;
+}
+function hostServiceControls(state){
+ const chk=feverCheck(state),active=state.fever.activeUntil!=null;
+ return `<p>네오 · ${esc(stressLabel(state))} · 스트레스 ${Math.round(stressOf(state))}/100</p>${btn({action:'fever.activate',disabled:!chk.ok,title:chk.reason||'20초 동안 대상 팁 2배',label:active?'피버 진행 중':`피버 ${state.fever.gauge}/100`})}`;
+}
+function cafePanel(state,ui){
+ const shift=state.mode==='shift', selected=ui.cafeDrawer||'', ready=state.tray.filter(it=>it&&!it.reservedFor).length;
+ const pending=Object.values(state.orders).filter(o=>['waiting','assigned'].includes(o.status)).length;
+ const count=Object.keys(state.customers).length,capacity=cafeCapacity(state),sc=startCheck(state);
+ const tabs=shift?[['orders',`주문 ${pending}`],['kitchen',`픽업 ${ready}`],['crew','직원'],['menu','수첩']]:[['prepare','영업 준비'],['kitchen','주방'],['crew','직원'],['menu','수첩']];
+ const slots=state.tray.map((it,i)=>it?btn({action:'tray.tap',args:{i},cls:'cafe-ready-dish',disabled:!!it.reservedFor,label:assetIcon('icons/'+it.menuId)+esc(MENUS[it.menuId].short)+' · '+qualityOf(it.quality).label+' · '+(it.reservedFor?'운반 중':'전달하기')}):'').join('');
+ const queue=Object.values(state.customers).filter(c=>c.state==='checkout');
+ const panels={
+  orders:customerOrders(state),
+  kitchen:shift?`${stationDock(state)}<h3>픽업 선반</h3>${slots||'<p>루나 언니가 완성한 메뉴가 여기에 놓여요.</p>'}${btn({action:'sheet.open',args:{sheet:'kitchen'},label:'레시피 · 재료 보기'})}`:btn({action:'sheet.open',args:{sheet:'kitchen'},label:'레시피 · 재료 보기'}),
+  crew:`${state.hostbar.open?hostServiceControls(state):''}<div class="cafe-scores">${scoreChip('reputation',popularity(state))}${scoreChip('atmosphere',atmosphere(state))}</div>${automationChips(state)}${btn({action:'sheet.open',args:{sheet:'companions'},label:'동료와 이야기'})}${btn({action:'sheet.open',args:{sheet:'staffing'},label:'직원 배치'})}`,
+  counter:`<p>연이가 한 분씩 계산해 드려요.</p>${queue.length?queue.map((c,i)=>`<p>${i+1}번째 · ${esc(c.label)} · ${won(state.visits[c.visitId]?.bill||0)}${c.payAt?' · 계산 중':' · 기다리는 중'}</p>`).join(''):'<p>아직 계산을 기다리는 손님은 없어요.</p>'}`,
+  prepare:`<p>의자 ${capacity.seats}석 · 루나는 홀, 루나 언니는 주방을 맡아요.</p>${btn({action:'interior.begin',label:'가구 구매 · 배치'})}${btn({action:'sheet.open',args:{sheet:'shop'},label:'모카에게 재료 사기'})}${btn({action:'sheet.open',args:{sheet:'grounds'},label:'정원 · 외관 꾸미기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}`,
+  menu:navRow([['town','월드맵'],['shop','재료'],['companions','동료'],['manage','수첩']]),
+ };
+ return `<div class="cafe-commandbar"><p class="cafe-live-line" role="status">${shift?(ready?`완성 ${ready}개 · 픽업 선반에서 전해 주세요`:`손님 ${count}명 · 테이블을 눌러 주문을 받아요`):'오늘은 어떤 손님이 찾아올까요?'}</p><nav class="cafe-actions" aria-label="카페 조작">${!shift?btn({action:'shift.start',cls:'primary cafe-open',disabled:!sc.ok,title:sc.ok?'10분 영업 시작':sc.reasons.join(' · '),label:'문 열기'}):''}${tabs.map(([tab,label])=>btn({action:'cafe.drawer',args:{tab},cls:selected===tab?'selected':'',label})).join('')}</nav></div><section class="cafe-drawer" ${selected?'':'hidden'} aria-label="카페 상세 조작"><header><b>${({orders:'손님 주문',kitchen:'주방 · 픽업',crew:'카페와 동료',counter:'연이의 계산대',prepare:'영업 준비',menu:'수첩'})[selected]||''}</b>${btn({action:'cafe.drawer.close',label:'닫기'})}</header><div class="cafe-drawer-body">${Object.entries(panels).map(([id,content])=>`<div data-cafe-tab="${id}" ${selected===id?'':'hidden'}>${content}</div>`).join('')}</div></section>`;
 }
 
 function navRow(items) {
@@ -163,7 +194,7 @@ function prepPanel(state) {
 
 // 이번 단계 목표: 준비 시간 → 보스 등장 → 보스 처치 = 클리어
 function huntGoal(h,state){const w=getHuntWorld(state),boss=w&&findBoss(w)>=0;if(boss||h.bossSpawned)return '<b class="hunt-goal boss">보스 처치 = 클리어</b>';const left=Math.max(0,stageDef(h.depth).prepMs-(h.stageMs||0));return `<span class="hunt-goal">보스까지 ${fmtTime(left)}</span>`;}
-function huntPanel(state){const h=state.hunt;return `<div class="hunt-dock"><div class="row"><b class="grow">${h.hunterId==='seohanbi'?'서한비':'영냥이'} · 성장 Lv.${h.careerLevel} · ${h.depth}/100단계</b>${huntGoal(h,state)}<span>처치 ${h.kills}</span>${btn({action:h.status==='running'?'hunt.retreat':'overlay.hunt',label:h.status==='running'?'귀환':'결과'})}</div><div class="hunt-kit">${h.weapons.map(w=>`<span class="hunt-skill" title="${esc(WEAPONS[w.id].name)}">${assetIcon(`skills/${w.id}`)}<small>${esc(WEAPONS[w.id].name)} ${w.evo?'★':'Lv.'+w.level}</small></span>`).join('')}${Object.entries(h.passives).map(([id,lv])=>`<span class="hunt-skill" title="${esc(PASSIVES[id].name)}">${assetIcon(`skills/${id}`)}<small>${esc(PASSIVES[id].name)} Lv.${lv}</small></span>`).join('')}</div>${huntSuppliesHtml(state)}<small>드래그로 이동 · 가까운 적 자동 공격 · 붉은 예고 밖으로 피하세요</small></div>`;}
+function huntPanel(state){const h=state.hunt;return `<div class="hunt-dock"><div class="row"><b class="grow">${hunterName(h.hunterId)} · 성장 Lv.${h.careerLevel} · ${h.depth}/100단계</b>${huntGoal(h,state)}<span>처치 ${h.kills}</span>${btn({action:h.status==='running'?'hunt.retreat':'overlay.hunt',label:h.status==='running'?'귀환':'결과'})}</div><div class="hunt-kit">${h.hunterId==='yeoni_pig'?kfpKit(h)+(h.kfp?.legacy?h.weapons.map(w=>`<span class="hunt-skill" title="이전 저장에서 이어받은 기술"><small>${esc(WEAPONS[w.id].name)} Lv.${w.level}</small></span>`).join(''):''):h.weapons.map(w=>`<span class="hunt-skill" title="${esc(WEAPONS[w.id].name)}">${assetIcon(`skills/${w.id}`)}<small>${esc(WEAPONS[w.id].name)} ${w.evo?'★':'Lv.'+w.level}</small></span>`).join('')}${Object.entries(h.passives).map(([id,lv])=>`<span class="hunt-skill" title="${esc(PASSIVES[id].name)}">${assetIcon(`skills/${id}`)}<small>${esc(PASSIVES[id].name)} Lv.${lv}</small></span>`).join('')}</div>${h.hunterId==='yeoni_pig'?btn({action:'hunt.petal',cls:'hunt-petal',disabled:(h.petal?.charge||0)<100,label:`꽃잎포 ${h.petal?.charge||0}/100`,title:'적 처치로 충전 · 꽃잎포 자체 처치는 충전하지 않아요'}):''}${huntSuppliesHtml(state)}<small>${trailButton(h)}${h.hunterId==='yeoni_pig'?btn({action:'sheet.open',args:{sheet:'kfp'},label:'무기 조합 · 진화 조건',cls:'kfp-open'}):''}드래그로 이동 · 가까운 적 자동 공격</small></div>`;}
 
 // ── 무대 위 DOM 층. 동료 수다는 하단 패널 높이를 먹지 않도록 무대 왼쪽 아래에 띄운다(주문 카드가 밀려 잘리지 않게).
 export function bubblesHtml(ui){return chatterRibbon(ui);}
@@ -208,7 +239,8 @@ export function hitsHtml(state, v, ui) {
   const size = Math.max(44, Math.round(v.tile * 1.3));
   const sel = ui.selectedSlot != null ? state.tray[ui.selectedSlot] : null;
   const target = sel && !sel.reservedFor ? findServeTarget(state, sel) : null;
-  return state.tables.map(t => {
+  const fixtures=FIXTURES.filter(f=>!f.wall).map(f=>{const x=f.cells[0][0],p=cellToPx(v,x+1,1);return `<button class="hit fixture-hit" data-key="fixture-${f.id}" data-action="cafe.drawer" data-tab="${f.id==='counter'?'counter':'kitchen'}" aria-label="${f.name} 누르기" style="left:${p.x-30}px;top:${p.y-36}px;width:60px;height:44px"></button>`;}).join('');
+  return fixtures+state.tables.map(t => {
     const p = cellToPx(v, t.table.x + 0.5, t.table.y + 0.5);
     const cls = target === t.no ? 'hit target' : 'hit';
     return `<button type="button" class="${cls}" data-key="h${t.no}" data-action="table.tap" data-no="${t.no}" aria-label="${t.no}번 테이블" style="left:${Math.round(p.x - size / 2)}px;top:${Math.round(p.y - size / 2)}px;width:${size}px;height:${size}px"></button>`;

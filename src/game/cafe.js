@@ -535,7 +535,7 @@ export function customerLeave(state, c, reason) {
   visit.leaveReason = reason;
   state.cafeGesture={kind:'bow',at:state.shift.elapsedMs};
   c.state = visit.bill>0 && !visit.paid ? 'checkout' : 'leaving';
-  c.action = 'walk';c.payAt=null;
+  c.action = 'walk';c.payAt=null;c.checkoutJoinedAt=state.shift.elapsedMs;
   setPath(state,c,c.state==='checkout'?nearestWalkable(getGrid(state),SPOTS.checkout):SPOTS.entrance);
   emit('leave', { tableNo: c.tableNo, reason });
 }
@@ -579,8 +579,20 @@ export function spawnCustomer(state, spec) {
   return c;
 }
 
+// 계산은 도착 순서대로 한 명씩. 줄의 위치만 바꾸고 손님을 순간 이동시키지 않는다.
+export function checkoutQueue(state){
+ return Object.values(state.customers).filter(c=>c.state==='checkout').sort((a,b)=>(a.checkoutJoinedAt??0)-(b.checkoutJoinedAt??0)||a.id.localeCompare(b.id,undefined,{numeric:true}));
+}
+function arrangeCheckout(state){
+ const queue=checkoutQueue(state),grid=getGrid(state),route=findPath(grid,SPOTS.checkout,SPOTS.entrance)||[];
+ const slots=[SPOTS.checkout,...route.filter((_,i)=>i%2===1).map(([x,y])=>({x,y}))];
+ queue.forEach((c,i)=>{const goal=slots[Math.min(i,slots.length-1)];
+  if(c.checkoutTarget?.x!==goal.x||c.checkoutTarget?.y!==goal.y){c.checkoutTarget={...goal};setPath(state,c,goal);c.payAt=null;}
+ });
+ return queue[0]?.id;
+}
 export function stepCustomers(state, dt, hooks) {
-  const now = state.shift.elapsedMs;
+  const now = state.shift.elapsedMs, payingId=arrangeCheckout(state);
   for (const c of Object.values(state.customers)) {
     const arrived = moveAlong(c, dt, TEMP.CUSTOMER_TILES_PER_S);
     const visit = state.visits[c.visitId];
@@ -625,7 +637,14 @@ export function stepCustomers(state, dt, hooks) {
         hooks.onRequesting(state, c, visit, now);
         break;
       case 'checkout':
-        if(arrived||!c.path.length){c.action='idle';c.facing='left';c.payAt??=now+650;if(now>=c.payAt){checkout(state,visit);c.state='leaving';c.action='walk';setPath(state,c,SPOTS.entrance);}}
+        if(arrived||!c.path.length){
+          c.action='idle';c.facing='left';
+          if(c.id!==payingId)break;
+          const atCounter=Math.hypot(c.x-SPOTS.checkout.x-.5,c.y-SPOTS.checkout.y-.5)<.08;
+          if(!atCounter)break;
+          if(c.payAt==null){c.payAt=now+1040;state.cafeGesture={kind:'cashier',at:now,customerId:c.id};}
+          if(now>=c.payAt){checkout(state,visit);c.state='leaving';c.action='walk';setPath(state,c,SPOTS.entrance);}
+        }
         break;
       case 'leaving':
         if (arrived || !c.path.length) delete state.customers[c.id];
@@ -643,7 +662,7 @@ export function checkout(state,visit){
  if(state.ledger.checkouts[visit.id]!=null){visit.paid=true;return false;}
  const amount=Math.max(0,visit.bill||0);state.ledger.checkouts[visit.id]=amount;visit.paid=true;state.gold+=amount;
  const yeoni=state.staff.yeoni;if(yeoni){yeoni.action='react';yeoni.actionUntil=state.shift.elapsedMs+650;yeoni.facing='right';}
- state.cafeGesture={kind:'cashier',at:state.shift.elapsedMs};
+ state.cafeGesture={kind:'bow',at:state.shift.elapsedMs};
  if(amount)emit('paidAtCounter',{amount});return true;
 }
 

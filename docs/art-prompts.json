@@ -3623,5 +3623,12 @@
   {
     "id": "objects/long_cabinet",
     "aliasOf": "objects/pass"
+  },
+  {
+    "id": "ui/kfp_player",
+    "tool": "owner-authorized reuse",
+    "sourceFile": "rei1237/killerflowerpig@1e33016bfae8f31d89161066d993229fe933b777/asset/sprites/player.webp",
+    "prompt": "새 생성 없음. 사용자 소유 프로젝트 원본 시트와 프레임 메타데이터 그대로 재사용.",
+    "normalization": "none; original bytes preserved"
   }
 ]

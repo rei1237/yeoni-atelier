@@ -1,0 +1,43 @@
+/* 카페가 주인공인 운영 화면. 상세 조작은 사용자가 열 때만 겹친다. */
+body[data-mode][data-cafe-focus=true] #app{display:flex;flex-direction:column;max-width:1180px;height:100dvh;overflow:visible}
+body[data-mode][data-cafe-focus=true] #topbar{display:flex;flex-wrap:nowrap;gap:6px;align-items:center;flex:0 0 auto;min-height:62px;padding:7px 10px;box-sizing:border-box}
+.cafe-clock{margin-right:auto;display:flex;flex-direction:column;min-width:0}.cafe-clock b{font-size:17px;font-variant-numeric:tabular-nums}.cafe-clock small{font-size:12px;white-space:nowrap}.cafe-gold{font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
+body[data-mode][data-cafe-focus=true] #topbar button{min-height:44px;min-width:44px;padding:6px;font-size:12px;white-space:nowrap}
+body[data-mode][data-cafe-focus=true] #stage{flex:1;min-height:0;width:100%;border-radius:0;overflow:hidden}
+body[data-mode][data-cafe-focus=true] #panel{position:relative;display:block;flex:0 0 auto;height:auto;max-height:none;overflow:visible;padding:0;border-left:0;z-index:15}
+.cafe-commandbar{padding:6px 8px calc(8px + env(safe-area-inset-bottom));background:var(--petal-paper,#fff9ef)}
+.cafe-live-line{margin:0 0 5px;font-size:12px;line-height:1.4;text-align:center;word-break:keep-all}
+.cafe-actions{display:flex;gap:6px}.cafe-actions button{flex:1;min-width:0;min-height:44px;padding:5px 4px;font-size:13px;white-space:nowrap}.cafe-actions .selected{background:#496651;color:#fff9ef}
+.cafe-drawer{position:absolute;bottom:100%;right:8px;width:min(420px,calc(100vw - 16px));max-height:min(40dvh,360px);background:#fffaf1;border:1px solid #b69c7d;border-radius:18px 18px 0 0;box-shadow:0 -6px 24px #44342624;display:flex;flex-direction:column}
+.cafe-drawer[hidden],.cafe-drawer [hidden]{display:none!important}.cafe-drawer header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 12px;border-bottom:1px solid #e2d2bc}.cafe-drawer header button{min-height:44px;min-width:44px}.cafe-drawer-body{padding:12px;overflow:auto;min-height:0;overscroll-behavior:contain}.cafe-drawer-body p{font-size:13px;line-height:1.6}.cafe-drawer-body h3{margin:14px 0 8px}.cafe-drawer-body button{min-height:44px}.cafe-drawer-body .customer-orders{max-height:none}.cafe-drawer-body .cafe-scores{display:flex;gap:16px;margin-bottom:12px}.cafe-drawer-body .cafe-scores .score-stage{min-width:0}.cafe-drawer-body [data-cafe-tab=prepare]>button,.cafe-drawer-body [data-cafe-tab=crew]>button{width:100%;margin-top:8px}
+.cafe-ready-dish{display:flex;align-items:center;gap:8px;width:100%;margin-bottom:8px;white-space:normal;text-align:left}.cafe-ready-dish .pixel-icon{width:36px;height:36px;flex:none}.fixture-hit{z-index:2}.table-pop{max-height:min(32dvh,280px)}
+body[data-mode][data-cafe-focus=true] .camera-controls{top:8px;bottom:auto;right:8px;opacity:.9}.camera-controls button{min-height:44px}
+body[data-mode][data-cafe-focus=true] .cafe-chatter{display:none}
+@media(min-width:900px){body[data-mode][data-cafe-focus=true] #app{max-width:1180px}.cafe-commandbar{max-width:660px;margin-inline:auto}.cafe-drawer{right:calc(50% - 330px)}}
+@media(max-width:370px){body[data-mode][data-cafe-focus=true] #topbar{gap:3px;padding-inline:6px}.cafe-gold{font-size:12px}.cafe-clock b{font-size:15px}.cafe-actions{gap:4px}.cafe-actions button{font-size:12px}}
+
+.hunter-select .hunter-locked canvas{filter:brightness(0);opacity:.7}.hunter-select .hunter-locked{pointer-events:none}.hunter-select>button{min-width:0;flex:1}.hunter-select b{word-break:keep-all}
+
+/* 전투 정보와 소모품은 화면 높이를 먼저 확보하고 남은 공간을 필드에 준다. */
+body[data-mode=hunt] #app{display:flex;flex-direction:column;height:100dvh;overflow:visible}
+body[data-mode=hunt] #topbar{flex:none;min-height:66px;box-sizing:border-box}
+body[data-mode=hunt] #stage{flex:1;min-height:0}
+body[data-mode=hunt] #panel{flex:none;display:block;max-height:46dvh;overflow:auto;padding:8px 10px calc(8px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+.hunt-dock{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;min-width:0}
+.hunt-dock>.row,.hunt-dock>.hunt-quickslots,.hunt-dock>small{grid-column:1/-1;min-width:0}
+.hunt-dock>.row{flex-wrap:wrap;gap:6px;font-size:12px;line-height:1.4}.hunt-dock>.row b{flex-basis:40%;word-break:keep-all}
+.hunt-dock>.hunt-kit{grid-column:1;min-width:0;min-height:44px;align-items:center;padding:0;overflow-x:auto;overflow-y:hidden}
+.hunt-kit .hunt-skill{flex:none}.hunt-kit .hunt-skill small{white-space:nowrap}
+.hunt-dock>.hunt-petal{grid-column:2;min-height:44px;min-width:108px;align-self:center;white-space:nowrap}
+.hunt-dock>.hunt-petal[aria-disabled=true]{color:#d6ccdd;background:#302d49;opacity:1}
+.hunt-dock>.hunt-quickslots{margin:0}.hunt-dock>.hunt-quickslots>button{min-height:72px;min-width:44px}
+.hunt-dock>small{font-size:12px;line-height:1.4;word-break:keep-all}
+.hunt-home .hh-head,.hunt-home .hh-head>span{color:#fff0cf}
+
+
+.hunt-dock>small:has(.kfp-open){display:flex;align-items:center;gap:8px}.kfp-open{min-height:44px;flex:none}.kfp-recipes{display:grid;gap:12px}.kfp-recipes button{width:100%;min-height:44px;white-space:normal}.kfp-recipes li{line-height:1.6;word-break:keep-all}.kfp-recipes h3{font-size:17px}.kfp-recipes p{line-height:1.6}
+
+/* 위험 안내는 무대 상단, 일반 알림은 그 아래에 둔다. */
+body[data-mode=hunt] .toasts{top:122px}
+
+body[data-mode=hunt]:has(#sheet-wrap:not([hidden])) .toasts{top:10px}

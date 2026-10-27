@@ -31,15 +31,16 @@ export const BOND_STORIES = Object.freeze({
       { s: 'nar', t: '마감 후 창가, 네오가 영냥이 장갑의 실밥을 하나하나 다시 꿰매고 있었다.' },
       { s: 'neo', t: '검은 손이 점점 단단해져. 그만큼 우리도 날카로워져야지.' },
       { s: 'yeoni', t: '(바느질 솜씨 별 다섯. 근데 그걸 왜 네오가 하는 거지?)', l: 'yeoni:normal' },
-      { s: 'neo', t: '…영냥이가 부탁했어. 걔는 손이 작아서 바늘을 못 잡거든.', c: 'neo:flustered' },
+      { s: 'neo', t: '고양이 모습으로는 바늘을 잡기 힘들더라. 모양은 작아도 실밥은 똑같이 터져.', c: 'neo:flustered' },
       { s: 'nar', t: '연이는 뭐라고 말할까?', skipText: '건너뛰기', choices: [
         { id: 'help', text: '실 끝을 잡아 줄게.', beats: [
           { s: 'yeoni', t: '둘이 하면 반 시간이면 끝나. 실 끝은 내가 잡을게.', l: 'yeoni:smile' },
-          { s: 'neo', t: '…응. 그럼 매듭은 연이가 지어 줘. 그게 더 단단하더라.', c: 'neo:smile' },
+          { s: 'neo', t: '…응. 그럼 매듭은 연이가 지어 줘.', c: 'neo:smile'  },
+      { s: 'neo', t: '그게 더 단단하더라.' },
         ] },
-        { id: 'tease', text: '영냥이한테 고맙다는 말 전해 줄게.', beats: [
-          { s: 'yeoni', t: '영냥이 만나면 네오가 밤새 꿰매 줬다고 꼭 말해 줄게!', l: 'yeoni:smile' },
-          { s: 'neo', t: '그, 그건 안 해도 돼. 걔도… 다 알아.', c: 'neo:flustered' },
+        { id: 'tease', text: '고양이 모습일 때도 칭찬해 줄게.', beats: [
+          { s: 'yeoni', t: '다음에 고양이 모습으로 오면 앞발부터 칭찬해야겠다!', l: 'yeoni:smile' },
+          { s: 'neo', t: '그건 지금 해 줘도 되는데. 앞발이라고 특별 할인은 없어.', c: 'neo:flustered' },
         ] },
       ] },
       { s: 'nar', t: '다음 날 영냥이의 발톱은 장갑 끝에서 달빛처럼 반짝였다.' },
@@ -48,7 +49,8 @@ export const BOND_STORIES = Object.freeze({
     [
       { chapter: ['인연 · 네오 ♥3', '영냥이, 농부가 되다'], bg: 'atelier_lit', l: 'yeoni:surprised', c: 'neo_cat:smug', r: null },
       { s: 'nar', t: '아침. 농장에 나간 연이는 밭 한가운데 서 있는 작은 흙투성이 고양이를 발견했다.' },
-      { s: 'neo_cat', t: '늦었군. 1번 밭 수확, 2번 밭 물주기, 3번 밭 잡초. 전부 끝냈다.' },
+      { s: 'neo_cat', t: '늦었군. 1번 밭 수확, 2번 밭 물주기, 3번 밭 잡초.'  },
+      { s: 'neo_cat', t: '전부 끝냈다.' },
       { s: 'yeoni', t: '…영냥이? 얼굴에 밀 이삭 붙었어.', l: 'yeoni:surprised' },
       { s: 'neo_cat', t: '훈장이다. 떼지 마라.', c: 'neo_cat:serious' },
       { s: 'nar', t: '물뿌리개는 영냥이보다 컸다. 그래서 반은 밭에, 반은 영냥이에게 뿌려져 있었다.' },
@@ -63,9 +65,10 @@ export const BOND_STORIES = Object.freeze({
         ] },
       ] },
       { s: 'neo_cat', t: '사냥 안 가는 순에는 내가 밭을 맡겠다. 수확하고, 같은 씨앗을 다시 심고, 물도 주지.' },
-      { s: 'neo_cat', t: '대신 씨앗값은 네 장부에서 나간다. 그리고 같은 순에 사냥까지는 못 한다. 발이 네 개뿐이라.', c: 'neo_cat:serious' },
+      { s: 'neo_cat', t: '대신 씨앗값은 네 장부에서 나간다. 그리고 같은 순에 사냥까지는 못 한다.', c: 'neo_cat:serious'  },
+      { s: 'neo_cat', t: '발이 네 개뿐이라.' },
       { s: 'yeoni', t: '(발이 네 개면 오히려 많은 거 아니야…?)', l: 'yeoni:normal' },
-      { s: 'neo_cat', t: '그리고 검은 손 말이다. 달빛 닿는 손바닥이 약점이야. 거기 월정석이 뭉쳐 있지.' },
+      { s: 'neo_cat', t: '검은 손은 달빛 닿는 손바닥이 약점이다. 월정석도 거기 뭉쳐 있다.' },
       { s: 'sys', t: '[ 네오 ♥3 · 농장 맡기기 해금(순마다 1회, 씨앗값·농장 행동력 사용, 그 순 사냥 불가) · 보스 월정석 +80% ]' },
     ],
     [
@@ -76,7 +79,8 @@ export const BOND_STORIES = Object.freeze({
       { s: 'neo', t: '마을 일, 사냥 준비, 밭. 내가 먼저 움직이면 연이 손이 두 개 더 생기는 거야.' },
       { s: 'nar', t: '연이의 대답은?', skipText: '건너뛰기', choices: [
         { id: 'promise', text: '대신 무리하지 않기로 약속해.', beats: [
-          { s: 'yeoni', t: '좋아. 대신 네오도 지치면 지쳤다고 말하기. 약속.', l: 'yeoni:determined' },
+          { s: 'yeoni', t: '좋아. 대신 네오도 지치면 지쳤다고 말하기.', l: 'yeoni:determined'  },
+      { s: 'yeoni', t: '약속.' },
           { s: 'neo', t: '응, 약속이야. 연이도 똑같이.', c: 'neo:smile' },
         ] },
         { id: 'milk', text: '우유 잔을 부딪친다.', beats: [
@@ -101,7 +105,8 @@ export const BOND_STORIES = Object.freeze({
           { s: 'luna', t: '…아홉, 열! 헤헤, 진짜 조금 괜찮아졌어.', c: 'luna:smile' },
         ] },
         { id: 'ledger', text: '장부에 \'우유 1잔, 웃음 연습비\'라고 적어 준다.', beats: [
-          { s: 'yeoni', t: '봐, 장부에 적었어. 우유 한 잔은 연습비야. 손해 아니야.', l: 'yeoni:determined' },
+          { s: 'yeoni', t: '봐, 장부에 적었어. 우유 한 잔은 연습비야.', l: 'yeoni:determined'  },
+      { s: 'yeoni', t: '손해 아니야.' },
           { s: 'luna', t: '연습비… 그럼 다음엔 안 엎으면 이득이네!', c: 'luna:surprised' },
         ] },
       ] },
@@ -116,7 +121,8 @@ export const BOND_STORIES = Object.freeze({
       { s: 'luna', t: '다 된 접시 나르고, 손님 간 자리 닦고. 언니가 하나하나 안 눌러도 내가 알아서 할게!' },
       { s: 'nar', t: '연이는 홀을…', skipText: '건너뛰기', choices: [
         { id: 'trust', text: '맡긴다. 대신 힘들면 바로 말하기.', beats: [
-          { s: 'yeoni', t: '좋아, 맡길게. 대신 지치면 꼭 말해. 숨기면 장부에 빨간 줄이야.', l: 'yeoni:determined' },
+          { s: 'yeoni', t: '좋아, 맡길게. 대신 지치면 꼭 말해.', l: 'yeoni:determined'  },
+      { s: 'yeoni', t: '숨기면 장부에 빨간 줄이야.' },
           { s: 'luna', t: '빨간 줄은 싫어! 약속할게!', c: 'luna:smile' },
         ] },
         { id: 'half', text: '바쁠 때만 맡긴다.', beats: [
@@ -139,7 +145,8 @@ export const BOND_STORIES = Object.freeze({
         ] },
         { id: 'job', text: '검산 담당을 맡긴다.', beats: [
           { s: 'yeoni', t: '오늘부터 루나는 이자 검산 담당이야. 정식 직함!', l: 'yeoni:determined' },
-          { s: 'luna', t: '직함! 나 직함 생겼어! 언니한테 자랑해야지!', c: 'luna:smile' },
+          { s: 'luna', t: '직함! 나 직함 생겼어!', c: 'luna:smile'  },
+      { s: 'luna', t: '언니한테 자랑해야지!' },
         ] },
       ] },
       { s: 'luna', t: '헤헤, 나 이제 숫자 앞에서 안 울어. 아마도!', c: 'luna:smile' },
@@ -166,13 +173,14 @@ export const BOND_STORIES = Object.freeze({
   luna_sis: [
     [
       { chapter: ['인연 · 루나 언니 ♥1', '괜찮아요의 온도'], bg: 'atelier_lit', l: 'yeoni:normal', c: 'luna_sis:tired', r: null },
-      { s: 'luna_sis', t: '괜찮아요. 오븐은 제가 계속 볼게요. 괜찮아요.' },
+      { s: 'luna_sis', t: '괜찮아요. 오븐은 제가 계속 볼게요.'  },
+      { s: 'luna_sis', t: '괜찮아요.' },
       { s: 'yeoni', t: '(오늘만 괜찮아요 열한 번째. 장부라면 이미 적자야.)', l: 'yeoni:sulky' },
       { s: 'nar', t: '연이는 오븐 온도 그래프를 그려 루나 언니 앞에 내밀었다. 오후 세 시마다 온도가 떨어지고 있었다.' },
       { s: 'luna_sis', t: '…제가 졸 때마다 불이 약해졌네요.', c: 'luna_sis:serious' },
       { s: 'nar', t: '연이는 그래프를 보며…', skipText: '건너뛰기', choices: [
         { id: 'nap', text: '세 시엔 오븐 맡기고 낮잠 자라고 한다.', beats: [
-          { s: 'yeoni', t: '세 시는 내가 볼게. 언니는 그때 이십 분만 눈 붙여.', l: 'yeoni:determined' },
+          { s: 'yeoni', t: '세 시에는 주문을 잠깐 쉬자. 언니도 이십 분만 눈 붙여.', l: 'yeoni:determined' },
           { s: 'luna_sis', t: '이십 분이면… 괜찮을 것 같아요. 아니, 좋을 것 같아요.', c: 'luna_sis:smile' },
         ] },
         { id: 'tea', text: '허브티를 내려 준다.', beats: [
@@ -195,8 +203,8 @@ export const BOND_STORIES = Object.freeze({
           { s: 'luna_sis', t: '약속할게요. 이번 괜찮아요는… 진짜예요.', c: 'luna_sis:smile' },
         ] },
         { id: 'switch', text: '바쁠 때만 켜기로 한다.', beats: [
-          { s: 'yeoni', t: '한가할 땐 내가 직접 굽고, 붐빌 때 언니한테 넘길게.', l: 'yeoni:smile' },
-          { s: 'luna_sis', t: '좋아요. 연이 씨 손맛도 손님들이 기다리니까요.', c: 'luna_sis:smile' },
+          { s: 'yeoni', t: '한가할 땐 주문마다 부탁하고, 붐빌 때 자동 조리를 켤게.', l: 'yeoni:smile' },
+          { s: 'luna_sis', t: '좋아요. 계산대에서 주문만 잘 알려 주세요.', c: 'luna_sis:smile' },
         ] },
       ] },
       { s: 'sys', t: '[ 루나 언니 ♥2 · 조리 시간 추가 −8% · 주방 자동(대기 주문 조리) 해금 — 주방 화면에서 켜고 끌 수 있어요 ]' },
@@ -227,8 +235,8 @@ export const BOND_STORIES = Object.freeze({
           { s: 'yeoni', t: '봤어, 봤어! 오늘 날짜 옆에 \'언니 웃음\' 적어 둔다.', l: 'yeoni:smile' },
           { s: 'luna_sis', t: '그런 것까지 적으면… 장부가 금방 꽉 차겠어요.', c: 'luna_sis:smile' },
         ] },
-        { id: 'bake', text: '셋이 같이 새벽빵을 굽자고 한다.', beats: [
-          { s: 'yeoni', t: '내일 새벽에 셋이 같이 굽자. 첫 판은 우리가 먹는 거야.', l: 'yeoni:determined' },
+        { id: 'bake', text: '새벽 첫 빵을 셋이 나눠 먹자고 한다.', beats: [
+          { s: 'yeoni', t: '내일 첫 판은 우리가 먹자. 나는 잔이랑 장부만 챙길게.', l: 'yeoni:determined' },
           { s: 'luna', t: '첫 판! 첫 판은 제일 맛있어!', r: 'luna:smile' },
         ] },
       ] },

@@ -1,3 +1,6 @@
+import {drawTrail} from './trail-view.js';
+import {drawKfp} from './kfp-view.js';
+import {KFP_PLAYER} from '../data/kfp-player.js';
 import {enemyVisualSize,drawSaju} from './hunt-visuals.js';
 // 영냥이 월정석 사냥 화면(뱀서식). 플레이어를 따라가는 카메라, 필드, 적, 무기 효과, 드롭, 피해 숫자, 사건 알림, 조이스틱.
 // 상태는 읽기만 한다. 화면 흔들림 같은 연출에만 Math.random 을 쓴다.
@@ -101,6 +104,8 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   ctx.fillStyle=hs.depth>=85?'#231a30':'#263a3b';ctx.fillRect(camX-2,camY-2,vw+4,vh+4);
   if(field){const tile=512;for(let y=Math.floor(camY/tile)*tile;y<camY+vh;y+=tile)for(let x=Math.floor(camX/tile)*tile;x<camX+vw;x+=tile)ctx.drawImage(field,x,y,tile,tile);}
   for(const o of world.props||[]){if(hs.brokenProps?.[o.id]||o.x<camX-64||o.x>camX+vw+64||o.y<camY-80||o.y>camY+vh+80)continue;const img=imageFor('objects/hunt_'+o.kind);if(img)ctx.drawImage(img,o.x-32,o.y-48,64,64);if(o.hp<o.maxHp){ctx.fillStyle='#e7c275';ctx.fillRect(o.x-20,o.y-52,40*o.hp/o.maxHp,3);}}
+  drawKfp(ctx,world.kfp,now,opts.reducedMotion);
+  drawTrail(ctx,hs);
   const m = mods(hs);
   // 달빛 수호부(바닥 원): 안에 있는 동안 방어가 오르고 조금씩 회복한다. 무적·탄 제거는 없다
   for (const wp of hs.weapons) if (wp.id === 'aura') drawMoonWard(ctx, p.x, p.y, weaponStats(wp, m).radius, now, wp.evo, opts.reducedMotion);
@@ -199,13 +204,18 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   for(const shot of world.hostile){ctx.strokeStyle='#c69bdb';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(shot.x-shot.vx*.045,shot.y-shot.vy*.045);ctx.lineTo(shot.x,shot.y);ctx.stroke();ctx.fillStyle='#ffdda9';ctx.beginPath();ctx.arc(shot.x,shot.y,shot.r,0,Math.PI*2);ctx.fill();}
   const swing=p.swing;
   drawSaju(ctx,swing,now,opts.reducedMotion);
-  for(const burst of world.fx){if(burst.kind==='ward')continue;const q=(now-burst.at)/(burst.until-burst.at);ctx.save();ctx.globalAlpha=1-q;ctx.strokeStyle=burst.kind==='burst'?'#ffb37d':'#fff4b8';ctx.lineWidth=burst.kind==='burst'?3:2;ctx.beginPath();ctx.arc(burst.x,burst.y,burst.r*(.35+.65*q),0,Math.PI*2);ctx.stroke();if(!opts.reducedMotion)for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(burst.x+Math.cos(a)*burst.r*q*.6,burst.y+Math.sin(a)*burst.r*q*.6);ctx.lineTo(burst.x+Math.cos(a)*burst.r*q,burst.y+Math.sin(a)*burst.r*q);ctx.stroke();}ctx.restore();}
+  for(const burst of world.fx){if(burst.kind==='ward')continue;if(burst.kind==='petal'){drawPetalWave(ctx,burst,now,opts.reducedMotion);continue;}const q=(now-burst.at)/(burst.until-burst.at);ctx.save();ctx.globalAlpha=1-q;ctx.strokeStyle=burst.kind==='burst'?'#ffb37d':'#fff4b8';ctx.lineWidth=burst.kind==='burst'?3:2;ctx.beginPath();ctx.arc(burst.x,burst.y,burst.r*(.35+.65*q),0,Math.PI*2);ctx.stroke();if(!opts.reducedMotion)for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(burst.x+Math.cos(a)*burst.r*q*.6,burst.y+Math.sin(a)*burst.r*q*.6);ctx.lineTo(burst.x+Math.cos(a)*burst.r*q,burst.y+Math.sin(a)*burst.r*q);ctx.stroke();}ctx.restore();}
   // 영냥이
   const hurt = now < p.hurtUntil;
   const st = p.action !== 'idle' ? p.action : p.moving ? 'walk' : 'idle';
   if (hurt && Math.floor(t / 80) % 2) ctx.globalAlpha = 0.5;
   const attacking=swing&&now<swing.until,casting=!attacking&&p.cast&&now<p.cast.until;
-  if(hs.hunterId==='seohanbi')drawActor(ctx,'seohanbi_tiger',{x:p.x,y:p.y+20,size:76,state:attacking?'walk':st,facing:attacking?p.attackFacing:p.facing,t:now,animationFrame:attacking?Math.min(3,Math.floor((now-swing.at)/90)):undefined});
+  if(hs.hunterId==='yeoni_pig'){
+    const img=imageFor('ui/kfp_player'),frames=KFP_PLAYER.frames,fr=frames[opts.reducedMotion||!p.moving?0:Math.floor(now/110)%frames.length],k=72/KFP_PLAYER.height;
+    if(img){ctx.save();if(p.facing==='left'){ctx.translate(p.x*2,0);ctx.scale(-1,1);}ctx.drawImage(img,fr[0],0,fr[1],fr[2],p.x-fr[3]*k,p.y+20-fr[4]*k,fr[1]*k,fr[2]*k);ctx.restore();}
+    else drawActor(ctx,'yeoni_pig',{x:p.x,y:p.y+20,size:72,state:st,facing:p.facing,t:now});
+  }
+  else if(hs.hunterId==='seohanbi')drawActor(ctx,'seohanbi_tiger',{x:p.x,y:p.y+20,size:76,state:attacking?'walk':st,facing:attacking?p.attackFacing:p.facing,t:now,animationFrame:attacking?Math.min(3,Math.floor((now-swing.at)/90)):undefined});
   else{
     // 참격 > 시전 > 걷기. 공격·시전 셀은 192×160이라 크기 68×160/128=85로 몸 크기를 맞춘다
     const act=attacking?{key:'neo_cat_attack',at:swing.at,step:90,facing:p.attackFacing}:casting?{key:'neo_cat_cast',at:p.cast.at,step:80,facing:p.cast.facing}:null;
@@ -233,7 +243,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
 
   // 피해 숫자
   ctx.textAlign = 'center';
-  for (let i = 0; i < world.texts.count; i++) {
+  for (let i = Math.max(0,world.texts.count-16); i < world.texts.count; i++) {
     const tx = world.texts.items[i];
     ctx.globalAlpha = Math.min(1, tx.life / 250);
     ctx.font = `800 ${tx.crit ? 17 : 12}px system-ui, sans-serif`;
@@ -321,3 +331,11 @@ function star(ctx, x, y, r, color) {
 }
 
 function drawEnemyWarning(ctx,e,def,now){if(!['warning','fuse'].includes(e.rolePhase))return;ctx.save();ctx.strokeStyle='#ffc995';ctx.fillStyle='#e66b452b';ctx.lineWidth=2;if(e.warningR){ctx.beginPath();ctx.arc(e.x,e.y,e.warningR,0,Math.PI*2);ctx.fill();ctx.stroke();const q=Math.max(0,Math.min(1,1-(e.roleUntil-now)/1100));ctx.strokeStyle='#ffe8be';ctx.lineWidth=4;ctx.beginPath();ctx.arc(e.x,e.y,e.warningR,-Math.PI/2,-Math.PI/2+q*Math.PI*2);ctx.stroke();}else{ctx.setLineDash([8,7]);ctx.beginPath();ctx.moveTo(e.x,e.y);ctx.lineTo(e.x+e.aimX*(def.role==='dash'?110:230),e.y+e.aimY*(def.role==='dash'?110:230));ctx.stroke();ctx.setLineDash([]);}ctx.restore();}
+
+// 원본 petal-cannon.js의 꽃잎 고리 연출을 현재 렌더 시계에 맞춘다. 게임 난수를 쓰지 않는다.
+function drawPetalWave(ctx,wave,now,reduced){
+ const t=Math.max(0,Math.min(1,(now-wave.at)/650)),r=wave.r*Math.min(1,t*2.5);
+ ctx.save();ctx.translate(wave.x,wave.y);ctx.globalAlpha=(1-t)*.8;ctx.strokeStyle='#ffd1e8';ctx.lineWidth=3*(1-t)+1;
+ ctx.beginPath();ctx.arc(0,0,reduced?wave.r:r,0,Math.PI*2);ctx.stroke();
+ if(!reduced)for(let i=0;i<18;i++){const a=i*Math.PI*2/18+t*.6;ctx.save();ctx.translate(Math.cos(a)*r,Math.sin(a)*r);ctx.rotate(a+Math.PI/4);ctx.fillStyle=i%2?'#ff75bd':'#ffe0ef';ctx.beginPath();ctx.ellipse(0,0,5+5*(1-t),3,0,0,Math.PI*2);ctx.fill();ctx.restore();}ctx.restore();
+}

@@ -1,3 +1,4 @@
+import {HUNT_CAST,hunterUnlocked,hunterName,hunterPortrait,selectedHunter} from '../game/hunt-cast.js';
 import { hunterProgress,maxHuntDepth,depthScale,stageName } from '../game/hunt-growth.js';
 import { huntCheck,monthScale } from '../game/hunt.js';
 import { stageDef,stagePool,bossFor } from '../data/hunt-stages.js';
@@ -16,7 +17,7 @@ const num=n=>Number(n||0).toLocaleString('ko-KR');
 const close=()=>btn({action:'sheet.close',cls:'close ghost',label:'✕',title:'닫기'});
 const head=title=>`<h2 class="hh-head">${btn({action:'hunt.menu',args:{menu:'title'},cls:'ghost hh-back',label:'‹',title:'사냥터 메인으로'})}<span>${title}</span>${close()}</h2>`;
 const achieved=state=>HUNT_ACHIEVEMENTS.filter(a=>state.ledger.achievements?.[a.id]).length;
-const pickHunter=(state,ui)=>ui.hunterId==='seohanbi'&&state.roster.seohanbi?'seohanbi':'neo';
+const pickHunter=(state,ui)=>selectedHunter(state,ui.hunterId);
 function codexPercent(state){
  const c=state.huntCodex||{},parts=[[SKILL_IDS.filter(id=>skillRank(state,id)>0).length,SKILL_IDS.length],[Object.keys(c.evolved||{}).length,Object.keys(WEAPONS).length],[Object.keys(ENEMIES).filter(id=>id in (c.enemies||{})).length,Object.keys(ENEMIES).length],[CODEX_MATERIALS.filter(id=>c.materials?.[id]>0).length,CODEX_MATERIALS.length]];
  return Math.floor(parts.reduce((a,[g])=>a+g,0)*100/parts.reduce((a,[,t])=>a+t,0));
@@ -32,7 +33,7 @@ function titleView(state,ui){
  const id=pickHunter(state,ui),p=hunterProgress(state.hunter.xp);
  return `<div class="hh-top">${close()}</div>
  <div class="hh-logo"><small>꽃과 달의 밤 사냥</small><h2>영냥이의 사냥터</h2>${NIGHT_ORN}<p>달빛이 꽃잎에 내려앉는 밤, 그림자를 쫓아 월정석을 모아요</p></div>
- <div class="hh-hero" aria-hidden="true"><canvas data-talking-portrait="${id==='neo'?'neo_cat':'seohanbi_tiger'}" width="256" height="320"></canvas></div>
+ <div class="hh-hero" aria-hidden="true"><canvas data-talking-portrait="${hunterPortrait(id)}" width="256" height="320"></canvas></div>
  <dl class="hh-stats"><div><dt>탐사 성장</dt><dd>Lv.${p.level}</dd></div><div><dt>열린 단계</dt><dd>${maxHuntDepth(state)}/100</dd></div><div><dt>누적 처치</dt><dd>${num(state.hunter.kills)}</dd></div></dl>
  <nav class="hh-menu" aria-label="사냥터 메뉴">${btn({action:'hunt.menu',args:{menu:'depart'},cls:'primary big',label:'출발'})}${btn({action:'hunt.menu',args:{menu:'achieve'},label:`업적<small>${achieved(state)}/${HUNT_ACHIEVEMENTS.length}</small>`})}${btn({action:'hunt.menu',args:{menu:'codex'},label:`수집 도감<small>${codexPercent(state)}%</small>`})}</nav>`;
 }
@@ -40,12 +41,13 @@ function titleView(state,ui){
 function departView(state,ui){
  const hunterId=pickHunter(state,ui),p=hunterProgress(state.hunter.xp),max=maxHuntDepth(state),chk=huntCheck(state,hunterId);
  const selected=Math.min(max,Math.max(1,Number(ui.huntStage)||state.hunter.builds?.[hunterId]?.stage||state.hunter.lastStage||1)),scale=depthScale(selected,monthScale(state.day),calendarOf(state.day).monthIdx);
- return `${head('출발 준비')}<div class="hunter-select">${['neo',...(state.roster.seohanbi?['seohanbi']:[])].map(id=>btn({action:'hunt.hunter',args:{id},cls:id===hunterId?'on':'',label:`<canvas data-talking-portrait="${id==='neo'?'neo_cat':'seohanbi_tiger'}" width="256" height="320" aria-hidden="true"></canvas><b>${id==='neo'?'영냥이':'서한비 · 검은 호랑이'}</b>`})).join('')}</div>
+ return `${head('출발 준비')}<div class="hunter-select">${HUNT_CAST.map(id=>{const open=hunterUnlocked(state,id);return btn({action:'hunt.hunter',args:open?{id}:{},disabled:!open,title:open?hunterName(id):'잠긴 동료',cls:open?(id===hunterId?'on':''):'hunter-locked',label:`<canvas data-talking-portrait="${hunterPortrait(id)}" width="256" height="320" aria-hidden="true"></canvas><b>${open?hunterName(id):'🔒 잠긴 동료'}</b>`});}).join('')}</div>
  <div class="card"><b>탐사 성장 Lv.${p.level}</b>${p.level>TEMP.HUNT_CAREER.statCap?`<span class="small"> · 체력·피해 보너스는 Lv${TEMP.HUNT_CAREER.statCap}까지</span>`:''}<progress value="${p.xp}" max="${p.xpNext}" aria-label="지속 성장 경험치"></progress><p>경험치 ${p.xp}/${p.xpNext} · 사냥 레벨·선택한 무기와 보조 능력·마지막 단계는 사냥꾼별로 유지돼요. 공방 강화와 물품은 별도로 적용돼요. 성장 보너스는 Lv${TEMP.HUNT_CAREER.statCap}에서 멈추고, 기술 레벨 상한은 윤달 공방 단련으로 올려요.</p></div>
  <p class="small note-heal">폭탄은 윤달의 무기 공방에서 1개까지 구매해요 · 사냥터에는 회복 아이템이 없어요 · 모카의 회복 수프를 챙겨 가세요(최대 ${SUPPLIES.tonic.limit}개 · 보유 ${state.armory?.supplies?.tonic||0}개)</p>
  <p>행동력 1 · 보스를 쓰러뜨리면 클리어 · 언제든 돌아오기</p><h3>${selected}/100단계 · ${stageName(selected)}</h3><p class="small">적 체력 ×${scale.hp.toFixed(1)} · 피해 ×${scale.dmg.toFixed(1)} · 월정석 ×${scale.reward.toFixed(1)}</p>
  <div class="stage-picker"><label for="hunt-stage">도전할 단계</label><input id="hunt-stage" type="range" min="1" max="${max}" value="${selected}" aria-label="사냥 단계"><output>${selected} / 열린 ${max}</output></div><div class="btns">${[...new Set([1,Math.max(1,selected-1),Math.min(max,selected+1),max])].map(depth=>btn({action:'hunt.stage',args:{depth},cls:depth===selected?'on':'',label:`${depth}단계`})).join('')}</div>
  <p class="small">보스 <b>${esc(ENEMIES[bossFor(selected,hunterId,!!state.roster.seohanbi)].name)}</b> · 준비 ${stageDef(selected).prepMs/1000}초 뒤 등장 · 나오는 적: ${stagePool(selected).map(([id])=>esc(ENEMIES[id].name)).join(', ')}</p>${hunterId==='seohanbi'?'<p class="ok">검은 호랑이: 기본 체력 +120 · 피해 +80%p · 이동과 수집 강화</p>':''}
+ ${hunterId==='yeoni_pig'?'<p class="ok">꽃잎 산탄총은 앞쪽으로 다섯 발을 쏴요. 적을 처치해 꽃잎포를 충전하고, 100이 되면 직접 발사하세요.</p>':''}
  ${!chk.ok?`<p role="status">${esc(chk.reasons.join(' · '))}</p>`:''}<div class="stack">${btn({action:'hunt.depart',args:{depth:selected},cls:'primary big',disabled:!chk.ok,label:`${selected}단계로 출발`})}${btn({action:'sheet.open',args:{sheet:'armory'},label:'윤달의 무기 공방 · 영구 강화'})}</div><p class="small muted">준비 시간 동안 잡몹을 상대하면 그 단계 보스가 반드시 나와요. 보스를 쓰러뜨리면 클리어 · 다음 단계가 열리고, 바로 이어 가거나 귀환해 정산할 수 있어요. 첫 클리어는 월정석 보너스가 한 번 붙어요.</p>`;
 }
 

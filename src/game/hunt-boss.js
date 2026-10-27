@@ -127,6 +127,7 @@ function act(state, w, e, def, t, spawnMinion) {
 
 // 보스 한 마리 진행. 반환: 페이즈가 바뀌었으면 새 페이즈 번호
 export function stepBoss(state, w, e, t, dt, spawnMinion) {
+  if(t<(e.kfpStunUntil||0)){e.taskUntil=(e.taskUntil||t)+dt;return null;}
   const def = ENEMIES[e.type], p = w.player, sec = dt / 1000;
   const phase = bossPhaseOf(def, e.hp / e.maxHp);
   let changed = null;

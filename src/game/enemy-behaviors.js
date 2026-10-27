@@ -3,7 +3,7 @@ import {TEMP} from '../config/balance.temp.js';
 import {emit} from './state.js';
 const H=TEMP.HUNT;
 // 받는 피해 = 기본 × 단계·달 배율 × (1 − 수호부 피해 감소 w.guard). 보호막 소모품(shieldUntil)은 무적
-export function damageHunter(state,w,base,t){const h=state.hunt,p=w.player;if(t<p.hurtUntil||t<(h.shieldUntil||0))return false;h.hp=Math.max(0,h.hp-Math.max(1,Math.round(base*h.scale.dmg*(1-(w.guard||0)))));p.hurtUntil=t+H.HURT_IFRAME_MS;p.action='hurt';p.actionUntil=t+240;w.shakeUntil=t+160;if(w.guard)p.guardAt=t;emit('huntHurt',{hp:h.hp});return true;}
+export function damageHunter(state,w,base,t){const h=state.hunt,p=w.player;if(t<p.hurtUntil||t<(h.shieldUntil||0))return false;if(h.hunterId==='yeoni_pig'&&h.kfp?.passives?.pollen&&t>=(h.kfp.pollenAt||0)){h.kfp.pollenAt=t+(12-1.5*(h.kfp.passives.pollen-1))*1000;p.guardAt=t;for(let i=0;i<w.enemies.count;i++){const e=w.enemies.items[i],dx=e.x-p.x,dy=e.y-p.y,d=Math.hypot(dx,dy)||1;if(d<140&&!ENEMIES[e.type].boss){e.kx+=dx/d*180;e.ky+=dy/d*180;}}return false;}h.hp=Math.max(0,h.hp-Math.max(1,Math.round(Math.max(0,base*h.scale.dmg-(w.kfpArmor||0))*(1-Math.min(.8,(w.guard||0)+(w.kfpGuard||0))))));p.hurtUntil=t+H.HURT_IFRAME_MS;p.action='hurt';p.actionUntil=t+240;w.shakeUntil=t+160;if(w.guard)p.guardAt=t;emit('huntHurt',{hp:h.hp});return true;}
 export function addBattleFx(w,fx){if(w.fx.length>=40)w.fx.shift();w.fx.push(fx);}
 function shoot(w,e,t,def){const n=def.role==='fan'?3:1;for(let k=0;k<n&&w.hostile.length<48;k++){const a=Math.atan2(e.aimY,e.aimX)+(k-(n-1)/2)*.25;w.hostile.push({x:e.x,y:e.y,vx:Math.cos(a)*155,vy:Math.sin(a)*155,r:6,dmg:def.dmg*.7,until:t+3000});}emit('huntEnemyAttack',{kind:'shot'});}
 // 보스는 src/game/hunt-boss.js 가 움직인다(여기서는 건너뛴다)
@@ -12,6 +12,7 @@ export function stepEnemyBehaviors(state,w,t,dt){
  for(let i=0;i<w.enemies.count;i++){const e=w.enemies.items[i],key=`${Math.floor(e.x/cell)},${Math.floor(e.y/cell)}`;if(!grid.has(key))grid.set(key,[]);grid.get(key).push(e);}
  for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i],def=ENEMIES[e.type],dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;let mx=dx/d,my=dy/d,sp=e.speed,planted=false;
   if(def.boss)continue;
+  if(t<(e.kfpStunUntil||0)){e.motionX=0;e.motionY=0;continue;}if(t<(e.kfpSlowUntil||0))sp*=1-e.kfpSlow;
   if(e.life>0){e.life-=dt;e.x+=e.vx*sec;e.y+=e.vy*sec;if(e.life<=0){w.enemies.release(i);continue;}}
   else {
    if(def.role==='bomber'){

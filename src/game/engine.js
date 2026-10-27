@@ -1,3 +1,4 @@
+import {chooseTrail} from './hunt-trails.js';
 import {beginGiftCook,stepGiftCook,cancelGiftCook,giftFood} from './food-gifts.js';
 import {workshopQuestAction} from './workshop-quests.js';
 import {groundCommand,buyRemodel,applyRemodel} from './grounds.js';
@@ -141,6 +142,9 @@ function execute(state, cmd) {
     case 'gift.food':return giftFood(state,cmd.id,cmd.itemId);
     case 'bond.gift': return bonds.gift(state, cmd.id, cmd.giftId);
     case 'story.seen': return calendar.markStory(state, cmd.id);
+    case 'hunt.trail': return chooseTrail(state,cmd.choice);
+    case 'hunt.fuse': return hunt.fuseWeapons(state,cmd.id,cmd.revision);
+    case 'hunt.petal': return hunt.firePetalCannon(state);
     case 'hunt.start': return hunt.startHunt(state, cmd.depth, cmd.hunterId);
     case 'hunt.retreat': return hunt.retreat(state);
     case 'hunt.finish': return hunt.finishHunt(state);

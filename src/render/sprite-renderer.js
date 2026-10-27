@@ -15,8 +15,8 @@ export function cafeIdlePose(key, o) {
 }
 
 export function drawActor(ctx, key, o) {
-  if(key==='luna_sis'&&o.cooking&&o.facing==='up'&&imageFor('actors/luna_sis_cook')){key='luna_sis_cook';o={...o,state:o.cooking.phase,animationFrame:o.cooking.frame,idleMotion:false,outfitId:null};}
-  if(key==='yeoni'&&o.facing==='right'&&!o.carry&&!o.cleaning&&(o.state||'idle')==='idle'&&imageFor('actors/yeoni_idle_right')){key='yeoni_idle_right';o={...o,state:o.gesture?.kind||'idle',animationFrame:o.reducedMotion?0:o.gesture?Math.min(3,Math.floor(o.gesture.age/260)):undefined,idleMotion:false,outfitId:null};}
+  if(key==='luna_sis'&&o.cooking&&o.facing==='up'&&imageFor('actors/luna_sis_cook')){key='luna_sis_cook';const frame=o.cooking.phase==='plate'?2+o.cooking.frame%2:o.cooking.frame;o={...o,cooking:{...o.cooking,frame},state:o.cooking.phase,animationFrame:frame,idleMotion:false,outfitId:null};}
+  if(key==='yeoni'&&o.facing==='right'&&!o.carry&&!o.cleaning&&(['idle','react'].includes(o.state||'idle')||o.gesture)&&imageFor('actors/yeoni_idle_right')){key='yeoni_idle_right';o={...o,state:o.gesture?.kind||'idle',animationFrame:o.reducedMotion?0:o.gesture?Math.min(3,Math.floor(o.gesture.age/260)):undefined,idleMotion:false,outfitId:null};}
   const gesture=key==='yeoni'&&o.gesture;
   if(gesture && o.facing==='down' && imageFor('yeoni_idle')){key='yeoni_idle';o={...o,state:gesture.kind,facing:'down',animationFrame:Math.min(3,Math.floor(gesture.age/260)),idleMotion:false,outfitId:null};}
   // 쟁반·천을 든 동안에는 손 위치가 정해진 기본 시트를 쓴다(대기 전용 시트는 손에 다른 물건이 있다).

@@ -1,3 +1,4 @@
+import {kfpFusionPreview,KFP_WEAPONS} from '../game/kfp-loadout.js';
 import {MENUS} from '../data/menus.js';
 import {BONDS as GIFT_BONDS} from '../data/bonds.js';
 import {foodPreference} from '../data/food-preferences.js';
@@ -49,6 +50,7 @@ import { applyAssetTheme } from './asset-html.js';
 import { pixelFx } from './pixel-fx.js';
 import { playNovel, novelActive } from './novel.js';
 import { EVENT_STORIES } from '../story/events.js';
+import {hunterUnlocked,hunterName} from '../game/hunt-cast.js';
 import { HANBI_STORIES } from '../story/hanbi.js';
 import { VISIT_STORIES } from '../story/visits.js';
 import { PROLOGUE } from '../story/prologue.js';
@@ -107,8 +109,8 @@ function navigateScreen(screen, replace=false) {
   ui.screen=screen; ui.sheet=null; ui.tablePop=null;
   history[replace?'replaceState':'pushState']({yeoniScreen:screen},'',screen?'#'+screen:location.pathname+location.search);
 }
-window.addEventListener('popstate',e=>{if(state?.interior.draft)run({type:'interior.cancel'});ui.screen=state?(e.state?.yeoniScreen||null):null;ui.sheet=null;ui.tablePop=null;render(true);});
-document.addEventListener('keydown',e=>{if(e.key!=='Escape'||novelActive())return;if(state?.interior.draft&&!ui.sheet){run({type:'interior.cancel'});render(true);return;}if(ui.tablePop){ui.tablePop=null;render(true);}else if(ui.screen&&!ui.sheet){navigateScreen(null,true);render(true);}});
+window.addEventListener('popstate',e=>{if(state?.interior.draft)run({type:'interior.cancel'});ui.screen=state?(e.state?.yeoniScreen||null):null;ui.sheet=null;ui.tablePop=null;ui.cafeDrawer=null;render(true);});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape'||novelActive())return;if(state?.interior.draft&&!ui.sheet){run({type:'interior.cancel'});render(true);return;}if(ui.cafeDrawer){ui.cafeDrawer=null;render(true);}else if(ui.tablePop){ui.tablePop=null;render(true);}else if(ui.screen&&!ui.sheet){navigateScreen(null,true);render(true);}});
 // ── 명령
 let repaySeq = 0;
 function run(cmd, { keepQuiet = false } = {}) {
@@ -202,6 +204,8 @@ const ACTIONS = {
     ui.sheet={kind:p.id==='farm'?'farm':p.id==='hunt'?'hunt':'town',tab:p.id};
     if(p.id==='hunt')ui.huntMenu='title';else maybeVisit(p.id);
   },
+  'cafe.drawer':d=>{ui.cafeDrawer=ui.cafeDrawer===d.tab?null:d.tab;ui.tablePop=null;},
+  'cafe.drawer.close':()=>{ui.cafeDrawer=null;},
   'table.close': () => {ui.tablePop=null;},
   'table.firstDirty': () => {const t=state.tables.find(t=>t.state==='dirty');if(t)ui.tablePop={no:t.no};},
   'dress.who': d => { ui.dressWho = d.who; ui.dressPreview = null; ui.dressLine = null; },
@@ -210,7 +214,10 @@ const ACTIONS = {
   'dress.pose': () => { ui.dressPose = ui.dressPose === 'host' ? 'idle' : 'host'; },
   'dress.preview': d => { ui.dressPreview = d.id; ui.dressLine = outfitLine(ui.dressWho || 'neo', d.id, stressStage(state), 'preview'); },
   'outfit.unlock': d => { if (run({ type: 'outfit.unlock', id: d.id }).ok) ui.dressLine = outfitLine(ui.dressWho || 'neo', d.id, stressStage(state), 'unlock'); },
-  'hunt.hunter': d => {ui.hunterId=d.id;},
+  'hunt.hunter': d => {if(hunterUnlocked(state,d.id))ui.hunterId=d.id;},
+  'hunt.fuse.confirm':d=>{const p=kfpFusionPreview(state.hunt,d.id);if(!p.ok)return toast(p.reason);ui.confirm={title:KFP_WEAPONS[p.output].name+' 조합',text:p.inputs.map(i=>KFP_WEAPONS[i.id].evolve.name).join(' + ')+'를 소모해요. 재료의 진화 공격도 함께 이어져요.',yesLabel:'조합 확정',onYes:()=>run({type:'hunt.fuse',id:d.id,revision:n(d.revision)})};},
+  'hunt.trail':d=>{const r=run({type:'hunt.trail',choice:d.choice});if(r?.ok)ui.sheet=null;},
+  'hunt.petal':()=>run({type:'hunt.petal'}),
   'hunt.stage': d => {ui.huntStage=n(d.depth);},
   'hunt.menu': d => {ui.huntMenu=d.menu;},
   'armory.enhance': d => run({type:'armory.enhance',who:d.who,id:d.id}),
@@ -310,7 +317,7 @@ const ACTIONS = {
       if (r.ok) ui.selectedSlot = null;
       return;
     }
-    ui.tablePop = { no };
+    ui.cafeDrawer=null;ui.tablePop = { no };
     ui.sheet = null;
   },
   'tray.tap': d => {
@@ -541,7 +548,7 @@ function handleEvents(events) {
       case 'areaOpened': resize(); toast(`🔓 ${ev.name} 증축 완료 · 인테리어에서 테이블과 장식을 놓아 보세요`, 'good', 3600); break;
       case 'decorBought': toast(`📦 ${ev.name} 보관함에 도착 · 인테리어에서 놓아 주세요`, 'good'); break;
       case 'huntFinished': pixelFx(el.stage,'transform',{frames:8}); if ((ev.bag?.moonstone || 0) > 0) gagOnce('hunt', pickLine(GAG_HUNT_RETURN), 0); break;
-      case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast(`${state.hunt.hunterId==='seohanbi'?'검은 호랑이 서한비':'영냥이'}가 ${state.hunt.depth}단계로 출발했어요 · 보스를 쓰러뜨리면 클리어`, 'good'); break;
+      case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast(`${hunterName(state.hunt.hunterId)}가 ${state.hunt.depth}단계로 출발했어요 · 보스를 쓰러뜨리면 클리어`, 'good'); break;
       case 'huntPickup': floater(cssW / 2, cssH * 0.4, `+${ev.name}`, '#7d86e8'); break;
       case 'huntHurt': if(!matchMedia('(prefers-reduced-motion: reduce)').matches)shake(el.stage); break;
       case 'skillLearned': toast(ev.rank===1?`📜 ${ev.name}을 배웠어요 · 다음 사냥부터 나와요`:`📜 ${ev.name} 단련 ${ev.rank}단계`, 'good', 3200); break;
@@ -571,6 +578,7 @@ function render(force = false) {
   const now = performance.now();
   document.body.dataset.mode=state?.mode||'title';
   document.body.dataset.editing=state?.interior?.draft?'true':'false';
+  document.body.dataset.cafeFocus=['prep','shift'].includes(state?.mode)&&!state.interior.draft?'true':'false';
   if(!state||state.mode==='hunt')ui.screen=null;
   document.getElementById('app').hidden=!!ui.screen;
   const world=document.getElementById('world-screen');world.hidden=!ui.screen;
@@ -641,7 +649,7 @@ const loop = createFrameLoop({
       const huntOn = state.mode === 'hunt' && state.hunt?.status === 'running' && !state.paused && !huntPaused(state.hunt);
       if (huntOn && !joystick.state.enabled) joystick.enable();
       if (!huntOn && joystick.state.enabled) joystick.disable();
-      const running = !state.paused && ui.sheet?.kind!=='tutorial' && !novelActive() && (state.mode === 'shift' || state.mode === 'hunt'||state.mode==='prep'&&state.foodGifts?.job);
+      const running = !state.paused && !['tutorial','kfp','trail'].includes(ui.sheet?.kind) && !novelActive() && (state.mode === 'shift' || state.mode === 'hunt'||state.mode==='prep'&&state.foodGifts?.job);
       if (running && raw > 0) {
         const dt = raw * (DEV && ui.speed!==1 ? ui.speed : state.mode==='shift'?ui.playSpeed:1);
         handleEvents(tick(state, dt, { input: joystick.state.move }));
@@ -673,7 +681,7 @@ el.stage.addEventListener('pointerup',()=>cameraDrag=null);el.stage.addEventList
 function beginCraft(menuId,orderId=null){
  if(automationOn(state,'kitchen')){run(orderId?{type:'order.quick',orderId}:{type:'cook',menuId});return;}
  const order=state.orders[orderId];if(order&&Object.values(state.stations).some(st=>stationJobs(st).some(j=>j?.orderId===orderId))){toast('이 주문은 조리 중이에요.');return;}
- ui.playSpeed=1;ui.craft=newCraft(menuId,orderId);ui.craft.assist=motionPreference.matches;ui.sheet={kind:'craft'};
+ ui.cafeDrawer=null;ui.tablePop=null;ui.playSpeed=1;ui.craft=newCraft(menuId,orderId);ui.craft.assist=motionPreference.matches;ui.sheet={kind:'craft'};
 }
 
 function finishGuide(){const back=ui.guideReturn;ui.guideReturn=null;run({type:'tutorial.seen',id:ui.guideId||'cook'});ui.sheet=back||null;}

@@ -1,0 +1,88 @@
+// 사용자 원작 rei1237/killerflowerpig @1e33016b 원본. 경로만 어댑터에 맞춤.
+// Final recipes consume two evolved Lv8 weapons; absolute recipes consume three.
+// 절대 무기는 테크마다 하나: 연꽃 정원=절대 만개, 탄막 사수=종말의 탄막, 역병 화염=역병 종언,
+// 처형자=심판의 단두대, 도살자=학살 톱니바퀴. 재료는 각 테크 계열 무기 3종의 진화형.
+export const FUSION_RECIPES = Object.freeze([
+    { id: 'lotus_bloom', inputs: [{ id: 'cannon', level: 8 }, { id: 'thorns', level: 8 }], output: 'lotus_bloom' },
+    { id: 'scatter_rail', inputs: [{ id: 'shotgun', level: 8 }, { id: 'rifle', level: 8 }], output: 'scatter_rail' },
+    { id: 'plague_fire', inputs: [{ id: 'molotov', level: 8 }, { id: 'gas', level: 8 }], output: 'plague_fire' },
+    { id: 'burst_rail', inputs: [{ id: 'pistols', level: 8 }, { id: 'rifle', level: 8 }], output: 'burst_rail' },
+    { id: 'venom_saw', inputs: [{ id: 'saw', level: 8 }, { id: 'gas', level: 8 }], output: 'venom_saw' },
+    { id: 'ember_lance', inputs: [{ id: 'cannon', level: 8 }, { id: 'molotov', level: 8 }], output: 'ember_lance' },
+    { id: 'orbit_saw', inputs: [{ id: 'thorns', level: 8 }, { id: 'saw', level: 8 }], output: 'orbit_saw' },
+    { id: 'toxic_scatter', inputs: [{ id: 'shotgun', level: 8 }, { id: 'gas', level: 8 }], output: 'toxic_scatter' },
+    { id: 'sword_wheel', inputs: [{ id: 'sword', level: 8 }, { id: 'saw', level: 8 }], output: 'sword_wheel' },
+    { id: 'absolute_bloom', tier: 'absolute', inputs: [{ id: 'cannon', level: 8 }, { id: 'thorns', level: 8 }, { id: 'molotov', level: 8 }], output: 'absolute_bloom' },
+    { id: 'doom_barrage', tier: 'absolute', inputs: [{ id: 'shotgun', level: 8 }, { id: 'rifle', level: 8 }, { id: 'pistols', level: 8 }], output: 'doom_barrage' },
+    { id: 'plague_end', tier: 'absolute', inputs: [{ id: 'molotov', level: 8 }, { id: 'gas', level: 8 }, { id: 'cannon', level: 8 }], output: 'plague_end' },
+    { id: 'guillotine', tier: 'absolute', inputs: [{ id: 'pistols', level: 8 }, { id: 'rifle', level: 8 }, { id: 'saw', level: 8 }], output: 'guillotine' },
+    { id: 'carnage_saw', tier: 'absolute', inputs: [{ id: 'saw', level: 8 }, { id: 'shotgun', level: 8 }, { id: 'thorns', level: 8 }], output: 'carnage_saw' },
+]);
+export const FUSED_WEAPONS = {
+    sword_wheel: {
+        name: '학살자의 검륜', icon: '⚔️', color: '#ff91aa', fusionOnly: true, amountCap: 4,
+        // 검륜 자체 베기도 검 계열 치명타를 유지하고, 피해 상한(일반 최종 220)을 높여 레벨 성장이 잘리지 않게 한다.
+        dmgCap: 360,
+        desc: '핏빛 연꽃검과 척추 분쇄기를 계승한다. 넓은 검격(치명타 25%, 피해 4배)으로 가까운 적을 베고 진화 톱날이 바깥의 적을 추격한다. 계승한 검은 진화 때보다 약해지지 않는다.',
+        base: { dmg: 70, cd: 1.15, amount: 1, speed: 1, duration: 0.22, area: 1, radius: 125, bleed: 5, crit: 0.25, critBonus: 1.0 },
+        levels: [
+            { dmg: 10, t: '검격 피해 +10 · 계승 공격 강화' }, { area: 0.12, t: '검격 범위 +12%' },
+            { cd: -0.08, t: '공격 간격 -8%' }, { dmg: 12, t: '검격 피해 +12 · 계승 공격 강화' },
+            { area: 0.12, t: '검격 범위 +12%' }, { cd: -0.08, t: '공격 간격 -8%' },
+            { dmg: 15, cd: -0.04, t: '검격 피해 +15, 공격 간격 -4% · 두 진화 공격 최종 강화' },
+        ],
+    },
+    absolute_bloom: {
+        name: '절대 만개', icon: '💮', color: '#fff0b8', fusionOnly: true, tier: 'absolute', amountCap: 12,
+        desc: '세 진화 무기의 공격을 계승한다. 연꽃 광선은 피해 2배 강화, 집중 총 피해는 1/2/3발에 1.3/2.6/3.9배, 보너스와 계승 공격을 합쳐 화면 전체 최대 3발. 자동 사격은 한 줄로 겹친 일직선 광선, 집중 조준은 선택한 적에게 강화 피해를 준다. 계승한 피의 연꽃 가시는 흡혈과 함께 찌른 적을 항상 정지시킨다(일반 3초 · 엘리트 절반 · 보스 0.4초).',
+        base: { dmg: 125, cd: 3.2, amount: 8, speed: 1, duration: 0.6, area: 1, length: 680, width: 58 },
+        levels: [{dmg:15,t:'절대 광선 피해 +15 · 계승 공격 강화'},{area:0.12,t:'절대 광선 범위 +12%'},{cd:-0.08,t:'재사용 -8%'},{dmg:20,t:'절대 광선 피해 +20 · 계승 공격 강화'},{area:0.12,t:'절대 광선 범위 +12%'},{cd:-0.08,t:'재사용 -8%'},{dmg:25,t:'절대 광선 피해 +25 · 세 진화 공격 최종 강화'}],
+    },
+    lotus_bloom: {
+        name: '만개 연꽃포', icon: '💮', color: '#ff8bcc', fusionOnly: true,
+        desc: '꽃잎 관통 광선과 몸을 지키는 회전 연꽃 가시를 함께 발사한다. 바깥 가시 고리도 찌른 적을 정지시킨다. 계승한 피의 연꽃 가시는 흡혈과 함께 찌른 적을 항상 정지시킨다(일반 3초 · 엘리트 절반 · 보스 0.4초).',
+        base: { dmg: 50, cd: 3.8, amount: 1, speed: 3.4, duration: 0.35, area: 1, length: 560, width: 44, radius: 90, hitCd: 0.45 },
+        levels: [{dmg:8,t:'광선 피해 +8 · 가시 피해 함께 성장'},{area:0.12,t:'광선·가시 범위 +12%'},{cd:-0.1,t:'재사용 -10%'},{dmg:10,t:'광선 피해 +10 · 가시 피해 함께 성장'},{area:0.12,t:'광선·가시 범위 +12%'},{cd:-0.1,t:'재사용 -10%'},{dmg:12,t:'광선 피해 +12 · 회전 꽃잎 최대 5개'}],
+    },
+    scatter_rail: {
+        name: '관통 산탄포', icon: '💥', color: '#a6deff', fusionOnly: true,
+        desc: '산탄총의 부채꼴 8발에 소총의 5회 관통과 긴 사거리를 결합한다.',
+        base: { dmg: 33, cd: 1.25, amount: 8, speed: 820, duration: 0.75, pierce: 4, area: 1.2, spread: 0.55 },
+        levels: [{dmg:3,t:'탄당 피해 +3'},{pierce:1,t:'관통 +1'},{cd:-0.1,t:'재사용 -10%'},{amount:1,t:'산탄 +1'},{dmg:4,t:'탄당 피해 +4'},{pierce:1,t:'관통 +1'},{amount:1,t:'산탄 +1'}],
+    },
+    doom_barrage: {
+        name: '종말의 탄막', icon: '🎆', color: '#9fd3ff', fusionOnly: true, tier: 'absolute', amountCap: 10,
+        desc: '세 총기의 공격을 계승하고, 360도 전방위로 관통 탄환 10발(사거리 짧음)을 흩뿌린 뒤 조준 레일탄 3발을 꽂는다.',
+        base: { dmg: 34, cd: 1.8, amount: 10, speed: 760, duration: 0.7, pierce: 3, area: 1 },
+        levels: [{dmg:4,t:'탄당 피해 +4 · 계승 공격 강화'},{pierce:2,t:'관통 +2'},{cd:-0.08,t:'재사용 -8%'},{speed:0.15,t:'탄속 +15%'},{dmg:5,t:'탄당 피해 +5 · 계승 공격 강화'},{area:0.1,t:'탄 크기 +10%'},{dmg:6,cd:-0.08,t:'피해 +6, 재사용 -8% · 세 총기 최종 강화'}],
+    },
+    plague_end: {
+        name: '역병 종언', icon: '☣️', color: '#b8f05b', fusionOnly: true, tier: 'absolute', amountCap: 8,
+        desc: '세 진화 무기를 계승하고, 화면 곳곳에 큰 역병 화염 장판을 터뜨려 40% 둔화시킨다.',
+        base: { dmg: 22, cd: 3.0, amount: 4, speed: 1, duration: 3.4, area: 1, radius: 105, tick: 0.3, slow: 0.4 },
+        levels: [{dmg:3,t:'틱 피해 +3 · 계승 공격 강화'},{area:0.08,t:'범위 +8%'},{slow:0.05,t:'둔화 +5%'},{duration:0.1,t:'지속 +10%'},{dmg:3,t:'틱 피해 +3 · 계승 공격 강화'},{cd:-0.06,t:'재사용 -6%'},{dmg:4,t:'피해 +4 · 최종 강화'}],
+    },
+    guillotine: {
+        name: '심판의 단두대', icon: '⚔️', color: '#ff3b5c', fusionOnly: true, tier: 'absolute', amountCap: 10,
+        desc: '세 진화 무기를 계승하고, 치명타 확률 30%·치명타 피해 4배의 관통 처형탄을 빠르게 연사한다. 처형자 테크에서는 체력과 무관하게 일반 적 확률 처형.',
+        base: { dmg: 28, cd: 0.9, amount: 5, speed: 920, duration: 0.9, pierce: 3, area: 1, crit: 0.3, critBonus: 1.0 },
+        levels: [{dmg:5,t:'피해 +5 · 계승 공격 강화'},{crit:0.05,t:'치명타 +5%'},{amount:1,t:'처형탄 +1'},{critBonus:0.3,t:'치명타 피해 +30%'},{dmg:6,t:'피해 +6 · 계승 공격 강화'},{cd:-0.1,t:'재사용 -10%'},{amount:1,crit:0.05,t:'처형탄 +1, 치명타 +5% · 최종 강화'}],
+    },
+    carnage_saw: {
+        name: '학살 톱니바퀴', icon: '🩸', color: '#ff8f8f', fusionOnly: true, tier: 'absolute', amountCap: 8,
+        desc: '세 진화 무기를 계승하고, 거대한 피의 톱날을 사방으로 튕겨 반복해서 베며 강한 출혈을 남긴다. 계승한 피의 연꽃 가시는 흡혈과 함께 찌른 적을 항상 정지시킨다(일반 3초 · 엘리트 절반 · 보스 0.4초).',
+        base: { dmg: 30, cd: 3.0, amount: 4, speed: 420, duration: 3.2, area: 1.15, hitCd: 0.35, bleed: 4 },
+        levels: [{dmg:4,t:'피해 +4 · 계승 공격 강화'},{area:0.1,t:'크기 +10%'},{amount:1,t:'톱날 +1'},{duration:0.15,t:'지속 +15%'},{dmg:5,t:'피해 +5 · 계승 공격 강화'},{cd:-0.1,t:'재사용 -10%'},{amount:1,dmg:5,t:'톱날 +1, 피해 +5 · 최종 강화'}],
+    },
+    plague_fire: {
+        name: '역병 화염병', icon: '🔥', color: '#b8f05b', fusionOnly: true,
+        desc: '화염의 지속 피해와 독가스의 35% 둔화를 하나의 장판으로 결합한다.',
+        base: { dmg: 9, cd: 3.4, amount: 2, speed: 1, duration: 3.4, area: 1, radius: 92, tick: 0.3, slow: 0.35 },
+        levels: [{dmg:2,t:'틱 피해 +2'},{area:0.12,t:'범위 +12%'},{duration:0.15,t:'지속 +15%'},{slow:0.05,t:'둔화 +5%'},{dmg:2,t:'틱 피해 +2'},{cd:-0.1,t:'재사용 -10%'},{amount:1,t:'화염병 +1'}],
+    },
+    burst_rail: {"name": "연쇄 관통권총", "icon": "✿", "color": "#c8a6ff", "fusionOnly": true, "amountCap": 8, "desc": "쌍권총의 초고속 4연발에 소총의 2회 관통과 긴 사거리를 결합한다.", "base": {"dmg": 10, "cd": 0.7, "amount": 4, "speed": 900, "duration": 0.8, "pierce": 2, "area": 1}, "levels": [{"dmg": 3, "t": "피해 +3"}, {"area": 0.1, "t": "범위 +10%"}, {"cd": -0.1, "t": "재사용 -10%"}, {"amount": 1, "t": "발사 수 +1 (상한 적용)"}, {"dmg": 3, "t": "피해 +3"}, {"area": 0.1, "t": "범위 +10%"}, {"cd": -0.1, "t": "재사용 -10%"}]},
+    venom_saw: {"name": "맹독 회전톱", "icon": "✿", "color": "#c8a6ff", "fusionOnly": true, "amountCap": 4, "desc": "튕기는 톱날 2개가 적을 반복해서 베고 35% 둔화시킨다.", "base": {"dmg": 14, "cd": 3.5, "amount": 2, "speed": 340, "duration": 3.2, "area": 1, "hitCd": 0.4, "slow": 0.35}, "levels": [{"dmg": 3, "t": "피해 +3"}, {"area": 0.1, "t": "범위 +10%"}, {"cd": -0.1, "t": "재사용 -10%"}, {"amount": 1, "t": "발사 수 +1 (상한 적용)"}, {"dmg": 3, "t": "피해 +3"}, {"area": 0.1, "t": "범위 +10%"}, {"cd": -0.1, "t": "재사용 -10%"}]},
+    ember_lance: {"name": "화염 꽃잎창", "icon": "✿", "color": "#c8a6ff", "fusionOnly": true, "amountCap": 2, "desc": "꽃잎 광선을 쏘면서 별도로 던진 병이 화염 장판을 남긴다.", "base": {"dmg": 48, "cd": 4, "amount": 1, "speed": 1, "duration": 0.35, "area": 1, "length": 540, "width": 40, "radius": 54, "tick": 0.3}, "levels": [{"dmg": 8, "t": "피해 +8"}, {"area": 0.1, "t": "범위 +10%"}, {"cd": -0.1, "t": "재사용 -10%"}, {"amount": 1, "t": "발사 수 +1 (상한 적용)"}, {"dmg": 8, "t": "피해 +8"}, {"area": 0.1, "t": "범위 +10%"}, {"cd": -0.1, "t": "재사용 -10%"}]},
+    orbit_saw: {"name": "연꽃 톱니진", "icon": "✿", "color": "#c8a6ff", "fusionOnly": true, "amountCap": 4, "desc": "몸 주위의 회전 꽃잎 3개와 튕기는 톱날 2개로 가까운 적과 먼 적을 함께 공격한다. 계승한 피의 연꽃 가시는 흡혈과 함께 찌른 적을 항상 정지시킨다(일반 3초 · 엘리트 절반 · 보스 0.4초).", "base": {"dmg": 18, "cd": 3.8, "amount": 2, "speed": 350, "duration": 2.8, "area": 1, "radius": 78, "hitCd": 0.4}, "levels": [{"dmg": 3, "t": "피해 +3"}, {"area": 0.1, "t": "범위 +10%"}, {"cd": -0.1, "t": "재사용 -10%"}, {"amount": 1, "t": "발사 수 +1 (상한 적용)"}, {"dmg": 3, "t": "피해 +3"}, {"area": 0.1, "t": "범위 +10%"}, {"cd": -0.1, "t": "재사용 -10%"}]},
+    toxic_scatter: {"name": "맹독 산탄총", "icon": "✿", "color": "#c8a6ff", "fusionOnly": true, "amountCap": 10, "desc": "부채꼴 독산탄 6발이 적 무리를 관통하며 맞은 적을 30% 둔화시킨다.", "base": {"dmg": 14, "cd": 1.3, "amount": 6, "speed": 560, "duration": 0.6, "pierce": 3, "area": 1, "spread": 0.65, "slow": 0.3}, "levels": [{"dmg": 3, "t": "피해 +3"}, {"area": 0.1, "t": "범위 +10%"}, {"cd": -0.1, "t": "재사용 -10%"}, {"amount": 1, "t": "발사 수 +1 (상한 적용)"}, {"dmg": 3, "t": "피해 +3"}, {"area": 0.1, "t": "범위 +10%"}, {"cd": -0.1, "t": "재사용 -10%"}]},
+};

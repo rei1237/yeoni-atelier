@@ -1,3 +1,4 @@
+import {normalizeKfp} from '../game/kfp-loadout.js';
 import {migrateFurniture} from '../data/layout.js';
 import {migrateHuntVisits} from '../game/hunt-visits.js';
 import {migrateCounter} from '../game/cafe.js';
@@ -83,6 +84,7 @@ function migrate(data) {
   // 기존 저장에는 도입부 기록이 없다. 이어하기는 프롤로그를 생략하고 다른 이야기 기록은 보존한다.
   data.ledger.story = {...data.ledger.story, prologue:true};
   migrateHuntVisits(data);
+  if(data.hunt)normalizeKfp(data.hunt);
   data.interior.areas ||= []; // 증축 구역 이전 저장
   checkAchievements(data, { quiet: true }); // 업적 소급(원장으로 보상 1회)
   return data;

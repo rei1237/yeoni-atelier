@@ -10024,3 +10024,12 @@ ASSET_UPDATES.actors["customer_seated"] = {"kind":"actor","label":"customer","pa
 ASSET_UPDATES.objects.plant={...ASSET_UPDATES.objects.plant,path:ASSET_UPDATES.ui.botanical_pot.path,dimensions:[128,160]};
 
 for(const [id,source] of [['grand_table','table'],['grand_planter','plant'],['long_cabinet','pass']])ASSET_UPDATES.objects[id]={...ASSET_UPDATES.objects[source]};
+
+ASSET_UPDATES.ui.kfp_player={kind:"ui",path:"assets/illustrated/actors/kfp_player.webp",dimensions:[644,112]};
+
+// 실제 128px 정규화 프레임 실측. 볼·피처는 시트에 포함된다. 완성 메뉴는 빈손 프레임에 붙인다.
+ASSET_UPDATES.actors.luna_sis_cook.cookSockets={verified:true,embedded:['bowl','pitcher'],prepare:[
+ {ingredient:{x:88,y:58,width:11,layer:'front'}},
+ {ingredient:{x:102,y:56,width:11,layer:'front'}},
+ {},{}
+],extract:[{},{},{},{}],bake:[{},{},{},{}],plate:[{},{},{dish:{x:89,y:78,width:19,layer:'front'}},{dish:{x:85,y:77,width:19,layer:'front'}}]};

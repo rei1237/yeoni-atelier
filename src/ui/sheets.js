@@ -1,3 +1,6 @@
+import {trailSheet} from './trail-ui.js';
+import {kfpSheet} from './kfp-ui.js';
+import {hunterName} from '../game/hunt-cast.js';
 import {foodGiftSheet} from './food-gifts.js';
 import {runningJobs,queuedJobs,stationJobs,stationItems,activeSlotNames,heldKey} from '../game/station-slots.js';
 import {staffingSheet} from './staffing.js';
@@ -64,6 +67,8 @@ function sheetBody(state, ui) {
   const s = ui.sheet;
   if (!state || !s) return '';
   switch (s.kind) {
+    case 'trail': return trailSheet(state);
+    case 'kfp':return kfpSheet(state);
     case 'staffing': return staffingSheet(state);
     case 'grounds': return groundsSheet(state,ui);
     case 'branches': return branchesSheet(state,ui);
@@ -626,7 +631,7 @@ function chestDialog(state) {
 }
 
 // 한 번 출발에 3단계를 마친 사냥꾼의 한마디
-export const tiredLine = id => id === 'seohanbi' ? '오늘 사냥은 여기까지. 무리하면 내일이 무뎌져' : '영냥이가 피곤하군… 오늘은 여기까지만 할까?';
+export const tiredLine = id => id === 'seohanbi' ? '오늘 사냥은 여기까지. 무리하면 내일이 무뎌져' : id === 'yeoni_pig' ? '꿀악! 오늘 운동은 별 다섯… 이제 간식 먹으러 가자!' : '영냥이가 피곤하군… 오늘은 여기까지만 할까?';
 
 // 단계 클리어: 다음 단계로 이어 가거나 귀환해 정산한다. 고르는 동안 시간이 멈춘다
 function stageClearDialog(state) {
@@ -643,10 +648,10 @@ function stageClearDialog(state) {
 
 function huntResult(state) {
   const h = state.hunt;
-  const bonus=survivalReward(h), name=h.hunterId==='seohanbi'?'서한비':'영냥이';
+  const bonus=survivalReward(h), name=hunterName(h.hunterId);
   const head2 = h.status === 'down' ? `${name}, 지쳐서 돌아왔어` : h.status === 'retreat' ? (h.cleared ? `${h.cleared}개 단계를 클리어하고 돌아왔어요` : '일찍 돌아왔어요') : '사냥 완료';
   const bag = Object.entries(h.bag).filter(([id, n]) => id === 'moonstone' || n > 0).map(([id, n]) => `<span>${id === 'moonstone' ? '🌙 월정석' : esc(INGREDIENTS[id]?.name || id)}</span><b>${n}</b>`).join('');
-  return `<div class="dialog night hunt-result" role="dialog" aria-modal="true">${NIGHT_ORN}<h2>${head2}</h2>${h.hunterId!=='seohanbi'?`<div class="hunt-return-art">${assetIcon('ui/neo_cat_tired')}</div>`:''}
+  return `<div class="dialog night hunt-result" role="dialog" aria-modal="true">${NIGHT_ORN}<h2>${head2}</h2>${h.hunterId==='neo'?`<div class="hunt-return-art">${assetIcon('ui/neo_cat_tired')}</div>`:''}
     <div class="kv">${bag}<span>생존 추가 월정석</span><b>+${bonus.moonstone}</b><span>생존 재료</span><b>${Object.entries(bonus.items).map(([id,n])=>`${INGREDIENTS[id]?.name} ${n}`).join(' · ')||'1분부터 지급'}</b><span>클리어한 단계</span><b>${h.cleared ? `${h.cleared}개 · ${state.hunter.maxStage}단계까지 열림` : '보스를 쓰러뜨리면 클리어'}</b><span>처치</span><b>${h.kills}</b><span>이번 사냥 레벨</span><b>${h.level ?? 1}</b><span>탐사 성장 경험치</span><b>+${h.careerXP || 0}</b><span>보스 처치</span><b>${h.bossKills || 0}</b><span>사냥 시간</span><b>${fmtTime(h.elapsedMs)}</b></div>
     <p class="small muted">지쳐도 사냥꾼과 모은 보상은 사라지지 않아요. 귀환 보상은 한 번만 받고, 다음 출발 때 체력을 회복해요. 마을 「청토끼 금융 센터」에서 골드로 바꿀 수 있어요.</p>
     <div class="stack">${btn({ action: 'hunt.finish', cls: 'primary', label: '월정석 받고 가게로' })}</div></div>`;

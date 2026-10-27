@@ -1,7 +1,8 @@
+import {hunterName} from './hunt-cast.js';
 // 날짜는 게임 달력의 day(한 순)이며 현실 시계를 읽지 않는다.
 export const huntVisitKey=(state,who='neo')=>`${who}:${state.day}`;
 export function huntVisitReason(state,who='neo'){
- return who==='neo'&&state.ledger.huntVisits?.[huntVisitKey(state,who)]?'영냥이는 오늘 다녀왔어 · 내일 다시 갈 수 있어':'';
+ return state.ledger.huntVisits?.[huntVisitKey(state,who)]?`${hunterName(who)}는 오늘 다녀왔어 · 내일 다시 갈 수 있어`:'';
 }
 export function recordHuntVisit(state,who,id){(state.ledger.huntVisits??={})[huntVisitKey(state,who)]=id;}
 export function migrateHuntVisits(state){

@@ -30,8 +30,8 @@ test('조리 프레임은 실제 진행·경계·저장값에서 결정되고 �
  const long={...job,durationMs:1e13,progressMs:123456789012};assert.deepEqual(cookingPose(long,'drink'),cookingPose(structuredClone(long),'drink'));
 });
 
-test('실측하지 않은 손 소켓은 그리지 않고 검증한 소품·재료만 앞뒤 레이어로 전달한다',()=>{
- const pose={phase:'prepare',frame:2};assert.deepEqual(cookingSockets(ASSETS.actors.luna_sis_cook,pose),[]);
+test('실측 재료 소켓만 그리고 시트에 포함된 볼·피처는 중복하지 않고 완성 메뉴를 붙인다',()=>{
+ const pose={phase:'prepare',frame:2};assert.deepEqual(cookingSockets(ASSETS.actors.luna_sis_cook,pose),[]);assert.equal(cookingSockets(ASSETS.actors.luna_sis_cook,{phase:'prepare',frame:0})[0][0],'ingredient');assert.deepEqual(ASSETS.actors.luna_sis_cook.cookSockets.embedded,['bowl','pitcher']);
  const definition={cookSockets:{verified:true,prepare:[{},{},{bowl:{x:64,y:84,width:30,layer:'back'},ingredient:{x:68,y:72,width:14,layer:'front'},bad:{x:NaN,y:3,width:20,layer:'back'}}]}};
  assert.deepEqual(cookingSockets(definition,pose).map(([id])=>id),['bowl','ingredient']);assert.deepEqual(cookingSockets(definition,{phase:'extract',frame:0}),[]);
 });

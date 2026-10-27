@@ -98,16 +98,18 @@ export function advanceTurn(state) {
 }
 
 // 이번 순에 아직 안 본 달 이야기(매달 상순 준비 때 한 번). id 는 UI 가 story.seen 으로 기록한다.
+import {pendingBloomStory} from './hunt-cast.js';
+
 export function pendingStory(state) {
   if (state.mode !== 'prep') return null;
   // 후일담: 결말을 본 뒤에도 인연 이야기는 이어진다
-  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : pendingHanbiStory(state) || pendingBondStory(state) || pendingBranchStory(state);
+  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : pendingHanbiStory(state) || pendingBloomStory(state) || pendingBondStory(state) || pendingBranchStory(state);
   const c = calendarOf(state.day);
   const id = `m${c.monthIdx}`;
   if (!state.ledger.story[id]) return id;
   // 첫 영업을 마친 뒤에야 「돈 벌어 와, 네오!」가 나온다
   if (!state.huntUnlocked && !state.ledger.story['ev:hunt'] && state.stats.shiftsCompleted >= 1) return 'ev:hunt';
-  return pendingHanbiStory(state) || pendingBondStory(state) || pendingBranchStory(state);
+  return pendingHanbiStory(state) || pendingBloomStory(state) || pendingBondStory(state) || pendingBranchStory(state);
 }
 
 // 네오가 30·40·50·70·100단계를 처음 클리어하면 귀환 뒤 검은 호랑이 사건을 순서대로 하나씩 튼다(건너뛸 수 없다)

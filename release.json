@@ -1,6 +1,9 @@
 {
-  "version": "2026.10.27.1",
-  "name": "연이의 아틀리에 · 꽃빛 카페",
+  "version": "2026.10.27-preview.1",
+  "name": "연이의 아틀리에 · 카페·사냥 프리뷰",
   "musicTracks": 103,
-  "assetBytes": 14875442
+  "assetBytes": 14914014,
+  "channel": "preview",
+  "baseCommit": "78210105ba90474e2567a33edb5e1dd8459089d8",
+  "newTitleArt": false
 }

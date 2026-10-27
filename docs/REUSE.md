@@ -24,6 +24,8 @@
 
 ## 개념만 참고하고 새로 쓴 것(이식 아님)
 
+이 절은 초기 영냥이 사냥 구현 당시 기록이다. 이후 꽃돼지용 원본 무기·융합 데이터와 능력치 계산·조준 모듈을 추가했다. 현재 재사용 범위는 아래 「동일 원본의 전체 무기 어댑터 추가」를 따른다.
+
 [src/game/hunt.js](../src/game/hunt.js) 와 [src/data/hunt-kit.js](../src/data/hunt-kit.js) 의 다음 부분은 원본의 개념만 참고해 새로 작성했다. **원본 전투 로직을 이식하지 않았다.** 무기·적 이름과 수치는 모두 이 게임의 임시(TEMP) 값이다.
 
 | 새로 쓴 것 | 참고한 원본 개념 |
@@ -92,3 +94,13 @@ Code Destiny 로컬 원본의 공개 프로필·라이트노벨 이미지·운�
 
 ### 음악실 확장 (로컬)
 원작 `app/music/_data/musicManifest.ts`의 곡·아티스트·공개 URL·표지 메타데이터를 읽어 103곡을 수록하고 artistKey=neo인20곡을 제외했다. `music-lounge.module.css`의 현재곡/앨범/분류/목록/재생바 정보 구조와 달빛 팔레트를 참고했으며 게임용 컨트롤은 새로 작성했다. 원작 정책 파일은 읽기만 했고 인증·결제·API·DB를 변경하지 않았다. 음원과 표지를 로컬 assets로 복사하지 않고 사용자 재생 시 공개 스트리밍하며 오프라인 사전 캐시/다운로드를 제공하지 않는다. 정확한 목록은 MUSIC-CATALOG.md.
+
+## 2026-10-27 사용자 승인 Killer Flower Pig 재사용
+- 소스: rei1237/killerflowerpig, `1e33016bfae8f31d89161066d993229fe933b777` (읽기 전용). 별도 공개 LICENSE는 루트에 없으며 소유 사용자의 명시 재사용 지시에 근거한다. 타 프로젝트 일반 재배포 허가를 뜻하지 않는다.
+- `src/game/petal-charge.js` → `src/game/kfp-petal-charge.js`: 코드 그대로. 단조 증가 처치 카운터·포격 자체 충전 금지·선차감 보존.
+- `asset/sprites/player.webp` 38,550B, SHA256 `3d5c24cafbe32191876671fdb2f26b7f24982e48add724d138ff0ab566d8369b`: 원본 그대로. player 프레임 메타데이터를 `src/data/kfp-player.js`에 옮김. 원본 D:/yeoni-qa/art/kfp-reference-20261027/player.webp 보존.
+- `src/data/weapons.js` shotgun 기본값 damage11/cd1s/count5/speed560/life.55s/pierce2/spread.6을 현재 Pool과 ms 시계에 맞춰 연결. source의 모든 무기·진화·융합 시스템 이식 완료를 뜻하지 않는다.
+- 원본 docs/survival-art.md는 소유자 제공 캐릭터 참조와 생성 그림을 명시. 음악/제3자 자산은 복사하지 않았다. Vampire Survivors 바이너리·그림·음원 추출 없음.
+
+### 동일 원본의 전체 무기 어댑터 추가
+`src/data/weapons.js`, `src/data/fusions.js`를 kfp 접두 데이터로, `src/game/cannon-targeting.js`를 순수 조준 모듈로 옮겼다. `src/game/weapons.js`의 능력치 계산을 `kfp-stats.js`로 분리하고 공격·충돌은 현재 엔진용 `kfp-combat.js`로 작성했다. 정확한 9기본/9진화/12패시브/14조합 대조와 미이식 직업 테크·전설 장비 범위는 KFP-PORT.md. 기존 첫 산탄만 이식했다는 기록은 초기 단계 기록이다.

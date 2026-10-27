@@ -1,3 +1,8 @@
+import {stepTrail,claimTrailReward,trailDef} from './hunt-trails.js';
+import {normalizeKfp,kfpOptions,kfpEvolutions,kfpDescribe,applyKfpOption,kfpPlayerStats,fuseKfp} from './kfp-loadout.js';
+import {stepKfp} from './kfp-combat.js';
+import {hunterUnlocked,hunterPerson} from './hunt-cast.js';
+import {createPetalCharge,chargePetal,spendPetal} from './kfp-petal-charge.js';
 import {SUPPLY_TEMP} from '../data/hunt-supplies.js';
 import {huntVisitReason,recordHuntVisit} from './hunt-visits.js';
 import {nearbyProps,hitFieldProp} from './hunt-field.js';
@@ -49,11 +54,11 @@ export const gemTier = v => (v < 4 ? 0 : v < 20 ? 1 : 2);
 export function huntCheck(state, hunterId = 'neo') {
   const reasons = [];
   const visitLock=huntVisitReason(state,hunterId);if(visitLock)reasons.push(visitLock);
-  if (!['neo','seohanbi'].includes(hunterId) || (hunterId === 'seohanbi' && !state.roster.seohanbi)) reasons.push('아직 함께 사냥할 수 없는 동료입니다');
+  if (!hunterUnlocked(state,hunterId)) reasons.push('아직 함께 사냥할 수 없는 동료입니다');
   const lock = placeLock(state, 'hunt'); if (lock) reasons.push(lock);
   const busy = state.shift ? personBusyReason(state, hunterId) : null;
   if (busy) reasons.push(busy);
-  else if (state.people[hunterId]?.activity !== 'idle') reasons.push('선택한 동료가 다른 활동 중입니다');
+  else if ((state.people[hunterPerson(hunterId)]?.activity||'idle') !== 'idle') reasons.push('선택한 동료가 다른 활동 중입니다');
   if (hunterId === 'neo' && state.ap?.neoTask === 'farm') reasons.push('네오는 이번 순에 농장을 맡았어요 · 다음 순에 사냥을 떠날 수 있어요');
   if (state.mode === 'shift') reasons.push('정규 영업 중에는 사냥을 떠날 수 없습니다');
   else if (state.mode === 'settlement') reasons.push('결산을 닫은 뒤 떠날 수 있습니다');
@@ -71,13 +76,16 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
   if (hunterId === 'neo') state.ap.neoTask = 'hunt';
   state.mode = 'hunt';
   state.paused = false;
-  Object.assign(state.people[hunterId], { activity: 'hunting', form: hunterId === 'neo' ? 'cat' : 'tiger', visitId: null, tableNo: null, endAt: null });
+  state.people[hunterPerson(hunterId)]??={activity:'idle',form:'human'};
+  Object.assign(state.people[hunterPerson(hunterId)], { activity: 'hunting', form: hunterId === 'neo' ? 'cat' : hunterId==='yeoni_pig'?'pig':'tiger', visitId: null, tableNo: null, endAt: null });
   // 장비 + 네오 친밀도 능력(시작 HP·무기 피해·보스 월정석)
   const fx = bondFx(state.affinity);
   const gear = gearBonus(state.gear?.equipped);
   gear.hp += fx.huntHp;
   gear.dmg += fx.huntDmg;
   gear.bossMoon = fx.bossMoon;
+  // TEMP: 정규 100단계 뒤 보상 동료. 원본 산탄과 꽃잎포를 쓰고 카페의 영입·능력은 바꾸지 않는다.
+  if(hunterId === 'yeoni_pig'){gear.hp+=400;gear.dmg+=3;gear.speed+=.15;gear.magnet+=.5;}
   if(hunterId === 'seohanbi') { gear.hp += 120; gear.dmg += .8; gear.speed += .12; gear.magnet += .3; }
   const enhancement = enhancementBonus(state,hunterId); gear.hp += enhancement.hp; gear.dmg += enhancement.dmg; gear.magnet += enhancement.magnet;
   const careerLevel = hunterProgress(state.hunter.xp).level;
@@ -85,15 +93,16 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
   gear.hp += (statLevel - 1) * TEMP.HUNT_CAREER.hpPerLevel;
   gear.dmg += (statLevel - 1) * TEMP.HUNT_CAREER.damagePerLevel;
   const saved=state.hunter.builds?.[hunterId];
-  const hp = H.PLAYER_HP + gear.hp + (saved?.passives?.fish_stock||0)*20;
+  const hp = H.PLAYER_HP + gear.hp + (saved?.passives?.fish_stock||0)*20 + (saved?.kfp?.passives?.heart||0)*20;
   state.hunt = normalizeHunt({
     id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: null, hunterId, hp, maxHp: hp, gear,
     bag: { moonstone: 0 }, kills: 0, status: 'running', depth, careerLevel, careerXP: 0,
     caps: Object.fromEntries(SKILL_IDS.map(id => [id, skillCap(id, skillRank(state, id))])), // 출발 때 고정한 단련 상한
     scale: depthScale(depth, monthScale(state.day), calendarOf(state.day).monthIdx),
     fieldSeed:Math.floor(nextRandom(state.rng)*2147483647),brokenProps:{},propDamage:{},
-    ...(saved?{level:saved.level,xp:saved.xp,weapons:structuredClone(saved.weapons),passives:{...saved.passives},picks:structuredClone(saved.picks||[])}:{}),
+    ...(saved?{kfp:saved.kfp?structuredClone(saved.kfp):undefined,level:saved.level,xp:saved.xp,weapons:structuredClone(saved.weapons),passives:{...saved.passives},picks:structuredClone(saved.picks||[])}:{}),
   });
+  if(state.hunt.kfp){state.hunt.kfp.cool={};state.hunt.kfp.thorns={};state.hunt.kfp.pollenAt=0;}
   state.hunt.startedDay=state.day;recordHuntVisit(state,hunterId,state.hunt.id);
   emit('huntStart', {});
   return { ok: true };
@@ -102,7 +111,7 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
 // 예전 저장(레벨 개념 전)의 사냥도 이어서 할 수 있게 빠진 칸을 채운다
 export function normalizeHunt(hs) {
   if (!hs) return hs;
-  hs.hunterId ??= 'neo'; hs.durationMs = null; hs.bossKills ??= 0;
+  hs.hunterId ??= 'neo'; if(hs.hunterId==='yeoni_pig')hs.petal??=createPetalCharge(); hs.durationMs = null; hs.bossKills ??= 0;
   hs.level ??= 1;
   hs.xp ??= 0;
   hs.xpNext ??= xpNeeded(hs.level);
@@ -117,7 +126,7 @@ export function normalizeHunt(hs) {
   hs.startDepth ??= hs.depth; hs.stageMs ??= 0; hs.boss ??= null; hs.bossSpawned ??= false;
   hs.cleared ??= 0; hs.stageChoice ??= null; hs.chests ??= [];
   hs.caps ??= Object.fromEntries(SKILL_IDS.map(id => [id, WEAPONS[id] ? WEAPON_MAX_LV : PASSIVE_MAX_LV])); // 단련 이전 사냥은 그대로
-  return hs;
+  normalizeKfp(hs);return hs;
 }
 
 function makeWorld() {
@@ -151,6 +160,7 @@ export function getHuntWorld(state) {
 
 // ── 능력치(보조 능력 반영)
 export function mods(hs) {
+  if(hs.hunterId==='yeoni_pig'){const p=kfpPlayerStats(hs),old=hs.kfp.legacy?hs.passives:{};return {dmg:p.might,speed:p.speed*(1+.1*(old.paw||0)),area:p.area*(1+.15*(old.hat||0)),cool:p.cooldown*(1-.08*(old.bell||0)),magnet:p.magnet*(1+.3*(old.whisker||0)),crit:p.crit+.05*(old.luck||0)};}
   const p = hs.passives;
   const g = hs.gear || gearBonus();
   return {
@@ -189,6 +199,7 @@ export function weaponStats(wp, m) {
 // ── 레벨업 카드
 // 윤달 공방 단련 상한(hs.caps) 아래 기술만 나온다. 못 배운 기술은 상한 0
 export function optionsFor(hs) {
+  if(hs.hunterId==='yeoni_pig')return kfpOptions(hs);
   const out = [], cap = id => hs.caps[id] || 0;
   for (const wp of hs.weapons) if (wp.level < Math.min(WEAPON_MAX_LV, cap(wp.id))) out.push({ kind: 'weapon', id: wp.id });
   if (hs.weapons.length < MAX_WEAPONS) for (const id of Object.keys(WEAPONS)) if (cap(id) && !hs.weapons.some(w => w.id === id)) out.push({ kind: 'weapon', id });
@@ -206,6 +217,7 @@ function rollOffer(state, n = 3) {
 }
 
 export function describeOption(hs, o) {
+  if(o.kind?.startsWith('kfp'))return kfpDescribe(hs,o);
   if (o.kind === 'heal') return { icon: '🐟', name: '간식 시간', text: `HP ${H.HEAL_FISH} 회복`, tag: '회복' }; // 옛 저장의 남은 카드
   if (o.kind === 'pouch') return { icon: '☾', name: '월정석 주머니', text: `모든 기술이 단련 상한이에요 · 월정석 +${TEMP.HUNT_SKILLS.POUCH}`, tag: '보너스' };
   const cap = hs.caps?.[o.id];
@@ -220,6 +232,7 @@ export function describeOption(hs, o) {
 }
 
 function applyOption(state, o) {
+  if(o.kind?.startsWith('kfp'))return applyKfpOption(state.hunt,o);
   const hs = state.hunt;
   if (o.kind === 'heal') hs.hp = Math.min(hs.maxHp, hs.hp + H.HEAL_FISH);
   else if (o.kind === 'pouch') hs.bag.moonstone = (hs.bag.moonstone || 0) + TEMP.HUNT_SKILLS.POUCH;
@@ -249,6 +262,7 @@ export function pick(state, index) {
   if (!offer) return { ok: false, reason: '고를 카드가 없습니다' };
   const o = offer[index];
   if (!o) return { ok: false, reason: '없는 카드입니다' };
+  if(o.kind?.startsWith('kfp')&&!kfpOptions(hs).some(x=>x.kind===o.kind&&x.id===o.id))return {ok:false,reason:'이미 바뀐 선택지예요'};
   hs.picks.shift();
   applyOption(state, o);
   return { ok: true, option: o };
@@ -256,7 +270,7 @@ export function pick(state, index) {
 
 function gainXp(state, v) {
   const hs = state.hunt;
-  hs.xp += v;
+  hs.xp += v*(hs.hunterId==='yeoni_pig'?kfpPlayerStats(hs).xp:1);
   while (hs.xp >= hs.xpNext) {
     hs.xp -= hs.xpNext;
     hs.level += 1;
@@ -280,6 +294,7 @@ export function spawnEnemy(state, w, type, x, y) {
   }
   const e = w.enemies.spawn();
   Object.assign(e, {
+    kfpBleed:0,kfpBleedUntil:0,kfpBleedAt:0,kfpSlow:0,kfpSlowUntil:0,kfpStunUntil:0,kfpStunImmune:0,
     rolePhase:'approach',roleUntil:0,nextAttack:hs.elapsedMs+1500,aimX:0,aimY:1,motionX:0,motionY:0,warningR:0,facing:'down',
     uid: ++w.uidSeq, type, hp: Math.round(def.hp * hs.scale.hp), speed: def.speed * (def.boss ? 1 : randRange(state.rng, 0.85, 1.15)),
     kx: 0, ky: 0, hitAt: 0, orbitAt: 0, cresAt: 0, vx: 0, vy: 0, life: 0, phase: nextRandom(state.rng) * 6.28,
@@ -311,12 +326,12 @@ function runEvent(state, w, ev) {
     const a = -Math.PI / 2 + (nextRandom(state.rng) - .5) * Math.PI * .6; // 화면 위쪽 반원(세로 화면에서도 보이게)
     for (let i = 0; i < 16; i++) {
       const side = (i - 7.5) * 26;
-      spawnEnemy(state, w, 'shade_hand', p.x + Math.cos(a) * 430 - Math.sin(a) * side, p.y + Math.sin(a) * 430 + Math.cos(a) * side);
+      spawnEnemy(state, w, state.hunt.depth>=55&&i%5===0?'rabbit_brute':state.hunt.depth>=25&&i%4===0?'shade_clock':'shade_hand', p.x + Math.cos(a) * 430 - Math.sin(a) * side, p.y + Math.sin(a) * 430 + Math.cos(a) * side);
     }
   } else if (ev.kind === 'ring') {
     for (let i = 0; i < 22; i++) {
       const a = (i / 22) * Math.PI * 2;
-      spawnEnemy(state, w, i % 3 ? 'shade_hand' : 'shade_blob', p.x + Math.cos(a) * 330, p.y + Math.sin(a) * 330);
+      spawnEnemy(state, w, state.hunt.depth>=80&&i%5===0?'shade_thorn':state.hunt.depth>=40&&i%4===0?'moon_bomber':i % 3 ? 'shade_hand' : 'shade_blob', p.x + Math.cos(a) * 330, p.y + Math.sin(a) * 330);
     }
   } else if (ev.kind === 'swarm') {
     const dir = nextRandom(state.rng) < 0.5 ? 1 : -1;
@@ -394,6 +409,7 @@ function killEnemy(state, w, i) {
   if(state.hunt.elapsedMs-(w.lastDeathSound||-1000)>140){emit('huntDeath',{});w.lastDeathSound=state.hunt.elapsedMs;}
   w.enemies.release(i);
   state.hunt.kills += 1;
+  if(state.hunt.hunterId==='yeoni_pig')chargePetal(state.hunt.petal,{killCount:state.hunt.kills,elite:!!def.elite,cannonKill:!!w.petalFiring});
   const c = TEMP.HUNT_CAREER;
   state.hunt.careerXP += Math.ceil((def.boss ? c.xpBoss : def.elite ? c.xpElite : c.xpNormal) * (state.hunt.scale.reward ?? 1));
 }
@@ -403,7 +419,7 @@ function hurt(state, w, i, base, m, kbx = 0, kby = 0, melee=false) {
   const e = w.enemies.items[i];
   if(state.hunt.elapsedMs-(w.lastHitSound||-1000)>=180){emit('huntHit',{});w.lastHitSound=state.hunt.elapsedMs;}
   const crit = nextRandom(state.rng) < Math.min(.8,m.crit+(melee?.15:0));
-  const dmg = Math.round(base * (crit ? (melee?2.3:H.CRIT_MULT) : 1));
+  const dmg = Math.round(base * (state.hunt.trail?.choice==='challenge'?1.2:1) * (crit ? (m.critMultiplier||(melee?2.3:H.CRIT_MULT)) : 1));
   if(crit && melee && state.hunt.hunterId==='neo' && state.hunt.elapsedMs-(w.lastCritLine||-5000)>4200){w.lastCritLine=state.hunt.elapsedMs;emit('huntCritical',{});}
   e.hp -= dmg;
   e.hitAt = state.hunt.elapsedMs;
@@ -429,6 +445,7 @@ function nearest(w, x, y, maxD = Infinity, skip = null) {
 // ── 무기
 function fireWeapons(state, w, t, m, sec) {
   const hs = state.hunt, p = w.player;
+
   for (const wp of hs.weapons) {
     const s = weaponStats(wp, m);
     if (wp.id === 'orbit') {
@@ -590,16 +607,17 @@ function subStep(state, dt, input) {
   }
 
   // 사건·생성: 단계 밀도 목표(준비 시간 동안 시작→끝)보다 적을 때만, 모자란 만큼 빨리. 보스가 있으면 목표를 줄인다
-  events(state, w, t);
+  events(state, w, t); stepTrail(state,w);
   const sd = stageDef(hs.depth), boss = findBoss(w);
-  const target = (sd.density[0] + (sd.density[1] - sd.density[0]) * Math.min(1, hs.stageMs / sd.prepMs)) * (boss >= 0 ? H.BOSS_DENSITY : 1);
+  const target = (sd.density[0] + (sd.density[1] - sd.density[0]) * Math.min(1, hs.stageMs / sd.prepMs)) * (boss >= 0 ? H.BOSS_DENSITY : 1) * (hs.trail?.choice==='challenge'?1.22:1);
   const missing = target - (w.enemies.count - (boss >= 0 ? 1 : 0));
   if (missing > 0 && !hs.stageChoice) {
     w.spawnAcc += sec * Math.min(H.SPAWN_RATE_MAX, H.SPAWN_RATE_MIN + H.SPAWN_RATE_PER_MISSING * missing);
     while (w.spawnAcc >= 1) { w.spawnAcc -= 1; aroundPlayer(state, w, pickType(state)); }
   } else w.spawnAcc = 0;
 
-  fireWeapons(state, w, t, m, sec);
+  if(hs.hunterId==='yeoni_pig')stepKfp(state,w,dt,(i,amount,crit,dx,dy)=>hurt(state,w,i,amount,crit,dx,dy));
+  if(hs.hunterId!=='yeoni_pig'||hs.kfp.legacy)fireWeapons(state, w, t, m, sec);
   for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(!ENEMIES[e.type].elite&&Math.hypot(e.x-p.x,e.y-p.y)>1300)w.enemies.release(i);}
   w.props=nearbyProps(hs,p);
   resolveMelee(state,w,t,m);
@@ -658,6 +676,7 @@ function clearStage(state, w, def) {
   w.sweep = true;
   w.banner = { label: `${def.name} 처치 · ${n}단계 클리어!`, warn: false, until: hs.elapsedMs + 2400 };
   emit('huntEvent', { kind: 'bossDown', label: `${n}단계 클리어!`, warn: false });
+  claimTrailReward(state);
   emit('huntStageClear', { stage: n, first, bonus, tired, hunterId: hs.hunterId });
 }
 
@@ -671,7 +690,7 @@ function sweepField(state, w) {
     else if (it.kind === 'gem') gainXp(state, it.v);
     else if (it.kind === 'chest') queueChest(state);
   }
-  w.drops.clear(); w.enemies.clear(); w.shots.clear(); w.strikes.clear(); clearBossAttacks(w);
+  w.drops.clear(); w.enemies.clear(); w.shots.clear(); w.strikes.clear(); w.kfp=null; clearBossAttacks(w);
   w.cameo = null;
 }
 
@@ -682,11 +701,11 @@ export function nextStage(state) {
   if (hs.cleared >= H.STAGES_PER_RUN) return { ok: false, reason: '오늘은 여기까지 · 다음 출발에 이어 가요' };
   if (hs.depth >= 100 || hs.depth >= maxHuntDepth(state)) return { ok: false, reason: '더 깊은 단계가 없어요 · 귀환해 정산해 주세요' };
   if (hs.picks.length || hs.chests.length) return { ok: false, reason: '레벨업 카드와 상자를 먼저 정리해 주세요' };
-  hs.depth += 1; hs.stageMs = 0; hs.boss = null; hs.bossSpawned = false; hs.bossDown = false; hs.fired = []; hs.stageChoice = null;
+  hs.depth += 1; hs.trail=null; hs.stageMs = 0; hs.boss = null; hs.bossSpawned = false; hs.bossDown = false; hs.fired = []; hs.stageChoice = null;
   hs.scale = depthScale(hs.depth, monthScale(state.day), calendarOf(state.day).monthIdx);
   const w = getHuntWorld(state);
   w.enemies.clear(); clearBossAttacks(w); w.spawnAcc = 0;
-  w.banner = { label: `${hs.depth}단계 · 보스가 나올 때까지 버티기`, warn: false, until: hs.elapsedMs + 2200 };
+  w.banner = { label: `${hs.depth}단계 · ${trailDef(hs.depth).name}`, warn: false, until: hs.elapsedMs + 2200 };
   emit('huntStage', { depth: hs.depth });
   return { ok: true, depth: hs.depth };
 }
@@ -694,6 +713,7 @@ export function nextStage(state) {
 // ── 희귀 상자: 줍는 순간 결과를 정해 저장하고(재접속해도 같은 결과), 화면은 룰렛으로 보여 주기만 한다
 // 상자 강화도 단련 상한까지만
 function chestTargets(hs) {
+  if(hs.hunterId==='yeoni_pig'){const evo=kfpEvolutions(hs);return evo.length?evo:kfpOptions(hs,true);}
   const cap = id => hs.caps?.[id] || 0;
   return [
     ...hs.weapons.filter(x => x.level < Math.min(WEAPON_MAX_LV, cap(x.id))).map(x => ({ kind: 'weapon', id: x.id })),
@@ -762,10 +782,10 @@ export function finishHunt(state) {
     state.hunter.kills += hs.kills;
     state.hunter.lastStage=hs.depth;
     state.hunter.builds??={};
-    state.hunter.builds[hs.hunterId]={level:hs.level,xp:hs.xp,weapons:structuredClone(hs.weapons),passives:{...hs.passives},picks:structuredClone(hs.picks||[]),stage:hs.depth};
+    state.hunter.builds[hs.hunterId]={kfp:hs.kfp?structuredClone(hs.kfp):undefined,level:hs.level,xp:hs.xp,weapons:structuredClone(hs.weapons),passives:{...hs.passives},picks:structuredClone(hs.picks||[]),stage:hs.depth};
     state.stats.longestHuntMs = Math.max(state.stats.longestHuntMs || 0, hs.elapsedMs);
     state.stats.huntBosses = (state.stats.huntBosses || 0) + (hs.bossKills || 0);
-    workHunt(state, (hs.cleared || 0) > 0, hs.hunterId);
+    if(hs.hunterId!=='yeoni_pig')workHunt(state, (hs.cleared || 0) > 0, hs.hunterId);
     // 윤달의 부탁: 영냥이로 보스를 쓰러뜨리고 돌아와 정산하면 완료
     if(hs.bossKills>0 && hs.hunterId==='neo' && state.yunQuest?.status==='active'){state.yunQuest.status='complete';emit('questProgress',{label:'윤달의 부탁 · 보스 토벌 완료'});}
     recordHunt(state, hs, totalBag);
@@ -776,7 +796,7 @@ export function finishHunt(state) {
   state.hunt = null;
   state.mode = 'prep';
   state.paused = false;
-  Object.assign(state.people[hs.hunterId || 'neo'], { activity: 'idle', form: 'human' });
+  Object.assign(state.people[hunterPerson(hs.hunterId || 'neo')], { activity: 'idle', form: 'human' });
   emit('huntFinished', { bag: state.lastHunt.bag });
   return { ok: true };
 }
@@ -811,3 +831,15 @@ export function useSupply(state,id) {
  if(id==='nova')for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(Math.hypot(e.x-w.player.x,e.y-w.player.y)<300)hurt(state,w,i,240*mods(hs).dmg,mods(hs),0,0);}
  emit('huntPower',{kind:id,label:d.name});return {ok:true};
 }
+
+// 원본 꽃잎포의 선차감·자체 처치 충전 금지를 유지한다. 피해·반경은 현재 필드용 TEMP.
+export function firePetalCannon(state){
+ const hs=state.hunt;if(state.mode!=='hunt'||!hs||hs.hunterId!=='yeoni_pig'||hs.status!=='running'||state.paused||paused(hs))return {ok:false,reason:'사냥 중에 꽃잎을 모아 사용해요'};
+ normalizeHunt(hs);const w=getHuntWorld(state);
+ if(w.petalFiring||!spendPetal(hs.petal))return {ok:false,reason:'꽃잎을 100까지 모아 주세요'};
+ w.petalFiring=true;
+ try{const p=w.player,m=mods(hs);for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(Math.hypot(e.x-p.x,e.y-p.y)<=300+ENEMIES[e.type].r)hurt(state,w,i,400*m.dmg,m,e.x-p.x,e.y-p.y);}addBattleFx(w,{kind:'petal',x:p.x,y:p.y,r:300,at:hs.elapsedMs,until:hs.elapsedMs+650});emit('huntAttack',{weapon:'tarot'});}finally{w.petalFiring=false;}
+ return {ok:true};
+}
+
+export function fuseWeapons(state,id,revision){const result=fuseKfp(state,id,revision);if(result.ok){const h=state.hunt,options=kfpOptions(h);h.picks=h.picks.map(offer=>{const valid=offer.filter(o=>!o.kind?.startsWith('kfp')||options.some(x=>x.id===o.id&&x.kind===o.kind));return valid.length?valid:[{kind:'pouch'}];});emit('huntEvolve',{name:kfpDescribe(h,{kind:'kfpWeapon',id:result.output}).name});}return result;}
