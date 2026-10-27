@@ -1,4 +1,0 @@
-{
-  "prompt": "Use case: identity-preserve. Create premium game sprite atlas using the EXACT character and clothes in reference, preserve all face, hair, ear, colors and clothing. Do not copy the walking pose. Transparent background, EXACT4 columns and4rows,16 isolated full-body figures, equal cells, very wide transparent margin, identical scale and feet anchored on same baseline in every cell. No detached particles, no text or grid, no scenery. Row1 FRONT, row2 LEFT profile, row3 RIGHT profile, row4 BACK. Each row FOUR real IDLE phases: relaxed neutral / subtle inhalation / one gentle blink and slight ear or hair settle / relaxed exhalation. Feet remain planted, NO walking or legs moving, arms naturally resting, empty hands, no tray basket or carried objects. Delicate small change only, no jitter or jumping. Clean polished hand-painted light novel chibi game style. Anatomy and silhouette consistent.",
-  "createdAt": "2026-10-25T19:47:48.879Z"
-}

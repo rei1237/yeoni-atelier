@@ -1,4 +1,0 @@
-{
-  "prompt": "Edit this creature sprite atlas. Keep same violet armored spectral hand design. Rebuild the layout with VERY SMALL figures and HUGE empty transparent gaps. EXACT4columns3rows12 figures. Each hand fully visible from crown wrist to claw tips, especially top row do not clip crown. Each cell at least30percent transparent padding at ALL sides; adjacent silhouettes must NEVER touch or overlap. Four frames idle first row, four locomotion second, four attack poses third. No detached particles, no glow outside figure, no text grid borders. True alpha transparency. Consistent scale. Premium painted mobile game asset.",
-  "createdAt": "2026-10-25T19:47:35.777Z"
-}
