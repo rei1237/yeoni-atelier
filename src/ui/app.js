@@ -69,6 +69,7 @@ import { RATE_STORIES, creditorStory } from '../story/creditor.js';
 import { VISIT_STORIES } from '../story/visits.js';
 import { PROLOGUE } from '../story/prologue.js';
 import { MONTH_STORIES, ENDINGS } from '../story/months.js';
+import { seasonStory } from '../story/seasons.js';
 import { careerMonthStory, castBondStory } from '../story/career.js';
 import { BOND_STORIES } from '../story/bonds.js';
 import { BONDS, COMMON_GIFT, bondReady, rankWaits, withWa } from '../data/bonds.js';
@@ -224,6 +225,7 @@ function storyBeats(id) {
   if (id.startsWith('hanbi:')) return HANBI_STORIES[id.slice(6)] || null;
   if (id.startsWith('rate:')) return RATE_STORIES[id.slice(5)] || null;
   if (/^(warn|ultimatum|relief):/.test(id)) return creditorStory(id, state.ledger);
+  if (id.startsWith('season:')) return seasonStory(Number(id.slice(7)), state);
   return careerMonthStory(Number(id.slice(1)), state);
 }
 

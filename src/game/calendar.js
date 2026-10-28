@@ -17,6 +17,8 @@ import { placeLock, PLACE_NAMES, bondOpen, bondMasked } from './unlocks.js';
 import { interestDue, pendingRateStory, grantHikeGrowth, pendingCreditorStory, ultimatumUnmet } from './creditor.js';
 
 const C = TEMP.CALENDAR;
+// 계절 소품은 2년 24달치(src/story/seasons.js 편 수와 같다 · tests/seasons.test.mjs)
+export const SEASON_MONTHS = 24;
 export const PARTS = Object.freeze(['상순', '중순', '하순']);
 // 양력 달의 대략적인 월지(절기 기준 근사). 사주 세계관 분위기용 표시.
 const BRANCH = Object.freeze({ 1: '축', 2: '인', 3: '묘', 4: '진', 5: '사', 6: '오', 7: '미', 8: '신', 9: '유', 10: '술', 11: '해', 12: '자' });
@@ -124,6 +126,8 @@ export function pendingStory(state) {
   // 첫 원정에서 돌아오면 네오의 투정 → 청토끼 환전, 그다음 윤달 공방의 첫 강화로 이어진다
   if (state.ledger.story['ev:hunt'] && !state.ledger.story['ev:return'] && state.stats.huntsCompleted >= 1) return 'ev:return';
   if (state.ledger.story['ev:return'] && !state.ledger.story['ev:forge'] && !placeLock(state, 'gear')) return 'ev:forge';
+  // 계절 소품: 달 이야기와 겹치지 않게 그달 중순·하순 준비 때 한 번
+  if (c.part >= 1 && c.monthIdx < SEASON_MONTHS && !state.ledger.story[`season:${c.monthIdx}`]) return `season:${c.monthIdx}`;
   return pendingHanbiStory(state) || pendingBloomStory(state) || pendingBondStory(state) || pendingBranchStory(state);
 }
 
@@ -150,7 +154,7 @@ export function pendingBondStory(state) {
 export function markStory(state, id) {
   // 프롤로그는 새 게임의 도입부이며 달 이야기·보상과 별도로 기록한다.
   if(id==='prologue'){if(state.ledger.story.prologue)return {ok:true,duplicate:true};if(state.mode!=='prep')return {ok:false,reason:'영업 준비 중에만 볼 수 있어요'};state.ledger.story.prologue=true;return {ok:true};}
-  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+|hanbi:\d+|rate:\d+|(?:warn|ultimatum|relief):\d+|branch:[2-5])$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
+  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+|hanbi:\d+|rate:\d+|(?:warn|ultimatum|relief):\d+|season:\d+|branch:[2-5])$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
   if (state.ledger.story[id]) return { ok: true, duplicate: true };
   if (state.mode !== 'prep' || pendingStory(state) !== id) return { ok: false, reason: '지금 볼 수 있는 이야기가 아닙니다' };
   const farmLocked = id === 'm1' && !!placeLock(state, 'farm');
