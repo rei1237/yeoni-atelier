@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.28.1",
-  "name": "연이의 아틀리에 · 새 재성의 섬과 달빛 카페",
+  "version": "2026.10.28.2",
+  "name": "연이의 아틀리에 · 카페 동선과 달그늘 HUD",
   "musicTracks": 103,
   "assetBytes": 14952742,
   "channel": "production",
-  "baseCommit": "b1a504beb7d1b48ca69f1f5f5d057b75773eb9e2",
+  "baseCommit": "64c9f7d3770021dc414297d2d954d5f91acec0b5",
   "newTitleArt": true
 }

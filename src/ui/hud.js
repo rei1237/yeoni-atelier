@@ -1,7 +1,7 @@
 import {uiIcon} from './moonlight-ui.js';
 import {trailButton} from './trail-ui.js';
 import {kfpKit} from './kfp-ui.js';
-import {hunterName} from '../game/hunt-cast.js';
+import {hunterName,hunterPortrait} from '../game/hunt-cast.js';
 import {huntSuppliesHtml} from './hunt-supplies.js';
 import {editorPanel} from './editor-panel.js';
 import {runningJobs,queuedJobs,stationJobs,stationItems,activeSlotNames,heldKey} from '../game/station-slots.js';
@@ -53,6 +53,7 @@ function scoreChip(kind,value){
 export function topbarHtml(state, ui) {
   const dev = ui.dev ? '<span class="tag dev">DEV</span>' : '';
   if (!state) return `<div class="tb-col"><span class="clock">연이의 아틀리에</span></div>${dev}`;
+  if(state.interior.draft)return `<div class="cafe-clock"><b>${esc(shortDate(state))}</b><small>실내 꾸미기 · 적용 전</small></div><span class="cafe-gold">${won(state.gold)}</span>${btn({action:'editor.cancel',label:'닫기',title:'편집 취소하고 카페로'})}`;
   if(['prep','shift'].includes(state.mode)&&!state.interior.draft)return cafeTopbar(state,ui);
   const stress = state.hostbar.open ? `<span class="stress-chip ${stressStage(state)}" aria-label="네오 스트레스 ${Math.round(stressOf(state))}/100">${assetIcon(`ui/stress-${stressStage(state)}`)}네오 · ${stressLabel(state)}<meter min="0" max="100" value="${stressOf(state)}">${Math.round(stressOf(state))}</meter></span>` : '';
   const cp=cafeProgress(state);
@@ -71,20 +72,18 @@ export function topbarHtml(state, ui) {
       ${gold}${stress}<span class="speed-controls" role="group" aria-label="영업 속도">${btn({action:'play.cycle',label:`${ui.playSpeed||1}배`,title:'영업 속도 바꾸기: 1배, 2배, 3배'})}</span><span class="status">${esc(st.join(' · '))}</span>${dev}
       ${btn({ action: 'pause', label: state.paused ? '▶' : '⏸', title: state.paused ? '계속하기' : '일시정지', cls: 'ghost' })}`;
   }
-  if (state.mode === 'hunt') {
-    const h = state.hunt;
-    const pct = Math.max(0, Math.round(h.hp / h.maxHp * 100));
-    const xpPct = h.xpNext ? Math.min(100, Math.round((h.xp || 0) / h.xpNext * 100)) : 0;
-    return `<div class="tb-col"><span class="clock" aria-label="생존 시간">🐾 ${fmtTime(h.elapsedMs)}</span><span class="small muted">🌙 ${h.bag.moonstone || 0} · 월정석 사냥</span></div>
-      <div class="tb-col"><span class="small">HP ${h.hp}/${h.maxHp}</span><span class="hpbar" role="img" aria-label="체력 ${pct}%"><i style="width:${pct}%"></i></span></div>
-      <div class="tb-col"><span class="small">Lv ${h.level ?? 1}</span><span class="xpbar" role="img" aria-label="경험치 ${xpPct}%"><i style="width:${xpPct}%"></i></span></div>
-      <span class="status">${state.paused ? '⏸ 일시정지' : ui.dev && ui.speed !== 1 ? `×${ui.speed}` : ''}</span>${dev}
-      ${btn({ action: 'pause', label: state.paused ? '▶' : '⏸', title: state.paused ? '계속하기' : '일시정지', cls: 'ghost' })}`;
-  }
+  if (state.mode === 'hunt') return huntTopbar(state,ui);
   const label = state.mode === 'settlement' ? '결산' : state.interior.draft ? '인테리어 편집' : '영업 준비';
   return `<div class="tb-col"><span class="clock">${esc(shortDate(state))}</span><span class="small muted">${activeBranch(state)}호점 · ${label}</span></div>
     ${gold}${stress}<span class="speed-controls" role="group" aria-label="영업 속도">${btn({action:'play.cycle',label:`${ui.playSpeed||1}배`,title:'영업 속도 바꾸기: 1배, 2배, 3배'})}</span><span class="status cafe-wallet">${assetIcon('icons/moonstone')}${state.moonstone||0}</span>${dev}
     ${btn({action:state.interior.draft?'editor.cancel':'interior.begin',label:state.interior.draft?'닫기':'꾸미기',title:state.mode==='prep'?'카페 꾸미기 · 가구 구매와 배치':'영업 준비 중에 꾸밀 수 있어요',disabled:state.mode!=='prep',cls:'ghost cafe-decor-entry'})}`;
+}
+
+// 사냥 정보는 초상·진행 상황·생존 수치를 분리하고 실제 전투 값만 표시한다.
+function huntTopbar(state,ui){
+ const h=state.hunt,hp=Math.max(0,Math.ceil(h.hp)),max=Math.max(1,Math.ceil(h.maxHp));
+ const low=hp/max<=.25,xp=Math.max(0,h.xp||0),next=Math.max(1,h.xpNext||1),portrait=h.hunterId==='seohanbi'?'seohanbi':hunterPortrait(h.hunterId);
+ return `<div class="hunt-identity"><span class="hunt-face">${assetIcon('badges/'+portrait)}</span><div><b>${esc(hunterName(h.hunterId))}의 사냥터</b><span>${h.depth} / 100단계${state.paused?' · 일시정지':''}${ui.dev&&ui.speed!==1?' · 개발 '+ui.speed+'배':''}</span></div></div><div class="hunt-clock"><small>생존 시간</small><b>${fmtTime(h.elapsedMs)}</b></div>${btn({action:'pause',cls:'hunt-pause',title:state.paused?'사냥 계속하기':'사냥 일시정지',label:state.paused?'계속':'멈춤'})}<div class="hunt-vitals"><div class="hunt-health${low?' is-low':''}"><div><span>${low?'체력 낮음':'체력'}</span><b>${hp.toLocaleString('ko-KR')} <small>/ ${max.toLocaleString('ko-KR')}</small></b></div><meter min="0" max="${max}" value="${Math.min(hp,max)}" low="${max*.25}" optimum="${max}" aria-label="체력 ${hp} / ${max}"></meter></div><div class="hunt-experience"><div><span>원정 Lv.${h.level||1}</span><small>${xp.toLocaleString('ko-KR')} / ${next.toLocaleString('ko-KR')}</small></div><progress max="${next}" value="${Math.min(xp,next)}" aria-label="원정 경험치 ${xp} / ${next}"></progress></div></div><div class="hunt-wallet">${assetIcon('icons/moonstone')}<span>이번 원정 월정석</span><b>${(h.bag.moonstone||0).toLocaleString('ko-KR')}</b></div>`;
 }
 
 // 상단 바용 짧은 날짜: '3월 상순' / '후일담 2일째'
@@ -137,10 +136,10 @@ function cafePanel(state,ui){
   kitchen:shift?`${stationDock(state)}<h3>픽업 선반</h3>${slots||'<p>루나 언니가 완성한 메뉴가 여기에 놓여요.</p>'}${btn({action:'sheet.open',args:{sheet:'kitchen'},label:'레시피 · 재료 보기'})}`:btn({action:'sheet.open',args:{sheet:'kitchen'},label:'레시피 · 재료 보기'}),
   crew:`${state.hostbar.open?hostServiceControls(state):''}<div class="cafe-scores">${scoreChip('reputation',popularity(state))}${scoreChip('atmosphere',atmosphere(state))}</div>${automationChips(state)}${btn({action:'sheet.open',args:{sheet:'companions'},label:'동료와 이야기'})}${btn({action:'sheet.open',args:{sheet:'staffing'},label:'직원 배치'})}${btn({action:'sheet.open',args:{sheet:'manage'},label:uiIcon('book')+'카페 수첩'})}`,
   counter:`<p>연이가 한 분씩 계산해 드려요.</p>${queue.length?queue.map((c,i)=>`<p>${i+1}번째 · ${esc(c.label)} · ${won(state.visits[c.visitId]?.bill||0)}${c.payAt?' · 계산 중':' · 기다리는 중'}</p>`).join(''):'<p>아직 계산을 기다리는 손님은 없어요.</p>'}`,
-  prepare:`<p>의자 ${capacity.seats}석 · 루나는 홀, 루나 언니는 주방을 맡아요.</p>${btn({action:'interior.begin',label:'가구 구매 · 배치'})}${state.interior.checkoutLayout!=='entrance'?btn({action:'interior.checkoutPreview',label:'입구 계산대 미리보기'}):''}${btn({action:'sheet.open',args:{sheet:'shop'},label:'모카에게 재료 사기'})}${btn({action:'sheet.open',args:{sheet:'grounds'},label:'정원 · 외관 꾸미기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}`,
+  prepare:`<p>의자 ${capacity.seats}석 · 루나는 홀, 루나 언니는 주방을 맡아요.</p>${btn({action:'interior.begin',label:'가구 배치하기'})}${state.interior.checkoutLayout!=='entrance'?btn({action:'interior.checkoutPreview',label:'입구 계산대 미리보기'}):''}${btn({action:'sheet.open',args:{sheet:'shop'},label:'모카에게 재료 사기'})}${btn({action:'sheet.open',args:{sheet:'town',tab:'expand'},label:'가구 상점 · 카페 증축'})}${btn({action:'sheet.open',args:{sheet:'grounds'},label:'정원 · 외관 꾸미기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}`,
   menu:navRow([['town','재성의 섬'],['shop','재료'],['companions','동료'],['manage','수첩']]),
  };
- return `<div class="cafe-commandbar"><p class="cafe-live-line" role="status">${shift?(ready?`완성 ${ready}개 · 픽업 선반에서 전해 주세요`:`손님 ${count}명 · 테이블을 눌러 주문을 받아요`):'오늘은 어떤 손님이 찾아올까요?'}</p><nav class="cafe-actions" aria-label="카페 조작">${!shift?btn({action:'shift.start',cls:'primary cafe-open',disabled:!sc.ok,title:sc.ok?'10분 영업 시작':sc.reasons.join(' · '),label:'문 열기'}):''}${tabs.map(([tab,label])=>btn({action:'cafe.drawer',args:{tab},cls:'cafe-nav-item '+(selected===tab?'selected':''),pressed:selected===tab,label:uiIcon(({orders:'orders',kitchen:'kitchen',crew:'crew',prepare:'cup'})[tab])+`<span>${label}</span>`})).join('')}${btn({action:'sheet.open',args:{sheet:'town'},cls:'cafe-nav-item',label:uiIcon('island')+'<span>재성의 섬</span>'})}</nav></div><section class="cafe-drawer" ${selected?'':'hidden'} aria-label="카페 상세 조작"><header><b>${({orders:'손님 주문',kitchen:'주방 · 픽업',crew:'카페와 동료',counter:'연이의 계산대',prepare:'영업 준비',menu:'수첩'})[selected]||''}</b>${btn({action:'cafe.drawer.close',label:'닫기'})}</header><div class="cafe-drawer-body">${Object.entries(panels).map(([id,content])=>`<div data-cafe-tab="${id}" ${selected===id?'':'hidden'}>${content}</div>`).join('')}</div></section>`;
+ return `<div class="cafe-commandbar"><p class="cafe-live-line" role="status">${shift?(ready?`완성 ${ready}개 · 픽업 선반에서 전해 주세요`:`손님 ${count}명 · 테이블을 눌러 주문을 받아요`):'오늘은 어떤 손님이 찾아올까요?'}</p>${!shift?`<div class="cafe-opening"><span><b>오늘의 영업</b><small>${capacity.seats}석 · 10분</small></span>${btn({action:'shift.start',cls:'primary cafe-open',disabled:!sc.ok,title:sc.ok?'영업 시작하기':sc.reasons.join(' · '),label:uiIcon('cup')+'<span>영업 시작하기</span>'})}</div>${!sc.ok?`<p class="cafe-start-reason">${esc(sc.reasons.join(' · '))}</p>`:''}`:''}<nav class="cafe-actions" aria-label="카페 조작">${tabs.map(([tab,label])=>btn({action:'cafe.drawer',args:{tab},cls:'cafe-nav-item '+(selected===tab?'selected':''),pressed:selected===tab,label:uiIcon(({orders:'orders',kitchen:'kitchen',crew:'crew',prepare:'cup'})[tab])+`<span>${label}</span>`})).join('')}${btn({action:'sheet.open',args:{sheet:'town'},cls:'cafe-nav-item',label:uiIcon('island')+'<span>재성의 섬</span>'})}</nav></div><section class="cafe-drawer" ${selected?'':'hidden'} aria-label="카페 상세 조작"><header><b>${({orders:'손님 주문',kitchen:'주방 · 픽업',crew:'카페와 동료',counter:'연이의 계산대',prepare:'영업 준비',menu:'수첩'})[selected]||''}</b>${btn({action:'cafe.drawer.close',label:'닫기'})}</header><div class="cafe-drawer-body">${Object.entries(panels).map(([id,content])=>`<div data-cafe-tab="${id}" ${selected===id?'':'hidden'}>${content}</div>`).join('')}</div></section>`;
 }
 
 function navRow(items) {
@@ -284,6 +283,6 @@ export function automationChips(state) {
  return `<div class="automation-chips">${['kitchen','hall','hall_neo'].map(ability=>{
   const st=automationStatus(state,ability),a=abilityCheck(state,ability),label=ability==='kitchen'?'자동 조리':'홀 자동',detail=`${a.name} · 지금 ♥${a.current} / 필요 ♥${a.need} · ${st.reason}`;
   const next=st.locked?(a.current<a.need?'동료와 대화하고 좋아하는 선물을 전해 주세요.':'동료 수첩에서 이 단계의 인연 이야기를 만나세요.'):(st.on?'누르면 자동 업무를 쉬어요.':'누르면 이 동료의 자동 업무를 켜요.');
-  return `<span class="automation-tip"><button data-action="automation.toggle" data-ability="${ability}" data-locked="${st.locked}" title="${esc(detail)}" aria-label="${esc(a.name+' '+label+' · '+detail)}" aria-describedby="auto-tip-${ability}" aria-pressed="${st.on}"><span class="auto-portrait">${assetIcon('portraits/'+a.who)}</span><span class="auto-copy"><b>${esc(a.name)} <span class="auto-state">${st.locked?uiIcon('lock')+'인연으로 열기':st.on?'사용 중':'쉬는 중'}</span></b><span>${label} · 현재 ♥${a.current} / 필요 ♥${a.need}</span><small>${esc(next)}</small></span><progress max="${a.need}" value="${Math.min(a.current,a.need)}" aria-label="${esc(a.name)} 인연 ${a.current} / ${a.need}"></progress></button><span id="auto-tip-${ability}" role="tooltip">${esc(detail)}</span></span>`;
+  return `<span class="automation-tip"><button data-action="automation.toggle" data-ability="${ability}" data-locked="${st.locked}" title="${esc(detail)}" aria-label="${esc(a.name+' '+label+' · '+detail)}" aria-describedby="auto-tip-${ability}" aria-pressed="${st.on}"><span class="auto-portrait">${assetIcon('badges/'+a.who)}</span><span class="auto-copy"><b>${esc(a.name)} <span class="auto-state">${st.locked?uiIcon('lock')+'인연으로 열기':st.on?'사용 중':'쉬는 중'}</span></b><span>${label} · 현재 ♥${a.current} / 필요 ♥${a.need}</span><small>${esc(next)}</small></span><progress max="${a.need}" value="${Math.min(a.current,a.need)}" aria-label="${esc(a.name)} 인연 ${a.current} / ${a.need}"></progress></button><span id="auto-tip-${ability}" role="tooltip">${esc(detail)}</span></span>`;
  }).join('')}</div>`;
 }

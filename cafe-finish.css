@@ -1,0 +1,46 @@
+/* 카페 운영: 장면, 주 행동, 메뉴의 영역을 나누고 꽃 장식은 터치를 가리지 않는다. */
+body[data-cafe-focus=true] #app{background:#eee2d0;overflow:hidden}
+body[data-mode][data-cafe-focus=true] #topbar{background:#fffaf2 url('assets/illustrated/ui/botanical_right.webp') right -20px top -50px/125px auto no-repeat;border-bottom:1px solid #cbb498;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top));color:#50394b;box-shadow:0 3px 12px #50394b0a;z-index:3}
+body[data-mode][data-cafe-focus=true] #topbar button{border:1px solid #dcc9b4;border-radius:8px;background:#fffbf5;color:#62475a}
+body[data-mode][data-cafe-focus=true] #topbar .cafe-clock{gap:4px}
+body[data-mode][data-cafe-focus=true] #topbar .cafe-clock b{font-size:17px}
+body[data-mode][data-cafe-focus=true] #topbar .cafe-clock small{color:#79616d}
+.cafe-commandbar{max-width:none;margin:0;padding:0 16px calc(6px + env(safe-area-inset-bottom));background:#fffaf2;border-top:1px solid #cbb498}
+.cafe-live-line{padding:7px 0 0;margin:0;color:#785568;font-size:12px;line-height:1.5}
+.cafe-opening{display:flex;align-items:center;gap:16px;padding:9px 0 12px;max-width:640px;margin:auto}
+.cafe-opening>span{display:grid;gap:4px;min-width:74px;color:#5d4355}
+.cafe-opening b{font-size:13px}.cafe-opening small{font-size:12px;color:#79616d}
+.cafe-opening .cafe-open{display:flex;align-items:center;justify-content:center;gap:10px;flex:1;min-height:52px;padding:12px 18px;border:1px solid #7c405b;border-radius:10px;background:#87516a;color:#fffaf2;font-size:16px;font-weight:700;box-shadow:0 3px 9px #70445a20}
+.cafe-opening .cafe-open .ml-icon{width:22px;height:22px}
+.cafe-opening .cafe-open:hover{background:#743e58}.cafe-opening .cafe-open:active{transform:translateY(1px)}
+.cafe-start-reason{max-width:640px;margin:0 auto 8px;font-size:12px;color:#814943;line-height:1.6}
+.cafe-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;max-width:640px;margin:auto;padding-top:6px;border-top:1px solid #e6d6c3}
+.cafe-actions .cafe-nav-item{min-width:0;min-height:52px;padding:5px 2px;border-radius:8px;color:#715264;white-space:normal}
+.cafe-actions .cafe-nav-item span{white-space:normal;line-height:1.3;font-size:12px}
+.cafe-actions .cafe-nav-item.selected{background:#eddae2;color:#6b3651;border-color:#d5b2c1}
+.cafe-drawer{right:12px;bottom:calc(100% + 8px);width:min(420px,calc(100vw - 24px));max-height:min(520px,calc(var(--cafe-stage-height,60dvh) - 16px));border:1px solid #ceb497;border-radius:16px;box-shadow:0 8px 28px #49334826;overflow:hidden}
+.cafe-drawer header{flex:none;padding:8px 14px;background:#fbf3e6 url('assets/illustrated/ui/botanical_divider.webp') center/110px auto no-repeat;min-height:56px}
+.cafe-drawer header b{font-size:15px}.cafe-drawer header button{min-width:44px;min-height:44px;border:1px solid #dcc6ae;border-radius:8px;background:#fffaf2;color:#67455b}
+.cafe-drawer-body{padding:16px 18px 22px;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:#bda287 #fcf7ee}
+.cafe-drawer-body button{max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+.cafe-drawer-body [data-cafe-tab=prepare]>button{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;min-height:50px;text-align:left;background:#fffaf3;border:1px solid #deccb7;border-radius:9px;margin-top:10px}
+.cafe-drawer-body [data-cafe-tab=prepare]>button::after{content:'›';color:#9e7f65;font-size:21px;margin-left:12px}
+body:is([data-mode=prep],[data-mode=shift],[data-mode=settlement]) .sheet{max-height:calc(100dvh - max(20px,env(safe-area-inset-top)));padding-bottom:max(22px,env(safe-area-inset-bottom));overscroll-behavior:contain;scrollbar-color:#bda287 #fcf7ee}
+body:is([data-mode=prep],[data-mode=shift],[data-mode=settlement]) .sheet>h2{position:sticky;top:-16px;z-index:4;background:#fffaf2;margin-top:0;padding-top:16px;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+body:is([data-mode=prep],[data-mode=shift],[data-mode=settlement]) .sheet>h2 .close{position:static;flex:none;min-width:44px;min-height:44px;margin:0}
+body[data-cafe-focus=true] :is(button,input,summary):focus-visible{outline:3px solid #7b5845;outline-offset:2px}
+body[data-cafe-focus=true] button[aria-disabled=true]{opacity:1;background:#eae1d7;color:#75676e;border-color:#d7cabb;box-shadow:none}
+body[data-cafe-focus=true] ::selection{background:#e7c9d5;color:#493545}
+@media(min-width:900px){.cafe-drawer{right:20px}.cafe-commandbar{padding-inline:24px}}
+@media(max-width:370px){body[data-mode][data-cafe-focus=true] #topbar{padding-inline:8px;gap:4px;flex-wrap:wrap}.cafe-clock{flex:1;min-width:90px}.cafe-commandbar{padding-inline:10px}.cafe-opening{gap:10px}.cafe-opening .cafe-open{font-size:15px}}
+@media(max-height:500px) and (orientation:landscape){body[data-mode][data-cafe-focus=true] #topbar{min-height:50px;padding-block:3px}.cafe-commandbar{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.2fr);align-items:center;gap:10px;padding:4px 12px}.cafe-live-line{display:none}.cafe-opening{width:100%;padding:0}.cafe-opening>span{display:none}.cafe-opening .cafe-open{min-height:46px}.cafe-actions{width:100%;border:0;padding:0;margin:0}.cafe-drawer{max-height:calc(var(--cafe-stage-height,60dvh) - 12px)}body[data-mode=shift] .cafe-actions{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){.cafe-opening .cafe-open:active{transform:none}}
+
+.cafe-commandbar{position:relative}.cafe-commandbar::before{content:"";position:absolute;top:3px;right:12px;width:62px;height:22px;background:url('assets/illustrated/ui/botanical_divider.webp') center/contain no-repeat;pointer-events:none;opacity:.5}.cafe-drawer header{background-image:none}
+
+/* 편집 중에도 위치 미세 조정과 확정 버튼에 항상 접근할 수 있다. */
+body[data-editing=true] #topbar{display:flex;align-items:center;gap:12px;min-height:62px;padding:8px 14px;background:#fffaf2;border-bottom:1px solid #cbb498}
+body[data-editing=true] #topbar button{min-height:44px;min-width:44px}
+.furniture-editor .editor-selection{min-height:0;overflow:auto;overscroll-behavior:contain}
+@media(max-width:899px){body[data-editing=true] #app{height:100dvh;overflow:hidden}body[data-editing=true] #topbar{flex:none}body[data-editing=true] #stage{min-height:0}body[data-editing=true] #panel{min-height:0}.furniture-editor .editor-library{overflow:auto;overscroll-behavior:contain}.furniture-editor .editor-nudge{display:grid}.furniture-editor[data-moving=true] .editor-selection{flex:1}.furniture-editor .editor-footer{flex:none}body[data-editing=true] #panel:has(.furniture-editor[data-moving=true]){flex:0 0 min(370px,60dvh);height:min(370px,60dvh)}}
+@media(max-width:899px) and (orientation:landscape){body[data-editing=true] #app{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,46%);grid-template-rows:54px minmax(0,1fr)}body[data-editing=true] #topbar{grid-column:1/-1;min-height:0;padding-block:3px}body[data-editing=true] #stage{grid-column:1;grid-row:2}body[data-editing=true] #panel,body[data-editing=true] #panel:has(.furniture-editor[data-moving=true]){grid-column:2;grid-row:2;height:100%;max-height:100%;min-height:0}.furniture-editor .editor-library{min-height:0}.furniture-editor .editor-head{display:none}}

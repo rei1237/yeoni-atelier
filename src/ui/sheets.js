@@ -1,3 +1,4 @@
+import {WORLD_PLACES} from './world-screen.js';
 import {uiIcon} from './moonlight-ui.js';
 import {trailSheet} from './trail-ui.js';
 import {kfpSheet} from './kfp-ui.js';
@@ -78,7 +79,7 @@ function sheetBody(state, ui) {
     case 'craft': return craftingSheet(state, ui);
     case 'kitchen': return kitchenSheet(state, ui);
     case 'shop': return shopSheet(state);
-    case 'town': return ui.screen==='world'?`${head(placeOf(s.tab).name)}${placeLock(state,s.tab)?lockedRoom(placeLock(state,s.tab)):(bondAt(s.tab)?bondCard(state,bondAt(s.tab)):'')+placeBody(state,s.tab)}`:townSheet(state, s.tab);
+    case 'town': return townSheet(state, s.tab);
     case 'quests': return questSheet(state);
     case 'more': return moreSheet(state, ui);
     case 'debt': return debtSheet(state);
@@ -278,42 +279,19 @@ function shopSheet(state) {
 }
 
 // ── 마을 나가기(영업 준비 중에만): 월드 맵. 장소를 누르면 연이가 그곳으로 가고, 그 장소의 동료·가게가 아래에 열린다.
-// 장소 이름·위치·역할은 게임 오리지널 임시 설정(docs/WORLD.md). 지도 그림은 나중에 이미지로 바꾼다(docs/ASSETS.md §10).
-const TOWN_PLACES = [
-  { id: 'atelier', icon: '🏠', name: '연이의 아틀리에', x: 50, y: 84 },
-  { id: 'expand', icon: '🌸', name: '무성의 가구·꽃 상점', x: 52, y: 52 },
-  { id: 'moka', icon: '🦦', name: '모카 식재료점', x: 17, y: 66 },
-  { id: 'luna', icon: '🐰', name: '루나의 쉼터', x: 84, y: 78 },
-  { id: 'finance', icon: '🌙', name: '청토끼 금융 센터', x: 83, y: 48 },
-  { id: 'gear', icon: '🗡', name: '윤달의 무기 공방', x: 20, y: 24 },
-  { id: 'hunt', icon: '🌙', name: '영냥이의 사냥터', x: 80, y: 20 },
-];
-const TOWN_PATHS = [['atelier', 'expand'], ['atelier', 'moka'], ['atelier', 'luna'], ['expand', 'moka'], ['expand', 'luna'], ['moka', 'gear'], ['expand', 'gear'], ['luna', 'hunt'], ['expand','finance'], ['expand', 'hunt']];
-const SEASON = m => (m >= 3 && m <= 5 ? 'spring' : m >= 6 && m <= 8 ? 'summer' : m >= 9 && m <= 11 ? 'autumn' : 'winter');
-const placeOf = id => TOWN_PLACES.find(p => p.id === id) || TOWN_PLACES[0];
+// 장소 이름은 연이가 걷는 월드맵과 공유하고, 시트는 상세 기능만 표시한다.
+const placeOf = id => WORLD_PLACES.find(p => p.id === id) || WORLD_PLACES[0];
 const bondAt = place => BOND_IDS.find(id => BONDS[id].place === place);
 const hearts = t => `<span aria-label="인연 ${t}단계">${Array.from({length:TEMP.BONDS.TIERS.length},(_,i)=>assetIcon(`ui/heart-${i<t?'full':'empty'}`,i<t?'♥':'♡')).join('')}</span>`;
 
 function townSheet(state, tab = 'atelier') {
   const here = placeOf(tab);
   const chk = townCheck(state);
-  const pos = Object.fromEntries(TOWN_PLACES.map(p => [p.id, p]));
-  const paths = TOWN_PATHS.map(([a, b]) => `<line x1="${pos[a].x}" y1="${pos[a].y}" x2="${pos[b].x}" y2="${pos[b].y}" />`).join('');
-  const nodes = TOWN_PLACES.map(p => {
-    const bid = bondAt(p.id);
-    const canTalk = bid && !state.ap.talked[bid] && state.ap.left > 0;
-    const badge = bid ? `<em class="tn-bond">${esc(BONDS[bid].name)} ♥${bondTier(state.affinity[bid] || 0)}${canTalk ? ' 💬' : ''}</em>` : '';
-    const lock = placeLock(state, p.id);
-    return `<button type="button" class="tn${p.id === here.id ? ' on' : ''}${lock ? ' locked' : ''}" data-action="town.tab" data-tab="${p.id}" style="left:${p.x}%;top:${p.y}%" aria-label="${esc(p.name)}${lock ? ' (잠김)' : ''}"><i>${assetIcon(`ui/town-node-${p.id}`,p.icon)}</i><b>${esc(p.name)}</b>${lock ? '<em class="tn-lock" aria-hidden="true">🔒</em>' : badge}</button>`;
-  }).join('');
-  const map = `<div class="town-map ${SEASON(calendarOf(state.day).month)}" style="${assetStyle(`ui/town-map-${SEASON(calendarOf(state.day).month)}`)}" role="group" aria-label="마을 지도">
-    <svg class="tm-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${paths}</svg>
-    ${nodes}<span class="tm-me" style="left:${here.x}%;top:${here.y}%" aria-hidden="true">🐷</span></div>`;
   const bid = bondAt(here.id);
   const lock = placeLock(state, here.id);
   const body = !chk.ok ? `<p class="warn">${esc(chk.reason)}</p>` : lock ? lockedRoom(lock)
     : (bid ? bondCard(state, bid) : '') + placeBody(state, here.id);
-  return `${head('🏘 마을')}<p class="small">보유 ${won(state.gold)} · 🌙 월정석 ${state.moonstone || 0}개 · 마을 행동력 ${state.ap.left}</p><p class="small muted">대화와 사냥 출발에만 행동력 1을 써요. 구매·강화·환전은 자유롭게 이용해요.</p>${map}<h3>${here.icon} ${esc(here.name)}</h3>${body}`;
+  return `${head(here.name)}<p class="small">보유 ${won(state.gold)} · 🌙 월정석 ${state.moonstone || 0}개 · 마을 행동력 ${state.ap.left}</p><p class="small muted">대화와 사냥 출발에만 행동력 1을 써요. 구매·강화·환전은 자유롭게 이용해요.</p>${body}`;
 }
 
 // 열리기 전 장소 안내(잠금 이유만 보이고 조작은 없다)
@@ -345,7 +323,7 @@ function bondCard(state, id) {
   const giftBtn = g => btn({ action: 'bond.gift', args: { id, gift: g.id }, disabled: gifted || state.gold < g.cost, title: gifted ? '이번 순에 이미 선물했어요' : state.gold < g.cost ? `골드가 부족합니다 (${g.cost}G)` : '', label: `🎁 ${esc(g.name)} ${won(g.cost)}` });
   const sp = SPEAKERS[b.speaker]?.name || b.name;
   const title = sp === b.name ? b.name : `${b.name} · ${sp}`;
-  return `<div class="bond-card"><div class="bc-top"><b>${esc(title)}</b><span class="hearts" aria-label="인연 ${t}단계">${hearts(t)}</span></div>
+  return `<div class="bond-card"><div class="bc-top"><span class="bond-face">${assetIcon('badges/'+(SPEAKERS[b.speaker]?.portrait||b.speaker||id))}</span><div class="bond-name"><b>${esc(title)}</b><small>인연 ${t}단계</small></div><span class="hearts" aria-label="인연 ${t}단계">${hearts(t)}</span></div>
     ${bar(t < T.length ? ((v - lo) / (hi - lo)) * 100 : 100, 'bond')}<span class="small">${next}</span>
     <div class="row">${talkBtn}${giftBtn(b.gift)}${giftBtn(COMMON_GIFT)}${btn({action:'gift.open',args:{id},label:'음식·음료 선물'})}</div></div>`;
 }
@@ -374,7 +352,7 @@ function gearStall(state) {
 function financeCenter(state) {
   const m = state.moonstone || 0, rate = exchangeRate(state);
   const credit=creditView(state);
-  return `<div class="finance-host">${assetIcon('portraits/cheongtokki')}<div><h3>청토끼 금융 센터</h3><p>환전 · 운영 대출 · 골드와 월정석 상환</p></div></div><p class="small">청토끼: "월정석 하나에 ${rate}G. 사냥 실력도 자산이지! 강화에 쓸 몫은 남겨 두라고."</p>
+  return `<div class="finance-host">${assetIcon('badges/cheongtokki')}<div><h3>청토끼 금융 센터</h3><p>환전 · 운영 대출 · 골드와 월정석 상환</p></div></div><p class="small">청토끼: "월정석 하나에 ${rate}G. 사냥 실력도 자산이지! 강화에 쓸 몫은 남겨 두라고."</p>
     <div class="kv"><span>보유 월정석</span><b>🌙 ${m}</b><span>환율(임시)</span><b>1개 = ${won(rate)}</b><span>전부 바꾸면</span><b>${won(m * rate)}</b><span>남은 빚</span><b>${won(state.debt)}</b></div>
     <div class="row">${btn({ action: 'moonstone.exchange', args: { qty: 1 }, disabled: m < 1, label: '1개' })}${btn({ action: 'moonstone.exchange', args: { qty: 10 }, disabled: m < 10, label: '10개' })}${btn({ action: 'moonstone.exchange', args: { qty: 'all' }, cls: 'primary', disabled: m < 1, label: '전부 환전' })}${btn({action:'sheet.open',args:{sheet:'debt'},label:'빚 상환하기'})}</div>${financeLoanHtml(state,credit)}`;
 }
@@ -395,7 +373,7 @@ function expandShop(state) {
   const areaRows = AREAS.filter(a=>areaAvailable(state,a)).map(a => open.includes(a.id)
     ? `<div class="item"><div class="meta grow"><b>🔓 ${esc(a.name)}</b><span>연 구역 · 인테리어에서 가구를 놓을 수 있어요</span></div></div>`
     : `<div class="item"><div class="meta grow"><b>🔒 ${esc(a.name)}</b><span>증축할수록 다음 구역이 비싸져요</span></div>${btn({ action: 'expand.area', args: { id: a.id }, disabled: cost == null || state.gold < cost, label: won(cost) })}</div>`).join('');
-  const host = `<div class="finance-host">${assetIcon('portraits/museong')}<div><h3>무성의 가구·꽃 상점</h3><p>테이블 · 구역 증축 · 꽃과 식물 · 장식</p></div></div><p class="small">무성: "손님이 오래 머무는 자리는 넓이보다 빛과 초록이 정한다. 골라라."</p>`;
+  const host = `<div class="finance-host">${assetIcon('badges/museong')}<div><h3>무성의 가구·꽃 상점</h3><p>테이블 · 구역 증축 · 꽃과 식물 · 장식</p></div></div><p class="small">무성: "손님이 오래 머무는 자리는 넓이보다 빛과 초록이 정한다. 골라라."</p>`;
   return `${host}<div class="list">${tableRow}</div><h3>구역 증축</h3><div class="list">${areaRows}</div><h3>장식 들이기</h3><div class="list">${decor}</div>`;
 }
 

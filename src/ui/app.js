@@ -87,6 +87,7 @@ const tablePx = {}; // 마감 뒤에도 떠오르는 숫자 위치를 알 수 �
 
 function resize() {
   const r = el.stage.getBoundingClientRect();
+  document.documentElement.style.setProperty('--cafe-stage-height', `${r.height}px`);
   dpr = Math.min(2, window.devicePixelRatio || 1);
   cssW = Math.max(1, el.stage.clientWidth); cssH = Math.max(1, el.stage.clientHeight);
   el.canvas.width = Math.round(cssW * dpr); el.canvas.height = Math.round(cssH * dpr);
@@ -246,8 +247,8 @@ const ACTIONS = {
     ui.worldTrip=createWorldTrip(p.id,path);ui.worldMarker={...path[0],facing:'down',frame:0};
   },
   'cafe.areaInfo':()=>{if(state.mode!=='prep'){toast('영업을 마친 뒤 꾸미기에서 새 구역을 열 수 있어요.');return;}ui.sheet={kind:'town',tab:'expand'};},
-  'cafe.drawer':d=>{ui.cafeDrawer=ui.cafeDrawer===d.tab?null:d.tab;ui.tablePop=null;},
-  'cafe.drawer.close':()=>{ui.cafeDrawer=null;},
+  'cafe.drawer':d=>{ui.cafeDrawer=ui.cafeDrawer===d.tab?null:d.tab;ui.tablePop=null;requestAnimationFrame(()=>document.querySelector('.cafe-drawer:not([hidden]) header button')?.focus());},
+  'cafe.drawer.close':()=>{const tab=ui.cafeDrawer;ui.cafeDrawer=null;requestAnimationFrame(()=>document.querySelector('.cafe-actions [data-tab="'+tab+'"]')?.focus());},
   'table.close': () => {ui.tablePop=null;},
   'table.firstDirty': () => {const t=state.tables.find(t=>t.state==='dirty');if(t)ui.tablePop={no:t.no};},
   'dress.who': d => { ui.dressWho = d.who; ui.dressPreview = null; ui.dressLine = null; },
@@ -447,7 +448,8 @@ const ACTIONS = {
 };
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
   'hunt.retreat', 'hunt.finish', 'hunt.next', 'hunt.chest', 'expand.table']) ACTIONS[t] = () => run({ type: t });
-ACTIONS['interior.begin']=()=>{const was=!!state?.interior.draft;if(run({type:'interior.begin'}).ok){if(!was)history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.sheet=null;ui.screen=null;ui.editTab='all';ui.editCategory='all';ui.editSearch='';}};
+ACTIONS['shift.start']=()=>{if(run({type:'shift.start'}).ok){ui.cafeDrawer=null;ui.tablePop=null;ui.sheet=null;}};
+ACTIONS['interior.begin']=()=>{const was=!!state?.interior.draft;if(run({type:'interior.begin'}).ok){if(!was)history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.sheet=null;ui.screen=null;ui.cafeDrawer=null;ui.editTab='all';ui.editCategory='all';ui.editSearch='';}};
 ACTIONS['interior.checkoutPreview']=()=>{const was=!!state?.interior.draft;if(run({type:'interior.checkoutPreview'}).ok){if(!was)history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.sheet=null;ui.screen=null;ui.cafeDrawer=null;ui.editTab='all';ui.editCategory='all';ui.editSearch='';}};
 ACTIONS['hunt.pick'] = d => run({ type: 'hunt.pick', index: n(d.index) });
 ACTIONS['workshop.tab']=d=>{ui.armoryTab=d.id;};
@@ -643,7 +645,7 @@ function render(force = false) {
   const guide=({kitchen:'cook',craft:'cook',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop'})[ui.sheet?.kind] || (state?.interior.draft&&!state.interior.draft.checkoutPreview?'interior':null);
   // 잠긴 농장·공방에서는 안내를 띄우지 않는다
   const guideLocked=guide==='farm'?placeLock(state,'farm'):guide==='armory'?placeLock(state,'gear'):'';
-  if(state && guide && !guideLocked && (guide!=='outfits'||state.hostbar.open) && !state.tutorials?.[guide] && !novelActive()){
+  if(state && ui.sheet?.kind!=='tutorial' && guide && !guideLocked && (guide!=='outfits'||state.hostbar.open) && !state.tutorials?.[guide] && !novelActive()){
     ui.guideReturn=ui.sheet;ui.guideId=guide;ui.guideStep=0;ui.sheet={kind:'tutorial'};
   }
   const sh = sheetHtml(state, ui);

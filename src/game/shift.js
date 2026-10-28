@@ -28,6 +28,7 @@ export function startCheck(state) {
   const reasons = [];
   if (state.mode !== 'prep') reasons.push(state.mode === 'hunt' ? '영냥이가 월정석 사냥 중입니다. 사냥을 마친 뒤 영업할 수 있습니다' : '영업 준비 상태가 아닙니다');
   if (state.interior.draft) reasons.push('인테리어 편집을 적용하거나 취소해 주세요');
+  if (state.foodGifts?.job) reasons.push('여분 조리를 마치거나 취소한 뒤 문을 열어 주세요');
   if (state.people.neo?.activity !== 'idle') reasons.push('네오가 다른 활동 중입니다');
   return { ok: reasons.length === 0, reasons };
 }

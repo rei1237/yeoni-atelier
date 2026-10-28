@@ -5,7 +5,7 @@ import {serialize,deserialize} from '../src/core/save.js';
 import {SPOTS,FIXTURES} from '../src/data/layout.js';
 test('옛 계산대 저장은 주문과 지갑을 보존하고 결제 손님 경로만 새 계산대로 잇는다',()=>{
  const s=quietShift(),g=seat(s,{kind:'regular'}),c=s.customers[g.cid];
- delete s.cafeLayoutVersion;c.state='checkout';c.x=5.5;c.y=14.5;c.path=[[4,14]];
+ s.interior.checkoutLayout='legacy';delete s.cafeLayoutVersion;c.state='checkout';c.x=5.5;c.y=14.5;c.path=[[4,14]];
  s.staff.yeoni.home={x:4,y:14};s.staff.yeoni.x=4.5;s.staff.yeoni.y=14.5;
  const before={gold:s.gold,orders:structuredClone(s.orders),visits:structuredClone(s.visits)};
  const r=deserialize(serialize(s));assert.ok(r.ok,r.reason);const n=r.state;

@@ -9,7 +9,7 @@ import {cafeCapacity} from '../src/game/capacity.js';
 import {customerLeave,checkout,checkoutQueue} from '../src/game/cafe.js';
 import {seat,enableAutomation} from './helpers.mjs';
 import {switchBranch,ensureBranches} from '../src/game/branches.js';
-const fresh=()=>createGame({dev:true});
+const fresh=()=>{const s=createGame({dev:true});s.interior.checkoutLayout='legacy';return s;};
 const run=(s,type,args={})=>dispatch(s,{type,...args});
 test('계산대 미리보기·반복 진입·취소·재로드는 원본 저장과 경제를 바꾸지 않는다',()=>{
  const s=fresh(),before=serialize(s),ids=s.interior.furniture.map(f=>f.uid);
@@ -43,18 +43,18 @@ test('기존 편집 초안은 덮지 않고 이전 위치와 확장 지점의 �
  const s=fresh();run(s,'interior.begin');run(s,'interior.move',{uid:'plant1',x:0,y:9});const d=JSON.stringify(s.interior.draft);assert.equal(run(s,'interior.checkoutPreview').ok,false);assert.equal(JSON.stringify(s.interior.draft),d);run(s,'interior.cancel');
  s.interior.areas=['window','salon','terrace','east_wing','garden_wing'];const furniture=JSON.stringify(s.interior.furniture),seats=cafeCapacity(s).seats;
  run(s,'interior.checkoutPreview');assert.ok(preview(s).ok);run(s,'interior.apply');assert.equal(JSON.stringify(s.interior.furniture),furniture);assert.equal(cafeCapacity(s).seats,seats);
- ensureBranches(s);s.branches.owned[2]={id:2,snapshot:null};assert.ok(switchBranch(s,2).ok);assert.equal(cafeLayout(s).id,'legacy');assert.ok(switchBranch(s,1).ok);assert.equal(cafeLayout(s).id,'entrance');assert.equal(JSON.stringify(s.interior.furniture),furniture);
+ ensureBranches(s);s.branches.owned[2]={id:2,snapshot:null};assert.ok(switchBranch(s,2).ok);assert.equal(cafeLayout(s).id,'entrance');assert.ok(switchBranch(s,1).ok);assert.equal(cafeLayout(s).id,'entrance');assert.equal(JSON.stringify(s.interior.furniture),furniture);
 });
-test('적용한 입구 계산대는 고객 오른쪽·연이 왼쪽, 독립 대기칸과 결제1회를 유지한다',()=>{
+test('적용한 입구 계산대는 연이 안쪽·손님 입구 쪽, 독립 대기칸과 결제1회를 유지한다',()=>{
  let s=fresh();enableAutomation(s,['hall','kitchen']);run(s,'interior.checkoutPreview');run(s,'interior.apply');run(s,'shift.start');s.shift.scriptIndex=99;s.shift.nextSpawnAt=Number.MAX_SAFE_INTEGER;
- assert.equal(s.staff.yeoni.facing,'left');assert.deepEqual(s.staff.yeoni.home,{x:8,y:14});
+ assert.equal(s.staff.yeoni.facing,'down');assert.deepEqual(s.staff.yeoni.home,{x:7,y:13});
  const guests=[seat(s,{kind:'regular'}),seat(s,{kind:'regular'}),seat(s,{kind:'regular'})];
  for(const g of guests){s.visits[g.vid].bill=100;customerLeave(s,s.customers[g.cid],'식사 완료');}
  const before=s.gold;let seen=false,saved=false;
  for(let i=0;i<2000&&Object.keys(s.customers).length;i++){
   tick(s,50);const q=checkoutQueue(s),pay=q.filter(c=>c.payAt!=null);assert.ok(pay.length<=1);
   const resting=q.filter(c=>!c.path.length&&!c.standing);assert.equal(new Set(resting.map(c=>c.x+','+c.y)).size,resting.length);
-  if(pay.length){seen=true;assert.equal(pay[0].facing,'right');assert.equal(s.staff.yeoni.facing,'left');if(!saved){s=deserialize(serialize(s)).state;run(s,'resume');saved=true;}}
+  if(pay.length){seen=true;assert.equal(pay[0].facing,'up');assert.equal(s.staff.yeoni.facing,'down');if(!saved){s=deserialize(serialize(s)).state;run(s,'resume');saved=true;}}
  }
  assert.ok(seen&&saved);assert.equal(Object.keys(s.customers).length,0);assert.equal(s.gold,before+300);for(const g of guests)assert.equal(checkout(s,s.visits[g.vid]),false);
 });

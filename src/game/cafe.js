@@ -691,9 +691,10 @@ export function checkout(state,visit){
 
 // 이전 영업 저장의 계산 동선만 새 고정 설비 위치로 연결한다.
 export function migrateCounter(state){
- if(state.cafeLayoutVersion===2||state.interior?.checkoutLayout==='entrance')return;
+ const version=state.interior?.checkoutLayout==='entrance'?3:2;
+ if(state.cafeLayoutVersion===version)return;
  if(state.mode==='shift'&&state.staff?.yeoni){const s=state.staff.yeoni;s.home={...cafeSpots(state).yeoniHome};s.x=s.home.x+.5;s.y=s.home.y+.5;s.path=[];s.facing=cafeLayout(state).yeoniFacing;
-  for(const c of Object.values(state.customers||{})){if(c.state==='checkout')setPath(state,c,nearestWalkable(getGrid(state),cafeSpots(state).checkout));else if(state.visits[c.visitId]?.kind==='takeaway'&&c.state==='entering')setPath(state,c,nearestWalkable(getGrid(state),cafeSpots(state).checkout));}
+  for(const c of Object.values(state.customers||{})){if(c.state==='checkout'){delete c.checkoutTarget;c.payAt=null;setPath(state,c,nearestWalkable(getGrid(state),cafeSpots(state).checkout));}else if(state.visits[c.visitId]?.kind==='takeaway'&&c.state==='entering')setPath(state,c,nearestWalkable(getGrid(state),cafeSpots(state).checkout));}
  }
- state.cafeLayoutVersion=2;
+ state.cafeLayoutVersion=version;
 }

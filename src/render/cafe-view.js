@@ -141,7 +141,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   for (const fx of FIXTURES) {
     if (fx.wall) continue;
     const b = cellsBox(fx.cells), p = P(b.x, b.y);
-    if(fx.id==='counter'&&layout.id==='entrance'){drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',P(6.7,13.7).x,P(6.7,13.7).y,T*1.6,T*1.5);continue;}
+    if(fx.id==='counter'&&layout.id==='entrance'){drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',P(6.4,12.2).x,P(6.4,12.2).y,T*3.2,T*2.4);continue;}
     if (!drawObjectImage(ctx, 'objects', !luxurious && ASSETS.objects[`basic_${fx.id}`] ? `basic_${fx.id}` : fx.id, p.x-T*.25, p.y, b.w*T+T*.5, T*1.9)) {
       ctx.fillStyle = fx.color;
       roundRect(ctx, p.x + 2, p.y + 2, b.w * T - 4, b.h * T - 4, T * 0.15); ctx.fill();
@@ -154,7 +154,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   const pieces=[];
   // 계산대 앞판은 직원의 다리 앞, 손님의 몸 뒤다. 상판 위 손과 얼굴은 가리지 않는다.
   const cashier=FIXTURES.find(f=>f.id==='counter'),cb=cellsBox(cashier.cells),cp=P(cb.x,cb.y);
-  pieces.push({depth:SPOTS.yeoniHome.y+1,paint:()=>{ctx.save();ctx.beginPath();if(layout.id==='entrance'){const p=P(6.7,13.7);ctx.rect(p.x,P(0,14.8).y,T*1.6,T*.4);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',p.x,p.y,T*1.6,T*1.5);}else{ctx.rect(cp.x-T*.25,cp.y+T*1.05,cb.w*T+T*.5,T*.85);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',cp.x-T*.25,cp.y,cb.w*T+T*.5,T*1.9);}ctx.restore();}});
+  pieces.push({depth:layout.id==='entrance'?14.5:SPOTS.yeoniHome.y+1,paint:()=>{ctx.save();ctx.beginPath();if(layout.id==='entrance'){const p=P(6.4,12.2);ctx.rect(p.x,P(0,13.1).y,T*3.2,T*1.5);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',p.x,p.y,T*3.2,T*2.4);}else{ctx.rect(cp.x-T*.25,cp.y+T*1.05,cb.w*T+T*.5,T*.85);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',cp.x-T*.25,cp.y,cb.w*T+T*.5,T*1.9);}ctx.restore();}});
   const tablesByUid = new Map((state.tables || []).map(tb => [tb.uid, tb]));
   for(const f of list){
     const def=FURNITURE[f.defId];if(isFloorDef(def))continue;

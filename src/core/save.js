@@ -1,3 +1,5 @@
+import {validateLayout} from '../game/space.js';
+import {cafeLayout} from '../data/layout.js';
 import {normalizeKfp} from '../game/kfp-loadout.js';
 import {migrateFurniture} from '../data/layout.js';
 import {migrateHuntVisits} from '../game/hunt-visits.js';
@@ -47,6 +49,10 @@ function migrate(data) {
   }
   ensureBranches(data);
   migrateFurniture(data);
+  if(data.mode==='prep'&&!data.interior.checkoutLayout){
+    const candidate={...data,interior:{...data.interior,checkoutLayout:'entrance'}};
+    if(validateLayout(data.interior.furniture,data.interior.areas||[],cafeLayout(candidate)).ok)data.interior.checkoutLayout='entrance';
+  }
   migrateCounter(data);
   data.startingDebt ??= 120000; // 이전 저장의 원금과 상환 진척은 보존
   if (data.armory && !data.armory.skills) data.armory.skills = legacySkillRanks(data); // 기술 단련 이전 저장
