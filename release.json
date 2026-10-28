@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.28.8",
-  "name": "연이의 아틀리에 · 인연 랭크와 윤달 공방",
+  "version": "2026.10.28.9",
+  "name": "연이의 아틀리에 · 꽃과 달 카페 손질",
   "musicTracks": 103,
-  "assetBytes": 15121258,
+  "assetBytes": 15327640,
   "channel": "production",
-  "baseCommit": "61e442d842adf6e8f22dff2de8d2725744069283",
+  "baseCommit": "486c4e2a0caf1e1e1799073350ac7145d6dbeb43",
   "newTitleArt": true
 }
