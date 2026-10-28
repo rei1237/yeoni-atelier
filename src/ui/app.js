@@ -47,7 +47,7 @@ import { talkingKey } from '../render/sprite-renderer.js';
 import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe } from '../render/cafe-view.js';
 import { AREAS } from '../data/layout.js';
 import { gardenItem } from '../game/grounds.js';
-import { decorDirty, purchaseGate } from './decor-screen.js';
+import { decorDirty, purchaseGate, placedNote } from './decor-screen.js';
 import { drawHunt } from '../render/hunt-view.js';
 import { $, morph, toast, floater, shake } from './dom.js';
 import { topbarHtml, panelHtml, bubblesHtml, hitsHtml, won } from './hud.js';
@@ -495,8 +495,8 @@ const ACTIONS = {
   'decor.space':d=>{if(d.id==='outdoor'){if(state.interior.draft?.checkoutPreview)return;if(state.interior.draft?.itemBefore)run({type:'interior.cancelItem'},{keepQuiet:true});if(!state.outdoor?.draft&&!run({type:'grounds.begin'}).ok)return;}else ui.groundItem=null;ui.decorSpace=d.id==='outdoor'?'outdoor':'indoor';ui.decorArea=null;ui.groundExpand=false;resize();},
   'decor.tab':d=>{ui.decorTab=d.id;ui.decorArea=null;ui.groundExpand=false;resize();},
   'decor.theme':d=>{ui.decorTheme=d.id;},
-  'decor.pick':d=>{const dr=state.interior.draft;if(dr?.itemBefore&&dr.selected!==d.uid)run({type:'interior.cancelItem'},{keepQuiet:true});if(run({type:'interior.pick',uid:d.uid}).ok){const f=state.interior.draft.furniture.find(x=>x.uid===d.uid);if(f?.x!=null)focusCell(f.x,f.y);}},
-  'decor.place':()=>run({type:'interior.confirmItem'}),
+  'decor.pick':d=>{const dr=state.interior.draft;if(dr?.itemBefore&&dr.selected!==d.uid)run({type:'interior.cancelItem'},{keepQuiet:true});if(run({type:'interior.pick',uid:d.uid}).ok){const f=state.interior.draft.furniture.find(x=>x.uid===d.uid);if(f?.x!=null)focusCell(f.x,f.y);else{const s=run({type:'interior.suggest',uid:d.uid,near:viewCenterCell()},{keepQuiet:true});if(s.ok)focusCell(s.x,s.y);}}}, // 보관함 가구는 고르자마자 추천 자리에 미리 올린다
+  'decor.place':()=>{const uid=state.interior.draft?.selected;if(run({type:'interior.confirmItem'}).ok)toast(placedNote(state,uid),'good',2800);},
   'decor.rotate':()=>run({type:'interior.rotate',uid:state.interior.draft?.selected}),
   'decor.store':()=>run({type:'interior.store',uid:state.interior.draft?.selected}),
   'decor.deselect':()=>{if(ui.decorSpace==='outdoor'){ui.groundItem=null;return;}if(state.interior.draft?.itemBefore)run({type:'interior.cancelItem'},{keepQuiet:true});run({type:'interior.select',uid:null},{keepQuiet:true});},

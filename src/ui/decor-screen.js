@@ -22,6 +22,10 @@ const itemName=f=>FURNITURE[f.defId].name+(f.tableNo?` ${f.tableNo}번`:'');
 
 // 배치 문제 코드 → 한 문장. 원래 문구에는 가구 이름과 칸이 들어 있어 목록에서는 그대로 쓴다.
 export const PROBLEM_HINT=Object.freeze({bounds:'가게 밖이에요',fixture:'고정 설비와 겹쳐요',reserved:'주방·입구·계산 대기칸은 비워 둬야 해요',locked:'아직 열지 않은 공간이에요 · 공간 확장에서 열어요',overlap:'다른 가구와 겹쳐요',tables:'테이블은 모두 카페에 놓아야 해요',service:'테이블 옆에 서빙 통로 한 칸이 필요해요',seat:'입구에서 의자까지 길이 막혀요',queue:'계산 대기줄 통로를 막아요',aisle:'손님이 지나갈 통로를 막아요'});
+// 놓은 뒤 한 줄: 분위기 상승과 보관함의 다음 추천 가구(분위기 큰 것부터, 구매 유도 없이 진행 안내만)
+export function placedNote(state,uid){const fs=state.interior.draft?.furniture||[],f=fs.find(x=>x.uid===uid);if(!f)return '';
+ const next=fs.filter(x=>x.x==null&&x.uid!==uid).sort((a,b)=>FURNITURE[b.defId].ambience-FURNITURE[a.defId].ambience)[0];
+ return `🌸 ${itemName(f)} · 분위기 +${FURNITURE[f.defId].ambience}`+(next?` · 다음 추천: ${itemName(next)}`:' · 보관함을 모두 놓았어요');}
 export const problemHint=p=>p?PROBLEM_HINT[p.code]||p.msg:'';
 
 // 적용하지 않은 배치가 있는지(구매는 이미 확정이라 변경으로 치지 않는다)

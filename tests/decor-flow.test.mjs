@@ -73,3 +73,19 @@ test('옛 실내·증축·정원 안내를 본 저장은 통합 꾸미기 안내
   delete s.tutorials.decorate;
   assert.equal(deserialize(serialize(s)).state.tutorials.decorate, true);
 });
+
+test('보관함 가구를 놓으면 분위기 상승과 다음 추천 가구를 한 줄로 알려 준다', async () => {
+  const { placedNote } = await import('../src/ui/decor-screen.js');
+  const { FURNITURE } = await import('../src/data/layout.js');
+  const s = ready();
+  assert.ok(dispatch(s, { type: 'interior.begin' }).ok);
+  const a = dispatch(s, { type: 'expand.decor', defId: 'lamp' }).uid;
+  dispatch(s, { type: 'expand.decor', defId: 'plant' });
+  assert.ok(dispatch(s, { type: 'interior.pick', uid: a }).ok);
+  assert.ok(dispatch(s, { type: 'interior.suggest', uid: a }).ok);
+  assert.ok(dispatch(s, { type: 'interior.confirmItem' }).ok);
+  const note = placedNote(s, a);
+  assert.ok(note.includes(`분위기 +${FURNITURE.lamp.ambience}`), note);
+  const next = s.interior.draft.furniture.filter(f => f.x == null).sort((x, y) => FURNITURE[y.defId].ambience - FURNITURE[x.defId].ambience)[0];
+  assert.ok(next && note.includes(`다음 추천: ${FURNITURE[next.defId].name}`), note);
+});
