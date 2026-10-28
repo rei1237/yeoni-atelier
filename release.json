@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.28.9",
-  "name": "연이의 아틀리에 · 꽃과 달 카페 손질",
+  "version": "2026.10.29.1",
+  "name": "연이의 아틀리에 · 두 해 빚과 무대",
   "musicTracks": 103,
-  "assetBytes": 15276914,
+  "assetBytes": 15761758,
   "channel": "production",
-  "baseCommit": "486c4e2a0caf1e1e1799073350ac7145d6dbeb43",
+  "baseCommit": "d26db84189923c5fd4c9699ed098b47882cf5fdf",
   "newTitleArt": true
 }
