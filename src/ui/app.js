@@ -19,7 +19,7 @@ import { tableBadgesHtml, tablePopHtml } from './table-ui.js';
 import { bondQuestion } from '../data/bond-dialogues.js';
 import { talkCheck } from '../game/bonds.js';
 import {CAFE_LINES,selectLine} from '../data/cafe-dialogue.js';
-import {newTalk,guestTalk,staffTalk,syncTalk} from './cafe-talk.js';
+import {newTalk,guestTalk,staffTalk,sayTalk,syncTalk} from './cafe-talk.js';
 import {newCraft,mixCraft,craftHeat,craftQuality,craftShortage,deliverable} from './crafting.js';
 import {findRecipe} from '../game/recipe.js';
 import {TEMP as GAME_TEMP} from '../config/balance.temp.js';
@@ -658,7 +658,7 @@ function handleEvents(events) {
       case 'takeawayDone': toast('포장 완료 · 손님이 계산대에서 받아 갔어요','good');break;
       case 'farmAction': ui.farmFeedback=ev.text;ui.farmMotion={kind:ev.kind,index:ev.index,cropId:ev.cropId,at:performance.now()};ui.farmAnimUntil=performance.now()+1800;toast(ev.text,'good');break;
       case 'shiftStart': sound('open'); startShiftMusic(); toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 10:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
-      case 'closingStart': sound('close'); toast('🌙 마감 30초 전 · 새 손님은 받지 않아요. 남은 주문은 끝나도 매출로 잡혀요', '', 3600); showCafeLine('설거지랑 청소, 시작할게요. 괜찮아요, 남은 주문도 끝까지 챙길게요.','루나 언니','luna_sis'); break;
+      case 'closingStart': sound('close'); toast('🌙 마감 30초 전 · 새 손님은 받지 않아요. 남은 주문은 끝나도 매출로 잡혀요', '', 3600); sayTalk(ui.talk??=newTalk(),state,'luna_sis','설거지랑 청소, 시작할게요. 괜찮아요, 남은 주문도 끝까지 챙길게요.',performance.now()); break;
       case 'served': floater(p?.x??cssW/2, (p?.y??cssH*.75) - 10, '주문 완료', '#b07a12'); if (state.stats.served % 4 === 0) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
       case 'nominationRequest': toast(`💌 ${ev.tableNo}번 손님이 ${personName(state, ev.nominee)} 지명 요청 — 테이블을 눌러 확인`, 'good', 3600); break;
       case 'nominationAccepted': toast(`🫖 ${ev.tableNo}번 접대 시작 · 60초 전담`, 'good'); gagLines(ev.gag); break;
@@ -814,7 +814,7 @@ const loop = createFrameLoop({
     }
     stepWorldTravel(raw);
     draw(now);
-    if(el.talk)syncTalk(el.talk,ui.screen?null:state,view,ui.talk??=newTalk(),performance.now(),{width:cssW});
+    if(el.talk)syncTalk(el.talk,ui.screen?null:state,view,ui.talk??=newTalk(),performance.now(),{width:cssW,height:cssH});
     render();
   },
 });

@@ -204,15 +204,21 @@ body[data-mode=hunt] .cafe-chatter p{color:var(--night-ink)}
 .craft-equipment{position:relative;min-height:172px;padding-top:70px}.craft-chef{position:absolute;top:-8px;left:calc(50% - 64px);width:128px;height:128px;background-size:400% 300%;background-position:calc(var(--frame)*100%/3) calc(var(--row)*50%);background-repeat:no-repeat}.craft-equipment>b,.craft-equipment>.pixel-icon{position:relative}.craft-prop{position:absolute;bottom:8px;right:0;z-index:1}.craft-prop img{width:40px;height:40px;object-fit:contain}
 @media(prefers-reduced-motion:reduce){.craft-chef{background-position-x:0%}}
 @media(max-width:600px){.quest-botanical img{width:68px;height:80px}.craft-chef{width:104px;height:104px;left:calc(50% - 52px)}}
-/* 카페 대화 말풍선: 말하는 사람 머리 위, 꼬리는 그 사람을 가리킨다(위치는 cafe-talk.js가 매 프레임 갱신) */
+/* 카페 대화 말풍선: 말하는 사람 머리 위, 꼬리는 그 사람을 가리킨다(위치·비켜 놓기는 cafe-talk.js가 매 프레임 갱신).
+   꽃·달 테마: 이름 리본 + 직원 초상화 + 인물 색, 손님은 꽃, 직원은 달 장식 */
 .talk-layer{position:absolute;inset:0;pointer-events:none;z-index:5;overflow:hidden}
-.talk-bubble{position:absolute;transform:translate(-50%,-100%);width:max-content;max-width:min(210px,58vw);padding:6px 10px 7px;border:1px solid #d9a3a8;border-radius:14px;background:#fffaf2f2;box-shadow:0 4px 12px #4a2c2426;color:#3b2a24;animation:talk-in .22s ease-out both;transition:opacity .35s}
-.talk-bubble::after{content:'';position:absolute;left:var(--tail,50%);bottom:-6px;width:10px;height:10px;margin-left:-5px;background:inherit;border:solid #d9a3a8;border-width:0 1px 1px 0;transform:rotate(45deg)}
-.talk-bubble.staff{border-color:#9db394;background:#f6fbf1f2}.talk-bubble.staff::after{border-color:#9db394}
-.talk-bubble b{display:block;font-size:10.5px;line-height:1.2;color:var(--rose-dark,#a2475a);letter-spacing:.02em}.talk-bubble.staff b{color:#4f6b45}
-.talk-bubble p{margin:2px 0 0;font-size:12px;line-height:1.45;word-break:keep-all}
+.talk-bubble{--tb:#8fae86;--tb-soft:#eef5ea;position:absolute;transform:translate(-50%,-100%);display:flex;align-items:center;gap:7px;width:max-content;max-width:min(220px,60vw);padding:13px 12px 8px;box-sizing:border-box;border:1.5px solid var(--tb);border-radius:16px;background:linear-gradient(180deg,#fffdf9,#fff5ec);box-shadow:0 0 0 3px #fffaf399,0 6px 16px #4a2c2428;color:#3b2a24;animation:talk-in .34s cubic-bezier(.34,1.5,.64,1) both;transition:opacity .35s}
+.talk-bubble::after{content:'';position:absolute;left:var(--tail,50%);bottom:-6.5px;width:10px;height:10px;margin-left:-5px;background:#fff5ec;border:solid var(--tb);border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
+.talk-bubble.lifted::after{display:none}
+.talk-bubble::before{content:'';position:absolute;right:8px;top:-9px;width:18px;height:18px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='%23F2B6C6'%3E%3Ccircle cx='10' cy='5' r='4'/%3E%3Ccircle cx='15' cy='9' r='4'/%3E%3Ccircle cx='13' cy='15' r='4'/%3E%3Ccircle cx='7' cy='15' r='4'/%3E%3Ccircle cx='5' cy='9' r='4'/%3E%3C/g%3E%3Ccircle cx='10' cy='10.5' r='2.6' fill='%23F7D78A'/%3E%3C/svg%3E") no-repeat center/contain;filter:drop-shadow(0 1px 1px #4a2c2422)}
+.talk-bubble.staff::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M13.5 2.5A8 8 0 1 0 17.5 15 6.4 6.4 0 0 1 13.5 2.5Z' fill='%23F3D58C' stroke='%23D9B26A' stroke-width='.8'/%3E%3Ccircle cx='16.5' cy='4.5' r='1.1' fill='%23F3D58C'/%3E%3C/svg%3E")}
+.talk-bubble>b{position:absolute;left:10px;top:-10px;max-width:calc(100% - 44px);overflow:hidden;text-overflow:ellipsis;padding:1px 10px 2px;border-radius:999px;background:var(--tb);color:#fff;font-size:10.5px;line-height:1.4;letter-spacing:.04em;white-space:nowrap;box-shadow:0 2px 5px #4a2c241f}
+.talk-face{flex:none;width:34px;height:34px;border-radius:50%;object-fit:cover;object-position:50% 30%;background:var(--tb-soft);box-shadow:0 0 0 1.5px var(--tb),0 0 0 3.5px #fff}
+.talk-bubble p{margin:0;font-size:12px;line-height:1.45;word-break:keep-all}
+.talk-bubble.who-yeoni{--tb:#e08aa3;--tb-soft:#fde9ef}.talk-bubble.who-luna_sis{--tb:#9f8ccc;--tb-soft:#efeafb}.talk-bubble.who-luna{--tb:#e2946c;--tb-soft:#fdeee4}.talk-bubble.who-neo{--tb:#7f95b8;--tb-soft:#e9eef7}
 .talk-bubble.fading{opacity:0}
-@keyframes talk-in{from{opacity:0;transform:translate(-50%,-90%) scale(.92)}to{opacity:1;transform:translate(-50%,-100%)}}
-@media(min-width:900px){.talk-bubble{max-width:250px;padding:7px 12px 8px}.talk-bubble p{font-size:13px}}
+@keyframes talk-in{from{opacity:0;transform:translate(-50%,-86%) scale(.84)}to{opacity:1;transform:translate(-50%,-100%) scale(1)}}
+@media(min-width:900px){.talk-bubble{max-width:270px;padding:14px 14px 9px;gap:9px}.talk-bubble p{font-size:13px}.talk-face{width:42px;height:42px}.talk-bubble>b{font-size:11.5px}}
+@media(max-height:500px){.talk-bubble{max-width:min(210px,40vw);padding:11px 9px 6px;gap:6px}.talk-face{width:26px;height:26px}.talk-bubble p{font-size:11.5px;line-height:1.35}}
 @media (prefers-reduced-motion:reduce){.talk-bubble{animation:none;transition:none}}
 body[data-editing=true] .talk-layer{display:none}

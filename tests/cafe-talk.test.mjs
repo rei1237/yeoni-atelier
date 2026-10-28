@@ -5,7 +5,7 @@ import {quietShift} from './helpers.mjs';
 import {withEvents} from '../src/game/state.js';
 import {spawnCustomer} from '../src/game/cafe.js';
 import {CAFE_REPLIES} from '../src/data/cafe-dialogue.js';
-import {newTalk,guestTalk,staffTalk,stepTalk,talkPoint,REPLY_DELAY,STAFF_GAP,TALK_MAX,TALK_MS} from '../src/ui/cafe-talk.js';
+import {newTalk,guestTalk,staffTalk,stepTalk,talkPoint,sayTalk,placeBubbles,REPLY_DELAY,STAFF_GAP,TALK_MAX,TALK_MS} from '../src/ui/cafe-talk.js';
 const view={w:2000,h:2000,tile:40,ox:0,oy:0,scale:1};
 
 test('들어온 손님의 한마디에 연이가 이어서 답하고, 말풍선은 말한 사람 위에 뜬다',()=>{
@@ -32,4 +32,21 @@ test('직원 한마디는 간격을 두고, 대답 문장은 말할 수 있는 �
   assert.ok(['yeoni','luna','luna_sis','neo'].includes(who),`${topic}:${who}`);
   for(const l of lines)assert.ok(l.split(/[.!?…]+\s*/).filter(Boolean).length<=2,l);
  }
+});
+
+test('마감 한마디는 잡담 간격과 상관없이 루나 언니 머리 위에 바로 뜬다',()=>{
+ const s=quietShift(),talk=newTalk();
+ assert.ok(staffTalk(talk,s,'luna',0));
+ assert.ok(sayTalk(talk,s,'luna_sis','설거지랑 청소, 시작할게요. 괜찮아요.',10));
+ assert.deepEqual(stepTalk(talk,s,20).map(i=>i.who),['luna','luna_sis']);
+ assert.equal(sayTalk(talk,s,'nobody','...',30),false);
+});
+
+test('겹치는 말풍선은 서로 비켜서고 화면 밖으로 나가지 않는다',()=>{
+ const W=844,H=390,list=[{x:420,y:200,w:220,h:58},{x:430,y:210,w:220,h:58},{x:5,y:20,w:220,h:58}];
+ const out=placeBubbles(list,{width:W,height:H}),box=(p,b)=>({l:p.x-b.w/2,r:p.x+b.w/2,t:p.y-b.h,b:p.y});
+ const bs=out.map((p,i)=>box(p,list[i]));
+ for(const b of bs)assert.ok(b.l>=0&&b.r<=W&&b.t>=0&&b.b<=H,JSON.stringify(b));
+ for(let i=0;i<bs.length;i++)for(let j=i+1;j<bs.length;j++){const a=bs[i],b=bs[j];assert.ok(!(a.l<b.r&&b.l<a.r&&a.t<b.b&&b.t<a.b),`${i}-${j} 겹침`);}
+ assert.equal(out[0].moved,false);assert.equal(out[1].moved,true);
 });

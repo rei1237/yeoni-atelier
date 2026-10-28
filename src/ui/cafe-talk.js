@@ -2,6 +2,7 @@
 // 화면 연출일 뿐이라 게임 상태는 바꾸지 않는다(ui.talk에만 기록).
 import {CAFE_LINES,CAFE_REPLIES,selectLine} from '../data/cafe-dialogue.js';
 import {cellToPx} from '../render/cafe-view.js';
+import {imageFor} from '../render/assets.js';
 
 export const TALK_MS=3600,TALK_MAX=2,REPLY_DELAY=1400,STAFF_GAP=9000;
 export const newTalk=()=>({items:[],queue:[],seq:0,lastStaff:-1e9,turn:0});
@@ -35,6 +36,14 @@ export function staffTalk(talk,state,who,now){
   return true;
 }
 
+// 영업 흐름이 정한 한마디(마감 준비 등). 잡담 간격과 상관없이 바로 그 사람 머리 위에 띄운다.
+export function sayTalk(talk,state,who,line,now){
+  if(!state?.staff?.[who])return false;
+  talk.queue=talk.queue.filter(q=>q.who!==who);
+  push(talk,{who,name:NAMES[who]||who,line},now);
+  return true;
+}
+
 // 예약된 대답을 꺼내고 끝난 말풍선을 치운다. 말할 사람이 자리를 떠났으면 그 말풍선도 없앤다.
 export function stepTalk(talk,state,now){
   for(const q of talk.queue.filter(q=>now>=q.at))push(talk,q,now);
@@ -55,21 +64,40 @@ export function talkPoint(state,view,who){
   const p=cellToPx(view,a.x,a.y);return {x:p.x,y:p.y-view.tile*(a.seated?1.75:1.45)};
 }
 
+// 겹치는 말풍선 비켜 놓기: 먼저 뜬 말풍선은 제자리, 다음 것은 위→아래→옆 순서로 빈 곳을 찾는다.
+// 입력은 꼬리 끝(하단 가운데) 좌표와 크기, 출력은 화면 안에 들어간 같은 형식의 좌표.
+const GAP=6;
+export function placeBubbles(list,{width=Infinity,height=Infinity}={}){
+  const placed=[],hit=(a,b)=>a.l<b.r+GAP&&b.l<a.r+GAP&&a.t<b.b+GAP&&b.t<a.b+GAP;
+  const fit=(x,y,w,h)=>({x:Math.max(w/2+GAP,Math.min(width-w/2-GAP,x)),y:Math.max(h+GAP,Math.min(height-GAP,y))});
+  return list.map(({x,y,w,h})=>{
+    const base=fit(x,y,w,h),box=p=>({l:p.x-w/2,r:p.x+w/2,t:p.y-h,b:p.y});
+    const tries=[base,...placed.flatMap(o=>[{x:base.x,y:o.t-GAP},{x:base.x,y:o.b+h+GAP},{x:o.r+GAP+w/2,y:base.y},{x:o.l-GAP-w/2,y:base.y}])].map(p=>fit(p.x,p.y,w,h));
+    const p=tries.find(p=>!placed.some(o=>hit(box(p),o)))||base;
+    placed.push(box(p));return {...p,moved:p.x!==base.x||p.y!==base.y};
+  });
+}
+
 // 매 프레임: 말풍선 DOM을 맞추고 위치만 옮긴다(HTML UI 200ms 갱신과 분리해 흔들리지 않게).
-export function syncTalk(layer,state,view,talk,now,{width=Infinity}={}){
+export function syncTalk(layer,state,view,talk,now,{width=Infinity,height=Infinity}={}){
   const items=state?.mode==='shift'?stepTalk(talk,state,now):[];
   const keep=new Set(items.map(i=>String(i.id)));
   for(const n of [...layer.children])if(!keep.has(n.dataset.id))n.remove();
   for(const i of items){
     let n=layer.querySelector(`[data-id="${i.id}"]`);
     if(!n){
-      n=document.createElement('div');n.dataset.id=i.id;n.className=`talk-bubble ${i.guest?'guest':'staff'}`;
+      n=document.createElement('div');n.dataset.id=i.id;n.className=`talk-bubble ${i.guest?'guest':'staff who-'+i.who}`;
       const b=document.createElement('b'),p=document.createElement('p');b.textContent=i.name;p.textContent=i.line;n.append(b,p);
       n.setAttribute('role','status');layer.append(n);
     }
-    const pt=talkPoint(state,view,i.who);if(!pt){n.hidden=true;continue;}
-    const w=n.offsetWidth||180,x=Math.max(w/2+6,Math.min(width-w/2-6,pt.x)),tail=Math.max(14,Math.min(w-14,pt.x-x+w/2));
-    n.hidden=false;n.style.left=`${x}px`;n.style.top=`${Math.max(n.offsetHeight+6,pt.y)}px`;n.style.setProperty('--tail',`${tail}px`);
-    n.classList.toggle('fading',i.until-now<450);
+    const face=!i.guest&&!n.querySelector('.talk-face')&&imageFor('badges/'+i.who); // 초상화는 늦게 받아져도 붙인다
+    if(face){const img=document.createElement('img');img.className='talk-face';img.src=face.src;img.alt='';n.prepend(img);}
   }
+  const shown=items.map(i=>({i,n:layer.querySelector(`[data-id="${i.id}"]`),pt:talkPoint(state,view,i.who)})).filter(o=>{o.n.hidden=!o.pt;return o.pt;});
+  const spots=placeBubbles(shown.map(({n,pt})=>({x:pt.x,y:pt.y,w:n.offsetWidth||180,h:n.offsetHeight||56})),{width,height});
+  shown.forEach(({i,n,pt},k)=>{
+    const s=spots[k],w=n.offsetWidth||180,tail=Math.max(16,Math.min(w-16,pt.x-s.x+w/2));
+    n.style.left=`${s.x}px`;n.style.top=`${s.y}px`;n.style.setProperty('--tail',`${tail}px`);
+    n.classList.toggle('lifted',s.moved);n.classList.toggle('fading',i.until-now<450);
+  });
 }
