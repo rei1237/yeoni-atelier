@@ -22,7 +22,7 @@ import {craftingSheet} from './crafting.js';
 import {creditView,exchangeRate} from '../game/finance.js';
 import {menuPrice,cafeProgress} from '../game/cafe-growth.js';
 import {payrollView} from '../game/payroll.js';
-import { armorySheet, supplyShop } from './armory.js';
+import { armorySheet, supplyShop, gearList } from './armory.js';
 import {deliverySheet} from './delivery.js';
 import {tableCookingOrders} from '../game/table-cooking.js';
 import { tutorialSheet } from './tutorials.js';
@@ -45,7 +45,6 @@ import { TEMP } from '../config/balance.temp.js';
 import { MENUS, MENU_ORDER, INGREDIENTS } from '../data/menus.js';
 import { HELP_KINDS, TOPICS } from '../data/lines.js';
 import { PEOPLE, LOCKED_SLOT_COUNT, STAFF_CREW } from '../data/companions.js';
-import { GEAR, GEAR_SLOTS, GEAR_ORDER } from '../data/gear.js';
 import { FURNITURE, AREAS } from '../data/layout.js';
 import { fmtTime, personName, personDef, hostStats, usableHosts, isUsableHost, remainingShift } from '../game/state.js';
 import { STATION_NAMES, tableByNo, customerAt, staffStatusText, stockCheck } from '../game/cafe.js';
@@ -285,9 +284,12 @@ function townSheet(state, tab = 'atelier', ui = {}) {
   const bid = bondAt(here.id);
   const lock = placeLock(state, here.id);
   const body = !chk.ok ? `<p class="warn">${esc(chk.reason)}</p>` : lock ? lockedRoom(lock)
-    : (bid ? bondCard(state, bid) : '') + placeBody(state, here.id, ui);
-  return `${head(here.name)}<p class="small">보유 ${won(state.gold)} · 🌙 월정석 ${state.moonstone || 0}개 · 마을 행동력 ${state.ap.left}</p><p class="small muted">대화와 사냥 출발에만 행동력 1을 써요. 구매·강화·환전은 자유롭게 이용해요.</p>${body}`;
+    : placeBody(state, here.id, ui) + (bid ? `<h3 class="shop-bond-head">${esc(withWa(bondName(state, bid)))}의 인연</h3>${bondCard(state, bid)}` : '');
+  return `${head(here.name)}${shopWallet(state)}${body}`;
 }
+
+// 상점 공통 지갑 줄: 창을 내려도 위에 붙어 있다. 행동력은 대화·사냥 출발에만 쓴다
+const shopWallet = state => `<div class="shop-wallet" aria-label="보유 재화"><span>${won(state.gold)}</span><span>🌙 ${(state.moonstone || 0).toLocaleString('ko-KR')}</span><span title="대화와 사냥 출발에만 써요">행동력 ${state.ap.left}</span></div>`;
 
 // 열리기 전 장소 안내(잠금 이유만 보이고 조작은 없다)
 const lockedRoom = reason => `<div class="locked-room"><b>🔒 아직 닫혀 있어요</b><p>${esc(reason)}</p></div>`;
@@ -348,20 +350,7 @@ function mokaShop(state) {
 }
 
 function gearStall(state) {
-  const eq = state.gear.equipped;
-  const slots = Object.entries(GEAR_SLOTS).map(([slot, label]) => `<span>${label}</span><b>${eq[slot] ? esc(GEAR[eq[slot]].name) : '-'}</b>`).join('');
-  const rows = GEAR_ORDER.map(id => {
-    const g = GEAR[id];
-    const price = g.cost.gold ? won(g.cost.gold) : `🌙 ${g.cost.moonstone}`;
-    let right;
-    if (!state.gear.owned.includes(id)) {
-      const can = g.cost.gold ? state.gold >= g.cost.gold : (state.moonstone || 0) >= g.cost.moonstone;
-      right = btn({ action: 'gear.buy', args: { id }, disabled: !can, label: price });
-    } else if (eq[g.slot] === id) right = btn({ action: 'gear.equip', args: { slot: g.slot }, cls: 'on', title: `${g.name} 빼기`, label: '장착 중' });
-    else right = btn({ action: 'gear.equip', args: { slot: g.slot, id }, label: '장착' });
-    return `<div class="item"><div class="meta grow"><b>${esc(g.name)} · ${GEAR_SLOTS[g.slot]}</b><span>${esc(g.desc)}</span></div>${right}</div>`;
-  }).join('');
-  return `<p class="small muted">윤달이 손질하는 장비 좌판 · 장비는 사냥 능력치만 바꿔요.</p>${btn({action:'sheet.open',args:{sheet:'armory'},cls:'primary',label:'윤달의 무기 공방 · 강화와 회복'})}<div class="kv">${slots}</div><div class="list">${rows}</div>`;
+  return `<p class="small muted">윤달이 손질하는 장비 좌판 · 장비는 사냥 능력치만 바꿔요.</p>${btn({action:'sheet.open',args:{sheet:'armory'},cls:'primary',label:'윤달의 무기 공방 · 강화와 회복'})}${gearList(state)}`;
 }
 
 // 인수 빚 이자율: 지금 이율·이번 달 예상 이자·다음 인상(청토끼 일정, creditor.js)
@@ -477,7 +466,7 @@ function debtSheet(state) {
     ${interestCard(state)}${creditorCard(state)}
     <p class="small muted">💡 다음 영업 재료비로 ${won(TEMP.KEEP_FOR_INGREDIENTS_HINT)} 정도는 남겨 두는 것을 권장합니다.</p>
     ${can ? '' : '<p class="small warn">상환은 영업 전이나 마감 후에 할 수 있습니다.</p>'}
-    <div class="btns">${amounts.map(([a, l]) => btn({ action: 'debt.repay', args: { amount: a }, disabled: !can || a <= 0 || state.gold < a || state.debt <= 0, label: l })).join('')}</div>`;
+    <div class="btns debt-actions">${amounts.map(([a, l], i) => btn({ action: 'debt.repay', args: { amount: a }, cls: i === 2 ? 'primary' : '', disabled: !can || a <= 0 || state.gold < a || state.debt <= 0, label: l })).join('')}</div>`;
 }
 
 // ── 동료

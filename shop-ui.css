@@ -1,0 +1,10 @@
+/* 상점 공통 틀(모바일 우선): 지갑 줄은 위에, 주요 버튼은 아래에 붙인다. 탭은 한 줄. */
+.shop-wallet{position:sticky;top:-1px;z-index:3;display:flex;flex-wrap:wrap;gap:6px;margin:0 -2px 10px;padding:8px 2px;background:#fffaf2;border-bottom:1px solid #ead8c2}
+.shop-wallet span{padding:5px 11px;border-radius:999px;background:#f4e8d8;border:1px solid #dcc3a2;color:#5b3b4c;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+.shop-bond-head{margin:20px 0 8px;padding-top:14px;border-top:1px dashed #dcc3a2;font-size:15px;color:#6b4359}
+.workshop-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.workshop-tabs button{min-width:0;padding-inline:2px;font-size:13px;letter-spacing:-.02em}
+.debt-actions{position:sticky;bottom:-1px;z-index:3;margin:10px -2px 0;padding:10px 2px;background:#fffaf2;border-top:1px solid #ead8c2}
+.debt-actions button{min-height:48px}
+.music-seek input[type=range],.music-volume input[type=range],.music-sfx input[type=range]{min-height:44px}
+.gear-list .kv{margin:8px 0 12px}
