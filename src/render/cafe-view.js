@@ -202,6 +202,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   const tags = [];
   for(const a of actors){const p=P(a.x,a.y),blend=a.seatBlend,actorSize=blend==null?(a.seated?2.2:1.8):1.8+.4*blend,foot=p.y+T*(blend==null?(a.seated?-.10:.32):.32+(-.10+17/128*2.2-.32)*blend);pieces.push({depth:a.cashierFront?SPOTS.yeoniHome.y+1.1:a.y+(a.seated?.28:.32),paint:()=>drawActor(ctx,a.key,{...a.o,name:null,x:p.x,y:foot,size:T*actorSize,idleMotion:!a.seated&&!editing&&!state.paused,reducedMotion:opts.reducedMotion,t})});if(a.o.name)tags.push({text:a.o.name,x:p.x,y:['serve','clean'].includes(a.o.state)?foot-T*1.65-24:foot+4+(a.o.state==='host'?Math.max(20,T*.65):0),color:a.o.tagColor});}
   pieces.sort((a,b)=>a.depth-b.depth);for(const piece of pieces)piece.paint();
+  for (const paint of stageRain.splice(0)) paint(); // 손님 위, 주문 말풍선 아래
   if(state.mode==='shift')drawStations(ctx,state,v);
   drawNameTags(ctx, tags, T * 1.8);
 
@@ -239,6 +240,7 @@ function drawTable(ctx, state, p, T, f, tb, t) {
     roundRect(ctx, p.x + T * 0.08, p.y + T * 0.12, T * 0.84, T * 0.76, T * 0.18); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(p.x + T * 0.14, p.y + T * 0.16, T * 0.72, T * 0.12);
   }
+  if (visit?.stageThrown && state.stage?.activeUntil != null) stageRain.push(() => drawStageRain(ctx, p, T, t, visit.tableNo || 0));
   if (tb?.state === 'dirty' || tb?.state === 'cleaning') {
     ctx.save();
     ctx.globalAlpha=tb.state==='cleaning'?Math.max(0,(tb.cleanEndAt-state.shift.elapsedMs)/(tb.cleanMs||PDF.CLEAN_MS)):1;
@@ -268,6 +270,29 @@ function drawTable(ctx, state, p, T, f, tb, t) {
 }
 
 // 여러 칸짜리 가구 그림을 한 장으로 그린다(러그·책장 등). 그림이 없으면 false.
+// 무대 공연: 금화를 던진 테이블 위로 꽃잎 지폐와 금화가 도트로 흩날린다(캐릭터를 그린 뒤 한꺼번에)
+const stageRain = [];
+function drawStageRain(ctx, p, T, t, seed) {
+  const u = Math.max(2, Math.round(T / 18));
+  ctx.save();
+  for (let i = 0; i < 7; i++) {
+    const ph = (t / 1100 + i / 7 + seed * 0.17) % 1;
+    const x = Math.round(p.x + T * (-0.3 + ((i * 37 + seed * 23) % 160) / 100) + Math.sin(t / 280 + i * 1.7) * u * 2);
+    const y = Math.round(p.y - T * 0.7 + ph * T * 1.4);
+    ctx.globalAlpha = 1 - ph * 0.7;
+    if (i % 2) { // 금화: 테두리 + 하이라이트 한 칸
+      ctx.fillStyle = '#8a5a14'; ctx.fillRect(x - u, y - u, u * 3, u * 3);
+      ctx.fillStyle = '#f2c14e'; ctx.fillRect(x, y - u, u, u * 3); ctx.fillRect(x - u, y, u * 3, u);
+      ctx.fillStyle = '#fff3c4'; ctx.fillRect(x, y, u, u);
+    } else { // 꽃잎 지폐: 분홍 지폐 + 가운데 흰 점
+      ctx.fillStyle = '#b5476b'; ctx.fillRect(x - u * 2, y - u, u * 4, u * 2);
+      ctx.fillStyle = '#f7b8c8'; ctx.fillRect(x - u * 2 + 1, y - u + 1, u * 4 - 2, u * 2 - 2);
+      ctx.fillStyle = '#fffdf8'; ctx.fillRect(x - Math.floor(u / 2), y - Math.floor(u / 2), u, u);
+    }
+  }
+  ctx.restore();
+}
+
 function drawWhole(ctx, f, P, T) {
   const cells = furnitureCells(f).map(c => [c.x, c.y]);
   const b = cellsBox(cells), p = P(b.x, b.y);

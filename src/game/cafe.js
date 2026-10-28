@@ -1,3 +1,4 @@
+import { cheerOnServe } from './fans.js';
 import {trafficStep,cafeActors,ACTOR_GAP} from './cafe-traffic.js';
 import {yeoniEffects} from './yeoni-growth.js';
 import {cafeCapacity,assignedHosts} from './capacity.js';
@@ -315,6 +316,7 @@ function recordServe(state, order, item, opts = {}) {
   state.shift.sales += revenue;
   state.shift.servedCount += 1;
   state.stats.served += 1;
+  if (!opts.closing) cheerOnServe(state); // 멤버 합류 뒤: 서빙마다 손님 응원이 피버 게이지를 채운다
   if(MENUS[order.menuId].reputationBonus)changePopularity(state,MENUS[order.menuId].reputationBonus);
 
   if (MENUS[order.menuId].special) state.stats.servedSpecial += 1;
@@ -385,6 +387,7 @@ export function staffStatusText(state, id) {
   if (isResting(state, id)) return state.dayOff?.[id] ? '오늘은 휴무' : '지쳐서 쉬는 중';
   if (id === 'luna_sis') return j?.kind === 'station' && j.sid ? `${STATION_NAMES[j.sid]} 앞` : '대기';
   if (state.people[id]?.activity === 'hosting') return `${state.people[id].tableNo}번 접대 중`;
+  if (state.people[id]?.activity === 'performing') return '무대 공연 중';
   if (!j || j.kind === 'home') return '대기';
   if (j.kind === 'deliver') return j.stage === 'return' ? '음식 되돌리는 중' : `${j.tableNo}번 서빙`;
   if (j.kind === 'clean') return `${j.tableNo}번 정리`;

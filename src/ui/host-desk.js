@@ -1,4 +1,5 @@
 import {hostFeeQuote} from '../game/host-fees.js';
+import {stageCheck,stageActive} from '../game/fans.js';
 import {catCafeActive,catCafeUnlocked,CAT_CAFE_RANK} from '../game/cat-cafe-rules.js';
 import {bondRank} from '../data/bonds.js';
 import {personName} from '../game/state.js';
@@ -8,9 +9,10 @@ export function hostDeskHtml(s){
  if(!s.hostbar.open)return '';
  if(s.mode==='prep')return `<div class="host-desk host-prep"><b>${s.meta.hostDemo?'호스트 체험 카페':'호스트 카페'}</b><span>${s.meta.hostDemo?'홀·주방 자동 · 지명과 SOS에 집중해 보세요':'지명 손님을 맞을 동료를 준비해요'}</span>${btn({action:'sheet.open',args:{sheet:'staffing'},label:'배치'})}${btn({action:'sheet.open',args:{sheet:'outfits'},label:'의상'})}</div>`;
  if(s.mode!=='shift')return '';
+ const stage=stageCheck(s).ok||stageActive(s)?btn({action:'stage.perform',cls:'host-stage'+(stageActive(s)?' active':''),disabled:stageActive(s),label:`<span><b>${stageActive(s)?'무대 공연 중':'🎤 무대 공연'}</b><small>${stageActive(s)?`×${s.stage.power} · ${Math.max(0,Math.ceil((s.stage.activeUntil-s.shift.elapsedMs)/1000))}초`:'게이지 가득 · 30초 무대'}</small></span>`}):'';
  const visits=Object.values(s.visits).filter(v=>v.kind==='nomination'&&!v.settled&&Object.values(s.customers).some(c=>c.visitId===v.id&&['requesting','hosted'].includes(c.state)));
  visits.sort((a,b)=>Number(b.help?.some(h=>h.status==='open'))-Number(a.help?.some(h=>h.status==='open'))||Number(a.acceptAt!=null)-Number(b.acceptAt!=null));
- return visits.length?`<nav class="host-desk host-visits" aria-label="지명과 도움 요청">${visits.map(v=>{const help=v.help?.some(h=>h.status==='open'),request=v.acceptAt==null;return btn({action:'sheet.open',args:{sheet:'table',no:v.tableNo},cls:help?'host-sos':request?'host-request':'',label:assetIcon('badges/'+(v.nominee==='neo'&&catCafeActive(s)?'neo_cat':v.nominee))+`<span><b>${v.tableNo}번 · ${esc(personName(s,v.nominee))}</b><small>${help?'SOS · 도움 주기':request?'지명 '+hostFeeQuote(s,v).toLocaleString()+'G':'접대 '+Math.max(0,Math.ceil((v.endAt-s.shift.elapsedMs)/1000))+'초 남음'}</small></span>`});}).join('')}</nav>`:'';
+ return visits.length||stage?`<nav class="host-desk host-visits" aria-label="지명과 도움 요청">${stage}${visits.map(v=>{const help=v.help?.some(h=>h.status==='open'),request=v.acceptAt==null;return btn({action:'sheet.open',args:{sheet:'table',no:v.tableNo},cls:help?'host-sos':request?'host-request':'',label:assetIcon('badges/'+(v.nominee==='neo'&&catCafeActive(s)?'neo_cat':v.nominee))+`<span><b>${v.tableNo}번 · ${esc(personName(s,v.nominee))}</b><small>${help?'SOS · 도움 주기':request?'지명 '+hostFeeQuote(s,v).toLocaleString()+'G':'접대 '+Math.max(0,Math.ceil((v.endAt-s.shift.elapsedMs)/1000))+'초 남음'}</small></span>`});}).join('')}</nav>`:'';
 }
 
 export function catCafeControl(s){

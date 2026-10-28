@@ -161,6 +161,28 @@ export const TEMP = Object.freeze({
   // ── 연이 선물 요리(준비 중). 10-28 요청: 어떤 메뉴든 5초 만에 완성, 조리 장면만 보여 준다. TEMP
   GIFT_COOK_MS: 5000,
 
+  // ── 멤버 인기·무대 공연·정기 콘서트(10-28 경제 개편, 모두 임시). 공식은 game/fans.js
+  FANS: Object.freeze({
+    TIERS: Object.freeze([40, 140, 360, 800]),  // 인기 단계 1~4의 팬 수
+    NAMES: Object.freeze(['새내기', '동네 화제', '단골 지명', '카페 스타', '달빛 아이돌']),
+    HOST_GREAT: 6, HOST_GOOD: 3,                 // 접대 정산 만족도 80+ / 60+ 팬
+    TIP_PER_TIER: 0.15,                          // 단계당 팁·지명료 배율 +15%
+    NOMINATE_WEIGHT_PER_TIER: 0.5,               // 지명 대상 가중치(단계당)
+    NOMINATE_CHANCE_PER_TIER: 0.01, NOMINATE_CHANCE_MAX: 0.55, // 지명 확률(접대 동료 단계 합당)
+  }),
+  STAGE: Object.freeze({
+    DURATION_MS: 30 * 1000,                      // 영업 600초 안의 공연 구간
+    THROW_EVERY_MS: 3000, THROW_BASE: 60,        // 자리 손님이 3초마다 던지는 꽃잎 지폐·금화(× 가격 성장 × 공연 세기 × 부유도)
+    PER_MEMBER: 0.25, PER_TIER: 0.15, PER_OUTFIT: 0.1, DECOR_PER: 100, DECOR_CAP: 0.5, RECORD_PLAYER: 0.1,
+    ARRIVAL_MULT: 1.8, FIRST_GUEST_MS: 1500,     // 공연 중 손님 입장 배율
+    HOST_TIP_RATE: 1,                            // 접대 팁 추가 = 기본 팁 × (세기 - 1)
+    FANS: 8, FANS_PER_GUEST: 1, POPULARITY: 1,   // 공연을 마친 멤버마다 팬(× 세기)
+    GAUGE_PER_SERVE: 2,                          // 멤버 합류 뒤 서빙 1회당 피버 게이지(손님 응원)
+  }),
+  CONCERT: Object.freeze({
+    AP: 1, TICKET: 300, TIER_BONUS: 0.1, SEATS_BASE: 40, SEATS_PER_TABLE: 8, // 티켓 수입 = 좌석 × 티켓값(× 가격 성장 × 멤버 단계)
+    FANS: 25, POPULARITY: 2,
+  }),
   // ── 자동 운영
   AUTO_DECIDE_MS: 600,
   HUNT_CAREER: Object.freeze({ xpBase: 1100, xpStep: 350, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.1, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100, statCap: 10 }), // statCap: 이 레벨 뒤로는 체력·피해 보너스가 오르지 않는다(레벨·경험치는 계속)

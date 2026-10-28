@@ -20,7 +20,8 @@ export function menuWeight(state,visit,m){
  return simple?Math.max(1,10-grade*3):Math.max(1,grade*(m.price/80));
 }
 
-export const menuPrice=(state,menu)=>Math.min(Number.MAX_SAFE_INTEGER,Math.round(menu.price*Math.pow(TEMP.CAFE_PRICE_GROWTH,Math.min(25,cafeProgress(state).level)-1)));
+export const priceScale=state=>Math.pow(TEMP.CAFE_PRICE_GROWTH,Math.min(25,cafeProgress(state).level)-1);
+export const menuPrice=(state,menu)=>Math.min(Number.MAX_SAFE_INTEGER,Math.round(menu.price*priceScale(state)));
 
 // 단계명은 표시용 파생값이며 기존 평판·분위기 효과를 바꾸지 않는다.
 const SCORE_STAGES={reputation:{cuts:[0,40,70],names:['새로 문 연 카페','동네 단골집','소문난 카페'],cap:100},atmosphere:{cuts:[0,20,60],names:['소박한 공간','아늑한 쉼터','감성 명소'],cap:Infinity}};

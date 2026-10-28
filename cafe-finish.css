@@ -116,3 +116,9 @@ body[data-editing=true] #topbar button{min-height:44px;min-width:44px}
 .companion-picker .pick-rank{color:#3b2a4a;font-weight:800;letter-spacing:.04em}
 /* 영업 음악 🎵 토글: 아이콘만 보이고 상태는 화면낭독기에 읽힌다. */
 .cafe-utility-line .music-toggle{min-width:44px;padding:6px;font-size:17px;line-height:1}.cafe-utility-line .music-toggle:not(.on){opacity:.6}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* 무대 공연·정기 콘서트·멤버 인기(10-28 경제 개편) */
+.host-visits .host-stage{border-color:#b5476b;background:#fbe6e8;color:#6c3248;box-shadow:inset 0 0 0 2px #e2bd6c}.host-visits .host-stage.active{background:#f2c14e;color:#3b2f2f}
+.stagebtn,.concertbtn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;margin-top:6px;font-weight:700}.stagebtn.ready{background:#fbe6e8;box-shadow:inset 0 0 0 2px #b5476b}.stagebtn.active{background:#f2c14e;color:#3b2f2f}
+.concertbtn{flex-direction:column;gap:2px;background:#fff4d1;border-color:#a87c3a}.concertbtn small{font-size:11px;font-weight:400;color:#735b69}
+.fan-rows{display:grid;gap:4px;margin:8px 0 4px;padding:0;list-style:none}.fan-rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;padding:5px 8px;background:#fff7ea;border:1px solid #e9d6b9}.fan-rows b{font-size:12px}.fan-rows span{font-size:11px;color:#9c4560;font-weight:700;text-align:right}.fan-rows small{grid-column:1/-1;font-size:11px;color:#735b69}
+.bond-fans{display:block;margin-top:4px;color:#9c4560}

@@ -518,7 +518,7 @@ const ACTIONS = {
   'stress.shelter': d => run({ type: 'stress.shelter', id: d.id }),
 };
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
-  'hunt.retreat', 'hunt.finish', 'hunt.next', 'hunt.chest', 'expand.table']) ACTIONS[t] = () => run({ type: t });
+  'hunt.retreat', 'hunt.finish', 'hunt.next', 'hunt.chest', 'expand.table', 'stage.perform', 'concert.hold']) ACTIONS[t] = () => run({ type: t });
 ACTIONS['shift.start']=()=>{if(!state.tutorials?.opening){ui.guideReturn={kind:null};ui.guideId='opening';ui.guideStep=0;ui.guideAction='shift.start';ui.sheet={kind:'tutorial'};return;}if(run({type:'shift.start'}).ok){ui.cafeDrawer=null;ui.tablePop=null;ui.sheet=null;}};
 // 카페 꾸미기 진입점은 하나다. 월드맵(sheet.open town)을 거치지 않는다.
 ACTIONS['decor.open']=(d={})=>{const was=!!state?.interior.draft;if(!run({type:'interior.begin'}).ok)return;if(!was){history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.editTab='all';ui.editCategory='all';ui.editSearch='';ui.groundItem=null;ui.groundExpand=false;ui.decorArea=null;ui.decorSpace='indoor';ui.decorTab='owned';}ui.sheet=null;ui.screen=null;ui.cafeDrawer=null;ui.tablePop=null;if(d.tab)ui.decorTab=d.tab;if(d.space==='outdoor')ACTIONS['decor.space']({id:'outdoor'});};
@@ -669,6 +669,11 @@ function handleEvents(events) {
       case 'helpDone': showHelpFeedback(ev); floater(p.x, p.y - 20, ev.gain > 0 ? `대화 +${ev.gain}` : `대화 ${ev.gain}`, '#3f74c9'); break;
       case 'helpMissed': showHelpFeedback({...ev,quality:'missed',gain:-1}); break;
       case 'feverOn': toast(ev.tycoon ? `대부호의 앙코르! 팁 ${ev.tip}G · 데스티노바 피버` : `🔥 피버! ${ev.tables.join('·')}번 테이블 정산 팁 2배`, 'good', 3200); shake(el.panel); break;
+      case 'stageOn': toast(`🎤 카페 무대 · ${ev.performers.map(id => personName(state, id)).join('·')} · 30초 동안 손님이 꽃잎 지폐를 던져요`, 'good', 3200); sound('bond'); shake(el.panel); break;
+      case 'stageThrow': if (p) floater(p.x, p.y - 24, `✿ +${ev.gold}G`, '#b5476b'); break;
+      case 'stageOff': toast(`무대 끝 · 던져 준 ${ev.gold.toLocaleString('ko-KR')}G는 계산대에서 받아요`, 'good', 3000); break;
+      case 'concertHeld': sound('level'); toast(`🎶 정기 콘서트 ${ev.seats}석 매진 · 티켓 +${ev.gold.toLocaleString('ko-KR')}G`, 'good', 3600); break;
+      case 'fansGain': if (ev.tierUp) toast(`✦ ${personName(state, ev.id)} 인기 단계 「${ev.tierUp}」 · 지명과 팁이 늘어요`, 'good', 3200); break;
       case 'hostingSettled':
         toast(`${ev.tableNo}번 접대 정산 · 만족도 ${ev.H.toFixed(1)} ${ev.grade}${ev.capped ? ' (핵심 조건 상한)' : ''} · 지명료 ${ev.hostFee||0}G + 팁 ${ev.tip}G`, ev.H >= 60 ? 'good' : '', 3600);
         if (ev.tip > 0) floater(p.x, p.y - 30, `팁 +${ev.tip}G`, '#c0392b');

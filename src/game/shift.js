@@ -2,6 +2,7 @@ import {runningJobs,queuedJobs,stationJobs,stationItems,activeSlotNames,heldKey}
 import {chargeLoanInterest} from './finance.js';
 import {accruePayroll} from './payroll.js';
 import {ensureRecordPlayer} from './music-furniture.js';
+import {nominateChance,pickNominee,stageArrivalMultiplier,stepStage,endStage} from './fans.js';
 // 정규 영업: 시작 → 활성 시간 1,800초 동안 진행 → 30:00 마지막 접대 정산 → 마감 → 결산.
 // 한 시뮬레이션 단계 안의 처리 순서(동시 사건 순서)는 stepShift 에 고정되어 있다.
 
@@ -11,7 +12,7 @@ import { TEMP } from '../config/balance.temp.js';
 import { emit, usableHosts, emptyStations, shiftDuration, lastAcceptAt } from './state.js';
 import { checkout, setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave, settleClosingOrders } from './cafe.js';
 import { settleDue, settleHosting, hostingVisits, stepHosting, onRequesting } from './nomination.js';
-import { nextRandom, randRange, pick } from '../core/rng.js';
+import { nextRandom, randRange } from '../core/rng.js';
 import { chargeInterest, advanceTurn } from './calendar.js';
 import { workShift } from './bonds.js';
 import { settleStress, stressOf } from './stress.js';
@@ -47,10 +48,11 @@ export function startShift(state) {
   state.mode = 'shift';
   state.paused = false;
   state.fever = { gauge: 0, activeUntil: null };
+  state.stage = { activeUntil: null, performers: [], power: 0, gold: 0 };
   state.shift = {
     id: `shift-${state.day}`, day: state.day, elapsedMs: 0, durationMs: RULES.SHIFT_MS, nominationMs: RULES.NOMINATION_MS,
     nextSpawnAt: TEMP.SPAWN_FIRST_MS, scriptIndex: firstHostShift || state.stats.shiftsCompleted === 0 ? 0 : FIRST_SHIFT_SCRIPT.length,
-    sales: 0, hostFees: 0, ingredientCost: 0, baseTips: 0, feverTips: 0, servedCount: 0, lostOrders: 0, wasted: 0,
+    sales: 0, hostFees: 0, ingredientCost: 0, baseTips: 0, feverTips: 0, stageTips: 0, stages: 0, servedCount: 0, lostOrders: 0, wasted: 0,
     spawnCount: 0, regularVisits: 0, nominationVisits: 0, hostings: [], autoAt: 0,
     stressStart: stressOf(state, 'neo'),
   };
@@ -72,7 +74,8 @@ function nextSpec(state) {
   const hosts = usableHosts(state).filter(id => state.staff[id]);
   // 지명 요청은 아직 수락할 시간이 남아 있을 때만 생긴다. 지명 대상은 접대 가능한 동료뿐이다.
   const canNominate = hosts.length && sh.elapsedMs < lastAcceptAt(state) - 20000;
-  if (canNominate && nextRandom(state.rng) < TEMP.NOMINATE_CHANCE) return { kind: 'nomination', nominee: pick(state.rng, hosts) };
+  // 인기 단계가 높은 동료일수록 지명이 늘고 그 동료를 더 자주 찾는다(fans.js)
+  if (canNominate && nextRandom(state.rng) < nominateChance(state, hosts)) return { kind: 'nomination', nominee: pickNominee(state, hosts) };
   return { kind: 'regular' };
 }
 
@@ -88,7 +91,7 @@ function stepSpawn(state) {
   spawnCustomer(state, spec);
   // 테이블이 늘면 손님 간격이 그만큼 짧아진다(임시)
   const scale = TEMP.SPAWN_TABLE_BASE / Math.max(TEMP.SPAWN_TABLE_BASE, state.tables.length);
-  sh.nextSpawnAt = sh.elapsedMs + Math.round(randRange(state.rng, ...TEMP.SPAWN_INTERVAL_MS) * scale / arrivalMultiplier(state));
+  sh.nextSpawnAt = sh.elapsedMs + Math.round(randRange(state.rng, ...TEMP.SPAWN_INTERVAL_MS) * scale / (arrivalMultiplier(state) * stageArrivalMultiplier(state)));
 }
 
 // 한 시뮬레이션 단계(dt ≤ SIM_STEP_MS). 순서:
@@ -100,6 +103,7 @@ export function stepShift(state, dt, autoStep) {
   sh.elapsedMs += step;
   settleDue(state);
   if (state.fever.activeUntil != null && sh.elapsedMs >= state.fever.activeUntil) { state.fever.activeUntil = null; emit('feverOff'); }
+  stepStage(state); // 무대 공연: 손님 응원 금화·종료
   stepHosting(state);
   stepStations(state, step);
   stepStaff(state, step);
@@ -112,6 +116,7 @@ export function stepShift(state, dt, autoStep) {
 export function closeShift(state) {
   const sh = state.shift;
   if (!sh || state.mode !== 'shift') return;
+  endStage(state); // 공연 중 마감이면 멤버를 돌려보내고 팬을 정산
   settleDue(state); // 30:00 에 끝나는 마지막 접대를 먼저 정산
   for (const v of hostingVisits(state)) settleHosting(state, v); // (규칙상 남을 수 없지만 안전장치: 300초 미달 → 팁 없음)
   const settled = settleClosingOrders(state); // 끝까지 남은 손님의 주문도 매출에 넣는다
@@ -125,8 +130,8 @@ export function closeShift(state) {
   const settlement = {
     shiftId: sh.id, day: sh.day,
     stressStart: sh.stressStart, stressEnd: stressOf(state, 'neo'),
-    sales: sh.sales, hostFees: sh.hostFees||0, ingredientCost: sh.ingredientCost, baseTips: sh.baseTips, feverTips: sh.feverTips,
-    result: sh.sales + (sh.hostFees||0) + sh.baseTips + sh.feverTips - sh.ingredientCost,
+    sales: sh.sales, hostFees: sh.hostFees||0, ingredientCost: sh.ingredientCost, baseTips: sh.baseTips, feverTips: sh.feverTips, stageTips: sh.stageTips||0, stages: sh.stages||0,
+    result: sh.sales + (sh.hostFees||0) + sh.baseTips + sh.feverTips + (sh.stageTips||0) - sh.ingredientCost,
     gold: state.gold, debt: state.debt,
     servedCount: sh.servedCount, lostOrders: sh.lostOrders, wasted,
     regularVisits: sh.regularVisits, nominationVisits: sh.nominationVisits, hostings: sh.hostings,
@@ -145,6 +150,7 @@ export function closeShift(state) {
   state.lastSettlement = state.ledger.settlements[sh.id];
   state.mode = 'settlement';
   state.fever = { gauge: 0, activeUntil: null };
+  state.stage = { activeUntil: null, performers: [], power: 0, gold: 0 };
   state.customers = {}; state.visits = {}; state.orders = {}; state.tasks = [];
   state.stations = emptyStations(); state.tray = Array(RULES.TRAY_SLOTS).fill(null);
   state.staff = {}; state.tables = [];

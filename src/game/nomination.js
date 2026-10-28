@@ -1,4 +1,5 @@
 import {hostFeeQuote,earnedHostFee} from './host-fees.js';
+import {fanMultiplier,addFans,hostingFans,stageTipExtra,stageActive} from './fans.js';
 import {changePopularity} from './reputation.js';
 import {patronTipMultiplier,hostRevenueMultiplier} from '../data/customer-wealth.js';
 // 지명 접대: 요청 → (수락 검사) → 수락 순간부터 해당 영업의 접대 시간 → 정산 1회 → 동료 해제.
@@ -41,6 +42,7 @@ export function personBusyReason(state, personId) {
   const p = state.people[personId];
   if (!p) return null;
   if (p.activity === 'hosting') return `${personName(state, personId)}: ${p.tableNo}번 테이블 접대 중 · ${fmtTime(p.endAt - state.shift.elapsedMs)} 남음`;
+  if (p.activity === 'performing') return `${personName(state, personId)}: 카페 무대 공연 중`;
   if (p.activity === 'hunting') return `${personName(state, personId)}: 영냥이 모습으로 월정석 사냥 중`;
   return null;
 }
@@ -88,6 +90,7 @@ export function accept(state, tableNo) {
   visit.waitPenalty = waitPenaltyAt(visit, now);
   visit.hostFeeQuote = hostFeeQuote(state,visit);
   visit.acceptAt = now;
+  if (stageActive(state)) visit.staged = state.stage.power; // 공연 중에 시작한 접대도 공연 팁을 받는다
   visit.endAt = now + nominationDuration(state); // 이동 연출을 포함한 수락 시점부터
   visit.help = helpSchedule(state, visit);
   const pid = visit.nominee;
@@ -201,7 +204,8 @@ export function settleHosting(state, visit) {
   const pid = visit.nominee;
   const score = hostingScore({ stats: hostStats(state, pid), prefs: visit.prefs, talkBonus: visit.talkBonus, waitPenalty: visit.waitPenalty });
   const completedFull = now >= visit.endAt;
-  const tip = tipFor({ servedTotal: visit.servedTotal, H: score.H, completedFull, fevered: visit.fevered, multiplier: patronTipMultiplier(visit.wealthId)*hostRevenueMultiplier(pid) });
+  const tip = tipFor({ servedTotal: visit.servedTotal, H: score.H, completedFull, fevered: visit.fevered, multiplier: patronTipMultiplier(visit.wealthId)*hostRevenueMultiplier(pid)*fanMultiplier(state,pid) });
+  const stageExtra = stageTipExtra(visit, tip.base);
   const hostFee = earnedHostFee(visit,completedFull);
   visit.hostFee = hostFee;
   visit.settled = true;
@@ -210,7 +214,9 @@ export function settleHosting(state, visit) {
   visit.tip = tip;
   if (state.ledger.tips[visit.id] == null) {
     state.ledger.tips[visit.id] = tip.total;
-    visit.bill=(visit.bill||0)+tip.total+hostFee;
+    visit.bill=(visit.bill||0)+tip.total+stageExtra+hostFee;
+    state.shift.stageTips=(state.shift.stageTips||0)+stageExtra;
+    addFans(state,pid,hostingFans(score.H),'접대');
     state.shift.hostFees=(state.shift.hostFees||0)+hostFee;
     changePopularity(state,score.H>=80?2:score.H<40?-1:0);
     state.shift.baseTips += tip.base;

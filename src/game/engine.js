@@ -33,11 +33,12 @@ import {selectStaff} from './capacity.js';
 import { toggleAutomation } from './permissions.js';
 import { setDayOff, shelter } from './stress.js';
 import { delegateFarm } from './farm-delegate.js';
+import { startStage, holdConcert } from './fans.js';
 
 // 일시정지 중에도 받는 명령
 const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle', 'automation.toggle', 'tutorial.seen']);
 // 영업 중에만 의미가 있는 명령
-const SHIFT_ONLY = new Set(['order.table','order.quick', 'cook', 'cook.cancelNext', 'cook.cancel', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate']);
+const SHIFT_ONLY = new Set(['order.table','order.quick', 'cook', 'cook.cancelNext', 'cook.cancel', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate', 'stage.perform']);
 
 const FARM_ACTIONS = new Set(['farm.harvest','farm.plant','farm.water','farm.tend']);
 export const HELPERS = Object.freeze({neo:{tier:1,actions:['farm.water','farm.tend']},moka:{tier:2,actions:['farm.water','farm.tend']},yun:{tier:3,actions:['farm.harvest']}});
@@ -80,7 +81,8 @@ function execute(state, cmd) {
     // 전체 자동(지명 수락·도움 응답·피버까지)은 시뮬·테스트 전용이다. 플레이어 화면에는 버튼이 없고 sim 표시 없이는 거절한다.
     case 'auto.toggle':
       if (cmd.sim !== true) return { ok: false, reason: '전체 자동은 시뮬레이션 전용이에요. 홀·주방 자동은 인연으로 열려요' };
-      state.auto = cmd.on ?? !state.auto; return { ok: true, auto: state.auto };
+      state.auto = cmd.on ?? !state.auto; state.autoFever = cmd.fever ?? 'stage'; // 시뮬 봇: 'stage'(무대 우선)·'fever'·'off'
+      return { ok: true, auto: state.auto };
     case 'staffing.select': return selectStaff(state,cmd.id,cmd.on);
     case 'automation.toggle': return toggleAutomation(state, cmd.ability, cmd.on);
     case 'staff.dayOff': return setDayOff(state, cmd.id, cmd.on);
@@ -99,6 +101,8 @@ function execute(state, cmd) {
     case 'nomination.propose': return nom.propose(state, cmd.tableNo, cmd.personId);
     case 'help.respond': return nom.respondHelp(state, cmd.visitId, cmd.index, cmd.choice);
     case 'fever.activate': return nom.activateFever(state);
+    case 'stage.perform': return startStage(state);
+    case 'concert.hold': return holdConcert(state);
 
     case 'shop.deliver':return orderDelivery(state,cmd.items,cmd.requestId);
     case 'order.table':return cookTable(state,Number(cmd.no),cmd.timing);

@@ -24,7 +24,7 @@ export function settlementView(state) {
   const best = past.length > 0 && s.result > 0 && past.every(o => s.result > o.result);
   const crew = Object.entries(s.crew || {}).map(([id, jobs]) => ({ id, jobs })).sort((a, b) => b.jobs - a.jobs);
   const mvp = crew.length > 1 && crew[0].jobs > crew[1].jobs ? crew[0].id : null;
-  const tips = s.baseTips + s.feverTips, income = s.sales + (s.hostFees || 0) + tips;
+  const tips = s.baseTips + s.feverTips + (s.stageTips || 0), income = s.sales + (s.hostFees || 0) + tips;
   const monthEnd = (s.payroll?.closed ? s.payroll.paid : 0) + (s.loanInterest?.due ? s.loanInterest.paid : 0) + (s.interest?.due ? s.interest.paid : 0);
   const line = best ? '꿀악! 오늘이 우리 카페 최고 기록이야! 다들 정말 고마워.' : past.length === 0 ? '꿀악! 우리 카페 첫 영업 끝! 같이 해 줘서 고마워.' : GRADES[grade].line;
   return { rate, grade, ...GRADES[grade], best, first: past.length === 0, crew, mvp, tips, income, monthEnd, line };
@@ -73,7 +73,7 @@ export function settlementScreen(state) {
     <div class="settle-wallet"><span>보유 골드 <b>${won(s.gold)}</b></span><span>남은 빚 <b>${won(s.debt)}</b></span>${v.monthEnd ? `<span class="month">월말 정산 <b>−${won(v.monthEnd)}</b></span>` : ''}</div>
     <details class="settle-ledger"><summary>자세한 장부 보기</summary>
       <div class="kv"><span>판매 금액(서빙 완료분)</span><b>${won(s.sales)}</b><span>재료비</span><b>−${won(s.ingredientCost)}</b>
-      ${host ? `<span>지명료</span><b>${won(s.hostFees || 0)}</b>` : ''}<span>기본 팁</span><b>${won(s.baseTips)}</b>${host ? `<span>피버 추가 팁</span><b>${won(s.feverTips)}</b>` : ''}
+      ${host ? `<span>지명료</span><b>${won(s.hostFees || 0)}</b>` : ''}<span>기본 팁</span><b>${won(s.baseTips)}</b>${host ? `<span>피버 추가 팁</span><b>${won(s.feverTips)}</b>` : ''}${s.stageTips ? `<span>무대 공연 팁 · ${s.stages}회</span><b>${won(s.stageTips)}</b>` : ''}
       <span class="sum">영업 결과</span><b class="sum">${s.result >= 0 ? '' : '−'}${won(Math.abs(s.result))}</b>
       ${s.payroll?.closed ? `<span>월말 동료 급여</span><b>−${won(s.payroll.paid)}</b>${s.payroll.arrears ? `<span>미지급 급여</span><b>${won(s.payroll.arrears)}</b>` : ''}` : ''}${s.loanInterest?.due ? `<span>운영 대출 이자</span><b>−${won(s.loanInterest.paid)}${s.loanInterest.added ? ` · 원금 가산 ${won(s.loanInterest.added)}` : ''}</b>` : ''}${interestRows(s.interest)}
       <span>보유 골드</span><b>${won(s.gold)}</b><span>남은 빚</span><b>${won(s.debt)}</b></div>

@@ -28,6 +28,7 @@ import { tutorialSheet } from './tutorials.js';
 import { automationStatus } from '../game/auto.js';
 import { ABILITIES, abilityCheck } from '../game/permissions.js';
 import { stressCrew, stressOf, stressStage, stressLabel, isResting } from '../game/stress.js';
+import { DEST1NOVA_IDS, fansOf, fanTierName, nextTierAt } from '../game/fans.js';
 import { audioSheet,audioQuickButton } from './audio.js';
 import { HELP_SCENES } from '../data/help.js';
 import { farmSheet } from './farm.js';
@@ -322,7 +323,7 @@ function bondCard(state, id) {
   const sp = SPEAKERS[b.speaker]?.name || b.name, masked = bondMasked(state, id);
   const title = masked ? '??? · 붉은 봉인의 손님' : sp === b.name ? b.name : `${b.name} · ${sp}`;
   return `<div class="bond-card"><div class="bc-top"><span class="bond-face">${masked ? MYSTERY_FACE : assetIcon('badges/'+(SPEAKERS[b.speaker]?.portrait||b.speaker||id))}</span><div class="bond-name"><b>${esc(title)}</b><small class="arcana">${masked ? '?' : num} · ${masked ? '???' : esc(arc)}</small></div><span class="bond-rank${ready ? ' ready' : ''}" aria-label="인연 Rank ${r} / ${MAX_RANK}"><small>RANK</small><b>${r >= MAX_RANK ? 'MAX' : r}</b></span></div>
-    <div class="rank-pips" aria-hidden="true">${pips}</div>${bar(r >= MAX_RANK || ready ? 100 : ((v - lo) / (hi - lo)) * 100, 'bond')}<span class="small bond-status${ready ? ' ready' : ''}">${status}</span>
+    <div class="rank-pips" aria-hidden="true">${pips}</div>${bar(r >= MAX_RANK || ready ? 100 : ((v - lo) / (hi - lo)) * 100, 'bond')}<span class="small bond-status${ready ? ' ready' : ''}">${status}</span>${DEST1NOVA_IDS.includes(id) && !masked ? `<span class="small bond-fans">인기 「${esc(fanTierName(state, id))}」 · 팬 ${fansOf(state, id).toLocaleString('ko-KR')}명${nextTierAt(state, id) ? ` / ${nextTierAt(state, id).toLocaleString('ko-KR')}명` : ''} · 단계마다 지명과 팁이 늘어요</span>` : ''}
     <ul class="bond-perks" aria-label="인연 능력">${b.rankFx?`<li class="${r?'open':'next'}"><b>매 랭크</b><span>${esc(b.rankFx.label)} · 지금 −${Math.round(b.rankFx.fx.cookSpeed*r*100)}%</span><small>${r?'적용':'다음'}</small></li>`:''}${perks}</ul>
     <p class="small bond-gift-status">${gifted?'이번 순 선물을 전했어요. 다음 순에 다시 전할 수 있어요.':'좋아하는 물건은 구매 후 바로 선물해요.'}</p><div class="row">${btn({action:'gift.open',args:{id},cls:'primary',disabled:gifted||!townCheck(state).ok,label:'보유 음식 선물 · '+(state.foodGifts?.items.length||0)+'개'})}${giftBtn(b.gift)}${giftBtn(COMMON_GIFT)}${talkBtn}</div><details class="bond-story-library"><summary>인연 이야기 · 4장</summary>${b.perks.map((perk,index)=>btn({action:'bond.read',args:{id,tier:index+1},disabled:state.mode!=='prep'||!state.ledger.story['bond:'+id+':'+(index+1)],label:'Rank '+P[index]+' · '+(state.ledger.story['bond:'+id+':'+(index+1)]?'이야기 다시 읽기':'인연을 쌓으면 열려요')})).join('')}</details></div>`;
 }

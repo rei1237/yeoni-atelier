@@ -13,6 +13,7 @@ import { bestHelpChoice } from '../data/help.js';
 import { acceptCheck, hostingPreview, topPref, feverCheck, hostingVisits } from './nomination.js';
 import { findServeTarget, stockCheck, staffAvailable } from './cafe.js';
 import { ABILITIES, HALL_ABILITIES, abilityCheck, automationOn } from './permissions.js';
+import { stageCheck } from './fans.js';
 
 // 화면 표시용(상태를 바꾸지 않는다): 잠김·꺼짐·멈춤 사유와 지금 돌아가는지
 export function automationStatus(state, ability) {
@@ -59,8 +60,10 @@ export function autoStep(state, run) {
       run({ type: 'help.respond', visitId: v.id, index: i, choice: bestHelpChoice(h.kind, v.prefs) });
     });
   }
-  // 3) 피버
-  if (full && feverCheck(state).ok) run({ type: 'fever.activate' });
+  // 3) 피버: 멤버가 쉬고 있으면 무대 공연을 먼저 고른다(시뮬 봇은 autoFever 로 끌 수 있다)
+  const fv = state.autoFever ?? 'stage';
+  if (full && fv === 'stage' && stageCheck(state).ok) run({ type: 'stage.perform' });
+  else if (full && fv !== 'off' && feverCheck(state).ok) run({ type: 'fever.activate' });
   // 수동 영업에서는 조리·서빙·정리 모두 플레이어가 누른다(정리 = 빈 테이블 탭). 아래는 자동 모드에서만 명령한다.
   const hall = full || HALL_ABILITIES.some(key=>automationOn(state,key) && staffAvailable(state,ABILITIES[key].id));
   const kitchen = automationOn(state, 'kitchen') && (full || !state.resting?.[ABILITIES.kitchen.id]);

@@ -39,6 +39,7 @@ import { HELP_KINDS } from '../data/lines.js';
 import { fmtTime, personName, remainingShift, usableHosts, shiftDuration, lastAcceptAt } from '../game/state.js';
 import { STATION_NAMES, findServeTarget, openOrdersOfVisit, staffStatusText } from '../game/cafe.js';
 import { feverCheck, personBusyReason } from '../game/nomination.js';
+import { stageCheck, stageActive, concertCheck, concertQuote, DEST1NOVA_IDS, fansOf, fanTierName, nextTierAt } from '../game/fans.js';
 import { startCheck } from '../game/shift.js';
 import { huntCheck, findBoss, getHuntWorld } from '../game/hunt.js';
 import { stageDef } from '../data/hunt-stages.js';
@@ -131,7 +132,23 @@ function cafeTopbar(state,ui){
 }
 function hostServiceControls(state){
  const chk=feverCheck(state),active=state.fever.activeUntil!=null;
- return `${catCafeControl(state)}<p>${esc(personName(state,"neo"))} · ${esc(stressLabel(state))} · 스트레스 ${Math.round(stressOf(state))}/100</p>${btn({action:'fever.activate',disabled:!chk.ok,title:chk.reason||'20초 동안 대상 팁 2배',label:active?'피버 진행 중':`피버 ${state.fever.gauge}/100`})}`;
+ return `${catCafeControl(state)}<p>${esc(personName(state,"neo"))} · ${esc(stressLabel(state))} · 스트레스 ${Math.round(stressOf(state))}/100</p>${btn({action:'fever.activate',disabled:!chk.ok,title:chk.reason||'20초 동안 대상 팁 2배',label:active?'피버 진행 중':`피버 ${state.fever.gauge}/100`})}${stageButton(state)}${fanRows(state)}`;
+}
+// 무대 공연: 피버 게이지를 다 채우면 피버 대신 고른다(멤버 합류 뒤에만 보인다)
+function stageButton(state){
+ if(!DEST1NOVA_IDS.some(id=>id!=='neo'&&state.roster[id]))return '';
+ const chk=stageCheck(state),on=stageActive(state);
+ return btn({action:'stage.perform',cls:'stagebtn'+(on?' active':chk.ok?' ready':''),disabled:!chk.ok,title:chk.ok?'30초 무대 · 손님이 꽃잎 지폐와 금화를 던지고 손님이 몰려와요':chk.reason,label:on?`무대 공연 ${fmtTime(state.stage.activeUntil-state.shift.elapsedMs)} · ×${state.stage.power}`:'🎤 무대 공연'});
+}
+// 멤버 인기: 합류한 DEST1NOVA 멤버마다 팬 수와 인기 단계
+function fanRows(state){
+ const ids=DEST1NOVA_IDS.filter(id=>state.roster[id]);
+ return ids.length?`<ul class="fan-rows" aria-label="멤버 인기">${ids.map(id=>{const n=fansOf(state,id),next=nextTierAt(state,id);return `<li><b>${esc(personName(state,id))}</b><span>${esc(fanTierName(state,id))}</span><small>팬 ${n.toLocaleString('ko-KR')}${next?` / ${next.toLocaleString('ko-KR')}`:''}</small></li>`;}).join('')}</ul>`:'';
+}
+function concertButton(state){
+ if(!state.hostbar.open)return '';
+ const chk=concertCheck(state),q=concertQuote(state);
+ return btn({action:'concert.hold',cls:'concertbtn',disabled:!chk.ok,title:chk.ok?`행동력 ${TEMP.CONCERT.AP} · ${q.seats}석 × ${q.ticket}G · 멤버 전원 팬 +${q.fans}`:chk.reason,label:`🎶 이달의 정기 콘서트 <small>${chk.ok?`예상 ${won(q.gold)}`:esc(chk.reason)}</small>`});
 }
 function cafePanel(state,ui){
  const shift=state.mode==='shift', selected=ui.cafeDrawer||'', ready=state.tray.filter(it=>it&&!it.reservedFor).length;
@@ -145,7 +162,7 @@ function cafePanel(state,ui){
   kitchen:shift?`${stationDock(state)}<h3>픽업 선반</h3>${slots||'<p>루나 언니가 완성한 메뉴가 여기에 놓여요.</p>'}${btn({action:'sheet.open',args:{sheet:'kitchen'},label:'레시피 · 재료 보기'})}`:btn({action:'yeoni.kitchen',cls:'primary',label:'연이의 요리 · 특별 메뉴'})+btn({action:'sheet.open',args:{sheet:'kitchen'},label:'레시피 · 재료 보기'}),
   crew:`${yeoniGrowthHtml(state)}${state.hostbar.open?hostServiceControls(state):''}<div class="cafe-scores">${scoreChip('reputation',popularity(state))}${scoreChip('atmosphere',atmosphere(state))}</div>${automationChips(state)}${btn({action:'sheet.open',args:{sheet:'companions'},label:'동료와 이야기'})}${btn({action:'sheet.open',args:{sheet:'staffing'},label:'직원 배치'})}${btn({action:'sheet.open',args:{sheet:'manage'},label:uiIcon('book')+'카페 수첩'})}`,
   counter:`<p>연이가 한 분씩 계산해 드려요.</p>${queue.length?queue.map((c,i)=>`<p>${i+1}번째 · ${esc(c.label)} · ${won(state.visits[c.visitId]?.bill||0)}${c.payAt?' · 계산 중':' · 기다리는 중'}</p>`).join(''):'<p>아직 계산을 기다리는 손님은 없어요.</p>'}`,
-  prepare:`<p>의자 ${capacity.seats}석 · 루나는 홀, 루나 언니는 주방을 맡아요.</p>${btn({action:'decor.open',label:'카페 꾸미기'})}${state.interior.checkoutLayout!=='entrance-left'?btn({action:'interior.checkoutPreview',label:'입구 계산대 미리보기'}):''}${btn({action:'sheet.open',args:{sheet:'shop'},label:'모카에게 재료 사기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}`,
+  prepare:`<p>의자 ${capacity.seats}석 · 루나는 홀, 루나 언니는 주방을 맡아요.</p>${concertButton(state)}${btn({action:'decor.open',label:'카페 꾸미기'})}${state.interior.checkoutLayout!=='entrance-left'?btn({action:'interior.checkoutPreview',label:'입구 계산대 미리보기'}):''}${btn({action:'sheet.open',args:{sheet:'shop'},label:'모카에게 재료 사기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}`,
   menu:navRow([['town','재성의 섬'],['shop','재료'],['companions','동료'],['manage','수첩']]),
  };
  return `<div class="cafe-commandbar">${journeyHtml(state)}${hostDeskHtml(state)}<div class="cafe-utility-line"><p class="cafe-live-line" role="status">${shift?(ready?`완성 ${ready}개 · 픽업 선반에서 전해 주세요`:`손님 ${count}명 · 테이블을 눌러 주문을 받아요`):'오늘은 어떤 손님이 찾아올까요?'}</p>${btn({action:'sheet.open',args:{sheet:'manage'},cls:'cafe-utility',label:uiIcon('book')+'<span>수첩</span>'})}${musicToggle(shift)}${btn({action:'sheet.open',args:{sheet:'audio'},cls:'cafe-utility',label:uiIcon('music')+'<span>음악</span>'})}${btn({action:'game.title',cls:'cafe-utility',label:'<span>메인</span>',title:'저장하고 메인 화면으로'})}</div>${!shift?`<div class="cafe-opening"><span><b>오늘의 영업</b><small>${capacity.seats}석 · 10분</small></span>${btn({action:'shift.start',cls:'primary cafe-open',disabled:!sc.ok,title:sc.ok?'영업 시작하기':sc.reasons.join(' · '),label:uiIcon('cup')+'<span>영업 시작하기</span>'})}</div>${!sc.ok?`<p class="cafe-start-reason">${esc(sc.reasons.join(' · '))}</p>`:''}`:''}<nav class="cafe-actions" aria-label="카페 조작">${tabs.map(([tab,label])=>btn({action:'cafe.drawer',args:{tab},cls:'cafe-nav-item '+(selected===tab?'selected':''),pressed:selected===tab,label:uiIcon(({orders:'orders',kitchen:'kitchen',crew:'crew',prepare:'cup'})[tab])+`<span>${label}</span>`})).join('')}${btn({action:'delivery.open',cls:'cafe-nav-item',label:uiIcon('cup')+'<span>모카 배달</span>'})}${btn({action:'sheet.open',args:{sheet:'town'},cls:'cafe-nav-item',label:uiIcon('island')+'<span>재성의 섬</span>'})}</nav></div><section class="cafe-drawer" ${selected?'':'hidden'} aria-label="카페 상세 조작"><header><b>${({orders:'손님 주문',kitchen:'주방 · 픽업',crew:'카페와 동료',counter:'연이의 계산대',prepare:'영업 준비',menu:'수첩'})[selected]||''}</b>${btn({action:'cafe.drawer.close',label:'닫기'})}</header><div class="cafe-drawer-body">${Object.entries(panels).map(([id,content])=>`<div data-cafe-tab="${id}" ${selected===id?'':'hidden'}>${content}</div>`).join('')}</div></section>`;

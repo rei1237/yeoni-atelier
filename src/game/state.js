@@ -56,6 +56,8 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     people: Object.fromEntries(RULES.STARTING_ROSTER.map(id => [id, { activity: 'idle', form: 'human', visitId: null, tableNo: null, endAt: null }])),
     recruitment: {},
     fever: { gauge: 0, activeUntil: null },
+    stage: { activeUntil: null, performers: [], power: 0, gold: 0 }, // 카페 무대 공연(game/fans.js)
+    fans: {},                        // 동료별 팬 수(멤버 인기)
     interior: { checkoutLayout:'entrance-left', furniture: splitFurniture(START_FURNITURE), areas: [], draft: null },
     outfits: { owned: [...START_OUTFITS], equipped },
     quests: { claimed: {} },
