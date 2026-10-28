@@ -96,9 +96,9 @@ export function drawCafe(ctx, state, v, opts = {}) {
     ctx.fillStyle = y === 0 ? '#e9dccb' : (x + y) % 2 ? '#f6ead9' : '#f1e2cd';
     ctx.fillRect(p.x, p.y, T + 0.5, T + 0.5);
   }
-  // 잠긴 면적은 얇은 경계와 작은 안내판으로 구별한다.
+  // 증축 경계와 안내판은 가구 편집 중에만 표시한다.
   const open = state.interior.areas || [];
-  for (const a of AREAS) {
+  for (const a of (state.interior.draft ? AREAS : [])) {
     if (open.includes(a.id) || a.rect[0]>=v.cols || a.rect[1]>=v.rows) continue;
     const [x0,y0,x1,y1]=a.rect, p=P(x0,y0), aw=(x1-x0+1)*T, ah=(y1-y0+1)*T;
     ctx.save();ctx.fillStyle='#63536416';ctx.fillRect(p.x,p.y,aw,ah);

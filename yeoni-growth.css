@@ -16,3 +16,14 @@ body[data-mode=hunt] .bubbles .hunt-chatter{color:#eef5ff;border:1px solid #86aa
 
 body[data-mode=hunt] .bubbles .hunt-chatter{min-height:0;height:auto;max-height:60px;box-sizing:border-box;overflow:hidden;animation:none}body[data-mode=hunt] .bubbles .hunt-chatter::after{display:none}body[data-mode=hunt] .hunt-dock>.hunt-quickslots>button{min-height:44px;height:46px;padding:3px;display:flex;justify-content:center;align-items:center;gap:3px}body[data-mode=hunt] .hunt-quickslots .supply-art{width:25px;height:30px;flex:none}body[data-mode=hunt] .hunt-quickslots .supply-art .pixel-icon{width:24px;height:24px}body[data-mode=hunt] .hunt-quickslots>button>span:not(.supply-art):not(.supply-tooltip){font-size:10px;line-height:1.3;max-width:24px}body[data-mode=hunt] .hunt-quickslots>button>small{display:none}body[data-mode=hunt] .hunt-quickslots .supply-art b{font-size:10px}body[data-mode=hunt] .hunt-dock>small{display:none}.hunt-kit-details{min-width:0;grid-column:1/-1}
 body[data-mode=hunt] .hunt-dock>small:has(button){display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+/* 상징은 짧은 이름과 함께 표시해 색만으로 수치를 구분하지 않는다. */
+.cafe-status-details small{display:flex;align-items:center;justify-content:center;gap:4px;color:#624a59;white-space:nowrap}
+.cafe-status-details .status-symbol{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#f7e4e9;color:#9b3f60}
+.cafe-status-details .status-symbol .ml-icon{width:16px;height:16px;stroke-width:1.8}
+.cafe-status-details .status-atmosphere{background:#e6eddd;color:#476846}
+.cafe-status-details .status-cafe{background:#f5e6cd;color:#865d26}
+.cafe-status-details .status-yeoni{background:#ede3f3;color:#765184}
+.cafe-status-details .status-energy{background:#e3edf4;color:#3c6884}
+.cafe-status-details b{font-variant-numeric:tabular-nums;font-size:15px}
+@media(max-width:350px){.cafe-status-details small{gap:2px;font-size:10px}.cafe-status-details .status-symbol{width:18px;height:18px}.cafe-status-details .status-symbol .ml-icon{width:14px;height:14px}}

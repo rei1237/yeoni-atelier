@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.28.4",
-  "name": "연이의 아틀리에 · 꽃길과 동료의 이야기",
+  "version": "2026.10.28.5",
+  "name": "연이의 아틀리에 · 카페 상태와 꾸미기",
   "musicTracks": 103,
   "assetBytes": 14986150,
   "channel": "production",
-  "baseCommit": "9c217d473e3e63a161443408dca16e198177416c",
+  "baseCommit": "d961b76e68605e7fa33df8a076c45e2d86062b92",
   "newTitleArt": true
 }

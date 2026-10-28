@@ -121,7 +121,7 @@ export function panelHtml(state, ui) {
 // 영업 정보는 요청할 때만 펼친다. 카페 크기는 주문 수와 무관하다.
 function cafeTopbar(state,ui){
  const shift=state.mode==='shift',cp=cafeProgress(state),yp=yeoniProgress(state);
- return `<div class="cafe-status-main"><span class="cafe-seal" aria-hidden="true">${uiIcon('cup')}</span><div class="cafe-clock"><b>${shift?fmtTime(remainingShift(state)):esc(shortDate(state))}</b><small>${activeBranch(state)}호점 · ${shift?(state.paused?'잠시 쉬는 중':'카페 영업 중'):'영업 준비'}</small></div><span class="cafe-gold">${won(state.gold)}</span>${btn({action:'play.cycle',label:(ui.playSpeed||1)+'배',title:'영업 속도'})}${shift?btn({action:'pause',label:state.paused?'계속':'멈춤'}):btn({action:'interior.begin',label:'꾸미기'})}</div><nav class="cafe-status-details" aria-label="카페 주요 정보">${btn({action:'cafe.drawer',args:{tab:'crew'},label:`<small>인기도</small><b>${popularity(state).toFixed(1)}</b>`})}${btn({action:'cafe.drawer',args:{tab:'crew'},label:`<small>분위기</small><b>${atmosphere(state)}</b>`})}${btn({action:'cafe.drawer',args:{tab:'crew'},title:state.hostbar.open?'카페 성장 · 네오 스트레스 '+Math.round(stressOf(state))+'/100':'카페 성장',label:`<small>카페</small><b>Lv.${cp.level}</b>`})}${btn({action:shift?'cafe.drawer':'yeoni.kitchen',args:{tab:'crew'},label:`<small>연이</small><b>Lv.${yp.level}</b>`})}${btn({action:shift?'cafe.drawer':'yeoni.kitchen',args:{tab:'crew'},label:`<small>행동력</small><b>${state.ap.left}/${maxActionPoints(state)}</b>`})}</nav>`;
+ return `<div class="cafe-status-main"><span class="cafe-seal" aria-hidden="true">${uiIcon('cup')}</span><div class="cafe-clock"><b>${shift?fmtTime(remainingShift(state)):esc(shortDate(state))}</b><small>${activeBranch(state)}호점 · ${shift?(state.paused?'잠시 쉬는 중':'카페 영업 중'):'영업 준비'}</small></div><span class="cafe-gold">${won(state.gold)}</span>${btn({action:'play.cycle',label:(ui.playSpeed||1)+'배',title:'영업 속도'})}${shift?btn({action:'pause',label:state.paused?'계속':'멈춤'}):btn({action:'interior.begin',label:'꾸미기'})}</div><nav class="cafe-status-details" aria-label="카페 주요 정보">${btn({action:'cafe.drawer',args:{tab:'crew'},label:`<small><span class="status-symbol status-popularity">${uiIcon('heart')}</span>인기도</small><b>${popularity(state).toFixed(1)}</b>`})}${btn({action:'cafe.drawer',args:{tab:'crew'},label:`<small><span class="status-symbol status-atmosphere">${uiIcon('leaf')}</span>분위기</small><b>${atmosphere(state)}</b>`})}${btn({action:'cafe.drawer',args:{tab:'crew'},title:state.hostbar.open?'카페 성장 · 네오 스트레스 '+Math.round(stressOf(state))+'/100':'카페 성장',label:`<small><span class="status-symbol status-cafe">${uiIcon('cup')}</span>카페</small><b>Lv.${cp.level}</b>`})}${btn({action:shift?'cafe.drawer':'yeoni.kitchen',args:{tab:'crew'},label:`<small><span class="status-symbol status-yeoni">${uiIcon('flower')}</span>연이</small><b>Lv.${yp.level}</b>`})}${btn({action:shift?'cafe.drawer':'yeoni.kitchen',args:{tab:'crew'},label:`<small><span class="status-symbol status-energy">${uiIcon('energy')}</span>행동력</small><b>${state.ap.left}/${maxActionPoints(state)}</b>`})}</nav>`;
 }
 function hostServiceControls(state){
  const chk=feverCheck(state),active=state.fever.activeUntil!=null;
@@ -239,16 +239,12 @@ function bubbleOf(state, t, now) {
 // ── 테이블 터치 영역(최소 44px)
 export function hitsHtml(state, v, ui) {
   if (!state || !['shift','prep'].includes(state.mode) || !v || state.interior.draft) return '';
-  const areaHits=AREAS.filter(a=>!state.interior.areas.includes(a.id)&&a.rect[0]<v.cols&&a.rect[1]<v.rows).map(a=>{
-    const [x0,y0,x1,y1]=a.rect,p=cellToPx(v,(x0+x1+1)/2,(y0+y1+1)/2),w=Math.max(56,Math.min((x1-x0+1)*v.tile-8,112));
-    return `<button class="hit area-info-hit" data-key="area-${a.id}" data-action="cafe.areaInfo" data-id="${a.id}" aria-label="${esc(a.name)} 증축 안내" style="left:${p.x-w/2}px;top:${p.y-25}px;width:${w}px;height:50px"></button>`;
-  }).join('');
-  if(state.mode==='prep')return areaHits;
+  if(state.mode==='prep')return '';
   const size = Math.max(44, Math.round(v.tile * 1.3));
   const sel = ui.selectedSlot != null ? state.tray[ui.selectedSlot] : null;
   const target = sel && !sel.reservedFor ? findServeTarget(state, sel) : null;
   const fixtures=cafeLayout(state).fixtures.filter(f=>!f.wall).map(f=>{const x=f.cells.reduce((n,c)=>n+c[0],0)/f.cells.length+.5,y=f.cells.reduce((n,c)=>n+c[1],0)/f.cells.length+1,p=cellToPx(v,x,y);return `<button class="hit fixture-hit" data-key="fixture-${f.id}" data-action="cafe.drawer" data-tab="${f.id==='counter'?'counter':'kitchen'}" aria-label="${f.name} 누르기" style="left:${p.x-30}px;top:${p.y-36}px;width:60px;height:44px"></button>`;}).join('');
-  return areaHits+fixtures+state.tables.map(t => {
+  return fixtures+state.tables.map(t => {
     const p = cellToPx(v, t.table.x + 0.5, t.table.y + 0.5);
     const cls = target === t.no ? 'hit target' : 'hit';
     return `<button type="button" class="${cls}" data-key="h${t.no}" data-action="table.tap" data-no="${t.no}" aria-label="${t.no}번 테이블" style="left:${Math.round(p.x - size / 2)}px;top:${Math.round(p.y - size / 2)}px;width:${size}px;height:${size}px"></button>`;
