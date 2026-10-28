@@ -17,7 +17,7 @@ import {stepEnemyBehaviors,addBattleFx} from './enemy-behaviors.js';
 // killerflowerpig 에서 가져온 것: Pool(그대로), 조이스틱 입력(변형). 무기 레벨 누적·진화 배율·
 // 밀도 목표 생성기·별조각 등급/합치기는 개념만 참고해 이 파일에서 새로 썼다(전투 로직 이식 아님).
 
-import { enhancementBonus, SUPPLIES, SKILL_IDS, skillCap, skillRank } from './moka-armory.js';
+import { enhancementBonus, SUPPLIES, SKILL_IDS, skillCap, skillRank, capTier } from './moka-armory.js';
 import { survivalReward } from './hunt-rewards.js';
 import { PDF } from '../config/balance.pdf.js';
 import { TEMP } from '../config/balance.temp.js';
@@ -98,7 +98,7 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
   state.hunt = normalizeHunt({
     id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: null, hunterId, hp, maxHp: hp, gear,
     bag: { moonstone: 0 }, kills: 0, status: 'running', depth, careerLevel, careerXP: 0,
-    caps: Object.fromEntries(SKILL_IDS.map(id => [id, skillCap(id, skillRank(state, id))])), // 출발 때 고정한 단련 상한
+    caps: Object.fromEntries(SKILL_IDS.map(id => [id, skillCap(id, skillRank(state, id), capTier(state))])), // 출발 때 고정한 공용 상한
     scale: depthScale(depth, monthScale(state.day), calendarOf(state.day).monthIdx),
     fieldSeed:Math.floor(nextRandom(state.rng)*2147483647),brokenProps:{},propDamage:{},foundTreasure:{},
     ...(saved?{kfp:saved.kfp?structuredClone(saved.kfp):undefined,level:saved.level,xp:saved.xp,weapons:structuredClone(saved.weapons),passives:{...saved.passives},picks:structuredClone(saved.picks||[])}:{}),

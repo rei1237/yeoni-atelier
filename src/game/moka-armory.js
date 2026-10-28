@@ -5,7 +5,7 @@ import { perkTier } from '../data/bonds.js';
 import { workShop } from './bonds.js';
 import { placeLock } from './unlocks.js';
 import { TEMP } from '../config/balance.temp.js';
-import { WEAPONS, PASSIVES, WEAPON_MAX_LV } from '../data/hunt-kit.js';
+import { WEAPONS, PASSIVES, WEAPON_MAX_LV, PASSIVE_MAX_LV } from '../data/hunt-kit.js';
 const SK = TEMP.HUNT_SKILLS;
 export const HUNTERS = ['neo', 'seohanbi'];
 // 강화·소모품 월정석 값은 임시(TEMP). 10-26: 단계 사냥 월정석 수급에 맞춰 두 배로 올림
@@ -22,13 +22,24 @@ export const SUPPLIES = Object.freeze({
   nova:{name:'모카의 비밀 향신료', cost:130, tier:3, icon:'tarot', detail:'주변 적에게 현재 공격력 기준 큰 피해'},
 });
 export function armory(state) { return state.armory || { upgrades:{}, supplies:{}, skills:{} }; }
-// ── 기술 상한 해방(옛 이름 단련): 0 = 못 배움. 무기 r단계 → Lv r+1까지(4단계면 Lv5·진화), 보조 r단계 → Lv r까지
+// ── 기술: 0 = 못 배움, 1 이상 = 배움(옛 저장의 기술별 해방 단계는 숫자 그대로 남는다).
+// 10-28 공용 상한: 배운 기술 모두가 armory.capTier 하나를 쓴다. 0단계 무기 Lv3·보조 Lv2, 2단계면 무기 Lv5·진화
 export const SKILL_IDS = [...Object.keys(WEAPONS), ...Object.keys(PASSIVES)];
 export const skillKind = id => WEAPONS[id] ? 'weapon' : PASSIVES[id] ? 'passive' : null;
-export const skillMaxRank = id => skillKind(id) === 'weapon' ? WEAPON_MAX_LV - 1 : skillKind(id) ? 3 : 0;
-export const skillCap = (id, rank) => rank <= 0 ? 0 : skillKind(id) === 'weapon' ? rank + 1 : rank;
+export const skillMaxRank = id => skillKind(id) === 'weapon' ? WEAPON_MAX_LV - 1 : skillKind(id) ? 3 : 0; // 옛 기술별 해방 단계(이전 저장 계산용)
+export const CAP_MAX_TIER = SK.CAP_COST.length;
+export const capTier = state => Math.min(CAP_MAX_TIER, armory(state).capTier || 0);
+export const capLevels = tier => ({ weapon: Math.min(WEAPON_MAX_LV, SK.CAP_BASE.weapon + tier), passive: Math.min(PASSIVE_MAX_LV, SK.CAP_BASE.passive + tier) });
+export const skillCap = (id, rank, tier = 0) => rank <= 0 || !skillKind(id) ? 0 : capLevels(tier)[skillKind(id)];
 export const skillRank = (state, id) => armory(state).skills?.[id] || 0;
-export function skillCost(id, rank) { return Math.round((SK.LEARN[id] || SK.TRAIN_BASE) * (SK.TRAIN_MULT[rank - 1] ?? Infinity)); }
+export const skillCost = id => SK.LEARN[id] ?? Infinity;
+export const capCost = tier => SK.CAP_COST[tier] ?? Infinity;
+// 공용 상한 이전 저장: 기술별로 풀어 둔 가장 높은 상한만큼을 공용 단계로 준다(빼앗지 않음)
+export function legacyCapTier(skills = {}) {
+  let tier = 0;
+  for (const [id, r] of Object.entries(skills)) if (r > 0 && skillKind(id)) { const old = skillKind(id) === 'weapon' ? r + 1 : r, base = SK.CAP_BASE[skillKind(id)]; tier = Math.max(tier, old - base); }
+  return Math.min(CAP_MAX_TIER, tier);
+}
 export const startSkills = () => Object.fromEntries(SK.START.map(id => [id, 1]));
 // 기술 단련 이전 저장: 기본 4종 + 저장 빌드·진행 중 사냥에 이미 있는 레벨만큼 단련한 것으로 본다(빼앗지 않음)
 export function legacySkillRanks(data) {
@@ -57,16 +68,25 @@ export function enhance(state,who,id) {
   state.moonstone-=cost; (a.upgrades[who] ||= {})[id]=n+1;
   state.stats.workshopEnhances=(state.stats.workshopEnhances||0)+1;recordYunTrade(state,0,cost); emit('armoryUpgrade',{who,id,level:n+1,cost}); return {ok:true,cost,level:n+1};
 }
-// 배우기와 상한 해방은 같은 명령(armory.learn). 사냥꾼 둘이 함께 쓴다
+// 기술 배우기(armory.learn)와 공용 상한 해방(armory.cap). 사냥꾼 둘이 함께 쓴다
 export function learnSkill(state,id) {
   const chk=check(state,'윤달의 무기 공방'); if(!chk.ok)return chk;
   const lock=placeLock(state,'gear'); if(lock)return {ok:false,reason:lock};
   if(!skillKind(id))return {ok:false,reason:'없는 기술입니다'};
-  const a=ensure(state), rank=skillRank(state,id);
-  if(rank>=skillMaxRank(id))return {ok:false,reason:'상한을 끝까지 해방한 기술이에요'};
-  const cost=skillCost(id,rank+1); if(state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
-  state.moonstone-=cost; a.skills[id]=rank+1;
-  recordYunTrade(state,0,cost); emit('skillLearned',{id,name:(WEAPONS[id]||PASSIVES[id]).name,rank:rank+1,cost,cap:skillCap(id,rank+1)}); return {ok:true,cost,rank:rank+1};
+  const a=ensure(state);
+  if(skillRank(state,id)>0)return {ok:false,reason:'이미 배운 기술이에요 · 상한은 공용 상한 해방으로 올려요'};
+  const cost=skillCost(id); if(state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
+  state.moonstone-=cost; a.skills[id]=1;
+  const cap=skillCap(id,1,capTier(state));
+  recordYunTrade(state,0,cost); emit('skillLearned',{id,name:(WEAPONS[id]||PASSIVES[id]).name,rank:1,cost,cap}); return {ok:true,cost,rank:1};
+}
+export function raiseSkillCap(state) {
+  const chk=check(state,'윤달의 무기 공방'); if(!chk.ok)return chk;
+  const lock=placeLock(state,'gear'); if(lock)return {ok:false,reason:lock};
+  const tier=capTier(state); if(tier>=CAP_MAX_TIER)return {ok:false,reason:'기술 레벨 상한을 끝까지 해방했어요'};
+  const cost=capCost(tier); if(state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
+  const a=ensure(state); state.moonstone-=cost; a.capTier=tier+1;
+  recordYunTrade(state,0,cost); emit('skillCapRaised',{tier:tier+1,cost,...capLevels(tier+1)}); return {ok:true,cost,tier:tier+1};
 }
 export function buySupply(state,id) {
   const item=SUPPLIES[id],chk=check(state,item?.shop==='gear'?'윤달의 무기 공방':'모카 식재료점');if(!chk.ok)return chk;

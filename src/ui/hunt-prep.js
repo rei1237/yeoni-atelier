@@ -9,7 +9,7 @@ import { INGREDIENTS } from '../data/menus.js';
 import { calendarOf } from '../game/calendar.js';
 import { btn,esc } from './dom.js';
 import { TEMP } from '../config/balance.temp.js';
-import { SUPPLIES,SKILL_IDS,skillRank,skillMaxRank } from '../game/moka-armory.js';
+import { SUPPLIES,SKILL_IDS,skillRank,skillCap,capTier } from '../game/moka-armory.js';
 
 // 사냥 대화상자·사냥터 메인 공용 장식 줄(금 선·꽃잎·초승달)
 export const NIGHT_ORN = '<svg class="night-orn" viewBox="0 0 160 20" aria-hidden="true"><path d="M8 10H60M100 10H152" stroke="#D9B26A" stroke-opacity=".75" stroke-width="1"/><circle cx="56" cy="10" r="1.4" fill="#D9B26A"/><circle cx="104" cy="10" r="1.4" fill="#D9B26A"/><ellipse cx="68" cy="10" rx="4.5" ry="1.9" fill="#E7A3B5"/><ellipse cx="92" cy="10" rx="4.5" ry="1.9" fill="#E7A3B5"/><path d="M83 3A7 7 0 1 0 83 17A8 8 0 0 1 83 3Z" fill="#F6E3B4"/></svg>';
@@ -60,7 +60,7 @@ function achieveView(state){
 function codexView(state){
  const c=state.huntCodex||{};
  const skills=SKILL_IDS.map(id=>{const d=WEAPONS[id]||PASSIVES[id],r=skillRank(state,id),evo=WEAPONS[id]?.evo;
-  return `<li class="hh-cell${r?'':' unknown'}"><i aria-hidden="true">${d.icon}</i><b>${r?esc(d.name):'???'}</b><span class="small">${r?`해방 ${r}/${skillMaxRank(id)}`:'윤달 공방 기술서'}${evo&&r?`<br>${c.evolved?.[id]?`진화 ${esc(evo.name)}`:'진화 ???'}`:''}</span></li>`;}).join('');
+  return `<li class="hh-cell${r?'':' unknown'}"><i aria-hidden="true">${d.icon}</i><b>${r?esc(d.name):'???'}</b><span class="small">${r?`상한 Lv ${skillCap(id,r,capTier(state))}`:'윤달 공방 기술서'}${evo&&r?`<br>${c.evolved?.[id]?`진화 ${esc(evo.name)}`:'진화 ???'}`:''}</span></li>`;}).join('');
  const foes=Object.entries(ENEMIES).map(([id,d])=>{const n=c.enemies?.[id],known=n!==undefined;
   return `<li class="hh-cell foe${known?'':' unknown'}${d.boss?' boss':''}"><canvas data-codex-actor="${esc(d.art||id)}" width="128" height="128" aria-hidden="true"></canvas><b>${known?esc(d.name):'???'}</b><span class="small">${known?(n>0?`처치 ${num(n)}`:'만남'):d.boss?'보스':'미발견'}</span></li>`;}).join('');
  const mats=CODEX_MATERIALS.map(id=>{const n=c.materials?.[id]||0;

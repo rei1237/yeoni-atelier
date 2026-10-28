@@ -6,7 +6,7 @@ import { stageDef, stageAllows, bossFor } from '../src/data/hunt-stages.js';
 import { createGame } from '../src/game/state.js';
 import { dispatch, tick } from '../src/game/engine.js';
 import { getHuntWorld, spawnEnemy, findBoss, optionsFor } from '../src/game/hunt.js';
-import { skillCost, skillRank, skillMaxRank } from '../src/game/moka-armory.js';
+import { skillCost, skillRank, capCost, capTier } from '../src/game/moka-armory.js';
 import { placeLock } from '../src/game/unlocks.js';
 import { hunterProgress, huntMoonReward } from '../src/game/hunt-growth.js';
 import { TEMP } from '../src/config/balance.temp.js';
@@ -192,9 +192,9 @@ test('기술 단련: 새 게임은 기본 4종만, 단련 상한까지만 오르
   const s = start(1);
   const ids = optionsFor(s.hunt).map(o => o.id);
   assert.ok(ids.length && ids.every(id => ['bolt', 'orbit', 'paw', 'fish_stock'].includes(id)), ids.join());
-  assert.equal(s.hunt.caps.bolt, 2, '무기 1단계 → Lv2까지');
-  s.hunt.weapons = [{ id: 'bolt', level: 2, evo: false }, { id: 'orbit', level: 2, evo: false }];
-  s.hunt.passives = { paw: 1, fish_stock: 1 }; // 테스트 준비: 모두 상한
+  assert.equal(s.hunt.caps.bolt, 3, '공용 상한 기본 → 무기 Lv3까지'); assert.equal(s.hunt.caps.paw, 2, '보조 Lv2까지');
+  s.hunt.weapons = [{ id: 'bolt', level: 3, evo: false }, { id: 'orbit', level: 3, evo: false }];
+  s.hunt.passives = { paw: 2, fish_stock: 2 }; // 테스트 준비: 모두 상한
   assert.deepEqual(optionsFor(s.hunt), []);
   s.hunt.xp = s.hunt.xpNext - 1; const w = getHuntWorld(s);
   w.drops.items[w.drops.count++] = { kind: 'gem', id: '', v: 5, x: w.player.x, y: w.player.y, speed: 0, magnet: false };
@@ -207,31 +207,39 @@ test('기술 단련: 새 게임은 기본 4종만, 단련 상한까지만 오르
   assert.ok(!TEMP.HUNT.POWER_DROP.some(d => d.id === 'fish'), '10-28: 회복 생선은 일반 적이 떨구지 않는다');
 });
 
-test('상한 해방: armory.learn은 잠김·부족·끝까지 해방을 거절하고, 값만큼 빼고 다음 사냥 상한을 올린다', () => {
+test('공용 상한 해방: armory.learn은 배우기만, armory.cap은 배운 기술 모두의 상한을 한 번에 올리고 잠김·부족·끝을 거절한다', () => {
   const s = createGame({ seed: 5 }); s.huntUnlocked = true;
   s.moonstone = 99999;
   assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).reason, placeLock(s, 'gear'));
-  s.hunter.maxStage = 7; s.moonstone = skillCost('crescent', 1) - 1; // 테스트 준비: 6단계를 클리어해 공방이 열렸다
+  assert.equal(dispatch(s, { type: 'armory.cap' }).reason, placeLock(s, 'gear'));
+  s.hunter.maxStage = 7; s.moonstone = skillCost('crescent') - 1; // 테스트 준비: 6단계를 클리어해 공방이 열렸다
   assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).ok, false);
-  assert.equal(s.moonstone, skillCost('crescent', 1) - 1, '실패 시 차감 없음');
+  assert.equal(s.moonstone, skillCost('crescent') - 1, '실패 시 차감 없음');
   s.moonstone += 1;
   const r = dispatch(s, { type: 'armory.learn', id: 'crescent' });
   assert.ok(r.ok && r.rank === 1 && s.moonstone === 0 && r.cost === TEMP.HUNT_SKILLS.LEARN.crescent);
   assert.ok(r.events.some(e => e.type === 'skillLearned'));
+  assert.ok(TEMP.HUNT_SKILLS.LEARN.tarot < 4000, '10-28: 배우기 값을 낮췄다');
   s.moonstone = 1e6;
-  while (skillRank(s, 'bell') < skillMaxRank('bell')) assert.ok(dispatch(s, { type: 'armory.learn', id: 'bell' }).ok);
-  assert.equal(dispatch(s, { type: 'armory.learn', id: 'bell' }).ok, false, '끝까지 해방');
+  assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).ok, false, '이미 배운 기술');
+  assert.ok(dispatch(s, { type: 'armory.learn', id: 'bell' }).ok);
+  const before = s.moonstone, up = dispatch(s, { type: 'armory.cap' });
+  assert.ok(up.ok && up.tier === 1 && s.moonstone === before - capCost(0));
+  assert.ok(up.events.some(e => e.type === 'skillCapRaised' && e.weapon === 4 && e.passive === 3));
+  assert.ok(dispatch(s, { type: 'armory.cap' }).ok); assert.equal(capTier(s), 2);
+  assert.equal(dispatch(s, { type: 'armory.cap' }).ok, false, '끝까지 해방');
   assert.ok(dispatch(s, { type: 'hunt.start', depth: 1 }).ok);
-  assert.equal(s.hunt.caps.crescent, 2); assert.equal(s.hunt.caps.bell, 3); assert.equal(s.hunt.caps.tarot, 0);
+  assert.equal(s.hunt.caps.crescent, 5); assert.equal(s.hunt.caps.bolt, 5); assert.equal(s.hunt.caps.bell, 3); assert.equal(s.hunt.caps.tarot, 0);
   assert.ok(optionsFor(s.hunt).some(o => o.id === 'crescent') && !optionsFor(s.hunt).some(o => o.id === 'tarot'));
 });
 
 test('기술 단련 이전 저장: 빌드에 있던 기술·레벨은 그만큼 단련된 것으로 남고, 성장 보너스는 Lv10에서 멈춘다', () => {
   const s = createGame({ seed: 6 }); s.huntUnlocked = true;
   s.hunter.builds = { neo: { level: 9, xp: 0, weapons: [{ id: 'bolt', level: 5, evo: true }, { id: 'tarot', level: 3, evo: false }], passives: { bell: 2 }, picks: [], stage: 4 } };
-  delete s.armory.skills; // 테스트 준비: 단련 이전 저장
+  delete s.armory.skills; delete s.armory.capTier; // 테스트 준비: 단련·공용 상한 이전 저장
   const r = deserialize(serialize(s)).state;
   assert.equal(skillRank(r, 'bolt'), 4); assert.equal(skillRank(r, 'tarot'), 2); assert.equal(skillRank(r, 'bell'), 2); assert.equal(skillRank(r, 'orbit'), 1);
+  assert.equal(capTier(r), 2, '기술별로 풀어 둔 가장 높은 상한(무기 Lv5)을 공용 상한으로 이어받는다');
   assert.ok(dispatch(r, { type: 'hunt.start', depth: 1 }).ok);
   assert.equal(r.hunt.weapons.find(w => w.id === 'tarot').level, 3, '빼앗지 않음');
   const gearAt = xp => { const g = createGame({ seed: 6 }); g.huntUnlocked = true; g.hunter.xp = xp; dispatch(g, { type: 'hunt.start', depth: 1 }); return g.hunt.maxHp; };

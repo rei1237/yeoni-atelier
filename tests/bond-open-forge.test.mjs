@@ -47,8 +47,8 @@ test('공방 이야기는 6단계 클리어 뒤 네오의 봉인된 힘을 알�
   const html = armorySheet(s, { armoryTab: 'skills' });
   assert.match(html, /상한 해방/); assert.doesNotMatch(html, /단련/);
   s.moonstone = 1e6;
-  const up = dispatch(s, { type: 'armory.learn', id: 'bolt' });
-  assert.ok(up.ok, up.reason); assert.ok(up.events.find(e => e.type === 'skillLearned').cap > 0);
+  const up = dispatch(s, { type: 'armory.cap' });
+  assert.ok(up.ok, up.reason); assert.ok(up.events.find(e => e.type === 'skillCapRaised').weapon > 3);
 });
 
 test('첫 갈림길 위험은 지명이 아니라 공격 이름으로 알린다', () => {

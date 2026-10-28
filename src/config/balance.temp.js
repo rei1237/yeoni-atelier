@@ -160,9 +160,10 @@ export const TEMP = Object.freeze({
   // 기술 단련(윤달 공방). 단련 단계가 사냥 중 오를 수 있는 레벨 상한을 정한다. 가격은 월정석, 모두 임시
   HUNT_SKILLS: Object.freeze({
     START: Object.freeze(['bolt', 'orbit', 'paw', 'fish_stock']), // 처음부터 1단계
-    LEARN: Object.freeze({ hat: 800, whisker: 800, crescent: 1500, bell: 1500, aura: 2500, luck: 2500, tarot: 4000 }), // 배우기(1단계) 값
-    TRAIN_BASE: 600,                                  // 기본 4종의 단련 기준값
-    TRAIN_MULT: Object.freeze([1, 1.6, 2.6, 4.2]),    // 1·2·3·4단계 값 = 기준값 × 배율
+    // 10-28 사용자 요청: 기술마다 사던 상한 해방을 공용 상한 한 줄로 합치고 월정석을 낮춘다(TEMP)
+    LEARN: Object.freeze({ hat: 500, whisker: 500, crescent: 900, bell: 900, aura: 1500, luck: 1500, tarot: 2400 }), // 배우기 값(800~4000 → 약 0.6배)
+    CAP_BASE: Object.freeze({ weapon: 3, passive: 2 }), // 공용 상한 0단계(기본) 사냥 중 최대 Lv. 예전 기본(무기 Lv2·보조 Lv1)보다 한 단계 위
+    CAP_COST: Object.freeze([900, 2200]),              // 공용 상한 1·2단계 값. 2단계면 무기 Lv5·진화, 보조 Lv3
     POUCH: 12,                                        // 상한에 다 닿았을 때 레벨업 카드 「월정석 주머니」(10-28: 3→12, 단계 보상 배율 적용)
   }),
   // 사냥터 업적 보상 월정석(1회, ledger.achievements). 모두 임시

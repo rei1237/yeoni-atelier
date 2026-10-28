@@ -306,6 +306,7 @@ const ACTIONS = {
   'hunt.menu': d => {ui.huntMenu=d.menu;},
   'armory.enhance': d => run({type:'armory.enhance',who:d.who,id:d.id}),
   'armory.learn': d => run({type:'armory.learn',id:d.id}),
+  'armory.cap': () => run({type:'armory.cap'}),
   'armory.buy': d => run({type:'armory.buy',id:d.id}),
   'hunt.supply': d => run({type:'hunt.supply',id:d.id}),
   'chatter.close':()=>{ui.chatter=null;},
@@ -693,7 +694,8 @@ function handleEvents(events) {
       case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast(`${hunterName(state.hunt.hunterId)}가 ${state.hunt.depth}단계로 출발했어요 · 보스를 쓰러뜨리면 클리어`, 'good'); break;
       case 'huntPickup': floater(cssW / 2, cssH * 0.4, `+${ev.name}`, '#7d86e8'); break;
       case 'huntHurt': if(!matchMedia('(prefers-reduced-motion: reduce)').matches)shake(el.stage); break;
-      case 'skillLearned': toast(ev.rank===1?`📜 ${ev.name}을 배웠어요 · 다음 사냥부터 나와요`:`🔓 ${ev.name} 상한 해방 ${ev.rank}단계 · 사냥 중 최대 Lv ${ev.cap}`, 'good', 3200); break;
+      case 'skillLearned': toast(`📜 ${ev.name}을 배웠어요 · 다음 사냥부터 최대 Lv ${ev.cap}`, 'good', 3200); break;
+      case 'skillCapRaised': toast(`🔓 기술 레벨 상한 해방 ${ev.tier}단계 · 무기 Lv ${ev.weapon} · 보조 Lv ${ev.passive}`, 'good', 3200); break;
       case 'huntEvolve': toast(`🌟 진화! ${ev.name}`, 'good', 3200); break;
       case 'achievement': toast(`🏅 업적 「${ev.name}」 · 월정석 +${ev.moon}`, 'good', 3600); break;
       case 'huntPower': toast(ev.label, 'good', 1800); break;
