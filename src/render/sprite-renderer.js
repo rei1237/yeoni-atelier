@@ -1,5 +1,5 @@
 import {staffMotion} from './staff-motion.js';
-import {cookingSockets} from './cooking-pose.js';
+import {cookingSockets,yeoniCookSheet} from './cooking-pose.js';
 // 캐릭터 그리기: 스프라이트 시트가 있으면 프레임을, 없으면 도형 대체를 그린다.
 // 같은 입력(상태·방향·시간)을 받으므로 시트를 넣어도 호출하는 쪽은 바뀌지 않는다.
 
@@ -21,7 +21,8 @@ export function drawActor(ctx, key, o) {
   if(['luna','neo'].includes(key))for(const motion of ['tray_walk','place_plate','wipe'])imageFor(key+'_'+motion);
   // 발 교대는 벽시계가 아니라 실제 이동량을 따른다. 멈추거나 배속해도 미끄러지지 않는다.
   if(o.state==='walk'&&Number.isFinite(o.walkDistance))o={...o,animationFrame:o.reducedMotion?0:Math.floor(o.walkDistance*4)%4};
-  if(key==='yeoni'&&o.cooking&&imageFor('actors/yeoni_cook')){key='yeoni_cook';o={...o,state:o.cooking.phase,animationFrame:o.cooking.frame,facing:'left',idleMotion:false,outfitId:null};}
+  if(key==='yeoni'&&o.cooking){const sheet=yeoniCookSheet(o.cooking.stationId);if(imageFor('actors/'+sheet))key=sheet;else if(imageFor('actors/yeoni_cook'))key='yeoni_cook';}
+  if(key.startsWith('yeoni_cook')){o={...o,state:o.cooking.phase,animationFrame:o.cooking.frame,facing:'left',idleMotion:false,outfitId:null};}
   const work=staffMotion(key,o);
   if(work&&imageFor(work.key)){key=work.key;o={...o,animationFrame:work.frame,idleMotion:false,outfitId:null};}
   if(key==='yeoni'&&o.facing==='left'&&(o.state||'idle')!=='walk'&&imageFor('yeoni_idle_left')){key='yeoni_idle_left';o={...o,state:o.gesture?.kind||'idle',animationFrame:o.reducedMotion?0:o.gesture?Math.min(3,Math.floor(o.gesture.age/260)):0,idleMotion:false,outfitId:null};}

@@ -16,7 +16,7 @@ test('동일 손님 두 음식의 다른 품질은 작업·트레이·저장·�
  let {s,g,v}=setup();const a=placeOrder(s,v,'americano'),b=placeOrder(s,v,'americano');
  const ar=dispatch(s,{type:'order.quick',orderId:a.id,timing:0}),br=dispatch(s,{type:'order.quick',orderId:b.id,timing:50});assert.ok(ar.ok&&br.ok);tick(s,10000);
  assert.deepEqual(s.tray.filter(Boolean).map(x=>x.quality),['normal','perfect']);s=deserialize(serialize(s)).state;dispatch(s,{type:'resume'});
- for(const id of [a.id,b.id]){const it=s.tray.find(x=>x?.orderId===id);assert.ok(dispatch(s,{type:'serve',itemId:it.id,tableNo:g.tableNo}).ok);assert.equal(dispatch(s,{type:'serve',itemId:it.id,tableNo:g.tableNo}).ok,false);tick(s,14000);}
+ const it=s.tray.find(x=>x?.orderId===a.id),mate=s.tray.find(x=>x?.orderId===b.id);assert.ok(dispatch(s,{type:'serve',itemId:it.id,tableNo:g.tableNo}).ok);assert.equal(mate.reservedFor,b.id,'같은 테이블 접시는 함께 예약');for(const x of [it,mate])assert.equal(dispatch(s,{type:'serve',itemId:x.id,tableNo:g.tableNo}).ok,false);tick(s,14000);
  assert.equal(s.orders[a.id].quality,'normal');assert.equal(s.orders[b.id].quality,'perfect');assert.equal(s.orders[a.id].jobId,ar.jobId);assert.equal(s.orders[b.id].jobId,br.jobId);assert.equal(s.visits[v.id].foodScores.length,2);assert.equal(Object.keys(s.ledger.sales).filter(x=>[a.id,b.id].includes(x)).length,2);
 });
 test('취소된 완벽 작업은 음식·품질을 남기지 않고 재조리와 자동 조리는 새 결과를 쓴다',()=>{

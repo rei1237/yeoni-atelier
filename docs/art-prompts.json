@@ -3750,6 +3750,28 @@
     "normalization": "알파 연결 실루엣 12개, 발 기준점64,122"
   },
   {
+    "id": "actors/yeoni_cook_drink",
+    "tool": "image_gen built-in",
+    "sourceFile": "D:/yeoni-qa/art/cook-v3/yeoni-cook-drink.png",
+    "references": [
+      "actors/yeoni_cook",
+      "D:/CodeDestiny-Build/연이 프로필1.png"
+    ],
+    "prompt": "Production GAME SPRITE SHEET of Yeoni, a young woman with long wavy pink hair, pink flower hair ornament, cream vintage lace dress, sage green apron, brown boots, in the same soft hand-painted chibi fantasy cafe style as attached sheet (a). TRANSPARENT background. Exactly FOUR columns by THREE rows = 12 full-body sprites, identical character scale in every cell, soles aligned on one baseline per row, generous empty transparent spacing between figures so no two figures touch, no cell lines, no text, no floor, no shadows outside the figure. Every pose is a three-quarter view facing LEFT with the face clearly visible and cheerful. Smooth successive animation frames: each row's 4 frames change gradually (small arm/prop movement, hair sway) so they loop naturally. Row 1 (prepare, 4 frames): scooping coffee beans into a small grinder, turning the grinder handle, tamping, placing a porcelain cup. Row 2 (brew, 4 frames): pouring a stream of milk from a small silver pitcher into a cup, tilting the pitcher further, drawing latte art, lifting pitcher away with a tiny steam swirl. Row 3 (serve, 4 frames): holding a finished latte cup on a saucer with both hands at chest, small happy bounce, offering it forward, satisfied smile. Props stay small and held in her hands; no counters or machines.",
+    "normalization": "알파 연결 실루엣 12개(축소 마스크 연결 성분), 균등 배율, 발 기준점64,122. _hd.webp는 같은 배치의 256 셀 2배(데스크톱 CSS 전용)"
+  },
+  {
+    "id": "actors/yeoni_cook_bake",
+    "tool": "image_gen built-in",
+    "sourceFile": "D:/yeoni-qa/art/cook-v3/yeoni-cook-bake.png",
+    "references": [
+      "actors/yeoni_cook",
+      "D:/CodeDestiny-Build/연이 프로필1.png"
+    ],
+    "prompt": "Production GAME SPRITE SHEET of Yeoni, a young woman with long wavy pink hair, pink flower hair ornament, cream vintage lace dress, sage green apron, brown boots, in the same soft hand-painted chibi fantasy cafe style as attached sheet (a). TRANSPARENT background. Exactly FOUR columns by THREE rows = 12 full-body sprites, identical character scale in every cell, soles aligned on one baseline per row, generous empty transparent spacing between figures so no two figures touch, no cell lines, no text, no floor, no shadows outside the figure. Every pose is a three-quarter view facing LEFT with the face clearly visible and cheerful. Smooth successive animation frames: each row's 4 frames change gradually (small arm/prop movement, hair sway) so they loop naturally. Row 1 (prepare, 4 frames): kneading soft dough on a small floured board, pressing with both palms, rolling with a wooden rolling pin, cutting flower-shaped cookies with a cutter. Row 2 (bake, 4 frames): wearing pink oven mitts sliding a baking tray forward, pushing it in, waiting with hands together, pulling the tray back out with a little steam. Row 3 (serve, 4 frames): holding a baking tray of golden flower cookies and a small bread loaf at chest, small happy bounce, offering it forward, satisfied smile. Props stay small and held in her hands; no counters or machines.",
+    "normalization": "알파 연결 실루엣 12개(축소 마스크 연결 성분), 균등 배율, 발 기준점64,122. _hd.webp는 같은 배치의 256 셀 2배(데스크톱 CSS 전용)"
+  },
+  {
     "id": "icons/yeoni_moon_latte",
     "tool": "image_gen built-in",
     "sourceFile": "moonlight-review/art-originals/moon-latte.png",

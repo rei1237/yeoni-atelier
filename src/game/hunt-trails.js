@@ -2,11 +2,11 @@
 import {stageDef} from '../data/hunt-stages.js';
 import {damageHunter} from './enemy-behaviors.js';
 export const TRAILS=Object.freeze([
- {to:20,name:'달꽃 오솔길',attack:'초승달 일섬',kind:'lane',hint:'빛나는 길의 옆으로 비켜요',color:'#e9b8dc',interval:24000},
- {to:39,name:'시계 안개 정원',kind:'ring',hint:'고리 안쪽이나 바깥으로 나가요',color:'#c3bbef',interval:22000},
- {to:69,name:'가시 온실',kind:'cross',hint:'십자 빛 사이의 빈 곳을 찾아요',color:'#b1d5b6',interval:21000},
- {to:99,name:'흑월의 연못',kind:'islands',hint:'세 빛 웅덩이를 피해 움직여요',color:'#9cbde7',interval:20000},
- {to:100,name:'달의 마지막 문',kind:'cross',hint:'문이 빛나면 대각선으로 피해요',color:'#f0d69c',interval:18000},
+ {to:20,name:'달꽃 칼날길',attack:'초승달 일섬',kind:'lane',hint:'빛나는 길의 옆으로 비켜요',color:'#e9b8dc',interval:24000},
+ {to:39,name:'시계 안개 정원',attack:'시침 안개 회오리',kind:'ring',hint:'고리 안쪽이나 바깥으로 나가요',color:'#c3bbef',interval:22000},
+ {to:69,name:'가시 온실',attack:'가시덩굴 십자베기',kind:'cross',hint:'십자 빛 사이의 빈 곳을 찾아요',color:'#b1d5b6',interval:21000},
+ {to:99,name:'흑월의 연못',attack:'흑월 물기둥',kind:'islands',hint:'세 빛 웅덩이를 피해 움직여요',color:'#9cbde7',interval:20000},
+ {to:100,name:'달의 마지막 문',attack:'월광 십자 낙인',kind:'cross',hint:'문이 빛나면 대각선으로 피해요',color:'#f0d69c',interval:18000},
 ]);
 export const trailDef=n=>TRAILS.find(x=>n<=x.to)||TRAILS.at(-1);
 export function trailState(h){if(h.trail?.depth!==h.depth)h.trail={depth:h.depth,choice:null,nextAt:stageDef(h.depth).prepMs*.2,sequence:0,hazard:null};return h.trail;}

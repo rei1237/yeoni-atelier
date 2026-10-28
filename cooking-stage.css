@@ -1,0 +1,55 @@
+/* 요리 무대: 연이(선물)와 루나 언니(주문)가 같은 꽃·달 주방 무대를 쓴다. 버튼과 글은 가운데 정렬, 데스크톱은 2배 시트. */
+.sheet:has(.cook-sheet){width:min(640px,100%)}
+.cook-sheet{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.cook-sheet>h2{position:relative;justify-content:center;width:100%;margin:2px 0 0;padding:0 44px;box-sizing:border-box}
+.cook-sheet>h2 .close{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+.cook-sheet>h3{margin:4px 0 0}
+.cook-sheet>p{margin:0;max-width:34em}
+.cook-sheet>.btn,.cook-sheet>button{width:min(340px,100%);margin-inline:auto;justify-content:center}
+.cook-sheet .ingredient-basket{width:100%;justify-items:center}
+.cook-sheet .heat-track{width:calc(100% - 8px)}
+.cook-sheet .craft-production{width:min(420px,100%)}
+.cook-sheet .craft-steps{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.cook-sheet .craft-steps li{padding:4px 10px;border-radius:999px;background:#f6ebda;color:#76665c;font-size:12px}
+.cook-sheet .craft-steps li.current{background:#944b60;color:#fff}
+.cook-sheet .craft-steps li.done{background:#e3eadb;color:#42674e}
+.cook-sheet .batch-progress{width:100%;padding:8px 10px;border-radius:12px;background:#fbf2e3;box-sizing:border-box}
+
+.craft-worktop.cook-stage{position:relative;display:block;width:100%;height:auto;min-height:0;aspect-ratio:auto;padding:0;overflow:hidden;border-radius:22px;
+ background:radial-gradient(circle at 82% 16%,#fffbe8 0 7%,transparent 18%),linear-gradient(180deg,#f7e7ef 0%,#fbf0e2 58%,#e9cfae 58.2%,#dcb58b 100%);
+ box-shadow:inset 0 0 0 1px #e6cfb2,inset 0 -10px 22px #ad794322;height:236px}
+.cook-stage::before{content:"";position:absolute;inset:0 0 auto;height:58%;pointer-events:none;
+ background:radial-gradient(circle at 10% 30%,#f3c6d3 0 4px,transparent 5px),radial-gradient(circle at 24% 14%,#fff 0 3px,transparent 4px),radial-gradient(circle at 64% 22%,#f3c6d3 0 3px,transparent 4px),radial-gradient(circle at 44% 40%,#fff6 0 2px,transparent 3px);opacity:.9}
+.cook-stage::after{content:"";position:absolute;left:0;right:0;top:58%;height:6px;background:linear-gradient(90deg,#c99a6a,#e6c08f,#c99a6a);opacity:.65}
+.cook-stage .cook-moon{position:absolute;right:9%;top:9%;width:30px;height:30px;border-radius:50%;box-shadow:-7px 3px 0 0 #f2d48a;transform:rotate(-18deg);opacity:.9}
+.cook-stage .cook-station{position:absolute;left:4%;bottom:16%;width:30%;display:flex;justify-content:center;z-index:1}
+.cook-stage .cook-station .pixel-icon{width:100%;max-width:132px;height:112px;object-fit:contain;filter:drop-shadow(0 6px 6px #7a4f2a33)}
+.cook-stage .cook-chef{position:absolute;left:50%;bottom:6%;width:176px;height:176px;transform:translateX(-50%);z-index:2;
+ background-repeat:no-repeat;background-size:400% 300%;background-position:0 calc(var(--row,0) * 50%);image-rendering:auto;
+ animation:cook-frames .64s steps(4) infinite;filter:drop-shadow(0 6px 5px #5a3a2233)}
+.cook-stage.ready .cook-chef{animation-duration:.96s}
+@keyframes cook-frames{from{background-position-x:0}to{background-position-x:133.333%}}
+.cook-stage .cook-dish{position:absolute;right:6%;bottom:18%;width:22%;display:flex;justify-content:center;z-index:3}
+.cook-stage .cook-dish .pixel-icon{width:100%;max-width:84px;height:84px;object-fit:contain;opacity:.3;filter:grayscale(.4);transition:opacity .4s,filter .4s}
+.cook-stage.cooking .cook-dish .pixel-icon{opacity:.55;animation:cook-dish-glow 1.6s ease-in-out infinite}
+.cook-stage .cook-dish.done .pixel-icon{opacity:1;filter:drop-shadow(0 0 10px #ffe7a6);animation:cook-dish-pop .5s ease-out}
+@keyframes cook-dish-glow{50%{filter:grayscale(0) drop-shadow(0 0 8px #ffe2b8)}}
+@keyframes cook-dish-pop{from{transform:scale(.7)}60%{transform:scale(1.12)}to{transform:scale(1)}}
+.cook-stage .cook-ingredients{position:absolute;left:0;right:0;top:8px;display:flex;justify-content:center;gap:4px;margin:0;padding:0;list-style:none;z-index:3}
+.cook-stage .cook-ingredients li{width:34px;height:34px;padding:3px;border-radius:50%;background:#fffaf2d9;box-shadow:0 1px 3px #7a4f2a2e;box-sizing:border-box}
+.cook-stage .cook-ingredients .pixel-icon{width:100%;height:100%;object-fit:contain}
+.cook-stage.cooking .cook-ingredients,.cook-stage.ready .cook-ingredients{opacity:.45}
+.cook-stage .cook-caption{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);z-index:4;margin:0;padding:4px 12px;border-radius:999px;background:#fffaf2e6;color:#513d4d;font-size:12px;line-height:1.4;white-space:nowrap;box-shadow:0 1px 4px #7a4f2a26}
+.cook-stage .cook-caption b{color:#944b60;margin-right:2px}
+@media(max-width:380px){.craft-worktop.cook-stage{height:210px}.cook-stage .cook-chef{width:150px;height:150px}.cook-stage .cook-station .pixel-icon{height:92px}}
+@media(min-width:1024px){
+ .craft-worktop.cook-stage{height:300px}
+ .cook-stage .cook-chef{width:240px;height:240px}
+ .cook-stage .cook-chef.hd-drink{background-image:url('assets/illustrated/actors/yeoni_cook_drink_hd.webp')!important}
+ .cook-stage .cook-chef.hd-bake{background-image:url('assets/illustrated/actors/yeoni_cook_bake_hd.webp')!important}
+ .cook-stage .cook-station .pixel-icon{max-width:168px;height:144px}
+ .cook-stage .cook-dish .pixel-icon{max-width:104px;height:104px}
+ .cook-stage .cook-ingredients li{width:40px;height:40px}
+ .cook-stage .cook-caption{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){.cook-stage .cook-chef,.cook-stage .cook-dish .pixel-icon{animation:none}}

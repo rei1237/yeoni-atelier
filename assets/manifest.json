@@ -486,6 +486,8 @@
     "actors/customer_transition@look3",
     "actors/customer_transition@look7",
     "actors/yeoni_cook",
+    "actors/yeoni_cook_drink",
+    "actors/yeoni_cook_bake",
     "icons/yeoni_moon_latte",
     "icons/yeoni_rose_mille",
     "icons/yeoni_garden_quiche",

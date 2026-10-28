@@ -283,8 +283,20 @@ export function serve(state, itemId, tableNo, autoHall=false) {
   order.itemId = item.id;
   item.reservedFor = order.id;
   state.tasks.push({ id: nextId(state, 'task'), type: 'deliver', orderId: order.id, itemId: item.id, tableNo, assignedTo: null, autoHall:!!autoHall });
+  reserveTableMates(state, visit, autoHall);
   emit('serveQueued', { tableNo, menuId: item.menuId });
   return { ok: true };
+}
+
+// 같은 테이블의 다른 완성 음식도 함께 예약해 한 직원이 한 번에 들고 간다.
+function reserveTableMates(state, visit, autoHall) {
+  for (const o of openOrdersOfVisit(state, visit)) {
+    if (o.status !== 'waiting') continue;
+    const mate = state.tray.find(it => it && !it.reservedFor && it.menuId === o.menuId && (!it.orderId || it.orderId === o.id));
+    if (!mate) continue;
+    o.status = 'assigned'; o.itemId = mate.id; mate.reservedFor = o.id;
+    state.tasks.push({ id: nextId(state, 'task'), type: 'deliver', orderId: o.id, itemId: mate.id, tableNo: visit.tableNo, assignedTo: null, autoHall:!!autoHall });
+  }
 }
 
 export function findServeTarget(state, item) {
@@ -365,6 +377,12 @@ export function staffStatusText(state, id) {
 
 // 한 직원의 배달 묶음(같은 테이블 주문들). 첫 번째가 손에 든 접시(s.carry), 나머지는 s.carryMore 순서와 같다.
 export const jobTasks = j => j ? [j.taskId, ...(j.more || [])] : [];
+const tableStillCooking = (state, tableNo) => {
+  const visit = visitAt(state, tableNo);
+  if (!visit) return false;
+  const open = new Set(openOrdersOfVisit(state, visit).filter(o => o.status === 'waiting').map(o => o.id));
+  return open.size > 0 && Object.values(state.stations).some(st => stationJobs(st).some(j => open.has(j.orderId)));
+};
 const canTake = (state, task, id) => !task.autoHall || hallAutomationOn(state, id);
 function assignTasks(state) {
   for (const task of state.tasks) {
@@ -373,6 +391,9 @@ function assignTasks(state) {
       // 한 테이블에는 한 명만 간다: 이미 그 테이블로 나르는 직원이 있으면 출발 전엔 함께 들고, 출발했으면 돌아올 때까지 기다린다.
       const mate = Object.values(state.staff).find(m => m.job?.kind === 'deliver' && m.job.tableNo === task.tableNo);
       if (mate) { if (mate.job.stage === 'toPickup' && canTake(state, task, mate.id)) { (mate.job.more ??= []).push(task.id); task.assignedTo = mate.id; } continue; }
+      if (tableStillCooking(state, task.tableNo)) continue; // 같은 테이블 음식이 아직 설비에 있으면 다 나올 때까지 출발하지 않는다
+      const visit = visitAt(state, task.tableNo);
+      if (visit) reserveTableMates(state, visit, task.autoHall);
     }
     const t = tableByNo(state, task.tableNo);
     const target = task.type === 'deliver' ? cafeSpots(state).pickup : t.service;

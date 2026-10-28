@@ -1,5 +1,7 @@
 import {runningJobs} from '../game/station-slots.js';
 import {MENUS} from '../data/menus.js';
+// 연이 직접 조리 시트: 오븐 메뉴는 빵·쿠키, 나머지는 음료
+export const yeoniCookSheet=stationId=>stationId==='oven'?'yeoni_cook_bake':'yeoni_cook_drink';
 // 저장된 실제 진행 시간만 읽는다. 프레임마다 시간을 누적하지 않는다.
 export function cookingPose(job,stationId,reducedMotion=false){
  if(!job||!(job.durationMs>0)||job.progressMs>=job.durationMs)return null;

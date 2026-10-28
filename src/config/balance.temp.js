@@ -147,6 +147,9 @@ export const TEMP = Object.freeze({
     WORK_SHOP: 2,             // 준비 중 모카 식재료점 구매(순마다 한 번): 모카
   }),
 
+  // ── 연이 선물 요리(준비 중). 10-28 요청: 어떤 메뉴든 5초 만에 완성, 조리 장면만 보여 준다. TEMP
+  GIFT_COOK_MS: 5000,
+
   // ── 자동 운영
   AUTO_DECIDE_MS: 600,
   HUNT_CAREER: Object.freeze({ xpBase: 1100, xpStep: 350, hpPerLevel: 4, damagePerLevel: 0.06, levelsPerDepth: 5, depthHp: 0.35, depthDamage: 0.18, depthReward: 0.1, monthReward: 0.06, xpNormal: 2, xpElite: 20, xpBoss: 100, statCap: 10 }), // statCap: 이 레벨 뒤로는 체력·피해 보너스가 오르지 않는다(레벨·경험치는 계속)

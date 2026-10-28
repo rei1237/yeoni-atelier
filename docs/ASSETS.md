@@ -676,6 +676,8 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 카드 뒤집기 뒷면 assets/ui/island-card-back.webp는 Code Destiny의 달빛 타로 뒷면을 480×720 WebP로 축소한 CSS 전용 파생본이다. 출처는 docs/REUSE.md를 따른다.
 
 | actors/yeoni_cook | yeoni_cook | 512×384 | 완료 |
+| actors/yeoni_cook_drink | 연이 음료 만들기 | 512×384 | 완료 |
+| actors/yeoni_cook_bake | 연이 빵·쿠키 굽기 | 512×384 | 완료 |
 | icons/yeoni_moon_latte | moon-latte | 128×128 | 완료 |
 | icons/yeoni_rose_mille | rose-mille | 128×128 | 완료 |
 | icons/yeoni_garden_quiche | garden-quiche | 128×128 | 완료 |

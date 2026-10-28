@@ -15,5 +15,9 @@ export function cookTable(s,no,timing){
  // 전체가 들어갈지 먼저 검사. 실패하면 어떤 재료·작업도 바뀌지 않는다.
  const trial=structuredClone(s);const check=withEvents(()=>orders.map(o=>cook(trial,o.menuId,o.id,timing))).result;
  const failed=check.find(r=>!r.ok);if(failed)return failed;
- const results=orders.map(o=>cook(s,o.menuId,o.id,timing));return {ok:true,jobId:results[0].jobId,jobIds:results.map(r=>r.jobId),count:results.length,queued:results.filter(r=>r.queued).length};
+ const results=orders.map(o=>cook(s,o.menuId,o.id,timing));
+ // 한 테이블 주문은 한꺼번에 완성된다: 함께 시작한 작업은 가장 긴 조리 시간에 맞춘다.
+ const ids=new Set(results.map(r=>r.jobId)),jobs=Object.values(s.stations).flatMap(stationJobs).filter(j=>ids.has(j.id)),longest=Math.max(...jobs.map(j=>j.durationMs));
+ for(const j of jobs)j.durationMs=longest;
+ return {ok:true,jobId:results[0].jobId,jobIds:results.map(r=>r.jobId),count:results.length,queued:results.filter(r=>r.queued).length};
 }
