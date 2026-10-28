@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.28.7",
-  "name": "연이의 아틀리에 · 달빛 게임방과 동료들의 카페",
+  "version": "2026.10.28.8",
+  "name": "연이의 아틀리에 · 인연 랭크와 윤달 공방",
   "musicTracks": 103,
-  "assetBytes": 15072485,
+  "assetBytes": 15121258,
   "channel": "production",
-  "baseCommit": "22d304d10d32632a82c438ba3faf1e2578646d33",
+  "baseCommit": "61e442d842adf6e8f22dff2de8d2725744069283",
   "newTitleArt": true
 }
