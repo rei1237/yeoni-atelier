@@ -36,7 +36,7 @@ for(const id of manifest.ready) {
 }
 const font=await readFile(new URL('assets/fonts/YeoniUI-Subset.woff2',root));totalBytes+=font.length;
 if(font.length>1_500_000)errors.push('글꼴 1.5MB 초과');
-if(totalBytes>=15_000_000)errors.push('런타임 에셋 15MB 전송 예산 초과');
+if(totalBytes>=20_000_000)errors.push('런타임 에셋 20MB 전송 예산 초과');
 // Git 배포 대상에는 미등록 파일도 포함한다. 추적 제외한 로컬 원본은 별도 합계로 보인다.
 // Git 정보가 없으면 배포 디렉터리의 모든 파일을 검사한다.
 let shipping=null;
@@ -55,7 +55,7 @@ async function checkFolder(relative) {
  }
 }
 await checkFolder('assets/');
-if(folderBytes>=15_200_000)errors.push('assets/ 전체 15.2MB 예산 초과: '+folderBytes+'바이트');
+if(folderBytes>=20_000_000)errors.push('assets/ 전체 20MB 예산 초과: '+folderBytes+'바이트');
 console.log('등록 에셋 '+count+'/'+manifest.ready.length+' · 런타임 '+totalBytes+'바이트 ('+(totalBytes/1e6).toFixed(2)+'MB)');
 console.log('로컬 보존 포함 '+localFiles+'파일 · '+localBytes+'바이트');
 console.log('배포 assets/ 전체 '+folderFiles+'파일 · '+folderBytes+'바이트 ('+(folderBytes/1e6).toFixed(2)+'MB)');

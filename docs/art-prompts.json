@@ -4025,5 +4025,15 @@
     ],
     "prompt": "Same character and soft hand-painted chibi cafe style as the attached sheets, transparent background, 4 columns x 3 rows, three-quarter view facing left, identical scale, soles on one baseline per row, looping frames. Row 1 mopping the floor, Row 2 washing a cup in a steel basin, Row 3 done: modest pose resting the mop on his shoulder (no spread arms, head not tilted back).",
     "normalization": "알파 연결 실루엣 12개, 128셀 발 기준점64,122, 공통 스케일, WebP q86"
+  },
+  {
+    "id": "backgrounds/title-landscape-hd",
+    "tool": "image_gen built-in",
+    "sourceFile": "D:/CodeDestiny-Build/yeoni-hd/title-landscape-hd.png",
+    "references": [
+      "assets/illustrated/backgrounds/title-landscape.webp"
+    ],
+    "prompt": "High-resolution remaster of the attached cafe title illustration at 1536x1024: keep the exact composition, all five characters (pink-haired bunny-ear waitress Luna on the left, silver-haired man Neo, long pink-haired Yeoni with a teacup, otter in a purple beret holding a tart, white bunny with a pink bow and basket), the flower garden cafe, distant castle and lake. Sharper line work and finer flowers, lace and porcelain detail; no text, no new characters.",
+    "normalization": "1536×1024 WebP q84, 데스크톱(min-width:1024px) CSS 전용"
   }
 ]
