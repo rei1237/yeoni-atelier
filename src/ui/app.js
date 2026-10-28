@@ -226,7 +226,7 @@ function storyBeats(id) {
 
 // 영업 준비 화면에서 아직 안 본 이야기가 있으면 한 번 튼다. 본 기록은 엔진 명령(story.seen)으로만 남긴다.
 function maybeStory() {
-  if (!state || novelActive() || ui.confirm || ui.discovery || ui.recruitEvent || ui.ending || state.interior.draft) return;
+  if (!state || ui.storyHold || novelActive() || ui.confirm || ui.discovery || ui.recruitEvent || ui.ending || state.interior.draft) return;
   const id = pendingStory(state);
   if (!id) return;
   if (id === 'ev:forge' && (ui.sheet || ui.worldTrip)) return; // 금융 센터 볼일을 마치고 창을 닫으면 공방 이야기로 잇는다
@@ -234,7 +234,7 @@ function maybeStory() {
   if (!beats) { run({ type: 'story.seen', id }, { keepQuiet: true }); return; }
   ui.sheet = null;
   const started=state;let ended=false;
-  const done = (skip=false) => {if(ended||state!==started)return;ended=true;const result=completeStory(id,cmd=>run(cmd),{skip});if(result.ok&&!result.duplicate&&result.destination==='hunt'){navigateScreen(result.entry?.ok?null:'world');ui.sheet=result.entry?.ok?null:{kind:'hunt'};ui.huntMenu='title';} if(result.ok&&!result.duplicate&&(result.destination==='finance'||result.destination==='gear'))goStoryPlace(result.destination); if (result.ok&&id.startsWith('ending:')) ui.ending = id.slice(7); render(true); };
+  const done = (skip=false) => {if(ended||state!==started)return;ended=true;ui.storyHold=true;try{const result=completeStory(id,cmd=>run(cmd),{skip});if(result.ok&&!result.duplicate&&result.destination==='hunt'){navigateScreen(result.entry?.ok?null:'world');ui.sheet=result.entry?.ok?null:{kind:'hunt'};ui.huntMenu='title';} if(result.ok&&!result.duplicate&&(result.destination==='finance'||result.destination==='gear'))goStoryPlace(result.destination); if (result.ok&&id.startsWith('ending:')) ui.ending = id.slice(7);}finally{ui.storyHold=false;} render(true); }; // 끝난 이야기의 행선지를 다 열 때까지 다음 이야기를 틀지 않는다
   // 이야기 속 선택지는 분위기용: 상태를 바꾸지 않고 고른 답의 박자만 잇는다. 건너뛰어도 본 것으로 친다.
   const onChoose = (cid, beat) => ({ ok: true, beats: beat?.choices?.find(c => c.id === cid)?.beats || [] });
   playNovel(beats, { onEnd:()=>done(false), onCancel:()=>done(true), onChoose });
