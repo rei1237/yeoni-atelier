@@ -98,15 +98,19 @@ export const TEMP = Object.freeze({
     HEAL_FISH: 24,
     BOMB_RADIUS: 280,
     BOMB_DAMAGE: 200,
-    POWER_DROP: Object.freeze([ // 일반 적 처치 시 확률. 10-28: 회복 생선을 일반 드롭에 추가
-      { id: 'fish', chance: 0.02 },
+    POWER_DROP: Object.freeze([ // 일반 적 처치 시 확률. 10-28: 회복 생선은 보물 상자에서만 나온다
       { id: 'magnet', chance: 0.005 },
     ]),
     // 일반 적 확률 1개, 정예·보스는 고정 개수(임시). 10-28: 일반 0.16→0.22, 보스 20→45(보스 퇴치 보상이 적다는 피드백)
     MOON_DROP: Object.freeze({ chance: 0.22, elite: 6, boss: 45 }),
-    ELITE_CHEST: 0.12,        // 정예가 별 상자를 떨굴 확률(10-28: 항상 → 드물게). 안 떨구면 구운 생선
+    ELITE_CHEST: 0.12,        // 정예가 별 상자를 떨굴 확률(10-28: 항상 → 드물게). 안 떨구면 월정석만
     FIELD_PROP_SKIP: 3,       // 필드 기물: 청크 10칸 중 이만큼은 비운다(10-28: 2→3, 약 80%→70%)
     FIELD_PROP_REWARD: 0.8,   // 필드 기물 월정석 배율(10-28: 조금 줄임)
+    // TEMP 사용자 요청 2026-10-28: 보물 상자는 매우 드물고, 월정석을 많이 주며, 회복 생선은 여기서만 가끔 나온다
+    TREASURE_PER_MIL: 15,     // 기물 자리 1000곳 중 보물 상자 수(약 1.5%)
+    TREASURE_REWARD: 10,      // 보물 상자 월정석 = 같은 자리 기물 보상 × 이 값
+    TREASURE_HEAL_CHANCE: 0.35, // 보물 상자에서 구운 생선이 함께 나올 확률
+    TREASURE_SPOT_RADIUS: 320,  // 이 거리 안에 들어오면 발견으로 친다
     FIELD_W: 1400,
     FIELD_H: 1800,
   }),

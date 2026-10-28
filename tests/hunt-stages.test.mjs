@@ -204,8 +204,7 @@ test('기술 단련: 새 게임은 기본 4종만, 단련 상한까지만 오르
   assert.ok(dispatch(s, { type: 'hunt.pick', index: 0 }).ok);
   assert.equal(s.hunt.bag.moonstone, m + huntMoonReward(TEMP.HUNT_SKILLS.POUCH, s.hunt.scale));
   assert.ok(s.hunt.hp <= hp, '회복하지 않는다');
-  const fish = TEMP.HUNT.POWER_DROP.find(d => d.id === 'fish'); // 10-28: 회복 생선은 드물게 나온다
-  assert.ok(fish && fish.chance < TEMP.HUNT.MOON_DROP.chance, '회복 생선은 월정석보다 드물다');
+  assert.ok(!TEMP.HUNT.POWER_DROP.some(d => d.id === 'fish'), '10-28: 회복 생선은 일반 적이 떨구지 않는다');
 });
 
 test('상한 해방: armory.learn은 잠김·부족·끝까지 해방을 거절하고, 값만큼 빼고 다음 사냥 상한을 올린다', () => {

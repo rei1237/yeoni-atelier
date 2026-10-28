@@ -45,7 +45,7 @@ test('여러 번 사냥한 기존 저장은 첫 귀환 장면을, 6단계를 넘
   assert.ok(!['ev:return', 'ev:forge'].includes(pendingStory(r)));
 });
 
-test('정예는 월정석과 함께 대개 구운 생선을, 드물게 별 상자를 남기고 필드 기물은 조금 줄었다', () => {
+test('정예는 월정석과 드물게 별 상자를 남기고 회복 생선은 남기지 않으며 필드 기물은 조금 줄었다', () => {
   const s = createGame({ seed: 7 }); s.hostbar.open = true; s.huntUnlocked = true; s.hunter.maxStage = 21; // 테스트 준비: 정예가 나오는 21단계까지 열었다
   assert.ok(dispatch(s, { type: 'hunt.start', depth: 21 }).ok);
   const w = getHuntWorld(s), seen = { chest: 0, fish: 0, moon: 0 }, made = [];
@@ -59,11 +59,11 @@ test('정예는 월정석과 함께 대개 구운 생선을, 드물게 별 상�
     while (s.hunt.chests.length) dispatch(s, { type: 'hunt.chest' });
   }
   assert.ok(seen.moon >= 30, JSON.stringify(seen));
-  assert.ok(seen.fish > seen.chest * 3, JSON.stringify(seen));
+  assert.equal(seen.fish, 0, '회복 생선은 보물 상자에서만 나온다'); assert.ok(seen.chest < 20, JSON.stringify(seen));
   assert.equal(TEMP.HUNT.MOON_DROP.boss, 45);
   // 필드 기물: 10칸 중 3칸은 비우고, 보상은 예전의 0.8배
   const hs = { depth: 10, fieldSeed: 3 }, props = nearbyProps(hs, { x: 0, y: 0 });
-  for (const p of props) { const [x, y] = p.id.split(':').map(Number), h = fieldHash(x, y, 3); assert.ok(h % 10 >= 3); assert.equal(p.reward, Math.ceil((3 + h % 5) * (1 + 10 * .045) * .8)); }
+  for (const p of props) { const [x, y] = p.id.split(':').map(Number), h = fieldHash(x, y, 3); assert.ok(h % 10 >= 3); assert.equal(p.reward, Math.ceil((3 + h % 5) * (1 + 10 * .045) * .8 * (p.treasure ? TEMP.HUNT.TREASURE_REWARD : 1))); assert.equal(p.kind === 'coffer', p.treasure); }
   assert.ok(props.length < 25 && props.length > 0);
 });
 

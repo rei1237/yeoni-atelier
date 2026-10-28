@@ -103,7 +103,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const theme=fieldTheme(hs.depth),field=imageFor('tiles/'+theme)||imageFor('tiles/river_field');
   ctx.fillStyle=hs.depth>=85?'#231a30':'#263a3b';ctx.fillRect(camX-2,camY-2,vw+4,vh+4);
   if(field){const tile=512;for(let y=Math.floor(camY/tile)*tile;y<camY+vh;y+=tile)for(let x=Math.floor(camX/tile)*tile;x<camX+vw;x+=tile)ctx.drawImage(field,x,y,tile,tile);}
-  for(const o of world.props||[]){if(hs.brokenProps?.[o.id]||o.x<camX-64||o.x>camX+vw+64||o.y<camY-80||o.y>camY+vh+80)continue;const img=imageFor('objects/hunt_'+o.kind);if(img)ctx.drawImage(img,o.x-32,o.y-48,64,64);if(o.hp<o.maxHp){ctx.fillStyle='#e7c275';ctx.fillRect(o.x-20,o.y-52,40*o.hp/o.maxHp,3);}}
+  for(const o of world.props||[]){if(hs.brokenProps?.[o.id]||o.x<camX-64||o.x>camX+vw+64||o.y<camY-80||o.y>camY+vh+80)continue;const img=imageFor('objects/hunt_'+o.kind),sz=o.treasure?84:64;if(o.treasure){const g=ctx.createRadialGradient(o.x,o.y-14,4,o.x,o.y-14,56);g.addColorStop(0,'rgba(255,231,160,.55)');g.addColorStop(1,'rgba(255,231,160,0)');ctx.fillStyle=g;ctx.fillRect(o.x-56,o.y-70,112,112);}if(img)ctx.drawImage(img,o.x-sz/2,o.y-sz*.75,sz,sz);if(o.hp<o.maxHp){ctx.fillStyle='#e7c275';ctx.fillRect(o.x-20,o.y-52,40*o.hp/o.maxHp,3);}}
   drawKfp(ctx,world.kfp,now,opts.reducedMotion);
   drawTrail(ctx,hs);
   const m = mods(hs);

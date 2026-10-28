@@ -100,7 +100,7 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
     bag: { moonstone: 0 }, kills: 0, status: 'running', depth, careerLevel, careerXP: 0,
     caps: Object.fromEntries(SKILL_IDS.map(id => [id, skillCap(id, skillRank(state, id))])), // 출발 때 고정한 단련 상한
     scale: depthScale(depth, monthScale(state.day), calendarOf(state.day).monthIdx),
-    fieldSeed:Math.floor(nextRandom(state.rng)*2147483647),brokenProps:{},propDamage:{},
+    fieldSeed:Math.floor(nextRandom(state.rng)*2147483647),brokenProps:{},propDamage:{},foundTreasure:{},
     ...(saved?{kfp:saved.kfp?structuredClone(saved.kfp):undefined,level:saved.level,xp:saved.xp,weapons:structuredClone(saved.weapons),passives:{...saved.passives},picks:structuredClone(saved.picks||[])}:{}),
   });
   if(state.hunt.kfp){state.hunt.kfp.cool={};state.hunt.kfp.thorns={};state.hunt.kfp.pollenAt=0;}
@@ -393,9 +393,8 @@ function dropFrom(state, w, e) {
   if (def.chest) {
     const base = def.boss ? Math.round(H.MOON_DROP.boss * (1 + (state.hunt?.gear?.bossMoon || 0))) : H.MOON_DROP.elite;
     addDrop(w, 'moon', 'moonstone', huntMoonReward(base, state.hunt.scale), e.x - 14, e.y);
-    // 별 상자는 보스는 항상, 정예는 드물게. 상자가 없으면 회복 생선을 남긴다
+    // 별 상자는 보스는 항상, 정예는 드물게. 회복 생선은 필드 보물 상자에서만 나온다
     if (def.boss || nextRandom(state.rng) < H.ELITE_CHEST) addDrop(w, 'chest', 'chest', 0, e.x + 14, e.y);
-    else addDrop(w, 'fish', 'fish', 0, e.x + 14, e.y);
     if (!def.boss) emit('huntEliteDown', {});
     return;
   }
@@ -553,7 +552,7 @@ function stepShots(state, w, t, m, dt) {
 export function resolveMelee(state,w,t,m){
  const a=w.player.swing;if(!a||a.hit||t<a.hitAt)return;a.hit=true;emit('huntAttack',{weapon:'bolt'});
  for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(withinMeleeArc(a.x,a.y,a.angle,a.radius,a.halfArc,e,ENEMIES[e.type].r))hurt(state,w,i,a.damage,m,e.x-a.x,e.y-a.y,true);}
- for(const prop of w.props||[]){if(!withinMeleeArc(a.x,a.y,a.angle,a.radius,a.halfArc,prop,prop.r))continue;const reward=hitFieldProp(state.hunt,prop,a.damage);addBattleFx(w,{kind:'hit',x:prop.x,y:prop.y,r:30,at:t,until:t+250});if(reward){addDrop(w,'moon','moonstone',reward,prop.x,prop.y);emit('huntObjectBroken',{reward,kind:prop.kind});}}
+ for(const prop of w.props||[]){if(!withinMeleeArc(a.x,a.y,a.angle,a.radius,a.halfArc,prop,prop.r))continue;const reward=hitFieldProp(state.hunt,prop,a.damage);addBattleFx(w,{kind:'hit',x:prop.x,y:prop.y,r:30,at:t,until:t+250});if(reward){addDrop(w,'moon','moonstone',reward,prop.x,prop.y);const heal=!!prop.treasure&&nextRandom(state.rng)<H.TREASURE_HEAL_CHANCE;if(heal)addDrop(w,'fish','fish',0,prop.x+18,prop.y+6);emit('huntObjectBroken',{reward,kind:prop.kind,treasure:!!prop.treasure,heal});}}
 }
 
 function collect(state, w, t, m, dt) {
@@ -624,6 +623,7 @@ function subStep(state, dt, input) {
   if(hs.hunterId!=='yeoni_pig'||hs.kfp.legacy)fireWeapons(state, w, t, m, sec);
   for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(!ENEMIES[e.type].elite&&Math.hypot(e.x-p.x,e.y-p.y)>1300)w.enemies.release(i);}
   w.props=nearbyProps(hs,p);
+  for(const o of w.props)if(o.treasure&&!hs.foundTreasure?.[o.id]&&Math.hypot(o.x-p.x,o.y-p.y)<=H.TREASURE_SPOT_RADIUS){(hs.foundTreasure??={})[o.id]=true;emit('huntTreasureFound',{id:o.id});}
   resolveMelee(state,w,t,m);
   stepShots(state, w, t, m, dt);
   const aura = hs.weapons.find(x => x.id === 'aura');
