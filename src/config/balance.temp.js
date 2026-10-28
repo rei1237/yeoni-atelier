@@ -6,7 +6,7 @@ export const TEMP = Object.freeze({
   HOST_FEE_BASE: 5000, // 60초 전담의 고수익 지명료. 음식·팁과 별도, 임시 밸런스
   HOST_FEE_WEALTH: Object.freeze({frugal:1,ordinary:1.5,generous:3,tycoon:6}),
   INITIAL_DEBT: 100_000_000, // 사용자 결정 2026-10-26: 1억 골드, 외전 속 현실 약 10억 원 규모
-  CAFE_PRICE_GROWTH: 1.45, // 레벨별 메뉴 가격 배율(임시, 5년 시뮬레이션 기준)
+  CAFE_PRICE_GROWTH: 1.45, // 레벨별 메뉴 가격 배율(임시). 2년 운영에서도 올리지 않는다(빚은 공연·피버·인기로 갚는다)
   LOAN_RATE: .08, // 청토끼 신규 운영 대출: 월 8%, 미납 이자는 원금에 가산
   PAYROLL_BASE: 1000, // 월 정액, 근무 순 비례
   PAYROLL_SHARE: .015, // 새 동료 1인 월 매출의 1.5%
@@ -125,11 +125,14 @@ export const TEMP = Object.freeze({
   SPAWN_TABLE_BASE: 5,        // 시작 5테이블은 기본 입장 간격. 증축 이후에만 비례 단축(임시)
   DECOR_PRICES: Object.freeze({ chair:600, plant: 400, lamp: 700, bookshelf: 1200, rug: 1500, ...Object.fromEntries([...DECOR_CATALOG,...LARGE_CATALOG].map(d => [d.id, d.price])) }),
 
-  // ── 달력·이자·행동력(임시). 영업 1회 = 한 순, 3순 = 한 달. 3월부터 60개월(180순), 5년 운영 뒤 결말.
+  // ── 달력·이자·행동력(임시). 영업 1회 = 한 순, 3순 = 한 달. 3월부터 24개월(72순), 2년 운영 뒤 결말.
+  // 10-28 이전 저장 중 첫 6개월(18순)을 넘긴 저장은 옛 5년 180순을 그대로 쓴다(save.js, calendar.totalTurns).
   CALENDAR: Object.freeze({
     START_MONTH: 3,
     TURNS_PER_MONTH: 3,
-    TOTAL_TURNS: 180,
+    TOTAL_TURNS: 72,
+    LEGACY_TOTAL_TURNS: 180,
+    LEGACY_CUTOFF_DAY: 18,    // 이 순까지 진행한 옛 저장만 2년 규칙으로 옮긴다
     INTEREST_RATE: 0.02,      // 하순 마감 때 남은 빚 × 2% (올림)
     AP_PER_TURN: 3,           // 사냥 1 · 대화 1
     ENDING_BOND_BEST: 520,    // 빚을 다 갚고 친밀도 합이 이 이상이면 최고 결말(일만으로는 ~320, 대화·선물이 더 필요)

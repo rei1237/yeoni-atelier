@@ -8,6 +8,7 @@ import {migrateCounter} from '../game/cafe.js';
 import {ensureBranches} from '../game/branches.js';
 import { customerLook } from '../data/customer-looks.js';
 import { pointsRank } from '../data/bonds.js';
+import { TEMP } from '../config/balance.temp.js';
 // 저장·불러오기. 연이의 아틀리에 전용 키만 쓴다(killerflowerpig 의 kfp.* 키는 읽지도 쓰지도 않는다).
 // 개발 모드는 별도 키를 쓰므로 일반 저장을 건드리지 않는다.
 
@@ -69,6 +70,9 @@ function migrate(data) {
   data.farm.energy = Number.isFinite(data.farm.energy) ? Math.max(0,Math.min(data.farm.energy,maxFarmEnergy(data.farm))) : maxFarmEnergy(data.farm);
   // 인연 랭크 이전 저장: 점수로 열려 있던 능력이 그대로 남도록 점수만큼의 랭크로 시작한다
   if (data.bondRank === undefined) data.bondRank = Object.fromEntries(Object.entries(data.affinity || {}).map(([id, v]) => [id, pointsRank(v || 0)]));
+  // 10-28 2년 운영: 첫 6개월 안의 옛 저장만 72순으로 옮기고, 그 뒤 저장은 옛 180순을 유지한다(결말·벌칙 소급 없음)
+  data.calendar ||= {};
+  if (data.calendar.totalTurns == null) data.calendar.totalTurns = !data.calendar.ended && data.day <= TEMP.CALENDAR.LEGACY_CUTOFF_DAY ? TEMP.CALENDAR.TOTAL_TURNS : TEMP.CALENDAR.LEGACY_TOTAL_TURNS;
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
   for (const k of ['ledger', 'stats', 'seq', 'quests', 'outfits', 'fever', 'offline', 'gear', 'calendar', 'ap', 'affinity']) data[k] = { ...base[k], ...data[k] };
   // 네오 전용 스트레스 → 전 직원 스트레스. 예전 자동 켜짐은 권한이 아니므로 모두 끈다(인연으로 다시 연다).

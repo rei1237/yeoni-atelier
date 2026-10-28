@@ -28,12 +28,14 @@ export function calendarOf(day) {
   return { turn: i, monthIdx, part: i % C.TURNS_PER_MONTH, month: (m0 % 12) + 1, year: 1 + Math.floor(m0 / 12) };
 }
 
-export const totalMonths = () => Math.ceil(C.TOTAL_TURNS / C.TURNS_PER_MONTH);
-export const turnsLeft = state => Math.max(0, C.TOTAL_TURNS - (state.day - 1));
+// 운영 기간은 저장마다 기록한다(새 게임 2년 72순, 옛 저장은 180순일 수 있다)
+export const totalTurns = state => state?.calendar?.totalTurns || C.TOTAL_TURNS;
+export const totalMonths = state => Math.ceil(totalTurns(state) / C.TURNS_PER_MONTH);
+export const turnsLeft = state => Math.max(0, totalTurns(state) - (state.day - 1));
 export const isEnded = state => !!state.calendar?.ended;
 
 export function dateLabel(state, day = state.day) {
-  if (isEnded(state)) return `후일담 ${day - C.TOTAL_TURNS}일째`;
+  if (isEnded(state)) return `후일담 ${day - totalTurns(state)}일째`;
   const c = calendarOf(day);
   return `운영 ${1 + Math.floor(c.monthIdx / 12)}년차 ${c.month}월(${BRANCH[c.month]}월) ${PARTS[c.part]}`;
 }
@@ -92,7 +94,7 @@ export function advanceTurn(state) {
     state.stock.night_dew = (state.stock.night_dew || 0) + fx.dailyDew;
     state.stats.nightDewObtained += fx.dailyDew;
   }
-  if (!isEnded(state) && state.day > C.TOTAL_TURNS) {
+  if (!isEnded(state) && state.day > totalTurns(state)) {
     const endingId = decideEnding(state);
     state.calendar = { ...state.calendar, ended: true, endingId, endedDebt: state.debt };
     emit('gameEnded', { endingId });

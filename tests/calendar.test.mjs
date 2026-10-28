@@ -20,9 +20,11 @@ function quietTurn(s) {
   assert.ok(dispatch(s, { type: 'settlement.close' }).ok);
 }
 
-test('달력: 3순이 한 달, 3월 상순에서 시작해 5년 뒤 2월 하순이 마지막 순', () => {
+test('달력: 3순이 한 달, 3월 상순에서 시작해 2년 뒤 2월 하순(72순)이 마지막 순', () => {
+  assert.equal(C.TOTAL_TURNS, 72);
+  assert.equal(createGame().calendar.totalTurns, 72);
   assert.deepEqual(calendarOf(1), { turn: 0, monthIdx: 0, part: 0, month: 3, year: 1 });
-  assert.deepEqual(calendarOf(C.TOTAL_TURNS), { turn: 179, monthIdx: 59, part: 2, month: 2, year: 6 });
+  assert.deepEqual(calendarOf(C.TOTAL_TURNS), { turn: 71, monthIdx: 23, part: 2, month: 2, year: 3 });
   assert.equal(dateLabel(createGame()), '운영 1년차 3월(묘월) 상순');
 });
 
@@ -108,4 +110,18 @@ test('달 이야기: 매달 상순 준비 때 한 번, 잘못된 id 는 거절',
   assert.equal(pendingStory(s), null);
   for (let i = 0; i < C.TURNS_PER_MONTH; i++) quietTurn(s);
   assert.equal(pendingStory(s), 'm1');
+});
+
+test('2년 이전: 첫 6개월 안의 옛 저장만 72순, 그 뒤 옛 저장은 180순을 유지하고 불러오자마자 결말이 나지 않는다', () => {
+  const load = day => { const s = createGame(); s.day = day; delete s.calendar.totalTurns; const r = deserialize(serialize(s)); assert.ok(r.ok, r.reason); return r.state; };
+  assert.equal(load(10).calendar.totalTurns, 72);
+  const old = load(100); // 테스트 준비: 72순을 이미 넘긴 진행 중 저장
+  assert.equal(old.calendar.totalTurns, C.LEGACY_TOTAL_TURNS);
+  assert.equal(old.calendar.ended, false);
+  assert.match(dateLabel(old), /^운영 3년차/);
+  old.hostbar.open = true; old.huntUnlocked = true; // 테스트 준비
+  quietTurn(old);
+  assert.equal(old.calendar.ended, false, '옛 저장은 180순까지 이어 간다');
+  const back = deserialize(serialize(old));
+  assert.equal(back.state.calendar.totalTurns, C.LEGACY_TOTAL_TURNS, '한 번 정한 기간은 저장 왕복 후에도 같다');
 });

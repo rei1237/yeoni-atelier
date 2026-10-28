@@ -1,5 +1,6 @@
 import { MONTH_STORIES } from './months.js';
 import { BONDS } from '../data/bonds.js';
+import { totalMonths } from '../game/calendar.js';
 const SEASONS = [
   ['다시 피는 간판','새 꽃을 심기 전에 지난봄의 뿌리가 살아 있는지 살폈다.','올해는 손님 이름을 더 많이 기억하고 싶어.'],
   ['이름을 기억하는 자리','단골이 늘자 주문서 가장자리에 작은 메모가 쌓였다.','늘 같은 걸 드셔도 먼저 물어보자. 오늘 마음은 다를 수 있잖아.'],
@@ -14,23 +15,26 @@ const SEASONS = [
   ['한 해를 나누는 차','새해 첫 찻잔은 주문을 받기 전에 동료들에게 건넸다.','계획표에 쉬는 날도 적었어. 이번엔 진짜 지킬 거야.'],
   ['오래 머무는 가게','서가에 한 해의 장부를 꽂자 다음 권을 놓을 자리가 보였다.','다음 봄에도 같이 문을 열자. 그 약속부터 적어 둘게.'],
 ];
-const YEARS = [null,'서로의 속도','함께 만든 무대','머물고 싶은 자리','다섯 해의 약속'];
+// 연차 제목: 2년 운영은 앞의 둘만 쓴다. 3~5년차는 옛 180순 저장용이다.
+const YEARS = ['처음 연 문','두 해의 약속','함께 만든 무대','머물고 싶은 자리','다섯 해의 약속'];
+const SPAN = {2:'두 해',5:'다섯 해'};
 const FOCUS = ['yun','yun','neo','moka','seohanbi','solv','museong','bambi','lune','raven','luna','luna_sis'];
 export function careerMonthStory(index, state) {
   if(index < 12) return MONTH_STORIES[index];
-  if(index < 0 || index >= 60) return null;
+  const months = totalMonths(state);
+  if(index < 0 || index >= months) return null;
   const year = 1 + Math.floor(index / 12), month = (index + 2) % 12 + 1, season = index % 12;
   const [title,scene,line] = SEASONS[season];
   const candidate = FOCUS[season];
   const who = BONDS[candidate]?.requiresRecruit && !state.roster[candidate] ? 'luna' : candidate;
   const b = BONDS[who];
-  const last = index === 59;
+  const last = index === months - 1, span = SPAN[months / 12] || `${months / 12}년`;
   return [
-    {chapter:[`운영 ${year}년차 ${month}월 · ${YEARS[year-1]}`,last?'다섯 해의 마지막 장부':title],bg:season>7?'atelier_dark':'atelier_lit',l:'yeoni:normal',c:`${b.speaker}:normal`,r:null},
+    {chapter:[`운영 ${year}년차 ${month}월 · ${YEARS[year-1]}`,last?`${span}의 마지막 장부`:title],bg:season>7?'atelier_dark':'atelier_lit',l:'yeoni:normal',c:`${b.speaker}:normal`,r:null},
     {s:'nar',t:`${year}번째 운영 해. ${scene}`},
-    {s:'yeoni',t:last?'다섯 해를 채웠네. 이번 세 순을 마치면 우리 가게의 이야기를 결산하자.':line},
+    {s:'yeoni',t:last?`${span}를 채웠네. 이번 세 순을 마치면 우리 가게의 이야기를 결산하자.`:line},
     {s:b.speaker,t:b.talk[(year-2)%b.talk.length][1]},
-    {s:'sys',t:last?'[ 180번째 영업을 마치면 운영 엔딩을 봅니다. 이후에도 자유 영업과 인연은 이어집니다 ]':`[ ${YEARS[year-1]} · 동료와 대화하고 함께 일하면 인연 스킬이 열립니다 ]`},
+    {s:'sys',t:last?`[ ${months * 3}번째 영업을 마치면 운영 엔딩을 봅니다. 이후에도 자유 영업과 인연은 이어집니다 ]`:`[ ${YEARS[year-1]} · 동료와 대화하고 함께 일하면 인연 스킬이 열립니다 ]`},
   ];
 }
 export {authoredCastBondStory as castBondStory} from './cast-bond-scenes.js';

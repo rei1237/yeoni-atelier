@@ -3,7 +3,7 @@ import { esc, btn } from './dom.js';
 import { won } from './hud.js';
 import { assetIcon } from './asset-html.js';
 import { personName } from '../game/state.js';
-import { dateLabel, isEnded } from '../game/calendar.js';
+import { dateLabel, isEnded, totalTurns } from '../game/calendar.js';
 import { TEMP } from '../config/balance.temp.js';
 
 // 서빙률(서빙 완료 ÷ (서빙 완료 + 놓친 주문)) 기준 도장
@@ -35,7 +35,7 @@ const pct = (n, of) => of > 0 ? Math.max(0, Math.min(100, n / of * 100)).toFixed
 
 export function settlementScreen(state) {
   const s = state.lastSettlement, v = settlementView(state), host = state.hostbar.open;
-  const last = s.day === TEMP.CALENDAR.TOTAL_TURNS && !isEnded(state);
+  const last = s.day === totalTurns(state) && !isEnded(state);
   const petals = Array.from({ length: 10 }, (_, i) => `<i style="--i:${i}"></i>`).join('');
   const parts = [['sales', '판매', s.sales], ...(host ? [['host', '지명료', s.hostFees || 0]] : []), ['tips', '팁', v.tips]].filter(p => p[2] > 0);
   const flow = v.income > 0
