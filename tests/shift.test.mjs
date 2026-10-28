@@ -114,7 +114,8 @@ test('접대 중 두 번째 지명·탐색 거절, 59초까지 잠금, 60초에 
   tick(s, 30000);
   const records = s.shift.hostings.filter(h => h.visitId === v.id);
   assert.equal(records.length, 1, '정산 기록은 한 번만');
-  assert.equal(s.gold, goldAfter, '팁이 다시 들어오지 않는다');
+  assert.equal(s.gold, goldAfter + v.hostFee, '계산대에서 지명료만 추가로 한 번 받는다');
+  const paid=s.gold;tick(s,30000);assert.equal(s.gold,paid,'지명료와 팁을 중복 지급하지 않는다');
 });
 
 function requestAround(elapsedMs, profileId = 'looks') {
@@ -255,7 +256,7 @@ test('[자동 시계] 10분 정규 영업 전체를 자동 운영으로 진행 �
   const ids = st.hostings.map(h => h.visitId);
   assert.equal(new Set(ids).size, ids.length, '방문당 정산 1회');
   assert.ok(st.hostings.every(h => h.profileId !== 'fun' && h.profileId !== 'funmix'), '재미 중심 요청은 자동 수락 안 함');
-  assert.equal(st.result, st.sales + st.baseTips + st.feverTips - st.ingredientCost);
+  assert.equal(st.result, st.sales + (st.hostFees||0) + st.baseTips + st.feverTips - st.ingredientCost);
   assert.equal(s.people.neo.activity, 'idle');
   console.log(`  [자동 시계] 매출 ${st.sales} · 재료비 ${st.ingredientCost} · 팁 ${st.baseTips}+${st.feverTips} · 서빙 ${st.servedCount} · 접대 ${st.hostings.length}건`);
 });

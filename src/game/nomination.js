@@ -1,3 +1,4 @@
+import {hostFeeQuote,earnedHostFee} from './host-fees.js';
 import {changePopularity} from './reputation.js';
 import {patronTipMultiplier,hostRevenueMultiplier} from '../data/customer-wealth.js';
 // 지명 접대: 요청 → (수락 검사) → 수락 순간부터 해당 영업의 접대 시간 → 정산 1회 → 동료 해제.
@@ -85,6 +86,7 @@ export function accept(state, tableNo) {
   const c = customerAt(state, tableNo);
   const now = state.shift.elapsedMs;
   visit.waitPenalty = waitPenaltyAt(visit, now);
+  visit.hostFeeQuote = hostFeeQuote(state,visit);
   visit.acceptAt = now;
   visit.endAt = now + nominationDuration(state); // 이동 연출을 포함한 수락 시점부터
   visit.help = helpSchedule(state, visit);
@@ -200,13 +202,16 @@ export function settleHosting(state, visit) {
   const score = hostingScore({ stats: hostStats(state, pid), prefs: visit.prefs, talkBonus: visit.talkBonus, waitPenalty: visit.waitPenalty });
   const completedFull = now >= visit.endAt;
   const tip = tipFor({ servedTotal: visit.servedTotal, H: score.H, completedFull, fevered: visit.fevered, multiplier: patronTipMultiplier(visit.wealthId)*hostRevenueMultiplier(pid) });
+  const hostFee = earnedHostFee(visit,completedFull);
+  visit.hostFee = hostFee;
   visit.settled = true;
   visit.finalH = score.H;
   visit.finalScore = score;
   visit.tip = tip;
   if (state.ledger.tips[visit.id] == null) {
     state.ledger.tips[visit.id] = tip.total;
-    visit.bill=(visit.bill||0)+tip.total;
+    visit.bill=(visit.bill||0)+tip.total+hostFee;
+    state.shift.hostFees=(state.shift.hostFees||0)+hostFee;
     changePopularity(state,score.H>=80?2:score.H<40?-1:0);
     state.shift.baseTips += tip.base;
     state.shift.feverTips += tip.feverExtra;
@@ -221,13 +226,13 @@ export function settleHosting(state, visit) {
   }
   const grade = gradeOf(score.H);
   const foodAvg = visit.foodScores.length ? Math.round(visit.foodScores.reduce((a, b) => a + b, 0) / visit.foodScores.length) : null;
-  state.shift.hostings.push({ visitId: visit.id, tableNo: visit.tableNo, nominee: pid, profileId: visit.profileId, H: score.H, M: score.M, capped: score.capped, grade: grade.label, food: foodAvg, servedTotal: visit.servedTotal, tip: tip.total, feverExtra: tip.feverExtra });
+  state.shift.hostings.push({ visitId: visit.id, tableNo: visit.tableNo, nominee: pid, profileId: visit.profileId, H: score.H, M: score.M, capped: score.capped, grade: grade.label, food: foodAvg, servedTotal: visit.servedTotal, hostFee, tip: tip.total, feverExtra: tip.feverExtra });
   Object.assign(state.people[pid], { activity: 'idle', visitId: null, tableNo: null, endAt: null });
   const s = state.staff[pid];
   if (s) { s.action = 'react'; sendHome(state, s); }
   const c = state.customers[visit.customerId];
   if (c && c.state !== 'leaving') { c.action = 'react'; customerLeave(state, c, '접대 종료'); }
-  emit('hostingSettled', { tableNo: visit.tableNo, H: score.H, grade: grade.label, tip: tip.total, feverExtra: tip.feverExtra, capped: score.capped });
+  emit('hostingSettled', { tableNo: visit.tableNo, H: score.H, grade: grade.label, hostFee, tip: tip.total, feverExtra: tip.feverExtra, capped: score.capped });
 }
 
 // 같은 시각의 접대 종료는 종료 시각 → 테이블 번호 순으로 처리한다.

@@ -10,7 +10,7 @@ export const exchangeRate=state=>TEMP.MOONSTONE_GOLD*(1+bondFx(state.affinity).m
 const ensure=state=>state.finance||=( {balance:0,requests:{},interest:{}} );
 export function creditView(state){
  const balance=state.finance?.balance||0;
- const recent=Object.values(state.ledger.settlements).slice(-3).reduce((n,s)=>n+s.sales+s.baseTips+s.feverTips,0);
+ const recent=Object.values(state.ledger.settlements).slice(-3).reduce((n,s)=>n+s.sales+(s.hostFees||0)+s.baseTips+s.feverTips,0);
  const limit=Math.min(5_000_000,Math.max(20_000,cafeProgress(state).level*20000,Math.floor(recent*1.5)));
  return {balance,limit,available:Math.max(0,limit-balance),rate:TEMP.LOAN_RATE,nextInterest:Math.ceil(balance*TEMP.LOAN_RATE)};
 }

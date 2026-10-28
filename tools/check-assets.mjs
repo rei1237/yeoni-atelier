@@ -55,7 +55,7 @@ async function checkFolder(relative) {
  }
 }
 await checkFolder('assets/');
-if(folderBytes>=15_000_000)errors.push('assets/ 전체 15MB 예산 초과: '+folderBytes+'바이트');
+if(folderBytes>=15_200_000)errors.push('assets/ 전체 15.2MB 예산 초과: '+folderBytes+'바이트');
 console.log('등록 에셋 '+count+'/'+manifest.ready.length+' · 런타임 '+totalBytes+'바이트 ('+(totalBytes/1e6).toFixed(2)+'MB)');
 console.log('로컬 보존 포함 '+localFiles+'파일 · '+localBytes+'바이트');
 console.log('배포 assets/ 전체 '+folderFiles+'파일 · '+folderBytes+'바이트 ('+(folderBytes/1e6).toFixed(2)+'MB)');

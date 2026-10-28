@@ -50,7 +50,7 @@ export function startShift(state) {
   state.shift = {
     id: `shift-${state.day}`, day: state.day, elapsedMs: 0, durationMs: RULES.SHIFT_MS, nominationMs: RULES.NOMINATION_MS,
     nextSpawnAt: TEMP.SPAWN_FIRST_MS, scriptIndex: firstHostShift || state.stats.shiftsCompleted === 0 ? 0 : FIRST_SHIFT_SCRIPT.length,
-    sales: 0, ingredientCost: 0, baseTips: 0, feverTips: 0, servedCount: 0, lostOrders: 0, wasted: 0,
+    sales: 0, hostFees: 0, ingredientCost: 0, baseTips: 0, feverTips: 0, servedCount: 0, lostOrders: 0, wasted: 0,
     spawnCount: 0, regularVisits: 0, nominationVisits: 0, hostings: [], autoAt: 0,
     stressStart: stressOf(state, 'neo'),
   };
@@ -119,8 +119,8 @@ export function closeShift(state) {
   const settlement = {
     shiftId: sh.id, day: sh.day,
     stressStart: sh.stressStart, stressEnd: stressOf(state, 'neo'),
-    sales: sh.sales, ingredientCost: sh.ingredientCost, baseTips: sh.baseTips, feverTips: sh.feverTips,
-    result: sh.sales + sh.baseTips + sh.feverTips - sh.ingredientCost,
+    sales: sh.sales, hostFees: sh.hostFees||0, ingredientCost: sh.ingredientCost, baseTips: sh.baseTips, feverTips: sh.feverTips,
+    result: sh.sales + (sh.hostFees||0) + sh.baseTips + sh.feverTips - sh.ingredientCost,
     gold: state.gold, debt: state.debt,
     servedCount: sh.servedCount, lostOrders: sh.lostOrders, wasted,
     regularVisits: sh.regularVisits, nominationVisits: sh.nominationVisits, hostings: sh.hostings,

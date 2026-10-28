@@ -41,13 +41,13 @@ export function drawActor(ctx, key, o) {
   if (pose) {
     ctx.save();ctx.translate(o.x,o.y);ctx.rotate(pose.angle);ctx.scale(pose.scaleX,pose.scaleY);
     const body={...o,x:0,y:0,name:null};
-    if(img)drawFromSheet(ctx,def,img,st,body);else drawFallback(ctx,def,st,body);
+    if(img)drawFromSheet(ctx,def,img,st,body);
     ctx.restore();
     if(o.name)nameTag(ctx,o.name,o.x,o.y+4+(o.nameOffsetY||0),o.size,o.tagColor);
     return;
   }
   if (img) return drawFromSheet(ctx, def, img, st, o);
-  drawFallback(ctx, def, st, o);
+  // 읽는 중에는 임시 도형을 노출하지 않는다. 실제 이미지가 준비된 프레임에 그린다.
 }
 
 function drawFromSheet(ctx, def, img, st, o) {

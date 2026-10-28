@@ -175,6 +175,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   const actors = [];
   if (state.mode === 'shift') {
     for (const c of Object.values(state.customers)) {
+      if(c.enterWaiting)continue;
       const pose=customerPose(state,c,opts.reducedMotion);
       actors.push({key:pose.key,x:c.x,y:c.y,seated:pose.seated,seatBlend:pose.seatBlend,cashierFront:layout.id==='legacy'&&c.state==='checkout'&&c.x>SPOTS.yeoniHome.x&&c.y<SPOTS.checkout.y+1.2,o:{state:pose.state,facing:pose.facing,walkDistance:c.walkDistance,animationFrame:pose.animationFrame,flipX:pose.flipX,name:null}});
     }

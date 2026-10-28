@@ -1,4 +1,4 @@
-// 에셋 정의 레지스트리. manifest.ready의 검증된 WebP만 읽고, 누락·실패한 항목은 도형으로 대체한다.
+// 에셋 정의 레지스트리. manifest.ready의 검증된 WebP만 읽고, 캐릭터·적은 로딩 중 임시 도형을 표시하지 않는다.
 // 일러스트 규격: 캐릭터 셀 96×96, 발 기준점 (48,90). 부드러운 축소와 확대를 사용한다.
 // 이미지를 넣는 방법: 각 항목의 path 에 WebP 를 두고 assets/manifest.json 의 ready 배열에 "묶음/키"(예: actors/yeoni)를 적는다.
 //   매니페스트에 적힌 키만 불러오므로, 아직 없는 파일 때문에 404 가 쌓이지 않는다. 실패하면 도형으로 남는다.
@@ -124,6 +124,9 @@ const LEGACY_ASSETS = {
   },
   backgrounds: Object.fromEntries(['atelier_lit','atelier_dark','river_night','dressroom','farm'].map(key => [key, { kind:'background', label:key, path:`assets/backgrounds/${key}.webp`, dimensions:key==='farm'?[720,400]:[720,600], opaque:true }])),
   ui: {
+    game_flying:{kind:"ui",path:"assets/ui/game-flying.webp",dimensions:[480,270],opaque:true},
+    game_killer:{kind:"ui",path:"assets/ui/game-killer.webp",dimensions:[480,270],opaque:true},
+    game_room:{kind:"ui",label:"연이와 네오의 게임방",path:"assets/ui/game-room.webp",dimensions:[640,360],opaque:true},
     ...Object.fromEntries(['spring','summer','autumn','winter'].map(season => [`town-map-${season}`, { kind:'ui', label:`${season} 마을`, path:`assets/ui/town-map-${season}.webp`, dimensions:[720,600], opaque:true }])),
     ...Object.fromEntries([
       ...['atelier','expand','moka','luna','gear','hunt'].map(k=>[`town-node-${k}`,128,128]),
@@ -141,13 +144,13 @@ const loaded = new Map(), requests = new Map();
 let available = new Set(), manifestTask;
 const allEntries = () => Object.entries(ASSETS).flatMap(([g,group])=>Object.entries(group).map(([k,d])=>[`${g}/${k}`,d]));
 const definitions = new Map(allEntries());
-export const BOOT_ASSETS = ['backgrounds/title','ui/loading','actors/yeoni','actors/neo','actors/luna','actors/luna_sis','portraits/yeoni','portraits/neo','portraits/neo_cat','portraits/luna','portraits/luna_sis','backgrounds/atelier_lit','backgrounds/cafe_room','tiles/cafe_floor','tiles/cafe_wall',...allEntries().filter(([id])=>id.startsWith('objects/')||id.startsWith('icons/')).map(([id])=>id)];
+export const BOOT_ASSETS = ['backgrounds/title','ui/loading','actors/yeoni','actors/neo','actors/luna','actors/luna_sis','portraits/yeoni','portraits/neo','portraits/neo_cat','portraits/luna','portraits/luna_sis','backgrounds/atelier_lit','backgrounds/cafe_room','tiles/cafe_floor','tiles/cafe_wall',...allEntries().filter(([id])=>['objects/','icons/','actors/','enemies/','portraits/','talking/'].some(group=>id.startsWith(group))).map(([id])=>id)];
 // 기존 atlas 절단에 섞인 옆 물체만 제외한다. 디스크 원본은 보존한다.
 const contentCrops={'objects/lamp':[14,0,70,128]};
 async function requestImage(id){
  if(!available.has(id))return null;const d=definitions.get(id);if(!d)return null;const src=d.image||d.path;
  if(!requests.has(src))requests.set(src,new Promise(resolve=>{const img=new Image();let timer=setTimeout(()=>resolve(null),12000);img.onload=()=>{clearTimeout(timer);const rect=contentCrops[id];if(!rect){resolve(img);return;}const cv=document.createElement('canvas');cv.width=rect[2];cv.height=rect[3];cv.getContext('2d').drawImage(img,...rect,0,0,cv.width,cv.height);const cropped=new Image();cropped.onload=()=>resolve(cropped);cropped.onerror=()=>resolve(img);cropped.src=cv.toDataURL('image/png');};img.onerror=()=>{clearTimeout(timer);resolve(null);};img.src=src;}));
- const img=await requests.get(src);if(img)loaded.set(id,img);return img;
+ const img=await requests.get(src);if(img)loaded.set(id,img);else requests.delete(src);return img;
 }
 export async function loadAssetImages(manifestUrl='assets/manifest.json',{keys=BOOT_ASSETS,onProgress=()=>{}}={}){
  manifestTask ||= fetch(manifestUrl).then(r=>r.ok?r.json():{ready:[]}).then(m=>{available=new Set(m.ready||[]);}).catch(()=>{});

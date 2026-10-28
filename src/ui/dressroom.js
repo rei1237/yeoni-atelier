@@ -8,9 +8,9 @@ import { btn, esc } from './dom.js';
 import { assetStyle, assetIcon } from './asset-html.js';
 import {ASSETS,imageFor} from '../render/assets.js';
 export function dressSelection(state, ui) {
-  const who = MALE_HOSTS.includes(ui.dressWho) && state.roster[ui.dressWho] ? ui.dressWho : 'neo', slot = ui.dressSlot || 'outfit';
+  const who = MALE_HOSTS.includes(ui.dressWho) && state.roster[ui.dressWho] ? ui.dressWho : 'neo', slot = 'outfit';
   const item = OUTFITS[ui.dressPreview];
-  const preview = item && (!item.who || item.who === who) ? item.id : state.outfits.equipped[who][slot];
+  const preview = item && item.slot === 'outfit' && (!item.who || item.who === who) ? item.id : state.outfits.equipped[who][slot];
   return { who, slot, preview };
 }
 export function dressroomSheet(state, ui) {
@@ -23,7 +23,7 @@ export function dressroomSheet(state, ui) {
     <div class="dress-stage" style="${assetStyle('backgrounds/dressroom')}"><img class="dress-illustration" src="${ASSETS.portraits[outfitPortrait(who,slot,preview,eq)]?.path||ASSETS.portraits[who]?.path}" alt="${esc(personName(state,who))}의 선택한 의상 일러스트"><canvas id="dress-actor" width="192" height="192" aria-label="의상 입어 보기"></canvas><div class="dress-speech"><canvas data-talking-portrait="${who}${preview && slot === 'outfit' ? `@${preview}` : ''}" data-expression="${stage === 'calm' ? 'smile' : 'serious'}" width="96" height="96" aria-hidden="true"></canvas><p>${esc(line)}</p></div></div>
     <div class="btns">${[['down','앞'],['left','왼쪽'],['right','오른쪽'],['up','뒤']].map(([dir,label]) => btn({ action: 'dress.direction', args: { dir }, cls: (ui.dressDirection || 'down') === dir ? 'on' : '', label })).join('')}${btn({ action: 'dress.pose', label: ui.dressPose === 'host' ? '대기 모습 보기' : '인사 모습 보기' })}</div>
     ${!prep ? '<p role="status">지금은 입어 보기만 가능해요. 영업 준비 중에 갈아입어 주세요.</p>' : ''}
-    <div class="btns">${[['outfit','의상'],['acc1','액세서리 1'],['acc2','액세서리 2']].map(([id,label]) => btn({ action: 'dress.slot', args: { slot: id }, cls: slot === id ? 'on' : '', label })).join('')}</div>
+    <div class="btns">${[['outfit','의상']].map(([id,label]) => btn({ action: 'dress.slot', args: { slot: id }, cls: slot === id ? 'on' : '', label })).join('')}</div>
     <div class="dress-catalog">${items.map(item => {
       const owned = state.outfits.owned.includes(item.id), u = item.unlock;
       const status = owned ? (eq[slot] === item.id ? '입는 중' : '보유') : u?.type === 'moonstone' ? `월정석 ${u.cost}개` : item.hint || '5월 개시 이야기에서';

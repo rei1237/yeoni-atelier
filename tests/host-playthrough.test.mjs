@@ -25,7 +25,7 @@ test('기존 카페의 첫 호스트 개업도 지명 소개 손님 순서를 �
 });
 test('실제 지명 요청에서 튜토리얼·수락·SOS·60초 정산·동료 해제가 이어진다',()=>{
  const s=createHostDemo();dispatch(s,{type:'shift.start'});s.shift.nextSpawnAt=Number.MAX_SAFE_INTEGER;s.shift.scriptIndex=99;
- const a=seat(s);assert.equal(guideForContext(s,{}),'host');assert.match(hostDeskHtml(s),/지명 요청 확인/);
+ const a=seat(s);assert.equal(guideForContext(s,{}),'host');assert.match(hostDeskHtml(s),/지명 [0-9,]+G/);
  assert.ok(dispatch(s,{type:'nomination.accept',tableNo:a.tableNo}).ok);const v=s.visits[a.vid];assert.equal(v.endAt-v.acceptAt,60000);assert.match(hostDeskHtml(s),/접대 60초/);
  assert.equal(dispatch(s,{type:'nomination.accept',tableNo:a.tableNo}).ok,false);
  tick(s,12000);assert.match(hostDeskHtml(s),/SOS/);const h=v.help.find(h=>h.status==='open');assert.ok(h);
@@ -40,7 +40,7 @@ test('LP 가구는 기존 가구를 이동하지 않고 한 번 추가되며 안
  const loaded=deserialize(serialize(s));assert.ok(loaded.ok);assert.equal(loaded.state.interior.furniture.filter(f=>f.defId==='record_player').length,1);
 });
 test('월드 멤버 초대장은 기존 영입 조건을 표시하고 렌더링으로 해금하지 않는다',()=>{
- const s=createGame(),before=JSON.stringify(s),html=worldCastSheet(s);assert.match(html,/네오/);assert.match(html,/솔브/);assert.match(html,/2년차 8월/);assert.match(html,/만남을 기다리는 중/);assert.equal(JSON.stringify(s),before);
+ const s=createGame(),before=JSON.stringify(s),html=worldCastSheet(s);assert.match(html,/호스트 개업/);assert.doesNotMatch(html,/world-cast-person/);assert.match(html,/아직 도착하지 않은 초대장/);assert.equal(JSON.stringify(s),before);
 });
 test('지명 손님은 여성 외형만 사용하고 일반 손님 다양성과 저장을 보존한다',()=>{
  for(let look=0;look<8;look++){assert.ok(NOMINATION_LOOKS.includes(customerLook({look,nominationGuest:true})));assert.equal(customerLook({look}),look);}

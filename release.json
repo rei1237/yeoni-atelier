@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.28.6",
-  "name": "연이의 아틀리에 · 호스트와 영냥이",
+  "version": "2026.10.28.7",
+  "name": "연이의 아틀리에 · 달빛 게임방과 동료들의 카페",
   "musicTracks": 103,
-  "assetBytes": 14988512,
+  "assetBytes": 15072485,
   "channel": "production",
-  "baseCommit": "9854b6b665d57e0e0322348b65aa0eb9f9357982",
+  "baseCommit": "22d304d10d32632a82c438ba3faf1e2578646d33",
   "newTitleArt": true
 }

@@ -490,6 +490,9 @@
     "icons/yeoni_garden_quiche",
     "objects/counter_right",
     "objects/record_player",
-    "actors/neo_cat_cafe"
+    "actors/neo_cat_cafe",
+    "ui/game_room",
+    "ui/game_flying",
+    "ui/game_killer"
   ]
 }

@@ -3,6 +3,8 @@
 
 import { DECOR_CATALOG,LARGE_CATALOG } from '../data/decor-catalog.js';
 export const TEMP = Object.freeze({
+  HOST_FEE_BASE: 5000, // 60초 전담의 고수익 지명료. 음식·팁과 별도, 임시 밸런스
+  HOST_FEE_WEALTH: Object.freeze({frugal:1,ordinary:1.5,generous:3,tycoon:6}),
   INITIAL_DEBT: 100_000_000, // 사용자 결정 2026-10-26: 1억 골드, 외전 속 현실 약 10억 원 규모
   CAFE_PRICE_GROWTH: 1.45, // 레벨별 메뉴 가격 배율(임시, 5년 시뮬레이션 기준)
   LOAN_RATE: .08, // 청토끼 신규 운영 대출: 월 8%, 미납 이자는 원금에 가산

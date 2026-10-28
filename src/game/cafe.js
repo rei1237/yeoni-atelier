@@ -1,3 +1,4 @@
+import {trafficStep,cafeActors,ACTOR_GAP} from './cafe-traffic.js';
 import {yeoniEffects} from './yeoni-growth.js';
 import {cafeCapacity,assignedHosts} from './capacity.js';
 import {activeSlotNames,heldKey,runningJobs,queuedJobs,stationJobs,stationItems} from './station-slots.js';
@@ -94,20 +95,20 @@ function setPath(state, e, to, opts) {
   e.moving = true;
 }
 
-function moveAlong(e, dt, tilesPerS) {
-  let dist = tilesPerS * dt / 1000;
-  while (dist > 0 && e.path.length) {
-    const [tx, ty] = e.path[0];
-    const cx = tx + 0.5, cy = ty + 0.5;
-    const dx = cx - e.x, dy = cy - e.y;
-    const d = Math.hypot(dx, dy);
-    if (d > 1e-6) e.facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
-    e.walkDistance=((e.walkDistance||0)+Math.min(d,dist))%1024;
-    if (d <= dist) { e.x = cx; e.y = cy; e.path.shift(); dist -= d; } else { e.x += dx / d * dist; e.y += dy / d * dist; dist = 0; }
-  }
-  const arrived = e.moving && e.path.length === 0;
-  if (arrived) e.moving = false;
-  return arrived;
+function moveAlong(state,e,dt,tilesPerS) {
+ let dist=tilesPerS*dt/1000;const grid=getGrid(state),actors=cafeActors(state);
+ while(dist>1e-6&&e.path.length){
+  const [tx,ty]=e.path[0],target={x:tx+.5,y:ty+.5},d=Math.hypot(target.x-e.x,target.y-e.y);
+  if(e.path.length>1&&d<.8){e.path.shift();continue;}
+  if(d<.025){e.x=target.x;e.y=target.y;e.path.shift();continue;}
+  const here={x:Math.floor(e.x),y:Math.floor(e.y)},last=e.path.length===1;
+  const next=trafficStep(e,target,Math.min(dist,.08),actors,(x,y)=>{const gx=Math.floor(x),gy=Math.floor(y);return grid.walkable(gx,gy)||(gx===here.x&&gy===here.y)||(last&&gx===tx&&gy===ty);});
+  if(!next){e.trafficWait=(e.trafficWait||0)+dt;break;}
+  const dx=next.x-e.x,dy=next.y-e.y,moved=Math.hypot(dx,dy);e.trafficWait=0;
+  e.facing=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');
+  e.x=next.x;e.y=next.y;e.walkDistance=((e.walkDistance||0)+moved)%1024;dist-=moved;
+ }
+ const arrived=e.moving&&e.path.length===0;if(arrived)e.moving=false;return arrived;
 }
 
 // ── 재고·조리
@@ -428,7 +429,7 @@ export function sendHostToTable(state, personId, tableNo) {
 // 루나 언니: 굽는 중인 기계 앞으로 가서 굽는다(가장 최근에 시작한 쪽). 없으면 대기 자리.
 const STATION_FRONT = { drink: SPOTS.drinkFront, oven: SPOTS.ovenFront };
 function stepBaker(state, s, dt) {
-  moveAlong(s, dt, TEMP.WALK_TILES_PER_S);
+  moveAlong(state, s, dt, TEMP.WALK_TILES_PER_S);
   if (isResting(state, s.id)) { // 쉬는 동안 조리는 기계에 그대로 남고, 연이(플레이어)가 이어서 만든다
     if (s.job?.kind !== 'home' && (Math.floor(s.x) !== s.home.x || Math.floor(s.y) !== s.home.y)) sendHome(state, s);
     s.action = s.path.length ? 'walk' : 'idle';
@@ -454,7 +455,7 @@ export function stepStaff(state, dt) {
   for (const s of Object.values(state.staff)) {
     if (PEOPLE[s.id]?.work === 'baker') { stepBaker(state, s, dt); continue; }
     if (isResting(state, s.id) && (s.job?.kind === 'deliver' || s.job?.kind === 'clean')) handOver(state, s);
-    const arrived = moveAlong(s, dt, TEMP.WALK_TILES_PER_S);
+    const arrived = moveAlong(state, s, dt, TEMP.WALK_TILES_PER_S);
     const j = s.job;
     if (s.actionUntil && now >= s.actionUntil) { s.actionUntil = 0; s.servicePose = null; if (s.action === 'serve' || s.action === 'react') s.action = 'idle'; }
     if (!j) {
@@ -557,6 +558,8 @@ export function customerLeave(state, c, reason) {
 }
 
 export function spawnCustomer(state, spec) {
+  const entrance=cafeSpots(state).entrance;
+  const enterWaiting=cafeActors(state).some(a=>Math.hypot(a.x-entrance.x-.5,a.y-entrance.y-.5)<ACTOR_GAP);
   if (!state.hostbar.open && spec.kind === 'nomination') spec = { ...spec, kind: 'regular', nominee: null };
   const empty = state.tables.filter(t => t.state === 'empty');
   const takeaway=spec.kind==='takeaway';
@@ -572,7 +575,7 @@ export function spawnCustomer(state, spec) {
   const c = {
     id: cid, visitId: vid, tableNo: t.no, wealthId, label: `${takeaway?'포장 · ':''}${CUSTOMER_WEALTH[wealthId].name} ${state.shift.spawnCount}`,
     x: cafeSpots(state).entrance.x + 0.5, y: cafeSpots(state).entrance.y + 0.5, path: [], moving: false, facing: 'up',
-    state: 'entering', action: 'walk', actionUntil: 0, orderAt: null, eatEndAt: null,
+    enterWaiting, state: 'entering', action: 'walk', actionUntil: 0, orderAt: null, eatEndAt: null,
     hue: Math.floor(nextRandom(state.rng) * 360),
   };
   c.nominationGuest=spec.kind==='nomination';
@@ -604,6 +607,8 @@ function arrangeCheckout(state){
  const queue=checkoutQueue(state),grid=getGrid(state),route=findPath(grid,cafeSpots(state).checkout,cafeSpots(state).entrance)||[];
  const slots=cafeLayout(state).queue||[cafeSpots(state).checkout,...route.filter((_,i)=>i%2===1).map(([x,y])=>({x,y}))];
  queue.forEach((c,i)=>{
+  const ahead=queue[i-1];
+  if(ahead&&(!ahead.checkoutTarget||Math.hypot(ahead.x-ahead.checkoutTarget.x-.5,ahead.y-ahead.checkoutTarget.y-.5)>.1)){c.checkoutWaiting=true;c.path=[];return;}
   if(cafeLayout(state).queue&&i>=slots.length){c.checkoutWaiting=true;c.path=[];return;}
   if(c.checkoutWaiting){c.checkoutWaiting=false;if(c.standing){c.standing.at=state.shift.elapsedMs;c.standing.until=state.shift.elapsedMs+640;}}
   if(c.standing&&state.shift.elapsedMs<c.standing.until)return;const goal=slots[Math.min(i,slots.length-1)];
@@ -614,13 +619,14 @@ function arrangeCheckout(state){
 export function stepCustomers(state, dt, hooks) {
   const now = state.shift.elapsedMs, payingId=arrangeCheckout(state);
   for (const c of Object.values(state.customers)) {
+    if(c.enterWaiting){const en=cafeSpots(state).entrance;if(cafeActors(state).some(a=>a!==c&&Math.hypot(a.x-en.x-.5,a.y-en.y-.5)<ACTOR_GAP))continue;c.enterWaiting=false;}
     if(c.checkoutWaiting)continue;
     if(c.standing){
       if(now<c.standing.until)continue;
       const table=tableByNo(state,c.tableNo);if(table?.customerId===c.id){table.customerId=null;table.state='dirty';}
       c.standing=null;if(!c.path?.length)setPath(state,c,c.state==='checkout'?cafeSpots(state).checkout:cafeSpots(state).entrance);
     }
-    const arrived = moveAlong(c, dt, TEMP.CUSTOMER_TILES_PER_S);
+    const arrived = moveAlong(state, c, dt, TEMP.CUSTOMER_TILES_PER_S);
     const visit = state.visits[c.visitId];
     if (c.actionUntil && now >= c.actionUntil) { c.actionUntil = 0; if (c.action === 'eat' || c.action === 'react') c.action = 'idle'; }
     switch (c.state) {

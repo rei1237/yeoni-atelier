@@ -1,3 +1,6 @@
+import {installApp} from './install-app.js';
+import {worldMeetingAccess} from '../game/world-meetings.js';
+import {recruitView} from '../game/economy.js';
 import {createHostDemo,HOST_DEMO_SAVE_KEY} from '../game/host-demo.js';
 import {kfpFusionPreview,KFP_WEAPONS} from '../game/kfp-loadout.js';
 import {MENUS} from '../data/menus.js';
@@ -38,7 +41,7 @@ import { recordWallClock } from '../game/offline.js';
 import { SAVE_KEYS, memoryStorage, browserStorage, saveGame, loadGame, hasSave, resetSave } from '../core/save.js';
 import { createFrameLoop } from '../core/frame-loop.js';
 import { createJoystick } from '../core/joystick.js';
-import { loadAssetImages, ASSETS } from '../render/assets.js';
+import { loadAssetImages, imageFor, ASSETS } from '../render/assets.js';
 import { talkingKey } from '../render/sprite-renderer.js';
 import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe } from '../render/cafe-view.js';
 import { drawHunt } from '../render/hunt-view.js';
@@ -183,6 +186,7 @@ function startNew() {
 function goTitle() {
   if (state && (state.mode === 'shift' || state.mode === 'hunt') && !state.paused) dispatch(state, { type: 'pause' });
   save();
+  history.replaceState({},'',location.pathname+location.search);
   ui.screen=null; state = null; ui.sheet = null; ui.selectedSlot = null; ui.recruitEvent = null; ui.ending = null;
 }
 
@@ -278,7 +282,7 @@ const ACTIONS = {
   'guide.back':()=>{ui.guideStep=Math.max(0,(ui.guideStep||0)-1);},
   'guide.close':()=>finishGuide(),
   'hunt.start': () => { ui.sheet = { kind: 'hunt' }; },
-  'hunt.depart': d => { if (run({ type: 'hunt.start', depth: n(d.depth), hunterId:ui.hunterId||'neo' }).ok) ui.sheet = null; },
+  'hunt.depart': async d => { if(ui.huntLoading)return;ui.huntLoading=true;const departing=state;try{const keys=[...Object.keys(ASSETS.enemies).map(id=>'enemies/'+id),'actors/neo_cat','actors/seohanbi'];await loadAssetImages(undefined,{keys});if(state!==departing||ui.sheet?.kind!=='hunt')return;if(keys.some(id=>!imageFor(id))){toast('사냥터 그림을 불러오지 못했어요. 연결을 확인하고 다시 출발해 주세요.');return;}if (run({ type: 'hunt.start', depth: n(d.depth), hunterId:ui.hunterId||'neo' }).ok) ui.sheet = null;}finally{ui.huntLoading=false;render(true);} },
   'farm.select': d => { ui.farmCrop = d.id; },
   'farm.plot': d => { ui.farmPlot = n(d.index); },
   'world.delegate': d => {ui.delegate=ui.delegate===d.id?null:d.id;},
@@ -290,7 +294,7 @@ const ACTIONS = {
   'farm.expand': () => run({ type: 'farm.expand' }),
   'farm.greenhouse': () => run({ type: 'farm.greenhouse' }),
   // 화면 전용
-  'sheet.open': d => { if(d.sheet==='interior'){ACTIONS['interior.begin']();return;}if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
+  'sheet.open': d => { if(d.sheet==='worldcast'&&!worldMeetingAccess(state).unlocked){toast(worldMeetingAccess(state).hint);return;} if(d.sheet==='interior'){ACTIONS['interior.begin']();return;}if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
   'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; maybeVisit(d.tab); },
   'sheet.close': () => { if(ui.sheet?.kind==='tutorial')finishGuide();else ui.sheet = null; },
   'overlay.settlement': () => {},
@@ -298,6 +302,7 @@ const ACTIONS = {
   'confirm.yes': () => { const cf = ui.confirm; ui.confirm = null; cf?.onYes(); },
   'confirm.no': () => { ui.confirm = null; },
   'recruit.event': d => {
+    if(!townCheck(state).ok||recruitView(state).find(x=>x.id===d.id)?.status!=='available'){toast('만남 시기와 조건을 먼저 확인해 주세요.');return;}
     const story=personDef(state,d.id)?.meetEvent;if(!story)return;ui.sheet=null;ui.recruitEvent=d.id;
     const whoByName=Object.fromEntries(Object.entries(SPEAKERS).map(([id,s])=>[s.name,id]));
     playNovel([{chapter:['새로운 인연',story.title],bg:'atelier_lit',l:'yeoni:normal',c:'neo:normal',r:`${d.id}:normal`},...story.lines.map(line=>{const i=line.indexOf(':');return {s:whoByName[line.slice(0,i)]||'nar',t:line.slice(i+1).trim()};})],{onEnd:()=>{run({type:'recruit.complete',id:d.id});ui.recruitEvent=null;render(true);}});
@@ -328,6 +333,11 @@ const ACTIONS = {
   },
   'discovery.close': () => { ui.discovery = null; },
 
+  'game.room':()=>{if(state)save();ui.gameRoom=true;},
+  'game.room.close':()=>{ui.gameRoom=false;},
+  'game.install':()=>installApp(),
+  'game.wake':()=>{ui.exited=false;},
+  'game.exit':()=>{if(state&&(!storageOk||!saveGame(storage,SAVE_KEY,state).ok)){toast('저장을 완료하지 못했어요. 종료 전에 저장 상태를 확인해 주세요.','bad');return;}goTitle();ui.exited=true;if(audioStatus().music)audioAction('music');if(window.opener)window.close();},
   'game.continue': () => {
     if(state || novelActive())return;
     const r = loadGame(storage, SAVE_KEY);
@@ -382,10 +392,10 @@ const ACTIONS = {
   'serve': d => run({ type: 'serve', itemId: d.item, tableNo: n(d.no) }),
   'clean': d => run({ type: 'clean', tableNo: n(d.no) }),
   'neo.cafeForm':()=>{if(!state.tutorials?.catcafe){ui.guideReturn=ui.sheet||{kind:null};ui.guideId='catcafe';ui.guideStep=0;ui.guideAction='neo.cafeForm';ui.sheet={kind:'tutorial'};return;}run({type:'neo.cafeForm'});},
-  'nomination.accept': d => run({ type: 'nomination.accept', tableNo: n(d.no) }),
+  'nomination.accept': d => {if(run({ type: 'nomination.accept', tableNo: n(d.no) }).ok)ui.sheet=null;},
   'nomination.decline': d => run({ type: 'nomination.decline', tableNo: n(d.no) }),
   'nomination.propose': d => run({ type: 'nomination.propose', tableNo: n(d.no), personId: d.person }),
-  'help.respond': d => run({ type: 'help.respond', visitId: d.visit, index: n(d.index), choice: d.choice }),
+  'help.respond': d => {if(run({ type: 'help.respond', visitId: d.visit, index: n(d.index), choice: d.choice }).ok)ui.sheet=null;},
   'cook': d => beginCraft(d.menu),
   'order.table':d=>{const orders=tableCookingOrders(state,n(d.no));if(!orders.length)return;beginCraft(orders[0].menuId,orders[0].id);ui.craft.tableNo=n(d.no);ui.craft.batchMenus=orders.map(o=>o.menuId);},
   'order.quick': d => {const o=state.orders[d.id];if(!o)return;if(state.tray.some(it=>it?.menuId===o.menuId&&!it.reservedFor&&(!it.orderId||it.orderId===o.id)))run({type:'order.quick',orderId:d.id});else beginCraft(o.menuId,d.id);},
@@ -590,7 +600,7 @@ function handleEvents(events) {
       case 'helpMissed': showHelpFeedback({...ev,quality:'missed',gain:-1}); break;
       case 'feverOn': toast(ev.tycoon ? `대부호의 앙코르! 팁 ${ev.tip}G · 데스티노바 피버` : `🔥 피버! ${ev.tables.join('·')}번 테이블 정산 팁 2배`, 'good', 3200); shake(el.panel); break;
       case 'hostingSettled':
-        toast(`${ev.tableNo}번 접대 정산 · 만족도 ${ev.H.toFixed(1)} ${ev.grade}${ev.capped ? ' (핵심 조건 상한)' : ''} · 팁 ${ev.tip}G`, ev.H >= 60 ? 'good' : '', 3600);
+        toast(`${ev.tableNo}번 접대 정산 · 만족도 ${ev.H.toFixed(1)} ${ev.grade}${ev.capped ? ' (핵심 조건 상한)' : ''} · 지명료 ${ev.hostFee||0}G + 팁 ${ev.tip}G`, ev.H >= 60 ? 'good' : '', 3600);
         if (ev.tip > 0) floater(p.x, p.y - 30, `팁 +${ev.tip}G`, '#c0392b');
         break;
       case 'trayFull': toast('트레이가 가득 찼어요 — 서빙해서 칸을 비워 주세요', 'bad'); break;
@@ -713,7 +723,7 @@ const loop = createFrameLoop({
       const huntOn = state.mode === 'hunt' && state.hunt?.status === 'running' && !state.paused && !huntPaused(state.hunt);
       if (huntOn && !joystick.state.enabled) joystick.enable();
       if (!huntOn && joystick.state.enabled) joystick.disable();
-      const running = !state.paused && !['tutorial','kfp','trail'].includes(ui.sheet?.kind) && !novelActive() && (state.mode === 'shift' || state.mode === 'hunt'||state.mode==='prep'&&state.foodGifts?.job);
+      const running = !ui.gameRoom && !state.paused && !['tutorial','kfp','trail'].includes(ui.sheet?.kind) && !novelActive() && (state.mode === 'shift' || state.mode === 'hunt'||state.mode==='prep'&&state.foodGifts?.job);
       if (running && raw > 0) {
         const dt = raw * (DEV && ui.speed!==1 ? ui.speed : state.mode==='shift'?ui.playSpeed:1);
         handleEvents(tick(state, dt, { input: joystick.state.move }));

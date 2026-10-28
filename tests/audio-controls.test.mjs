@@ -39,3 +39,11 @@ test('카페 자동 재생은 잔잔한 8곡을 순서대로 순환하고 수동
  const order=[];for(let i=0;i<a.CAFE_PLAYLIST.length;i++){order.push(a.audioStatus().current);assert.equal(p.loop,false);p.ended();await new Promise(setImmediate);}
  assert.deepEqual(order,a.CAFE_PLAYLIST);assert.equal(a.audioStatus().current,a.CAFE_PLAYLIST[0]);a.audioAction('next');assert.equal(a.audioStatus().current,a.CAFE_PLAYLIST[1]);assert.equal(a.audioStatus().track,'auto');a.setAudioScene('hunt');assert.equal(a.audioStatus().current,'battle');assert.equal(p.loop,true);a.setAudioScene('companions');assert.equal(a.audioStatus().current,a.CAFE_PLAYLIST[1]);a.audioAction('track',MUSIC_CATALOG[2].id);a.setAudioScene('cafe');assert.equal(a.audioStatus().current,MUSIC_CATALOG[2].id);
 });
+
+test('사냥 자동 선곡은 카페 수동 선택과 분리되고 귀환 시 카페 곡을 복원한다',async()=>{
+ const {audio:a,player:p}=await fixture({music:true,track:'destinycafe-06'});a.unlockAudio();a.setAudioScene('cafe');assert.equal(a.audioStatus().current,'destinycafe-06');
+ a.setAudioScene('hunt');assert.equal(a.audioStatus().current,'battle');assert.equal(p.loop,true);a.setAudioScene('huntBoss');assert.equal(a.audioStatus().current,'boss');
+ a.audioAction('track','dest1nova-39');assert.equal(a.audioStatus().current,'dest1nova-39');a.setAudioScene('cafe');assert.equal(a.audioStatus().current,'destinycafe-06');a.setAudioScene('hunt');assert.equal(a.audioStatus().current,'dest1nova-39');
+ a.audioAction('music');a.setAudioScene('huntDeep');assert.equal(a.audioStatus().music,false);assert.equal(p.paused,true);
+});
+test('드레스룸은 카페 수동 선곡과 무관하게 White Lion을 재생하고 음소거를 지킨다',async()=>{const {audio:a,player:p}=await fixture({music:true,track:'destinycafe-06'});a.unlockAudio();a.setAudioScene('outfits');assert.equal(a.audioStatus().current,'lion');a.setAudioScene('cafe');assert.equal(a.audioStatus().current,'destinycafe-06');a.audioAction('music');a.setAudioScene('outfits');assert.equal(p.paused,true);});

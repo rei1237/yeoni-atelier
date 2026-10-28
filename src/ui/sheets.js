@@ -1,3 +1,5 @@
+import {titleGameRoom,gameRoomSheet} from './game-room.js';
+import {hostFeeQuote} from '../game/host-fees.js';
 import {catCafeActive} from '../game/cat-cafe-rules.js';
 import {worldCastSheet} from './world-cast.js';
 import {WORLD_PLACES} from './world-screen.js';
@@ -73,6 +75,7 @@ function sheetBody(state, ui) {
   const s = ui.sheet;
   if (!state || !s) return '';
   switch (s.kind) {
+    case 'gameroom':return gameRoomSheet();
     case 'worldcast':return worldCastSheet(state);
     case 'trail': return trailSheet(state);
     case 'kfp':return kfpSheet(state);
@@ -163,46 +166,25 @@ function predictionHtml(pv, label) {
 }
 
 function nominationCard(state, visit, c, now, foodText, ui) {
-  const profile = PDF.PROFILES.find(p => p.id === visit.profileId);
-  const pid = visit.nominee;
-  const out = [`<div class="card host-service-card"><div class="host-service-face">${companionPortrait(pid==='neo'&&catCafeActive(state)?'neo_cat':pid)}<b>${esc(personName(state,pid))}의 접대</b></div><div class="kv"><span>손님 유형</span><b>💌 지명 손님 · ${esc(profile?.label || visit.profileId)}</b>
-    <span>지명</span><b>${esc(personName(state, pid))}${visit.requestedNominee && visit.requestedNominee !== pid ? ` (원래 ${esc(personName(state, visit.requestedNominee))})` : ''}</b>
-    <span>음식 점수(별도)</span><b>${foodText}</b></div>
-    <details class="host-score-details"><summary>손님 선호 · 호스트 능력치</summary>${prefsGrid(state, visit, pid)}</details>`];
-
-  if (visit.settled) {
-    const g = gradeOf(visit.finalH);
-    out.push(`<h3>접대 결과</h3><p><b>${visit.finalH.toFixed(1)} · ${esc(g.label)}</b> · 팁 ${won(visit.tip?.total || 0)}</p></div>`);
-    return out.join('');
-  }
-  const pv = hostingPreview(state, visit, pid);
-  if (visit.acceptAt == null) {
-    out.push(`<h3>예상 접대 만족도</h3>${predictionHtml(pv, '수락하면 이 값에서 시작')}`);
-    const chk = acceptCheck(state, visit.tableNo);
-    const left = TEMP.NOMINATION_PATIENCE_MS - (now - visit.requestAt);
-    out.push(`<p class="small">⏳ 지명 요청 대기 ${fmtTime(left)} 남음 · 아직 60초 타이머는 시작하지 않았습니다</p>`);
-    out.push(chk.ok
-      ? `<ul class="reasons okay"><li>수락하면 지금부터 60초 동안 ${esc(personName(state, pid))} 전담</li></ul>`
-      : `<ul class="reasons">${chk.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>`);
-    const others = usableHosts(state).filter(id => id !== pid && state.staff[id]);
-    out.push(`<div class="btns">${btn({ action: 'nomination.accept', args: { no: visit.tableNo }, cls: 'primary', disabled: !chk.ok, title: chk.ok ? '지명 수락 (60초 전담 시작)' : chk.reasons.join(' / '), label: '💌 지명 수락' })}
-      ${btn({ action: 'nomination.decline', args: { no: visit.tableNo }, label: '일반 식사로 안내' })}
-      ${others.map(id => {
-        const p2 = hostingPreview(state, visit, id);
-        return btn({ action: 'nomination.propose', args: { no: visit.tableNo, person: id }, label: `${esc(personName(state, id))} 추천 (예상 ${p2.H.toFixed(0)})` });
-      }).join('')}</div></div>`);
-    return out.join('');
-  }
-  // 접대 중
-  const left = visit.endAt - now;
-  const pct = (now - visit.acceptAt) / (visit.endAt - visit.acceptAt) * 100;
-  out.push(`<h3>🫖 접대 중 · ${fmtTime(left)} 남음</h3>${bar(pct)}
-    <p class="small muted">수락 ${fmtTime(visit.acceptAt)} → 종료 ${fmtTime(visit.endAt)} (영업 경과 기준) · 60초를 채우면 정산</p>
-    <details class="host-score-details"><summary>현재 접대 만족도 ${pv.H.toFixed(1)} · ${esc(pv.grade.label)}</summary>${predictionHtml(pv, '대화 도움으로 −5~+5 보정')}</details>`);
-  out.push(`<h3>도움 요청</h3><div class="list">${[...visit.help].sort((a,b)=>Number(b.status==='open')-Number(a.status==='open')||a.index-b.index).map(h => helpHtml(state, visit, h, now)).join('')}</div>`);
-  if (visit.fevered) out.push('<p class="small">🔥 피버 대상 테이블 — 정산 시 팁 2배</p>');
-  out.push('</div>');
-  return out.join('');
+ const pid=visit.nominee,pv=hostingPreview(state,visit,pid),profile=PDF.PROFILES.find(p=>p.id===visit.profileId);
+ const fee=visit.acceptAt==null?hostFeeQuote(state,visit):(visit.hostFeeQuote||0);
+ const out=[`<section class="host-service-card"><div class="host-service-face">${companionPortrait(pid==='neo'&&catCafeActive(state)?'neo_cat':pid)}<div><b>${esc(personName(state,pid))}의 접대</b><small>${esc(profile?.label||visit.profileId)} · ${visit.acceptAt==null?'60초 전담':fmtTime(Math.max(0,visit.endAt-now))+' 남음'}</small></div></div>`];
+ if(visit.settled)return out.join('')+`<p>접대 완료 · 지명료 ${won(visit.hostFee||0)} + 팁 ${won(visit.tip?.total||0)}</p></section>`;
+ if(visit.acceptAt==null){
+  const chk=acceptCheck(state,visit.tableNo);
+  out.push(`<div class="host-fee-quote"><span>완료 시 지명료</span><strong>${won(fee)}</strong><small>카페 레벨·인기도·분위기 반영 · 음식값·팁 별도<br>60초 동안 일반 업무를 쉬어요</small></div><p class="host-preview">예상 만족도 <b>${pv.H.toFixed(0)} · ${esc(pv.grade.label)}</b></p><p class="small">요청 대기 ${fmtTime(TEMP.NOMINATION_PATIENCE_MS-(now-visit.requestAt))}</p>`);
+  if(!chk.ok)out.push(`<ul class="reasons">${chk.reasons.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`);
+  out.push(`<div class="host-accept-actions">${btn({action:'nomination.accept',args:{no:visit.tableNo},cls:'primary',disabled:!chk.ok,label:`${won(fee)} 지명 수락`})}${btn({action:'nomination.decline',args:{no:visit.tableNo},label:'일반 식사로 안내'})}</div>`);
+  const others=usableHosts(state).filter(id=>id!==pid&&state.staff[id]);
+  if(others.length)out.push(`<details class="host-score-details"><summary>다른 동료 추천</summary>${others.map(id=>btn({action:'nomination.propose',args:{no:visit.tableNo,person:id},label:`${esc(personName(state,id))} 추천 · 예상 ${hostingPreview(state,visit,id).H.toFixed(0)}`})).join('')}</details>`);
+ }else{
+  out.push(`<div class="host-running-summary"><b>완료 시 ${won(fee)} + 음식값·팁</b>${bar((now-visit.acceptAt)/(visit.endAt-visit.acceptAt)*100)}</div>`);
+  const open=visit.help.filter(h=>h.status==='open'),pending=visit.help.find(h=>h.status==='pending');
+  out.push(open.length?open.map(h=>helpHtml(state,visit,h,now)).join(''):`<p class="host-next-help">${pending?`다음 도움 요청 · ${HELP_KINDS[pending.kind].label} · ${fmtTime(pending.at-now)} 뒤`:'도움 요청 완료 · 접대를 마무리하고 있어요'}</p>`);
+  out.push(`<p class="host-preview">현재 만족도 <b>${pv.H.toFixed(0)} · ${esc(pv.grade.label)}</b>${visit.fevered?' · 피버 팁 2배':''}</p>`);
+ }
+ out.push(`<details class="host-score-details"><summary>손님 선호·능력치·응대 기록</summary>${prefsGrid(state,visit,pid)}${predictionHtml(pv,'음식 점수는 별도로 계산해요')}<p>음식 ${foodText}</p>${visit.acceptAt!=null?visit.help.filter(h=>h.status==='done'||h.status==='missed').map(h=>helpHtml(state,visit,h,now)).join(''):''}</details>${btn({action:'sheet.close',cls:'host-return',label:'카페로 돌아가기'})}</section>`);
+ return out.join('');
 }
 
 function helpHtml(state, visit, h, now) {
@@ -510,6 +492,8 @@ function companionSheet(state,ui) {
 
 // ── 오버레이(우선순위: 확인 > 타이틀 > 사냥 결과 > 결산 > 일시정지 > 레벨업 > 만남 이벤트)
 export function overlayHtml(state, ui) {
+  if(ui.gameRoom)return `<div class="dialog game-room-dialog">${gameRoomSheet('game.room.close')}</div>`;
+  if(ui.exited)return `<div class="dialog"><h2>오늘도 함께해서 고마워요</h2><p>게임과 음악을 멈췄어요. 이제 창을 닫아도 괜찮아요.</p>${btn({action:'game.wake',label:'메인 화면으로'})}</div>`;
   if (ui.confirm) return confirmDialog(ui.confirm);
   if (!state) return titleDialog(ui);
   if (state.mode === 'hunt' && state.hunt && state.hunt.status !== 'running') return huntResult(state);
@@ -530,7 +514,7 @@ function confirmDialog(cf) {
 }
 
 function titleDialog(ui) {
- return `<section class="title-screen" role="dialog" aria-modal="true" aria-labelledby="game-title" style="${assetStyle('backgrounds/title')}"><div class="title-wordmark"><div class="title-emblem" aria-hidden="true">${uiIcon("cup")}</div><h1 id="game-title"><span>연이의</span><strong>아틀리에</strong></h1><p>차 한 잔에서 시작되는 우리의 이야기</p></div><div class="title-cast" role="img" aria-label="인간형 연이와 네오, 루나 자매와 모카"><div class="title-friends">${['luna_sis','moka','luna'].map(id=>`<span class="title-friend ${id}">${assetIcon('portraits/'+id)}</span>`).join('')}</div><span class="title-lead neo">${assetIcon('portraits/neo')}</span><span class="title-lead yeoni">${assetIcon('portraits/yeoni')}</span><span class="title-flower left">${assetIcon('ui/botanical_left')}</span><span class="title-flower right">${assetIcon('ui/botanical_right')}</span></div><div class="title-menu">${ui.hasSave?btn({action:'game.continue',cls:'primary title-main-action',label:'<span>'+(ui.hostDemo?'호스트 체험 이어하기':'카페 이어하기')+'</span>'+uiIcon('arrow')}):btn({action:'game.new',cls:'primary title-main-action',label:'<span>'+(ui.hostDemo?'호스트 체험 시작':'나의 카페 열기')+'</span>'+uiIcon('arrow')})}<div class="title-secondary">${ui.hasSave?btn({action:'game.new',label:'새로운 이야기'}):''}${btn({action:'game.prologue',label:'처음 만나는 이야기'})}</div><details class="title-options"><summary>음악 · 저장 설정</summary>${audioQuickButton()}${btn({action:'game.reset',disabled:!ui.hasSave,label:'저장 초기화'})}</details>${!ui.storageOk?'<p role="status">브라우저 저장이 제한되어 새로고침하면 진행이 사라져요.</p>':''}${ui.hostDemo?'<small>호스트 체험 · 5월 개업 완료 · 본편/개발 저장과 별도</small>':ui.dev?'<small>개발 모드 · 일반 저장과 분리</small>':''}</div></section>`;
+ return `<section class="title-screen" role="dialog" aria-modal="true" aria-labelledby="game-title" style="${assetStyle('backgrounds/title')}"><div class="title-wordmark"><div class="title-emblem" aria-hidden="true">${uiIcon("cup")}</div><h1 id="game-title"><span>연이의</span><strong>아틀리에</strong></h1><p>차 한 잔에서 시작되는 우리의 이야기</p></div><div class="title-cast" role="img" aria-label="인간형 연이와 네오, 루나 자매와 모카"><div class="title-friends">${['luna_sis','moka','luna'].map(id=>`<span class="title-friend ${id}">${assetIcon('portraits/'+id)}</span>`).join('')}</div><span class="title-lead neo">${assetIcon('portraits/neo')}</span><span class="title-lead yeoni">${assetIcon('portraits/yeoni')}</span><span class="title-flower left">${assetIcon('ui/botanical_left')}</span><span class="title-flower right">${assetIcon('ui/botanical_right')}</span></div><div class="title-menu">${ui.hasSave?btn({action:'game.continue',cls:'primary title-main-action',label:'<span>'+'이야기 이어하기'+'</span>'+uiIcon('arrow')}):btn({action:'game.new',cls:'primary title-main-action',label:'<span>'+'나의 카페 열기'+'</span>'+uiIcon('arrow')})}<div class="title-secondary">${ui.hasSave?btn({action:'game.new',label:'새로운 이야기'}):''}${btn({action:'game.prologue',label:'처음 만나는 이야기'})}</div>${titleGameRoom()}<div class="title-secondary">${btn({action:'game.install',label:'홈 화면에 추가'})}${btn({action:'game.exit',label:'종료하기'})}</div><details class="title-options"><summary>음악 · 저장 설정</summary>${audioQuickButton()}${btn({action:'game.reset',disabled:!ui.hasSave,label:'저장 초기화'})}</details>${!ui.storageOk?'<p role="status">브라우저 저장이 제한되어 새로고침하면 진행이 사라져요.</p>':''}${ui.hostDemo?'<small>호스트 체험 · 5월 개업 완료 · 본편/개발 저장과 별도</small>':ui.dev?'<small>개발 모드 · 일반 저장과 분리</small>':''}</div></section>`;
 }
 
 function pausedDialog(state) {
@@ -547,11 +531,11 @@ function pausedDialog(state) {
 function settlementDialog(state) {
   const s = state.lastSettlement;
   const hostings = s.hostings.length
-    ? `<div class="list">${s.hostings.map(h => `<div class="item"><div class="meta grow"><b>${h.tableNo}번 · ${esc(personName(state, h.nominee))} · ${h.H.toFixed(1)} ${esc(h.grade)}${h.capped ? ' (상한)' : ''}</b><span>주문 ${won(h.servedTotal)} · 팁 ${won(h.tip)}${h.feverExtra ? ` (피버 +${h.feverExtra})` : ''} · 음식 ${h.food ?? '-'}점</span></div></div>`).join('')}</div>`
+    ? `<div class="list">${s.hostings.map(h => `<div class="item"><div class="meta grow"><b>${h.tableNo}번 · ${esc(personName(state, h.nominee))} · ${h.H.toFixed(1)} ${esc(h.grade)}${h.capped ? ' (상한)' : ''}</b><span>지명료 ${won(h.hostFee||0)} · 주문 ${won(h.servedTotal)} · 팁 ${won(h.tip)}${h.feverExtra ? ` (피버 +${h.feverExtra})` : ''} · 음식 ${h.food ?? '-'}점</span></div></div>`).join('')}</div>`
     : '<p class="small muted">이번 영업의 지명 접대 없음</p>';
   return `<div class="dialog" role="dialog" aria-modal="true"><h2>📒 ${esc(dateLabel(state, s.day))} 결산</h2>
     <div class="kv"><span>판매 금액(서빙 완료분)</span><b>${won(s.sales)}</b><span>재료비</span><b>−${won(s.ingredientCost)}</b>
-      <span>기본 팁</span><b>${won(s.baseTips)}</b>${state.hostbar.open ? `<span>피버 추가 팁</span><b>${won(s.feverTips)}</b>` : ''}
+      ${state.hostbar.open?`<span>지명료</span><b>${won(s.hostFees||0)}</b>`:''}<span>기본 팁</span><b>${won(s.baseTips)}</b>${state.hostbar.open ? `<span>피버 추가 팁</span><b>${won(s.feverTips)}</b>` : ''}
       <span class="sum">영업 결과</span><b class="sum">${s.result >= 0 ? '' : '−'}${won(Math.abs(s.result))}</b>
       ${s.payroll?.closed?`<span>월말 동료 급여</span><b>−${won(s.payroll.paid)}</b>${s.payroll.arrears?`<span>미지급 급여</span><b>${won(s.payroll.arrears)}</b>`:''}`:''}${s.loanInterest?.due?`<span>운영 대출 이자</span><b>−${won(s.loanInterest.paid)}${s.loanInterest.added?` · 원금 가산 ${won(s.loanInterest.added)}`:''}</b>`:''}${interestRows(s.interest)}
       <span>보유 골드</span><b>${won(s.gold)}</b><span>남은 빚</span><b>${won(s.debt)}</b></div>
@@ -663,4 +647,4 @@ function financeLoanHtml(state,c){
  return `<h3>확장을 앞당기는 운영 대출</h3><p class="small">청토끼: “기회는 빌려줄게. 이자까지 챙기는 건 네 몫이지!”</p><div class="kv"><span>대출 한도 / 사용 중</span><b>${won(c.limit)} / ${won(c.balance)}</b><span>월 이율</span><b>${c.rate*100}% · 복리</b><span>다음 하순 예상 이자</span><b>${won(c.nextInterest)}</b></div><p class="small muted">월말 하순에 이자를 내며, 못 낸 이자는 대출 잔액에 더해져요. 마감 직전 빌려도 한 달 이자가 발생해요. 본래 인수 빚은 별도이며 월 ${TEMP.CALENDAR.INTEREST_RATE*100}%입니다. 시설 확장 후 늘어날 수익과 비교하세요.</p><div class="btns">${[10000,50000,200000,1000000].map(amount=>btn({action:'finance.borrow',args:{amount},disabled:c.available<amount,label:`${won(amount)} 빌리기`})).join('')}</div><h3>골드 · 월정석으로 상환</h3>${[['inheritance','인수 빚',state.debt],['loan','운영 대출',c.balance]].map(([target,name,debt])=>`<div class="card"><b>${name} ${won(debt)}</b><div class="btns">${btn({action:'finance.repay',args:{target,currency:'gold',amount:Math.min(debt,state.gold)},disabled:!debt||!state.gold,label:'가진 골드로 갚기'})}${btn({action:'finance.repay',args:{target,currency:'moonstone',amount:Math.min(state.moonstone,Math.ceil(debt/exchangeRate(state)))},disabled:!debt||!state.moonstone,label:'월정석으로 갚기'})}</div></div>`).join('')}<p class="small muted">월정석은 우대 환율까지 동일하게 적용해요. 빚보다 많이 환산된 잔액은 골드로 돌려드려요.</p>`;
 }
 
-function manageSheet(state){return `${head('카페 수첩')}<div class="notebook-menu">${[['staffing','직원 배치','넓어진 공간에 영입 동료 배치','skills/bell'],['branches','지점 관리','본점에서 5호점까지','objects/basic_table'],['quests','퀘스트','연이와 오늘의 목표','farm/seeds'],['companions','동료와 인연','함께할 친구들의 이야기','skills/bell'],['outfits','드레스룸','오늘은 어떤 모습으로 만날까','icons/vest_night'],['debt','장부와 상환','빚과 이번 달의 계획','ui/ledger'],['audio','달빛 음악실','음악과 효과음','skills/bell'],['tutorial','튜토리얼','기능별 안내 다시 보기','farm/seeds'],['more','기타','저장·음악·튜토리얼','skills/hat']].map(([id,title,line,icon])=>btn({action:'sheet.open',args:{sheet:id},cls:'notebook-link',label:`${assetIcon(icon)}<span><b>${title}</b><small>${line}</small></span><span aria-hidden="true">›</span>`})).join('')}</div><div class="manage-auto">${automationRow(state, 'hall')}${automationRow(state, 'hall_neo')}${automationRow(state, 'kitchen')}</div>`;}
+function manageSheet(state){return `${head('카페 수첩')}<div class="notebook-menu">${[['gameroom','연이와 네오의 게임방','함께 즐기는 두 가지 미니게임','skills/bell'],['staffing','직원 배치','넓어진 공간에 영입 동료 배치','skills/bell'],['branches','지점 관리','본점에서 5호점까지','objects/basic_table'],['quests','퀘스트','연이와 오늘의 목표','farm/seeds'],['companions','동료와 인연','함께할 친구들의 이야기','skills/bell'],['outfits','드레스룸','오늘은 어떤 모습으로 만날까','icons/vest_night'],['debt','장부와 상환','빚과 이번 달의 계획','ui/ledger'],['audio','달빛 음악실','음악과 효과음','skills/bell'],['tutorial','튜토리얼','기능별 안내 다시 보기','farm/seeds'],['more','기타','저장·음악·튜토리얼','skills/hat']].map(([id,title,line,icon])=>btn({action:'sheet.open',args:{sheet:id},cls:'notebook-link',label:`${assetIcon(icon)}<span><b>${title}</b><small>${line}</small></span><span aria-hidden="true">›</span>`})).join('')}</div><div class="title-secondary">${btn({action:'game.title',label:'메인 화면으로'})}${btn({action:'game.exit',label:'저장하고 종료'})}</div><div class="manage-auto">${automationRow(state, 'hall')}${automationRow(state, 'hall_neo')}${automationRow(state, 'kitchen')}</div>`;}

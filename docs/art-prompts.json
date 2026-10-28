@@ -3944,5 +3944,24 @@
     "sourceFile": "exec-3d79fd53-5c85-489e-ad40-25b780f9b1f3.png",
     "prompt": "Create ONE standalone reaction illustration of the EXACT white wizard cat in reference: fluffy white fur, purple eyes, navy gold crescent-star hat, gold tassel, small dark cape and purple collar gem. The cat sits with a gently apologetic embarrassed expression, holds ONE small antique pocket watch beside its face. Entire character including hat tip, both ears, paws, cape, tail and watch fully visible and entirely inside canvas with at least 12% transparent margin on all sides. SINGLE isolated character only. No other pictures, no stray fragments, no cut-off head above, no grid, no text, no room. Elegant soft painterly cute fantasy cafe game illustration. True transparent background.",
     "normalization": "Independent whole character, alpha bounds, proportionally fit within176px,192px canvas transparent margin."
+  },
+  {
+    "id": "ui/game_room",
+    "tool": "built-in image_gen",
+    "prompt": "Keep Yeoni and the moonlit floral cafe game-room composition. Revise Neo to official profile: silver-white hair, icy blue eyes, reserved smile, earrings, black inner shirt and white patterned jacket with straps and chains. Both seated holding controllers. No lettering or logos.",
+    "source": "Official Neo profile supplied by user: D:/CodeDestiny-Build/네오 인간 프로필1.png",
+    "export": "640x360 WebP quality50; original saved in chat outputs"
+  },
+  {
+    "id": "ui/game_flying",
+    "tool": "built-in image_gen",
+    "prompt": "Official pink lotus flower pig with lavender scarf flying toward golden lotus between moonlit garden towers. Premium painted game card, no text.",
+    "reference": "D:/CodeDestiny-Build/연이 프로필1.png"
+  },
+  {
+    "id": "ui/game_killer",
+    "tool": "built-in image_gen",
+    "prompt": "New official rounded pink lotus pig with purple scarf and wood-stock cartoon gun, no cigarette. Original blue zombie rabbits and abandoned moonlit city. No old flat pig design.",
+    "reference": "D:/CodeDestiny-Build/연이 프로필1.png; original blue zombie rabbits only"
   }
 ]

@@ -108,7 +108,7 @@ export function recruitView(state) {
     const cond = c.condition;
     const month = calendarOf(state.day).month;
     // 해당 월에 등장, 놓친 경우 다음 해 같은 달에 다시 만난다. 영입 후에는 계속 함께한다.
-    const met = c.id === 'yun' ? yunQuestView(state).ready : c.id === 'museong' ? !!state.museongEncounter : (!cond.debtFree || state.debt <= 0) && state.gold >= (cond.wealth || 0) && (state.affinity?.neo || 0) >= (cond.neoAffinity || 0) && (c.id !== 'seohanbi' || hiddenGuestQuest(state).ready) && state.stats.shiftsCompleted >= cond.shiftsCompleted && state.stats.repayCount >= cond.repaidAtLeast && (c.id === 'seohanbi' || !cond.month || cond.month === month) && (c.id === 'seohanbi' || 1 + Math.floor(calendarOf(state.day).monthIdx / 12) >= (cond.year || 1));
+    const met = c.id === 'yun' ? yunQuestView(state).ready : c.id === 'museong' ? !!state.museongEncounter : (!cond.hostOpen || state.hostbar?.open) && (!cond.debtFree || state.debt <= 0) && state.gold >= (cond.wealth || 0) && (state.affinity?.neo || 0) >= (cond.neoAffinity || 0) && (c.id !== 'seohanbi' || hiddenGuestQuest(state).ready) && state.stats.shiftsCompleted >= cond.shiftsCompleted && state.stats.repayCount >= cond.repaidAtLeast && (c.id === 'seohanbi' || !cond.month || cond.month === month) && (c.id === 'seohanbi' || 1 + Math.floor(calendarOf(state.day).monthIdx / 12) >= (cond.year || 1));
     const status = r.status === 'recruited' ? 'recruited' : met ? 'available' : 'locked';
     return { id: c.id, name: c.name, devOnly: !!c.devOnly, status, condition: cond, meetEvent: c.meetEvent, reward: c.reward, usableFrom: state.roster[c.id]?.usableFrom ?? null };
   });
