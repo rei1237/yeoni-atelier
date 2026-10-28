@@ -31,5 +31,5 @@ export function guestChatter(state,visit,roll,context='arrival'){
  state.dialogueRecent??=[];
  const line=selectLine(lines||CAFE_LINES[kind]||CAFE_LINES.arrival,roll,state.dialogueRecent);
  state.dialogueRecent=[...state.dialogueRecent.slice(-11),line];
- visit.chatter=line;emit('guestChatter',{line,wealthId:visit.wealthId,tableNo:visit.tableNo,kind:visit.kind,context});return line;
+ visit.chatter=line;emit('guestChatter',{line,wealthId:visit.wealthId,tableNo:visit.tableNo,kind:visit.kind,context,topic:kind,customerId:visit.customerId});return line;
 }

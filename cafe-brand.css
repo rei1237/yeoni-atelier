@@ -204,3 +204,15 @@ body[data-mode=hunt] .cafe-chatter p{color:var(--night-ink)}
 .craft-equipment{position:relative;min-height:172px;padding-top:70px}.craft-chef{position:absolute;top:-8px;left:calc(50% - 64px);width:128px;height:128px;background-size:400% 300%;background-position:calc(var(--frame)*100%/3) calc(var(--row)*50%);background-repeat:no-repeat}.craft-equipment>b,.craft-equipment>.pixel-icon{position:relative}.craft-prop{position:absolute;bottom:8px;right:0;z-index:1}.craft-prop img{width:40px;height:40px;object-fit:contain}
 @media(prefers-reduced-motion:reduce){.craft-chef{background-position-x:0%}}
 @media(max-width:600px){.quest-botanical img{width:68px;height:80px}.craft-chef{width:104px;height:104px;left:calc(50% - 52px)}}
+/* 카페 대화 말풍선: 말하는 사람 머리 위, 꼬리는 그 사람을 가리킨다(위치는 cafe-talk.js가 매 프레임 갱신) */
+.talk-layer{position:absolute;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+.talk-bubble{position:absolute;transform:translate(-50%,-100%);width:max-content;max-width:min(210px,58vw);padding:6px 10px 7px;border:1px solid #d9a3a8;border-radius:14px;background:#fffaf2f2;box-shadow:0 4px 12px #4a2c2426;color:#3b2a24;animation:talk-in .22s ease-out both;transition:opacity .35s}
+.talk-bubble::after{content:'';position:absolute;left:var(--tail,50%);bottom:-6px;width:10px;height:10px;margin-left:-5px;background:inherit;border:solid #d9a3a8;border-width:0 1px 1px 0;transform:rotate(45deg)}
+.talk-bubble.staff{border-color:#9db394;background:#f6fbf1f2}.talk-bubble.staff::after{border-color:#9db394}
+.talk-bubble b{display:block;font-size:10.5px;line-height:1.2;color:var(--rose-dark,#a2475a);letter-spacing:.02em}.talk-bubble.staff b{color:#4f6b45}
+.talk-bubble p{margin:2px 0 0;font-size:12px;line-height:1.45;word-break:keep-all}
+.talk-bubble.fading{opacity:0}
+@keyframes talk-in{from{opacity:0;transform:translate(-50%,-90%) scale(.92)}to{opacity:1;transform:translate(-50%,-100%)}}
+@media(min-width:900px){.talk-bubble{max-width:250px;padding:7px 12px 8px}.talk-bubble p{font-size:13px}}
+@media (prefers-reduced-motion:reduce){.talk-bubble{animation:none;transition:none}}
+body[data-editing=true] .talk-layer{display:none}

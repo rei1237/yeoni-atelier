@@ -19,6 +19,7 @@ import { tableBadgesHtml, tablePopHtml } from './table-ui.js';
 import { bondQuestion } from '../data/bond-dialogues.js';
 import { talkCheck } from '../game/bonds.js';
 import {CAFE_LINES,selectLine} from '../data/cafe-dialogue.js';
+import {newTalk,guestTalk,staffTalk,syncTalk} from './cafe-talk.js';
 import {newCraft,mixCraft,craftHeat,craftQuality,craftShortage,deliverable} from './crafting.js';
 import {findRecipe} from '../game/recipe.js';
 import {TEMP as GAME_TEMP} from '../config/balance.temp.js';
@@ -87,7 +88,7 @@ let state = null;
 const ui = { playSpeed:1, camera:{zoom:1,x:0,y:0}, dev: DEV, hostDemo:HOST_DEMO, speed: 1, sheet: null, confirm: null, selectedSlot: null, recruitEvent: null, combo: [], discovery: null, ending: null, storageOk, hasSave: hasSave(storage, SAVE_KEY) };
 if (DEV) document.documentElement.classList.add('dev');
 
-const el = { topbar: $('#topbar'), panel: $('#panel'), stage: $('#stage'), canvas: $('#view'), hits: $('#hits'), bubbles: $('#bubbles'),
+const el = { topbar: $('#topbar'), panel: $('#panel'), stage: $('#stage'), canvas: $('#view'), hits: $('#hits'), bubbles: $('#bubbles'), talk: $('#talk'),
   sheetWrap: $('#sheet-wrap'), sheet: $('#sheet'), overlay: $('#overlay') };
 const ctx = el.canvas.getContext('2d');
 let view = null, cssW = 0, cssH = 0, dpr = 1;
@@ -612,7 +613,9 @@ function gagOnce(kind, lines, gapMs = 15000) {
 function handleEvents(events) {
   for(const e of events){
     const speaker=({cooked:'luna_sis',served:'luna',paidAtCounter:'yeoni',feverOn:'neo'})[e.type];
-    if(speaker && state?.mode==='shift'){const pool=CAFE_LINES[speaker];ui.staffLineIndex=(ui.staffLineIndex||0)+1;showCafeLine(pool[ui.staffLineIndex%pool.length],personName(state,speaker),speaker);}
+    // 실제로 접시를 내려놓은 직원이 말한다(없으면 기본 담당).
+    const server=e.type==='served'&&Object.values(state?.staff||{}).find(s=>s.servicePose?.tableNo===e.tableNo&&s.action==='serve')?.id,who=CAFE_LINES[server]?server:speaker;
+    if(who && state?.mode==='shift'&&!events.some(x=>x.type==='guestChatter'))staffTalk(ui.talk??=newTalk(),state,who,performance.now()); // 손님 말이 먼저, 직원은 대답으로
   }
 
   if (!events?.length) return;
@@ -627,7 +630,7 @@ function handleEvents(events) {
       case 'huntCritical': ui.critLine=(ui.critLine||0)+1;showCafeLine(CAFE_LINES.critical[ui.critLine%CAFE_LINES.critical.length],'영냥이','neo_cat');sound('level');break;
       case 'huntStageClear': if(ev.tired)showCafeLine(tiredLine(ev.hunterId),ev.hunterId==='seohanbi'?'서한비':'영냥이',ev.hunterId==='seohanbi'?'seohanbi':'neo_cat');break;
       case 'huntObjectBroken': sound('gem');break;
-      case 'guestChatter': showCafeLine(ev.line,ev.kind==='takeaway'?'포장 손님':ev.tableNo?`${ev.tableNo}번 손님`:'손님','customer'); break;
+      case 'guestChatter': if(state.mode==='shift'&&ev.customerId){guestTalk(ui.talk??=newTalk(),state,ev,performance.now(),Math.random());break;}showCafeLine(ev.line,ev.kind==='takeaway'?'포장 손님':ev.tableNo?`${ev.tableNo}번 손님`:'손님','customer'); break;
       case 'paidAtCounter': sound('moon'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;
       case 'cafeLevelUp': sound('bond'); toast(`카페 Lv.${ev.level}! ${ev.apGain>0?`다음 순부터 마을 행동력 +${ev.apGain}`:'더 많은 손님과 새로운 취향이 찾아와요'}`,'good');break;
       case 'takeawayDone': toast('포장 완료 · 손님이 계산대에서 받아 갔어요','good');break;
@@ -776,6 +779,7 @@ const loop = createFrameLoop({
     }
     stepWorldTravel(raw);
     draw(now);
+    if(el.talk)syncTalk(el.talk,ui.screen?null:state,view,ui.talk??=newTalk(),performance.now(),{width:cssW});
     render();
   },
 });
