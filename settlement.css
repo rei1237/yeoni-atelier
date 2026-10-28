@@ -1,0 +1,68 @@
+/* 영업 마감 화면: 결과 금액 → 평가 도장 → 연이 한마디 → 숫자 타일 → 돈의 흐름 → 동료 → 지갑 → 장부 */
+.overlay:has(.settle-screen){background:radial-gradient(circle at 50% 30%,#5b3a4a99,#22162acc 70%);backdrop-filter:blur(4px)}
+.dialog.settle-screen{position:relative;max-width:440px;padding:0 0 calc(12px + env(safe-area-inset-bottom));display:grid;gap:12px;background:linear-gradient(#fff8ee,#fffaf3 40%);border:1.5px solid #d8b98a;border-radius:22px;overflow-x:hidden;animation:settle-in .45s cubic-bezier(.2,.9,.3,1.2) both}
+.settle-screen>*:not(.settle-petals){position:relative;margin-inline:16px}
+.settle-petals{position:absolute;inset:0 0 auto;height:220px;pointer-events:none;overflow:hidden;z-index:0}
+.settle-petals i{position:absolute;top:-14px;left:calc(var(--i) * 10% + 3%);width:10px;height:13px;border-radius:70% 0 70% 0;background:var(--petal-rose,#e7a3b5);opacity:0;animation:settle-petal 2.6s ease-in calc(var(--i) * .17s) 2 both}
+.settle-petals i:nth-child(3n){background:#f1cf8d}.settle-petals i:nth-child(4n){background:var(--petal-lilac,#b9a6e0)}
+.settle-head{margin:0!important;padding:16px 16px 0;text-align:center}
+.settle-head small{display:block;color:#8a6f5c;font-size:13px;font-weight:700;letter-spacing:.02em}
+.settle-screen .settle-head h2{margin:2px 0 0;padding:0;border:0;font-size:26px;color:#6b3a52;letter-spacing:-.03em}
+.settle-hero{display:grid;justify-items:center;gap:6px;padding:16px 12px 14px;border-radius:18px;background:linear-gradient(160deg,#fff 0%,#fbefe0 100%);box-shadow:inset 0 0 0 1px #ead6b8,0 6px 18px #8a5a2a1c;text-align:center}
+.settle-hero>small{color:#7b6a58;font-weight:700}
+.settle-amount{font-size:clamp(34px,10vw,46px);line-height:1.05;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.03em;background:linear-gradient(180deg,#c48a1d,#8a5a12);-webkit-background-clip:text;background-clip:text;color:transparent}
+.settle-amount.neg{background:none;color:#a24a4a}
+.settle-stamp{display:inline-grid;justify-items:center;padding:6px 16px;border:2.5px solid #ad5265;border-radius:12px;color:#ad5265;transform:rotate(-6deg);animation:settle-stamp .5s cubic-bezier(.3,1.6,.5,1) .9s both}
+.settle-stamp .stars{font-size:15px;letter-spacing:3px;color:#d39b2a}
+.settle-stamp b{font-size:17px}
+.settle-tough .settle-stamp,.settle-quiet .settle-stamp{border-color:#8a7a6a;color:#6f6255}
+.settle-ribbon{margin:2px 0 0;padding:4px 14px;border-radius:999px;background:linear-gradient(90deg,#d39b2a,#f1cf8d,#d39b2a);color:#5a3a08;font-weight:800;font-size:14px;animation:settle-pop .4s ease-out 1.3s both}
+.settle-talk{display:grid;grid-template-columns:56px 1fr;gap:10px;align-items:center}
+.settle-talk img{width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:top;background:#f6e3d3;box-shadow:0 0 0 2px #fff,0 0 0 3.5px #e2b9c4}
+.settle-talk p{margin:0;padding:10px 12px;border-radius:4px 14px 14px 14px;background:#fff;box-shadow:inset 0 0 0 1px #ead6b8;line-height:1.5;font-size:14px}
+.settle-talk p b{display:block;font-size:12px;color:#ad5265}
+.settle-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.settle-tile{display:grid;justify-items:center;gap:1px;padding:9px 4px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1px #ead6b8;animation:settle-pop .35s ease-out calc(.5s + var(--d) * .08s) both;min-width:0}
+.settle-tile i{font-style:normal;font-size:18px}
+.settle-tile small{font-size:11.5px;color:#7b6a58;white-space:nowrap}
+.settle-tile b{font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.settle-flow{display:grid;gap:5px;padding:10px 12px;border-radius:14px;background:#f6ede0}
+.settle-bar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:#ece0cf}
+.settle-bar span{display:block;height:100%;transform-origin:left;animation:settle-grow .8s ease-out .7s both}
+.settle-bar .sales,.settle-legend .sales{background:#c48a1d}.settle-bar .host,.settle-legend .host{background:#ad5265}.settle-bar .tips,.settle-legend .tips{background:#7d9a5f}
+.settle-bar.out span,.settle-legend .cost{background:#a38c78}
+.settle-legend{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12px;color:#5d4c40;font-variant-numeric:tabular-nums}
+.settle-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.settle-crew h3{margin:0 0 6px;font-size:14px;color:#6b3a52}
+.settle-crew>div{display:flex;gap:8px;flex-wrap:wrap}
+.settle-mate{position:relative;flex:1 1 90px;display:grid;justify-items:center;gap:2px;padding:10px 6px 8px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1px #ead6b8;min-width:0}
+.settle-mate img,.settle-initial{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:top;background:#f6e3d3}
+.settle-initial{display:grid;place-items:center;font-weight:800;color:#ad5265}
+.settle-mate b{font-size:13px}.settle-mate small{font-size:12px;color:#7b6a58}
+.settle-mate.mvp{box-shadow:inset 0 0 0 2px #d39b2a,0 4px 12px #d39b2a33;background:linear-gradient(#fffaf0,#fff3dc)}
+.settle-mate em{position:absolute;top:-9px;padding:1px 8px;border-radius:999px;background:#d39b2a;color:#fff;font-size:11px;font-style:normal;font-weight:800;white-space:nowrap}
+.settle-wallet{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:10px 12px;border-radius:14px;background:#efe6f3;color:#4b3a55;font-size:13px}
+.settle-wallet b{font-variant-numeric:tabular-nums}.settle-wallet .month{flex-basis:100%;color:#7a4a5c}
+.settle-ledger summary{min-height:44px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#6b3a52;cursor:pointer}
+.settle-ledger[open] summary{margin-bottom:6px}
+.settle-screen>.settle-actions{position:sticky;bottom:0;padding-top:6px;background:linear-gradient(#fffaf300,#fffaf3 35%);z-index:1}
+.settle-actions button{width:100%;min-height:52px;font-size:17px}
+@media(min-width:700px){
+  .dialog.settle-screen{max-width:760px;grid-template-columns:1fr 1fr;column-gap:0;align-content:start}
+  .settle-head,.settle-ledger,.settle-actions{grid-column:1/-1}
+  .settle-hero,.settle-talk{grid-column:1}
+  .settle-tiles,.settle-flow,.settle-crew,.settle-wallet{grid-column:2}
+  .settle-hero{grid-row:2/4;align-content:center}
+  .settle-talk{grid-row:4/6;align-self:start}
+  .settle-screen>.settle-hero,.settle-screen>.settle-talk{margin-right:8px}
+  .settle-screen>.settle-tiles,.settle-screen>.settle-flow,.settle-screen>.settle-crew,.settle-screen>.settle-wallet{margin-left:8px}
+}
+@media(max-width:699px){.dialog.settle-screen{border-radius:22px 22px 0 0}}
+@media(max-width:360px){.settle-tiles{grid-template-columns:repeat(2,1fr)}}
+@media(max-height:460px){.settle-amount{font-size:34px}.settle-hero{padding:10px}.settle-head{padding-top:10px}.settle-screen .settle-head h2{font-size:21px}}
+@keyframes settle-in{from{opacity:0;transform:translateY(24px) scale(.97)}}
+@keyframes settle-stamp{from{opacity:0;transform:rotate(-6deg) scale(2.2)}}
+@keyframes settle-pop{from{opacity:0;transform:scale(.85)}}
+@keyframes settle-grow{from{transform:scaleX(0)}}
+@keyframes settle-petal{0%{opacity:0;transform:translateY(0) rotate(0)}15%{opacity:.9}100%{opacity:0;transform:translateY(220px) rotate(260deg)}}
+@media(prefers-reduced-motion:reduce){.dialog.settle-screen,.settle-stamp,.settle-ribbon,.settle-tile,.settle-bar span{animation:none}.settle-petals{display:none}}

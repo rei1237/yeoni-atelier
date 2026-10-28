@@ -63,6 +63,7 @@ import { dateLabel, isEnded, calendarOf } from '../game/calendar.js';
 import { ENDINGS } from '../story/months.js';
 import { btn, esc } from './dom.js';
 import { won } from './hud.js';
+import { settlementScreen } from './settlement.js';
 
 const ORDER_STATUS = { waiting: '⏳ 조리·서빙 대기', assigned: '🚶 운반 중', served: '✅ 서빙 완료', cancelled: '✖ 취소' };
 
@@ -511,7 +512,7 @@ export function overlayHtml(state, ui) {
   if (ui.confirm) return confirmDialog(ui.confirm);
   if (!state) return titleDialog(ui);
   if (state.mode === 'hunt' && state.hunt && state.hunt.status !== 'running') return huntResult(state);
-  if (state.mode === 'settlement' && state.lastSettlement) return settlementDialog(state);
+  if (state.mode === 'settlement' && state.lastSettlement) return settlementScreen(state);
   if (state.paused && (state.mode === 'shift' || state.mode === 'hunt')) return pausedDialog(state);
   if (state.mode === 'hunt' && state.hunt?.status === 'running' && state.hunt.picks?.length) return levelUpDialog(state);
   if (state.mode === 'hunt' && state.hunt?.status === 'running' && state.hunt.chests?.length) return chestDialog(state);
@@ -540,28 +541,6 @@ function pausedDialog(state) {
   return `<div class="dialog" role="dialog" aria-modal="true"><h2>⏸ 일시정지</h2><p><b>${what}</b></p>
     ${hosting ? `<ul class="small">${hosting}</ul>` : ''}<p class="small muted">시간이 멈춰 있습니다. 같은 손님, 같은 남은 시간으로 이어집니다.</p>
     <div class="stack">${btn({ action: 'resume', cls: 'primary', label: '▶ 계속하기' })}${btn({ action: 'game.title', label: '💾 저장하고 타이틀로' })}</div></div>`;
-}
-
-function settlementDialog(state) {
-  const s = state.lastSettlement;
-  const hostings = s.hostings.length
-    ? `<div class="list">${s.hostings.map(h => `<div class="item"><div class="meta grow"><b>${h.tableNo}번 · ${esc(personName(state, h.nominee))} · ${h.H.toFixed(1)} ${esc(h.grade)}${h.capped ? ' (상한)' : ''}</b><span>지명료 ${won(h.hostFee||0)} · 주문 ${won(h.servedTotal)} · 팁 ${won(h.tip)}${h.feverExtra ? ` (피버 +${h.feverExtra})` : ''} · 음식 ${h.food ?? '-'}점</span></div></div>`).join('')}</div>`
-    : '<p class="small muted">이번 영업의 지명 접대 없음</p>';
-  return `<div class="dialog" role="dialog" aria-modal="true"><h2>📒 ${esc(dateLabel(state, s.day))} 결산</h2>
-    <div class="kv"><span>판매 금액(서빙 완료분)</span><b>${won(s.sales)}</b><span>재료비</span><b>−${won(s.ingredientCost)}</b>
-      ${state.hostbar.open?`<span>지명료</span><b>${won(s.hostFees||0)}</b>`:''}<span>기본 팁</span><b>${won(s.baseTips)}</b>${state.hostbar.open ? `<span>피버 추가 팁</span><b>${won(s.feverTips)}</b>` : ''}
-      <span class="sum">영업 결과</span><b class="sum">${s.result >= 0 ? '' : '−'}${won(Math.abs(s.result))}</b>
-      ${s.payroll?.closed?`<span>월말 동료 급여</span><b>−${won(s.payroll.paid)}</b>${s.payroll.arrears?`<span>미지급 급여</span><b>${won(s.payroll.arrears)}</b>`:''}`:''}${s.loanInterest?.due?`<span>운영 대출 이자</span><b>−${won(s.loanInterest.paid)}${s.loanInterest.added?` · 원금 가산 ${won(s.loanInterest.added)}`:''}</b>`:''}${interestRows(s.interest)}
-      <span>보유 골드</span><b>${won(s.gold)}</b><span>남은 빚</span><b>${won(s.debt)}</b></div>
-    <p class="small muted">서빙 ${s.servedCount}건 · 일반 ${s.regularVisits}${state.hostbar.open ? ` · 지명 ${s.nominationVisits}` : ''} · 놓친 주문 ${s.lostOrders} · 폐기 ${s.wasted}</p>
-    ${state.hostbar.open ? `<p>네오 스트레스 ${s.stressStart ?? 0} → ${s.stressEnd ?? 0} · 결산을 닫으면 ${Math.abs(TEMP.NEO_STRESS.settle)} 회복해요.</p><h3>지명 대화</h3>${hostings}` : ''}
-    <div class="stack">${btn({ action: 'settlement.close', cls: 'primary', label: s.day === TEMP.CALENDAR.TOTAL_TURNS && !isEnded(state) ? '📜 마지막 결산 닫고 결말 보기' : '다음 순 준비로' })}</div></div>`;
-}
-
-// 하순 결산의 청토끼 금융 이자 줄(낸 만큼 −, 못 낸 만큼 빚에 +)
-function interestRows(it) {
-  if (!it || !it.due) return '';
-  return `<span>💸 ${it.month}월 이자(청토끼 금융)</span><b>−${won(it.paid)}</b>${it.added ? `<span class="bad">골드 부족 · 빚에 붙은 이자</span><b class="bad">+${won(it.added)}</b>` : ''}`;
 }
 
 // ── 결말(게임 오리지널 외전). 닫으면 후일담 자유 영업으로 이어진다.

@@ -124,6 +124,7 @@ export function closeShift(state) {
     gold: state.gold, debt: state.debt,
     servedCount: sh.servedCount, lostOrders: sh.lostOrders, wasted,
     regularVisits: sh.regularVisits, nominationVisits: sh.nominationVisits, hostings: sh.hostings,
+    crew: Object.fromEntries(Object.entries(state.staff).filter(([id]) => id !== 'yeoni').map(([id, s]) => [id, s.jobsTaken || 0])), // 마감 화면용: 홀 일을 맡은 횟수
   };
   if (!state.ledger.settlements[sh.id]) {
     // 하순이면 이달 이자가 나간다(한 번만)

@@ -50,7 +50,7 @@ import { gardenItem } from '../game/grounds.js';
 import { decorDirty, purchaseGate } from './decor-screen.js';
 import { drawHunt } from '../render/hunt-view.js';
 import { $, morph, toast, floater, shake } from './dom.js';
-import { topbarHtml, panelHtml, bubblesHtml, hitsHtml } from './hud.js';
+import { topbarHtml, panelHtml, bubblesHtml, hitsHtml, won } from './hud.js';
 import { sheetHtml, overlayHtml, tiredLine } from './sheets.js';
 import { drawDressroom, drawInlinePortraits } from './dressroom.js';
 import { outfitLine } from '../data/outfit-lines.js';
@@ -700,13 +700,23 @@ function handleEvents(events) {
       case 'farmDelegateSkipped': toast(`농장 맡기기는 이번엔 쉬어요 · ${ev.reason}`, '', 3000); break;
       case 'bondUp': toast(`💗 ${BONDS[ev.id].name} ♥${ev.tier} · ${ev.label}`, 'good', 4000); break;
       case 'gameEnded': toast('📜 마지막 결산 완료 · 결말이 열립니다', 'good', 3200); break;
-      case 'shiftClosed': ui.sheet = null; ui.selectedSlot = null; save(); break;
+      case 'shiftClosed': ui.sheet = null; ui.selectedSlot = null; ui.chatter = null; save(); break; // 마감 화면을 가리는 영업 중 대사는 내린다
       default: break;
     }
   }
 }
 
 // ── 그리기
+
+// 영업 마감 화면을 처음 열 때 결과 금액을 0부터 올려 보이고 축하음을 한 번 낸다.
+function countUpSettlement(){
+  const b=el.overlay.querySelector('.settle-amount[data-countup]');if(!b||ui.settleShown===b.dataset.shift)return;
+  ui.settleShown=b.dataset.shift;const to=Number(b.dataset.countup)||0,final=b.textContent;sound(to>=0?'good':'bad');
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches||!to)return;
+  const t0=performance.now(),fmt=n=>(n>=0?'+':'−')+won(Math.abs(n));
+  const step=t=>{if(!b.isConnected)return;const k=Math.min(1,(t-t0)/1100),e=1-(1-k)**3;b.textContent=k<1?fmt(Math.round(to*e)):final;if(k<1)requestAnimationFrame(step);};
+  requestAnimationFrame(step);
+}
 
 function render(force = false) {
   const now = performance.now();
@@ -742,6 +752,7 @@ function render(force = false) {
   const ov = overlayHtml(state, ui);
   el.overlay.hidden = !ov;
   morph(el.overlay, ov);
+  countUpSettlement();
   if (state?.mode === 'prep') maybeStory();
 }
 
