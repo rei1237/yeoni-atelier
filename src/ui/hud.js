@@ -46,6 +46,7 @@ import { debtStage, recruitView } from '../game/economy.js';
 import { preview as interiorPreview } from '../game/interior.js';
 import { cellToPx } from '../render/cafe-view.js';
 import { btn, esc } from './dom.js';
+import { guestMotion } from './table-ui.js';
 
 const won = n => n === 100_000_000 ? '1억 골드' : `${Math.floor(n).toLocaleString('ko-KR')}G`;
 
@@ -271,7 +272,7 @@ function customerOrders(state){
   const job=order&&Object.values(state.stations).flatMap(s=>stationJobs(s)).find(j=>j&&j.orderId===order.id);
   const tray=order&&state.tray.some(it=>it?.menuId===order.menuId&&!it.reservedFor&&(!it.orderId||it.orderId===order.id)), help=v.help?.some(h=>h.status==='open');
   const score=waitingSatisfaction(state,v),mood=score>=80?'여유':score>=55?'기다림':'서둘러요';
-  const status=help?'도움 요청':c.state==='checkout'?'연이에게 결제 중':job?'조리 중':tray?'완성 · 전달하기':order?.status==='assigned'?'가져가는 중':order?'주문 · 만들기':c.state==='eating'?'맛있게 먹는 중':c.state==='requesting'?'지명 요청':c.state==='entering'?'자리로 안내 중':'메뉴 고르는 중';
+  const status=help?'도움 요청':c.state==='checkout'?guestMotion(c):job?'조리 중':tray?'완성 · 전달하기':order?.status==='assigned'?'가져가는 중':order?'주문 · 만들기':c.state==='eating'?'맛있게 먹는 중':c.state==='requesting'?'지명 요청':c.state==='entering'?'자리로 안내 중':'메뉴 고르는 중';
   return btn({action:help?'table.tap':order?.status==='waiting'&&!job?'order.quick':'table.tap',args:{id:order?.id||'',no:c.tableNo,key:'order-'+c.id},disabled:c.tableNo===0&&(!order||!!job),cls:'customer-order',title:`${c.tableNo?c.tableNo+'번':'포장'} · ${items||status} · ${status}`,label:`${menu?assetIcon('icons/'+menu.id):'<span class="order-thinking" aria-hidden="true">…</span>'}<span class="order-content"><b>${v.kind==='takeaway'?'포장':`${c.tableNo}번`} · ${esc(items||status)}</b><small>${esc(CUSTOMER_WEALTH[v.wealthId]?.name||'손님')} · ${status}</small>${pending.length?`<span class="patience ${score<55?'urgent':''}"><meter min="0" max="100" value="${score}" aria-label="손님 만족도 ${score}점"></meter><small>${mood}</small></span>`:''}</span>`});
  }).join('');
  return `<div class="customer-orders" aria-label="손님 주문 현황">${rows||'<p class="tray-guide">곧 첫 손님이 찾아와요. 재료와 주방을 준비해 주세요.</p>'}</div>`;

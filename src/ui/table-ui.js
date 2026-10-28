@@ -9,6 +9,14 @@ import { assetIcon } from './asset-html.js';
 import { btn, esc } from './dom.js';
 import { cellToPx } from '../render/cafe-view.js';
 
+// 주문과 무관하게 손님이 지금 무엇을 하는지: 들어오는 중·계산·퇴장 손님을 '주문'으로 보이지 않게 한다.
+export function guestMotion(c){
+  if(!c)return '';
+  if(c.state==='entering')return '자리로 가는 중';
+  if(c.state==='checkout')return c.checkoutWaiting?'계산 줄 기다림':c.payAt!=null?'연이에게 결제 중':'계산하러 가는 중';
+  if(c.state==='leaving')return '나가는 중';
+  return '';
+}
 export function tableBadgesHtml(state,v) {
   if(state?.mode!=='shift'||!v)return '';
   const dense=state.tables.length>12,placed=[];
@@ -24,10 +32,10 @@ export function tableBadgesHtml(state,v) {
     const worker=Object.values(state.staff||{}).find(s=>s.servicePose?.tableNo===t.no);
     if(worker)p.x+=p.x<v.w/2?Math.max(62,v.tile*1.6):-Math.max(62,v.tile*1.6);
     placed.push(p);
-    const text=cleaning?'닦는 중':dirty?(t.cleanQueued?'가는 중':'정리'):c.state==='eating'?'식사 중':c.state==='requesting'?'지명 요청':order?MENUS[order.menuId].short:'메뉴 고르는 중';
+    const motion=guestMotion(c),text=cleaning?'닦는 중':dirty?(t.cleanQueued?'정리하러 가는 중':'정리'):motion||(c.state==='eating'?'식사 중':c.state==='requesting'?'지명 요청':order?MENUS[order.menuId].short:'메뉴 고르는 중');
     const urgent=visit&&waitingSatisfaction(state,visit)<55;
     const progress=cleaning?Math.min(100,100*(1-Math.max(0,t.cleanEndAt-state.shift.elapsedMs)/(t.cleanMs||1))):0;
-    return `<button class="table-badge ${dirty?'dirty':''} ${urgent?'urgent':''} ${c?.state==='eating'&&!dirty&&!cleaning?'enjoying':''}" data-key="badge-${t.no}" data-action="${dirty&&!t.cleanQueued?'clean':'table.tap'}" data-no="${t.no}" style="left:${Math.max(42,Math.min(v.w-42,p.x))}px;top:${Math.max(0,p.y-44-v.tile*.35)}px" title="${t.no}번 테이블 ${text}" aria-label="${t.no}번 테이블 ${text}">${order?assetIcon('icons/'+order.menuId):''}<span>${esc(text)}</span>${cleaning?`<progress max="100" value="${progress}" aria-label="정리 진행"></progress>`:''}</button>`;
+    return `<button class="table-badge ${dirty?'dirty':''} ${urgent?'urgent':''} ${c?.state==='eating'&&!dirty&&!cleaning?'enjoying':''}" data-key="badge-${t.no}" data-action="${dirty&&!t.cleanQueued?'clean':'table.tap'}" data-no="${t.no}" style="left:${Math.max(42,Math.min(v.w-42,p.x))}px;top:${Math.max(0,p.y-44-v.tile*.35)}px" title="${t.no}번 테이블 ${text}" aria-label="${t.no}번 테이블 ${text}">${order&&!motion?assetIcon('icons/'+order.menuId):''}<span>${esc(text)}</span>${cleaning?`<progress max="100" value="${progress}" aria-label="정리 진행"></progress>`:''}</button>`;
   }).join('');
 }
 export function tablePopHtml(state,v,ui) {
@@ -40,7 +48,7 @@ export function tablePopHtml(state,v,ui) {
   if(t.state==='dirty'||t.state==='cleaning')body=btn({action:'clean',args:{no:t.no},disabled:t.cleanQueued||t.state==='cleaning',label:t.state==='cleaning'?'닦는 중':t.cleanQueued?'정리하러 가는 중':'정리하기',cls:'primary'});
   if(visit){
     const orders=visit.orderIds.map(id=>state.orders[id]).filter(Boolean),score=waitingSatisfaction(state,visit);
-    body=`<p>${esc(c.label||'손님')} · ${c.state==='eating'?'맛있게 먹는 중':'주문 현황'}</p><meter min="0" max="100" value="${score}" aria-label="손님 만족도 ${score}점"></meter>`+orders.map(o=>{
+    body=`<p>${esc(c.label||'손님')} · ${guestMotion(c)||(c.state==='eating'?'맛있게 먹는 중':'주문 현황')}</p><meter min="0" max="100" value="${score}" aria-label="손님 만족도 ${score}점"></meter>`+orders.map(o=>{
       const job=Object.values(state.stations).flatMap(s=>stationJobs(s)).find(j=>j?.orderId===o.id);
       const item=state.tray.find(it=>it?.menuId===o.menuId&&!it.reservedFor&&(!it.orderId||it.orderId===o.id));
       return `<div class="table-order">${assetIcon('icons/'+o.menuId)}<span>${esc(MENUS[o.menuId].short)}</span>${o.status==='served'?`<small>${qualityOf(o.quality).label} · ${o.foodScore??'—'}점<br>대기·분위기 ${o.foodBase??'—'} ${o.qualityDelta>=0?'+':''}${o.qualityDelta??0}</small>`:o.status==='assigned'?'<small>가져가는 중</small>':job?`<small>조리 중 ${Math.ceil((job.durationMs-(job.progressMs||0))/1000)}초</small>`:item?btn({action:'serve',args:{item:item.id,no:t.no},label:qualityOf(item.quality).label+' · 전달하기',cls:'primary'}):btn({action:'order.quick',args:{id:o.id},label:'만들기',cls:'primary'})}</div>`;

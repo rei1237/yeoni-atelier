@@ -114,7 +114,7 @@ export function closeShift(state) {
   for(const visit of Object.values(state.visits))checkout(state,visit); // 마감 직전 계산대 대기도 같은 원장으로 정산
   let wasted = state.tray.filter(Boolean).length;
   for (const st of Object.values(state.stations)) wasted += runningJobs(st).length+stationItems(st).length;
-  for (const s of Object.values(state.staff)) if (s.carry) wasted += 1;
+  for (const s of Object.values(state.staff)) wasted += (s.carry ? 1 : 0) + (s.carryMore?.length || 0);
   sh.wasted = wasted;
   const settlement = {
     shiftId: sh.id, day: sh.day,

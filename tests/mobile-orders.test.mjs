@@ -18,7 +18,7 @@ test('주문 현황은 빈 칸 대신 고민·메뉴명·조리·운반 상태�
  assert.ok(dispatch(s,{type:'order.quick',orderId:o.id}).ok);assert.ok(panelHtml(s,ui).includes('조리 중'));
  s.stations[MENUS[o.menuId].station].current=null;o.status='assigned';assert.ok(panelHtml(s,ui).includes('가져가는 중'));
  o.status='served';c.state='eating';html=panelHtml(s,ui);assert.ok(html.includes(MENUS[o.menuId].short));assert.ok(html.includes('맛있게 먹는 중'));
- c.state='checkout';assert.ok(panelHtml(s,ui).includes('연이에게 결제 중'));
+ c.state='checkout';assert.ok(panelHtml(s,ui).includes('계산하러 가는 중'));c.payAt=0;assert.ok(panelHtml(s,ui).includes('연이에게 결제 중'));
 });
 test('히든 사냥꾼은 영입 전 금지, 영입 후 같은 조건에서 영냥이보다 강하다',()=>{
  const a=createGame(),b=createGame();for(const s of [a,b])s.huntUnlocked=true;
