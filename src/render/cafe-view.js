@@ -45,7 +45,8 @@ function cellsBox(cells) {
 }
 
 // 이름표는 모든 배우를 그린 뒤 한 번에 놓는다. 겹치면 앞(아래쪽) 이름표를 한 줄씩 아래로 민다.
-function drawNameTags(ctx, tags, size) {
+// 테이블 말풍선(avoid)에 가리면 머리 위(up)로 올린다.
+function drawNameTags(ctx, tags, size, avoid = []) {
   const fs = Math.max(12, Math.min(14, Math.round(size * 0.2))), h = fs + 10, placed = [];
   ctx.font = `600 ${fs}px "Yeoni UI", sans-serif`;
   for (const g of tags.sort((a, b) => a.y - b.y)) {
@@ -55,6 +56,8 @@ function drawNameTags(ctx, tags, size) {
       moved = false;
       for (const r of placed) if (Math.abs(r.x - g.x) < (r.w + w) / 2 && y < r.y + h && y + h > r.y) { y = r.y + h; moved = true; }
     }
+    const hit = y => avoid.some(r => Math.abs(r.x - g.x) < (r.w + w) / 2 && y < r.y + r.h && y + h > r.y);
+    if (g.up != null && hit(y) && !hit(g.up) && !placed.some(r => Math.abs(r.x - g.x) < (r.w + w) / 2 && g.up < r.y + h && g.up + h > r.y)) y = g.up;
     placed.push({ x: g.x, y, w });
     nameTag(ctx, g.text, g.x, y, size, g.color);
   }
@@ -202,11 +205,13 @@ export function drawCafe(ctx, state, v, opts = {}) {
   }
   actors.sort((a, b) => a.y - b.y);
   const tags = [];
-  for(const a of actors){const p=P(a.x,a.y),blend=a.seatBlend,actorSize=blend==null?(a.seated?2.2:1.8):1.8+.4*blend,foot=p.y+T*(blend==null?(a.seated?-.10:.32):.32+(-.10+17/128*2.2-.32)*blend);pieces.push({depth:a.cashierFront?SPOTS.yeoniHome.y+1.1:a.y+(a.seated?.28:.32),paint:()=>drawActor(ctx,a.key,{...a.o,name:null,x:p.x,y:foot,size:T*actorSize,idleMotion:!a.seated&&!editing&&!state.paused,reducedMotion:opts.reducedMotion,t})});if(a.o.name)tags.push({text:a.o.name,x:p.x,y:['serve','clean'].includes(a.o.state)?foot-T*1.65-24:foot+4+(a.o.state==='host'?Math.max(20,T*.65):0),color:a.o.tagColor});}
+  for(const a of actors){const p=P(a.x,a.y),blend=a.seatBlend,actorSize=blend==null?(a.seated?2.2:1.8):1.8+.4*blend,foot=p.y+T*(blend==null?(a.seated?-.10:.32):.32+(-.10+17/128*2.2-.32)*blend);pieces.push({depth:a.cashierFront?SPOTS.yeoniHome.y+1.1:a.y+(a.seated?.28:.32),paint:()=>drawActor(ctx,a.key,{...a.o,name:null,x:p.x,y:foot,size:T*actorSize,idleMotion:!a.seated&&!editing&&!state.paused,reducedMotion:opts.reducedMotion,t})});if(a.o.name)tags.push({text:a.o.name,x:p.x,up:foot-T*1.65-24,y:['serve','clean'].includes(a.o.state)?foot-T*1.65-24:foot+4+(a.o.state==='host'?Math.max(20,T*.65):0),color:a.o.tagColor});}
   pieces.sort((a,b)=>a.depth-b.depth);for(const piece of pieces)piece.paint();
   for (const paint of stageRain.splice(0)) paint(); // 손님 위, 주문 말풍선 아래
   if(state.mode==='shift')drawStations(ctx,state,v);
-  drawNameTags(ctx, tags, T * 1.8);
+  // 테이블 말풍선 자리(table-ui.js tableBadgesHtml과 같은 기준점, 폭은 최소 폭 44px)
+  const badges = state.mode === 'shift' ? state.tables.filter(t => t.customerId || t.state === 'dirty' || t.state === 'cleaning').map(t => { const b = P(t.table.x + .5, t.table.y + .15); return { x: b.x, y: b.y - 44 - T * .35, w: 44, h: 46 }; }) : [];
+  drawNameTags(ctx, tags, T * 1.8, badges);
 
   // 편집 표시: 선택 가구와 문제 가구
   if (editing) {
