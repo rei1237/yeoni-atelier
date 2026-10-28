@@ -12,6 +12,7 @@ import { emit, recruitables } from './state.js';
 import { bondFx } from '../data/bonds.js';
 import { workShop } from './bonds.js';
 import { calendarOf } from './calendar.js';
+import { resolveUltimatum } from './creditor.js';
 
 // ── 재료 구매: 마을 모카 식재료점(기본 재료 + 밤이슬). 사냥 화면에서는 살 수 없다.
 // 영업 중에는 가게를 비울 수 없으니 「모카 긴급 배달」로만 산다: 재료값 + 배달비(TEMP.DELIVERY_FEE).
@@ -50,6 +51,7 @@ export function repay(state, amount, requestId) {
   state.repaidTotal += pay;
   state.stats.repayCount += 1;
   state.ledger.repay[requestId] = pay;
+  resolveUltimatum(state);
   emit('repaid', { amount: pay, debt: state.debt });
   return { ok: true, amount: pay };
 }

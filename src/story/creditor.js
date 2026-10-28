@@ -54,3 +54,44 @@ export const RATE_STORIES = Object.freeze({
     GROWTH,
   ],
 });
+
+// ── 6-1 청토끼 독촉 장면(warn·ultimatum·relief:<달>). 하순 마감 기록(ledger.creditor)의 숫자로 짧게 만든다.
+const monthLabel = m => `${1 + Math.floor(m / 12)}년차 ${(m + 2) % 12 + 1}월`;
+const gold = n => `${Math.floor(n).toLocaleString('ko-KR')}G`;
+const SET = { l: 'yeoni:normal', c: 'cheongtokki:normal', r: 'neo:normal' };
+
+export const CREDITOR_STORIES = Object.freeze({
+  warn: (m, rec) => [
+    { chapter: [monthLabel(m), '어머~ 하늘색 독촉장'], bg: 'atelier_dark', ...SET },
+    { s: 'nar', t: '하순 마감 뒤, 계산대 위에 하늘색 봉투 하나가 반듯하게 놓여 있었다.' },
+    { s: 'rab', t: '어머~ 이번 달 장부가 조금 아쉽네요. 오늘은 안내만 드리고 갈게요~', c: 'cheongtokki:smile' },
+    { s: 'sys', t: rec?.milestone === false ? '[ 청토끼 경고 1회 · 약속한 누적 상환에 못 미쳤어요 · 다음 하순에도 그대로면 통첩이 옵니다 ]' : '[ 청토끼 경고 1회 · 이번 달 상환이 빚에 붙은 이자보다 적었어요 · 다음 하순에도 그대로면 통첩이 옵니다 ]' },
+    { s: 'yeoni', t: '(봉투는 얇은데 무게는 별 다섯 개.) 다음 달엔 숫자로 보여 줄게.', l: 'yeoni:determined' },
+    { s: 'neo', t: '손님은 내가 더 붙잡을게. 연이는 장부만 지켜.', r: 'neo:serious' },
+  ],
+  ultimatum: (m, rec) => [
+    { chapter: [monthLabel(m), '붉은 밀랍의 통첩'], bg: 'atelier_dark', ...SET },
+    { s: 'nar', t: '이번 봉투는 붉은 밀랍으로 봉해져 있었다. 청토끼는 웃는 얼굴 그대로 도장을 눌렀다.' },
+    { s: 'rab', t: '어머~ 두 달 연속이네요. 이번엔 정식 통첩이랍니다~', c: 'cheongtokki:smug' },
+    { s: 'sys', t: `[ 청토끼 통첩 · ${monthLabel(rec?.dueMonth ?? m + 3)} 하순 마감까지 ${gold(rec?.need || 0)} 더 갚기 · 못 지키면 가게를 내줘야 합니다 ]` },
+    { s: 'luna', t: '가게를 내준다고? 연이 언니, 우리 어디 가?', c: 'luna:cry' },
+    { s: 'yeoni', t: '아무 데도 안 가. 기한 안에 갚으면 되는 거잖아.', l: 'yeoni:determined' },
+    { s: 'rab', t: '저는 최약체랍니다~ 약속만 지켜 주시면 아무 일도 없어요.', c: 'cheongtokki:smile' },
+    { s: 'nar', t: '네오가 연이 곁으로 다가가, 떨리는 장부 끝을 함께 붙잡았다.', r: 'neo:serious' },
+    { s: 'neo', t: '석 달이면 할 수 있어. 같이 갚자, 연이.' },
+  ],
+  relief: m => [
+    { chapter: [monthLabel(m), '거둬 간 통첩'], bg: 'atelier_lit', ...SET },
+    { s: 'rab', t: '어머~ 약속한 금액이 정확히 들어왔네요. 통첩은 오늘로 거둬 갈게요~', c: 'cheongtokki:smile' },
+    { s: 'sys', t: '[ 청토끼 통첩 해제 · 경고가 0회로 돌아갑니다 ]' },
+    { s: 'yeoni', t: '(정확히 들어온 건 내 계산이 정확해서야. 별 다섯 개, 나한테.)', l: 'yeoni:smile' },
+    { s: 'neo', t: '수고했어, 연이. 오늘 차는 내가 낼게.', r: 'neo:smile' },
+  ],
+});
+
+// warn:5 → 장면 박자. rec 는 ledger.creditor 기록(없으면 기본 문구)
+export function creditorStory(id, ledger) {
+  const [kind, m] = id.split(':');
+  const make = CREDITOR_STORIES[kind];
+  return make ? make(Number(m), ledger?.creditor?.[`m${m}`]) : null;
+}

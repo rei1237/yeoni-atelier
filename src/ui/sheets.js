@@ -62,7 +62,7 @@ import { townCheck, nextExpansion, areaPrice, decorPrice } from '../game/town.js
 import { placeLock, PLACE_NAMES, bondOpen, bondMasked, bondName } from '../game/unlocks.js';
 import { COMBO_MAX } from '../game/recipe.js';
 import { dateLabel, isEnded, calendarOf, monthName } from '../game/calendar.js';
-import { interestRate, nextHike, interestDue, monthOfDay } from '../game/creditor.js';
+import { interestRate, nextHike, interestDue, monthOfDay, creditorView } from '../game/creditor.js';
 import { ENDINGS } from '../story/months.js';
 import { btn, esc } from './dom.js';
 import { won } from './hud.js';
@@ -371,6 +371,18 @@ function interestCard(state) {
   return `<section class="card kv interest-card" aria-label="인수 빚 이자율"><span>인수 빚 월 이자</span><b>${pct(interestRate(state, m))}</b><span>이번 달 하순 예상</span><b>${won(interestDue(state, m))}</b><span>다음 인상</span><b>${esc(when)}</b></section>`;
 }
 
+// 청토끼 약속·경고·통첩(6-1). 옛 180순 저장·결말 뒤에는 없다
+function creditorCard(state) {
+  const v = creditorView(state);
+  if (!v) return '';
+  const when = m => `${1 + Math.floor(m / 12)}년차 ${monthName(m)} 하순`;
+  const head = v.ultimatum
+    ? `<span>청토끼 통첩</span><b class="bad">${won(v.ultimatum.need)} 더 갚기 · ${v.ultimatum.turnsLeft}순 남음</b>`
+    : `<span>청토끼 경고</span><b${v.warnings ? ' class="warn"' : ''}>${v.warnings ? `${v.warnings}회 · 다음 하순엔 붙은 이자보다 더 갚아 주세요` : '없음'}</b>`;
+  const ms = v.milestone ? `<span>다음 약속</span><b>${esc(when(v.milestone.monthIdx))}까지 누적 상환 ${Math.round(v.milestone.share * 100)}% · ${v.milestone.need ? `${won(v.milestone.need)} 남음` : '달성'}</b>` : '';
+  return `<section class="card kv creditor-card" aria-label="청토끼 약속과 통첩">${head}${ms}</section>`;
+}
+
 // 환전: 개수 고르기(10·100·1000·전부, ±1, 직접 입력) → 받을 골드 미리보기 → 한 버튼으로 실행
 function financeCenter(state, ui = {}) {
   const m = state.moonstone || 0, rate = exchangeRate(state);
@@ -388,7 +400,7 @@ function financeCenter(state, ui = {}) {
     ${btn({ action: 'moonstone.exchange', args: { qty: q }, cls: 'primary exchange-go', disabled: q < 1, label: m < 1 ? '바꿀 월정석이 없어요' : `${q.toLocaleString()}개 환전하기` })}
     <p class="small muted">윤달 공방 강화와 기술 상한 해방은 월정석으로 해요. 강화에 쓸 몫은 남겨 두세요.</p>
   </section>`;
-  const debt = `<section class="exchange-debt"><span>남은 빚 <b>${won(state.debt)}</b></span>${btn({action:'sheet.open',args:{sheet:'debt'},label:'빚 상환하기'})}</section>${interestCard(state)}`;
+  const debt = `<section class="exchange-debt"><span>남은 빚 <b>${won(state.debt)}</b></span>${btn({action:'sheet.open',args:{sheet:'debt'},label:'빚 상환하기'})}</section>${interestCard(state)}${creditorCard(state)}`;
   return `<div class="finance-host">${assetIcon('badges/cheongtokki')}<div><h3>청토끼 금융 센터</h3><p>환전 · 운영 대출 · 골드와 월정석 상환</p></div></div><p class="small">청토끼: "어머~ 월정석 하나에 ${won(rate)}이에요. 강화에 쓸 몫은 꼭 남겨 두시고요~"</p>
     ${exchange}${debt}${financeLoanHtml(state,credit)}`;
 }
@@ -461,7 +473,7 @@ function debtSheet(state) {
     <div class="card kv"><span>남은 빚</span><b>${won(state.debt)}</b><span>갚은 총액</span><b>${won(state.repaidTotal)}</b><span>보유 골드</span><b>${won(state.gold)}</b>
       <span>상환 단계</span><b>${esc(ds.label)}${ds.need ? ` ${won(ds.paid)} / ${won(ds.need)}` : ''}</b></div>
     ${ds.need ? bar(ds.paid / ds.need * 100) : ''}
-    ${interestCard(state)}
+    ${interestCard(state)}${creditorCard(state)}
     <p class="small muted">💡 다음 영업 재료비로 ${won(TEMP.KEEP_FOR_INGREDIENTS_HINT)} 정도는 남겨 두는 것을 권장합니다.</p>
     ${can ? '' : '<p class="small warn">상환은 영업 전이나 마감 후에 할 수 있습니다.</p>'}
     <div class="btns">${amounts.map(([a, l]) => btn({ action: 'debt.repay', args: { amount: a }, disabled: !can || a <= 0 || state.gold < a || state.debt <= 0, label: l })).join('')}</div>`;

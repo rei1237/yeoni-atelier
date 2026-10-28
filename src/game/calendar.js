@@ -14,7 +14,7 @@ import { cafeProgress } from './cafe-growth.js';
 import { grantEventOutfits } from './outfits.js';
 import { HANBI_STAGES } from '../data/hunt-stages.js';
 import { placeLock, PLACE_NAMES, bondOpen, bondMasked } from './unlocks.js';
-import { interestDue, pendingRateStory, grantHikeGrowth } from './creditor.js';
+import { interestDue, pendingRateStory, grantHikeGrowth, pendingCreditorStory, ultimatumUnmet } from './creditor.js';
 
 const C = TEMP.CALENDAR;
 export const PARTS = Object.freeze(['상순', '중순', '하순']);
@@ -81,6 +81,7 @@ export function decideEnding(state) {
   const start = state.startingDebt || PDF.INITIAL_DEBT;
   const bonds = Object.values(state.affinity || {}).reduce((a, b) => a + b, 0);
   if (state.debt <= 0 && !(state.payroll?.arrears>0) && !(state.finance?.balance>0)) return bonds >= C.ENDING_BOND_BEST ? 'grand' : 'clear';
+  if (ultimatumUnmet(state)) return 'bad'; // 통첩을 못 채운 채 마지막 순을 넘기면 배드 엔딩
   if (state.debt <= start * 0.4) return 'close';
   return 'extend';
 }
@@ -114,6 +115,8 @@ export function pendingStory(state) {
   if (!state.ledger.story[id]) return id;
   const rate = pendingRateStory(state); // 청토끼 이자율 인상은 그달 이야기 바로 다음
   if (rate) return rate;
+  const dun = pendingCreditorStory(state); // 청토끼 경고·통첩·해제
+  if (dun) return dun;
   // 첫 영업을 마친 뒤에야 「돈 벌어 와, 네오!」가 나온다
   if (!state.huntUnlocked && !state.ledger.story['ev:hunt'] && state.stats.shiftsCompleted >= 1) return 'ev:hunt';
   // 첫 원정에서 돌아오면 네오의 투정 → 청토끼 환전, 그다음 윤달 공방의 첫 강화로 이어진다
@@ -145,7 +148,7 @@ export function pendingBondStory(state) {
 export function markStory(state, id) {
   // 프롤로그는 새 게임의 도입부이며 달 이야기·보상과 별도로 기록한다.
   if(id==='prologue'){if(state.ledger.story.prologue)return {ok:true,duplicate:true};if(state.mode!=='prep')return {ok:false,reason:'영업 준비 중에만 볼 수 있어요'};state.ledger.story.prologue=true;return {ok:true};}
-  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+|hanbi:\d+|rate:\d+|branch:[2-5])$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
+  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+|hanbi:\d+|rate:\d+|(?:warn|ultimatum|relief):\d+|branch:[2-5])$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
   if (state.ledger.story[id]) return { ok: true, duplicate: true };
   if (state.mode !== 'prep' || pendingStory(state) !== id) return { ok: false, reason: '지금 볼 수 있는 이야기가 아닙니다' };
   const farmLocked = id === 'm1' && !!placeLock(state, 'farm');

@@ -65,7 +65,7 @@ import { playNovel, novelActive } from './novel.js';
 import { EVENT_STORIES } from '../story/events.js';
 import {hunterUnlocked,hunterName} from '../game/hunt-cast.js';
 import { HANBI_STORIES } from '../story/hanbi.js';
-import { RATE_STORIES } from '../story/creditor.js';
+import { RATE_STORIES, creditorStory } from '../story/creditor.js';
 import { VISIT_STORIES } from '../story/visits.js';
 import { PROLOGUE } from '../story/prologue.js';
 import { MONTH_STORIES, ENDINGS } from '../story/months.js';
@@ -223,6 +223,7 @@ function storyBeats(id) {
   if (id.startsWith('ev:')) return EVENT_STORIES[id] || null;
   if (id.startsWith('hanbi:')) return HANBI_STORIES[id.slice(6)] || null;
   if (id.startsWith('rate:')) return RATE_STORIES[id.slice(5)] || null;
+  if (/^(warn|ultimatum|relief):/.test(id)) return creditorStory(id, state.ledger);
   return careerMonthStory(Number(id.slice(1)), state);
 }
 
@@ -718,7 +719,11 @@ function handleEvents(events) {
       case 'farmDelegated': toast(`🐾 네오가 밭일을 마쳤어요 · 수확 ${ev.harvested} · 다시 심기 ${ev.planted} · 돌봄 ${ev.cared}${ev.stopped ? ' · ' + ev.stopped : ''}`, 'good', 3600); break;
       case 'farmDelegateSkipped': toast(`농장 맡기기는 이번엔 쉬어요 · ${ev.reason}`, '', 3000); break;
       case 'bondReady': if (!novelActive()) toast(`✦ ${withWa(bondName(state,ev.id))}의 인연이 깊어질 것 같다 · ${ev.wait ? '다음 달 ' : ''}대화하면 Rank ${ev.rank}`, 'good', 4000); break;
-      case 'gameEnded': toast('📜 마지막 결산 완료 · 결말이 열립니다', 'good', 3200); break;
+      case 'gameEnded': toast(ev.endingId === 'bad' ? '📜 청토끼 통첩 기한이 지났어요 · 결말이 열립니다' : '📜 마지막 결산 완료 · 결말이 열립니다', ev.endingId === 'bad' ? 'bad' : 'good', 3200); break;
+      case 'milestoneMet': toast(`🤝 청토끼와의 약속 달성 · 원금의 ${Math.round(ev.share * 100)}% 상환 · 다음 달 이자 ${Math.round(ev.cut * 100)}% 감면`, 'good', 3600); break;
+      case 'creditorWarning': toast(ev.milestone ? '✉️ 청토끼 경고 · 약속한 상환에 못 미쳤어요' : '✉️ 청토끼 경고 · 이번 달 상환이 이자보다 적었어요', 'bad', 3600); break;
+      case 'creditorUltimatum': toast(`🟥 청토끼 통첩 · ${ev.need.toLocaleString('ko-KR')}G 더 갚기 · ${ev.turns}순 안에`, 'bad', 4200); break;
+      case 'ultimatumCleared': toast('🕊️ 청토끼 통첩 해제 · 경고가 0회로 돌아갔어요', 'good', 3600); break;
       case 'shiftClosed': ui.sheet = null; ui.selectedSlot = null; ui.chatter = null; save(); break; // 마감 화면을 가리는 영업 중 대사는 내린다
       default: break;
     }

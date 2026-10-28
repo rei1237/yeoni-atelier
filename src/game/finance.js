@@ -1,5 +1,6 @@
 import {TEMP} from '../config/balance.temp.js';
 import {calendarOf} from './calendar.js';
+import {resolveUltimatum} from './creditor.js';
 import {cafeProgress} from './cafe-growth.js';
 import {townCheck} from './town.js';
 import {bondFx} from '../data/bonds.js';
@@ -39,6 +40,6 @@ export function repayFinance(state,target,amount,currency='gold'){
  if(used>available)return {ok:false,reason:'상환할 재화가 부족해요'};
  const converted=currency==='moonstone'?Math.floor(used*rate):used,paid=Math.min(debt,converted);
  if(currency==='moonstone'){state.moonstone-=used;state.gold+=converted-paid;state.stats.moonstonesExchanged+=used;}else state.gold-=used;
- if(target==='loan')f.balance-=paid;else {state.debt-=paid;state.repaidTotal+=paid;state.stats.repayCount++;}
+ if(target==='loan')f.balance-=paid;else {state.debt-=paid;state.repaidTotal+=paid;state.stats.repayCount++;resolveUltimatum(state);}
  emit('repaid',{amount:paid,debt:target==='loan'?f.balance:state.debt});return {ok:true,paid,used,change:converted-paid};
 }

@@ -13,7 +13,8 @@ import { emit, usableHosts, emptyStations, shiftDuration, lastAcceptAt } from '.
 import { checkout, setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave, settleClosingOrders } from './cafe.js';
 import { settleDue, settleHosting, hostingVisits, stepHosting, onRequesting } from './nomination.js';
 import { nextRandom, randRange } from '../core/rng.js';
-import { chargeInterest, advanceTurn } from './calendar.js';
+import { chargeInterest, advanceTurn, calendarOf } from './calendar.js';
+import { checkCreditor } from './creditor.js';
 import { workShift } from './bonds.js';
 import { settleStress, stressOf } from './stress.js';
 import { canUse } from './permissions.js';
@@ -142,6 +143,7 @@ export function closeShift(state) {
     settlement.payroll = structuredClone(accruePayroll(state,sh));
     settlement.loanInterest=chargeLoanInterest(state,sh);
     settlement.interest = chargeInterest(state, sh);
+    settlement.creditor = checkCreditor(state, calendarOf(sh.day).monthIdx, settlement.interest);
     settlement.gold = state.gold; settlement.debt = state.debt;
     state.ledger.settlements[sh.id] = settlement;
     state.stats.shiftsCompleted += 1;

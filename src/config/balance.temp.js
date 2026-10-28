@@ -142,6 +142,16 @@ export const TEMP = Object.freeze({
     ]),
     // 인상 장면을 볼 때마다 네오가 버티며 자란다(원장 hike:<달>:neo 1회). 호스트 능력치는 10이 상한
     HIKE_NEO: Object.freeze({ empathy: 1, talk: 1, fun: 2, looks: 1, huntHp: 30, huntDmg: 0.08 }),
+    // 10-28 6-1 청토끼 독촉(game/creditor.js). 하순 마감 때 한 번 본다. 첫 약속 달 전에는 보지 않는다(초반 이자 미납은 모두에게 흔하다)
+    // 약속: 인수 원금(startingDebt) 대비 누적 상환 비율. 지키면 다음 달 이자 감면 1회
+    MILESTONES: Object.freeze([
+      Object.freeze({ monthIdx: 5, share: 0.10 }), Object.freeze({ monthIdx: 11, share: 0.35 }),
+      Object.freeze({ monthIdx: 17, share: 0.65 }), Object.freeze({ monthIdx: 23, share: 1 }),
+    ]),
+    MILESTONE_INTEREST_CUT: 0.5,
+    // 나쁜 달 = 약속 미달, 또는 그달 상환이 빚에 붙은 미납 이자보다 적음. 연속 2번이면 통첩
+    ULTIMATUM_SHARE: 0.05,    // 통첩 목표 = 지금 누적 상환 + 원금 × 5%
+    ULTIMATUM_MONTHS: 3,      // 기한 3개월(9순), 마지막 달을 넘지 않는다
     AP_PER_TURN: 3,           // 사냥 1 · 대화 1
     ENDING_BOND_BEST: 1500,   // 빚을 다 갚고 친밀도 합이 이 이상이면 최고 결말(72순 봇: 일+네오 대화만으로는 ~1270, 여러 동료와의 대화·선물이 더 필요)
   }),

@@ -122,3 +122,6 @@ body[data-editing=true] #topbar button{min-height:44px;min-width:44px}
 .concertbtn{flex-direction:column;gap:2px;background:#fff4d1;border-color:#a87c3a}.concertbtn small{font-size:11px;font-weight:400;color:#735b69}
 .fan-rows{display:grid;gap:4px;margin:8px 0 4px;padding:0;list-style:none}.fan-rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;padding:5px 8px;background:#fff7ea;border:1px solid #e9d6b9}.fan-rows b{font-size:12px}.fan-rows span{font-size:11px;color:#9c4560;font-weight:700;text-align:right}.fan-rows small{grid-column:1/-1;font-size:11px;color:#735b69}
 .bond-fans{display:block;margin-top:4px;color:#9c4560}
+
+/* 6-1 청토끼 통첩: 영업 화면 위 한 줄 경고 */
+.creditor-alert{display:block;width:100%;min-height:40px;margin:0 0 6px;padding:8px 12px;border:1px solid #c98a9d;border-radius:12px;background:#fbe9ee;color:#7a2f4a;font-size:12px;font-weight:700;text-align:left;white-space:normal;line-height:1.4}

@@ -42,6 +42,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     payroll:{months:{},arrears:0},
     finance:{balance:0,requests:{},interest:{}},
     repaidTotal: 0,
+    creditor: { warnings: 0, ultimatum: null, lastRepaid: 0, lastCheck: null }, // 6-1 청토끼 독촉(game/creditor.js)
     stock: { ...TEMP.START_STOCK, night_dew: 0 },
     moonstone: 0,          // 월정석: 사냥에서 얻고 청토끼 금융 센터에서 골드로 바꾼다
     farm: newFarm(seed),
@@ -63,7 +64,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     outfits: { owned: [...START_OUTFITS], equipped },
     quests: { claimed: {} },
     stats: { served: 0, servedSpecial: 0, shiftsCompleted: 0, repayCount: 0, nightDewObtained: 0, recruited: 0, huntsCompleted: 0, moonstonesObtained: 0, moonstonesExchanged: 0, expansions: 0, areasOpened: 0 },
-    ledger: { sales: {}, tips: {}, settlements: {}, rewards: {}, consumes: {}, repay: {}, interest: {}, story: {}, achievements: {} },
+    ledger: { sales: {}, tips: {}, settlements: {}, rewards: {}, consumes: {}, repay: {}, interest: {}, creditor: {}, story: {}, achievements: {} },
     calendar: { ended: false, endingId: null, endedDebt: null, totalTurns: TEMP.CALENDAR.TOTAL_TURNS }, // 달력(game/calendar.js): day 로 달·순을 계산한다
     ap: { left: TEMP.CALENDAR.AP_PER_TURN, talked: {}, gifted: {}, shopped: false, delegated: {}, sheltered: {}, neoTask: null }, // 이번 순 행동력
     affinity: { neo: 0, luna: 0, luna_sis: 0, moka: 0 }, // 친밀도(game/bonds.js)
