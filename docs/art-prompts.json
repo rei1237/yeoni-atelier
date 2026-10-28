@@ -4103,5 +4103,13 @@
     ],
     "prompt": "Production GAME SPRITE SHEET in the same soft hand-painted chibi fantasy cafe idol style as the attached sheet. The character is Yeoni, a young woman with long wavy pink hair, pink flower hair ornament, cream vintage lace dress, small brown shoulder bag, brown boots, exactly as attached. She stands behind a cafe register cheering for an idol stage show. TRANSPARENT background. Exactly FOUR columns by THREE rows = 12 full-body chibi sprites, identical character scale in every cell, soles aligned on one baseline per row, generous empty transparent spacing between figures so no two figures touch, no cell lines, no text, no floor, no shadows, no props except what is described, no detached objects. Every frame is ONE connected silhouette. All poses three-quarter front view facing the viewer. ROW 1 CLAP: four-frame clapping loop in front of the chest, delighted smile. ROW 2 CHEER: four-frame loop holding one small pink glow stick with both hands and swaying it gently side to side, the stick always touching her hands. ROW 3 COUNT: four-frame loop catching one small gold coin in both cupped hands, holding it to the chest, happy surprised face, bouncing on her toes.",
     "normalization": "알파 연결 실루엣 12개, 128셀 발 기준점64,122, 공통 스케일, WebP q90"
+  },
+  {
+    "id": "ui/debt_ledger",
+    "tool": "image_gen built-in (codex exec)",
+    "sourceFile": "D:/yeoni-qa/art/ui-v1/debt_ledger.png",
+    "references": [],
+    "prompt": "Wide horizontal banner illustration for a cozy fantasy cafe game UI. An open antique ledger book lying on an ivory linen desk, its pages covered only with faint abstract ruled lines (no readable writing, no numbers, no letters). A small stack of gold coins beside it, a crescent-moon brass bookmark ribbon, scattered dusty-rose petals and sage-green leaves, a tiny sprig of white blossoms. Soft warm morning light, gentle painterly anime illustration style with fine linework, matching a palette of dusty rose, sage green, warm ivory and antique gold. Composition centered, objects occupy the middle band, plain warm ivory background (#fbf4e8) all around with generous empty margins. No people, no animals, no text, no watermark, no frame.",
+    "normalization": "1536×1024에서 가운데 띠(0,160)-(1536,860) 자르기 → 720×328, 타원 가장자리 알파 페더(62%→100%), WebP q82"
   }
 ]

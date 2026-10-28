@@ -8,3 +8,5 @@
 .debt-actions button{min-height:48px}
 .music-seek input[type=range],.music-volume input[type=range],.music-sfx input[type=range]{min-height:44px}
 .gear-list .kv{margin:8px 0 12px}
+/* 빚 상환 창 머리 그림: 장부 일러스트, 가장자리는 알파로 창 배경에 스며든다 */
+.debt-ledger-art{height:clamp(64px,min(30vw,20vh),150px);margin:-4px -6px 10px;background:url('assets/illustrated/ui/debt_ledger.webp') center/contain no-repeat}

@@ -459,7 +459,7 @@ function debtSheet(state) {
   const ds = debtStage(state);
   const can = state.mode !== 'shift';
   const amounts = [[1000, '1,000G'], [5000, '5,000G'], [Math.min(state.gold, state.debt), '가진 만큼 전액']];
-  return `${head('💳 빚 상환')}
+  return `${head('💳 빚 상환')}<div class="debt-ledger-art" aria-hidden="true"></div>
     <div class="card kv"><span>남은 빚</span><b>${won(state.debt)}</b><span>갚은 총액</span><b>${won(state.repaidTotal)}</b><span>보유 골드</span><b>${won(state.gold)}</b>
       <span>상환 단계</span><b>${esc(ds.label)}${ds.need ? ` ${won(ds.paid)} / ${won(ds.need)}` : ''}</b></div>
     ${ds.need ? bar(ds.paid / ds.need * 100) : ''}

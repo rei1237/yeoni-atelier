@@ -579,6 +579,7 @@ comparison-00~19.jpg를 직접 열어 변경 전후를 비교했다. 마을 4계
 | objects/chair_right | 128×128 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | ui/botanical_left | 192×224 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | ui/botanical_right | 192×224 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| ui/debt_ledger | 720×328 | 완료 | codex-image(gpt-image-2) 원본 D:/yeoni-qa/art/ui-v1/debt_ledger.png · 빚 상환 창 머리 그림 |
 | ui/botanical_divider | 256×68 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | ui/botanical_pot | 128×160 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | actors/yeoni_idle_right | 512×512 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |

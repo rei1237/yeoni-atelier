@@ -506,6 +506,7 @@
     "effects/stage_fx",
     "actors/lune_stage",
     "actors/raven_stage",
-    "actors/yeoni_cheer"
+    "actors/yeoni_cheer",
+    "ui/debt_ledger"
   ]
 }
