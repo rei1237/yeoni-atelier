@@ -27,7 +27,7 @@ import {TEMP as GAME_TEMP} from '../config/balance.temp.js';
 // 상태 변경은 모두 dispatch(명령)·tick(활성 시간)으로만 하고, 이 파일은 골드·지명 시간·영입 상태를 직접 바꾸지 않는다.
 
 import {showHelpFeedback} from './help-feedback.js';
-import { unlockAudio,setAudioScene,audioAction,sound,audioStatus } from './audio.js';
+import { unlockAudio,setAudioScene,audioAction,sound,audioStatus,startShiftMusic } from './audio.js';
 import {tableCookingOrders} from '../game/table-cooking.js';
 import { GUIDES,guideForContext } from './tutorials.js';
 import { btn } from './dom.js';
@@ -653,12 +653,12 @@ function handleEvents(events) {
       case 'huntEliteDown': if(state.hunt?.hunterId==='neo'){ui.eliteLine=(ui.eliteLine||0)+1;showCafeLine(CAFE_LINES.elitedown[ui.eliteLine%CAFE_LINES.elitedown.length],'영냥이','neo_cat');}break;
       case 'supplyGift': toast(ev.label,'good',3600);break;
       case 'guestChatter': if(state.mode==='shift'&&ev.customerId){guestTalk(ui.talk??=newTalk(),state,ev,performance.now(),Math.random());break;}showCafeLine(ev.line,ev.kind==='takeaway'?'포장 손님':ev.tableNo?`${ev.tableNo}번 손님`:'손님','customer'); break;
-      case 'paidAtCounter': sound('moon'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;
+      case 'paidAtCounter': sound('coin'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;
       case 'cafeLevelUp': sound('bond'); toast(`카페 Lv.${ev.level}! ${ev.apGain>0?`다음 순부터 마을 행동력 +${ev.apGain}`:'더 많은 손님과 새로운 취향이 찾아와요'}`,'good');break;
       case 'takeawayDone': toast('포장 완료 · 손님이 계산대에서 받아 갔어요','good');break;
       case 'farmAction': ui.farmFeedback=ev.text;ui.farmMotion={kind:ev.kind,index:ev.index,cropId:ev.cropId,at:performance.now()};ui.farmAnimUntil=performance.now()+1800;toast(ev.text,'good');break;
-      case 'shiftStart': toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 10:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
-      case 'closingStart': toast('🌙 마감 30초 전 · 새 손님은 받지 않아요. 남은 주문은 끝나도 매출로 잡혀요', '', 3600); showCafeLine('설거지랑 청소, 시작할게요. 괜찮아요, 남은 주문도 끝까지 챙길게요.','루나 언니','luna_sis'); break;
+      case 'shiftStart': sound('open'); startShiftMusic(); toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 10:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
+      case 'closingStart': sound('close'); toast('🌙 마감 30초 전 · 새 손님은 받지 않아요. 남은 주문은 끝나도 매출로 잡혀요', '', 3600); showCafeLine('설거지랑 청소, 시작할게요. 괜찮아요, 남은 주문도 끝까지 챙길게요.','루나 언니','luna_sis'); break;
       case 'served': floater(p?.x??cssW/2, (p?.y??cssH*.75) - 10, '주문 완료', '#b07a12'); if (state.stats.served % 4 === 0) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
       case 'nominationRequest': toast(`💌 ${ev.tableNo}번 손님이 ${personName(state, ev.nominee)} 지명 요청 — 테이블을 눌러 확인`, 'good', 3600); break;
       case 'nominationAccepted': toast(`🫖 ${ev.tableNo}번 접대 시작 · 60초 전담`, 'good'); gagLines(ev.gag); break;

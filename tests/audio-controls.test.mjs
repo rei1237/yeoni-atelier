@@ -47,3 +47,19 @@ test('사냥 자동 선곡은 카페 수동 선택과 분리되고 귀환 시 �
  a.audioAction('music');a.setAudioScene('huntDeep');assert.equal(a.audioStatus().music,false);assert.equal(p.paused,true);
 });
 test('드레스룸은 카페 수동 선곡과 무관하게 White Lion을 재생하고 음소거를 지킨다',async()=>{const {audio:a,player:p}=await fixture({music:true,track:'destinycafe-06'});a.unlockAudio();a.setAudioScene('outfits');assert.equal(a.audioStatus().current,'lion');a.setAudioScene('cafe');assert.equal(a.audioStatus().current,'destinycafe-06');a.audioAction('music');a.setAudioScene('outfits');assert.equal(p.paused,true);});
+test('영업을 시작하면 음악이 꺼져 있어도 Moonlight Tea부터 카페 순서로 재생하고, 🎵를 끄면 다음 영업에도 켜지 않는다',async()=>{
+ const {audio:a,player:p,store}=await fixture({music:false,track:MUSIC_CATALOG[2].id});a.unlockAudio();a.setAudioScene('cafe');assert.equal(p.paused,true);
+ assert.equal(a.SHIFT_FIRST_TRACK,'destinycafe-06');assert.equal(MUSIC_CATALOG.find(t=>t.id==='destinycafe-06').name,'Moonlight Tea');
+ assert.equal(a.startShiftMusic(),true);await new Promise(setImmediate);
+ assert.equal(a.audioStatus().current,'destinycafe-06');assert.equal(a.audioStatus().track,'auto');assert.equal(p.paused,false);
+ p.ended();await new Promise(setImmediate);assert.equal(a.audioStatus().current,a.CAFE_PLAYLIST[1]);
+ a.audioAction('shiftMusic');assert.equal(p.paused,true);assert.equal(JSON.parse(store.get('yeoni-atelier.audio.v1')).shiftMusic,false);
+ assert.equal(a.startShiftMusic(),false);assert.equal(p.paused,true,'꺼 둔 영업 음악은 다시 켜지 않는다');
+ a.audioAction('shiftMusic');await new Promise(setImmediate);assert.equal(p.paused,false);assert.equal(a.audioStatus().shiftMusic,true);
+ a.startShiftMusic();await new Promise(setImmediate);assert.equal(a.audioStatus().current,'destinycafe-06','다음 영업도 Moonlight Tea부터');
+});
+test('영업 전 🎵 켜기는 지금 재생하지 않고 다음 영업 예약만 한다',async()=>{
+ const {audio:a,player:p}=await fixture({music:false,shiftMusic:false});a.unlockAudio();a.setAudioScene('cafe');
+ a.audioAction('shiftMusic','on');await new Promise(setImmediate);assert.equal(p.paused,true);assert.equal(a.audioStatus().shiftMusic,true);
+ a.startShiftMusic();await new Promise(setImmediate);assert.equal(p.paused,false);assert.equal(a.audioStatus().current,'destinycafe-06');
+});

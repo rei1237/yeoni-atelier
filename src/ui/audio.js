@@ -12,11 +12,11 @@ const selectTrack=id=>{if(huntScene())settings.huntTrack=id;else settings.track=
 const cafeScene=()=>trackForScene(scene)==='cafe';
 let category='all',query='',bag=[],history=[],forward=[],shuffleReady=false,lastFailed='',playGeneration=0;
 const KEY='yeoni-atelier.audio.v1';
-let settings={music:false,sfx:true,volume:.35,sfxVolume:.75,track:'auto',repeat:'all',shuffle:false};
+let settings={music:false,sfx:true,volume:.35,sfxVolume:.75,track:'auto',repeat:'all',shuffle:false,shiftMusic:true};
 try{settings={...settings,...JSON.parse(localStorage.getItem(KEY)||'{}')};}catch{}
 settings.volume=Math.max(0,Math.min(1,Number.isFinite(Number(settings.volume))?Number(settings.volume):.35));
 const player=typeof Audio!=='undefined'?new Audio():{pause(){},addEventListener(){}};player.preload='none';player.loop=false;
-let context, master, noise, unlocked=false, scene='title', current='', error='', pending=false, storyTrack=null;
+let context, master, verb, noise, unlocked=false, scene='title', current='', error='', pending=false, storyTrack=null;
 const lastSounds=new Map(), voices=new Set();
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(settings));}catch{}}
 export function trackForScene(scene){return ({title:'tea',hunt:'battle',huntDeep:'lion',huntBoss:'boss',huntResult:'dream',huntPrep:'strategy',farm:'dream',story:'dream',outfits:'lion',fever:'opening'}[scene]||'cafe');}
@@ -47,10 +47,20 @@ function nextTrack(direction){
 
 
 export function unlockAudio(){
- unlocked=true;try{if(!context){context=new(window.AudioContext||window.webkitAudioContext)();master=context.createGain();master.gain.value=settings.sfxVolume;const limiter=context.createDynamicsCompressor();master.connect(limiter);limiter.connect(context.destination);noise=context.createBuffer(1,Math.floor(context.sampleRate*.5),context.sampleRate);const data=noise.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;}
+ unlocked=true;try{if(!context){context=new(window.AudioContext||window.webkitAudioContext)();master=context.createGain();master.gain.value=settings.sfxVolume;const limiter=context.createDynamicsCompressor(),soften=context.createBiquadFilter();soften.type='lowpass';soften.frequency.value=9000;master.connect(soften);soften.connect(limiter);limiter.connect(context.destination);
+  // 작은 찻집 잔향: 녹음 샘플 없이 감쇠 노이즈로 만든 임펄스라 저작권 걱정이 없다.
+  const room=context.createConvolver(),len=Math.floor(context.sampleRate*1.4),ir=context.createBuffer(2,len,context.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3.2);}room.buffer=ir;verb=context.createGain();verb.gain.value=.26;verb.connect(room);room.connect(master);noise=context.createBuffer(1,Math.floor(context.sampleRate*.5),context.sampleRate);const data=noise.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;}
  if(context.state==='suspended')context.resume().catch(()=>{});}catch{}sync();
 }
 export function setAudioScene(next){if(next!==scene){scene=next;sync();}}
+// 영업 시작 버튼을 누른 순간(사용자 입력 안) 카페 순서 재생을 Moonlight Tea부터 튼다. 🎵 토글로 끄면 다음 영업에도 켜지지 않는다.
+export const SHIFT_FIRST_TRACK=CAFE_PLAYLIST[0];
+export function startShiftMusic(){
+ if(!settings.shiftMusic)return false;
+ const fresh=!(settings.music&&current===SHIFT_FIRST_TRACK&&!player.paused);
+ if(fresh){settings.track='auto';cafeIndex=0;lastFailed='';}
+ settings.music=true;persist();sync();return true;
+}
 export function audioAction(key,value){
  if(key==='filter'){category=GROUPS[value]?value:'all';return;}if(key==='search'){query=String(value||'').slice(0,80);return;}
  if(key==='next'||key==='previous'){nextTrack(key==='next'?1:-1);return;}
@@ -58,6 +68,7 @@ export function audioAction(key,value){
  if(key==='repeat')settings.repeat=({all:'one',one:'off',off:'all'})[settings.repeat]||'all';
  if(key==='shuffle'){settings.shuffle=!settings.shuffle;history=[];forward=[];resetShuffle();}
  if(key==='music'||key==='sfx')settings[key]=!settings[key];
+ if(key==='shiftMusic'){const v=value??(settings.shiftMusic&&settings.music?'off':'play');settings.shiftMusic=v!=='off';if(v!=='on')settings.music=v==='play';} // on: 다음 영업부터, play: 지금도 재생, off: 끔
  if(key==='volume'||key==='sfxVolume')settings[key]=Math.max(0,Math.min(1,Number(value)||0));
  if(master)master.gain.value=settings.sfx?settings.sfxVolume:0;
  if(key==='track'&&(value==='auto'||TRACKS[value])){const now=TRACKS[current]?.id;if(settings.shuffle&&now&&now!==TRACKS[value]?.id)history.push(now);forward=[];selectTrack(value);settings.music=true;shuffleReady=false;}
@@ -65,10 +76,16 @@ export function audioAction(key,value){
  error='';lastFailed='';persist();sync();if(settings.shuffle&&!shuffleReady)resetShuffle();
 }
 // 소리별 간격을 분리해 공격음이 피격·획득·성장 소리를 막지 않는다.
-export const SOUND_GAPS=Object.freeze({tap:65,good:150,bad:150,hit:65,hurt:240,bolt:180,crescent:350,tarot:400,aura:600,gem:100,moon:160,death:180,level:600,boss:1200,cook:120,farm:120,bond:250});
+export const SOUND_GAPS=Object.freeze({tap:65,good:150,bad:150,coin:110,open:1500,close:1500,hit:65,hurt:240,bolt:180,crescent:350,tarot:400,aura:600,gem:100,moon:160,death:180,level:600,boss:1200,cook:120,farm:120,bond:250});
 function tone(f0,f1,dur,vol=.14,delay=0,type='sine'){
  if(voices.size>=28)return;const o=context.createOscillator(),g=context.createGain(),t=context.currentTime+delay;o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(30,f1),t+dur);g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(vol,t+.006);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(master);voices.add(o);o.onended=()=>{o.disconnect();g.disconnect();voices.delete(o);};o.start(t);o.stop(t+dur+.025);
 }
+// 오르골·찻잔 같은 맑은 종소리: 사인 배음이 서로 다른 속도로 사라지고, 잔향으로 살짝 번진다.
+function bell(f,dur=.5,vol=.05,delay=0,partials=[[1,1],[2.01,.3],[3.02,.1]],wet=true){
+ if(voices.size>=24)return;const t=context.currentTime+delay,out=context.createGain();out.connect(master);if(wet)out.connect(verb);let left=partials.length;
+ partials.forEach(([m,a],i)=>{const o=context.createOscillator(),g=context.createGain(),d=dur/(1+i*.7);o.type='sine';o.frequency.setValueAtTime(f*m,t);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol*a,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(out);voices.add(o);o.onended=()=>{o.disconnect();g.disconnect();voices.delete(o);if(!--left)out.disconnect();};o.start(t);o.stop(t+d+.03);});
+}
+const CLINK=[[1,1],[1.48,.45],[2.37,.28],[3.6,.12]],COIN=[[1,1],[2.76,.22]];
 function burst(dur=.12,vol=.12,freq=1600){if(voices.size>=28)return;const s=context.createBufferSource(),f=context.createBiquadFilter(),g=context.createGain(),t=context.currentTime;s.buffer=noise;f.type='lowpass';f.frequency.setValueAtTime(freq,t);f.frequency.exponentialRampToValueAtTime(100,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(g);g.connect(master);voices.add(s);s.onended=()=>{s.disconnect();f.disconnect();g.disconnect();voices.delete(s);};s.start(t);s.stop(t+dur);}
 export function sound(kind='tap'){
  if(!settings.sfx||!context||context.state!=='running'||document.hidden)return;
@@ -81,19 +98,22 @@ export function sound(kind='tap'){
  case 'hit':tone(250,100,.055,.10,0,'triangle');break;
  case 'hurt':tone(170,85,.18,.10,0,'triangle');burst(.12,.065,700);break;
  case 'death':burst(.13,.08,1100);break;
- case 'gem':tone(1180,1550,.075,.06);break;
- case 'moon':tone(880,1320,.13,.13);tone(1760,1760,.14,.08,.08);break;
+ case 'gem':bell(1760,.16,.035,0,[[1,1],[2,.2]],false);break;
+ case 'moon':bell(1318.5,.45,.06);bell(1760,.55,.04,.08);break;
  case 'boss':tone(75,48,.8,.16,0,'triangle');tone(110,72,.6,.09,.18);break;
- case 'bad':tone(240,150,.18,.13);break;
- case 'tap':tone(420,280,.045,.045,0,'triangle');tone(840,700,.06,.018);break;
- case 'cook':tone(1046,1040,.23,.06);tone(1568,1560,.19,.022,.025);burst(.08,.015,1200);break;
- case 'bond':tone(523,523,.32,.07);tone(659,659,.34,.05,.08);tone(784,784,.38,.035,.16);break;
- case 'good':tone(660,660,.16,.06);tone(880,880,.24,.04,.06);break;
- case 'farm':burst(.13,.035,1800);tone(440,660,.18,.035,.05);break;
- default:{const notes=kind==='level'||kind==='chest'?[523,659,784,1047]:kind==='cook'?[480,610,880]:kind==='farm'?[440,660,880]:[659,784,988];notes.forEach((f,i)=>tone(f,f,.16,.11,i*.07,'triangle'));}
+ case 'bad':tone(392,262,.16,.05);tone(311,208,.2,.035,.05);break;
+ case 'tap':tone(1250,720,.04,.032);burst(.025,.01,5200);break;
+ case 'cook':bell(2093,.38,.03,0,CLINK);bell(2637,.3,.018,.055,CLINK);burst(.035,.008,6000);break;
+ case 'coin':bell(1568,.22,.04,0,COIN);bell(2093,.42,.045,.07,COIN);break;
+ case 'bond':[1046.5,1318.5,1568,2093].forEach((f,i)=>bell(f,.7,.04,i*.09));break;
+ case 'good':bell(1318.5,.5,.045);bell(1975.5,.65,.032,.07);break;
+ case 'farm':burst(.1,.025,1500);bell(880,.4,.035,.05);break;
+ case 'open':[2349,1976,1568,1318.5,1174.7].forEach((f,i)=>bell(f,1.1,.028,i*.07));break;
+ case 'close':bell(784,.8,.04);bell(523.3,1.1,.04,.18);break;
+ default:{const notes=kind==='level'||kind==='chest'?[784,988,1175,1568]:[1318.5,1568,1975.5];notes.forEach((f,i)=>bell(f,.6,.05,i*.07));bell(3136,.5,.015,notes.length*.07);}
  }
 }
-export function audioStatus(){return {music:settings.music,sfx:settings.sfx,unlocked,scene,current,playing:!player.paused,contextState:context?.state||'locked',voices:voices.size,error,volume:settings.volume,track:activeTrack(),cafeTrack:settings.track,repeat:settings.repeat,shuffle:settings.shuffle,time:player.currentTime||0,duration:player.duration||0};}
+export function audioStatus(){return {music:settings.music,shiftMusic:settings.shiftMusic,sfx:settings.sfx,unlocked,scene,current,playing:!player.paused,contextState:context?.state||'locked',voices:voices.size,error,volume:settings.volume,track:activeTrack(),cafeTrack:settings.track,repeat:settings.repeat,shuffle:settings.shuffle,time:player.currentTime||0,duration:player.duration||0};}
 export function audioQuickButton(){return btn({action:'audio.change',args:{key:'music'},cls:'ghost audio-quick',title:'배경음악 켜기/끄기',label:settings.music?'음악 켜짐':'음악 꺼짐'});}
 const stamp=n=>{const t=Math.max(0,Math.floor(n||0));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0');};
 export function audioSheet(){
