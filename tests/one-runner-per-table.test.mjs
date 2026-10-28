@@ -33,3 +33,15 @@ test('이미 출발한 뒤 나온 주문은 다른 직원이 따로 가지 않�
  for(let i=0;i<300&&[a,b].some(o=>s.orders[o.id].status!=='served');i++){tick(s,100);assert.ok(runners(s,g.tableNo).length<=1);}
  assert.deepEqual([a,b].map(o=>s.orders[o.id].status),['served','served']);
 });
+
+test('서빙은 가장 가까운 한 사람만 도맡지 않고 홀 직원이 번갈아 맡는다',()=>{
+ const s=quietShift(),by={};
+ for(let k=0;k<4;k++){
+  const g=seat(s,{kind:'regular'});s.customers[g.cid].state='waiting_food';const o=placeOrder(s,s.visits[g.vid],'americano');
+  assert.ok(dispatch(s,{type:'order.quick',orderId:o.id,timing:50}).ok);tick(s,10000);assert.ok(serveOf(s,g,o).ok);
+  for(let i=0;i<300&&s.orders[o.id].status!=='served';i++){for(const r of runners(s,g.tableNo))by[o.id]=r;tick(s,100);}
+ }
+ const counts=Object.values(by).reduce((m,id)=>(m[id]=(m[id]||0)+1,m),{});
+ assert.equal(Object.keys(counts).length,2,JSON.stringify(counts));
+ assert.ok(Math.max(...Object.values(counts))-Math.min(...Object.values(counts))<=1,JSON.stringify(counts));
+});

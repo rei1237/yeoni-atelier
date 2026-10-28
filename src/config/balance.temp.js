@@ -53,6 +53,7 @@ export const TEMP = Object.freeze({
 
   // ── 이동
   WALK_TILES_PER_S: 3.2,
+  STAFF_TURN_TILES: 6, // 홀 일 나누기: 맡은 일 1건 = 6칸 더 먼 셈(가까운 사람 우선이되 번갈아 일한다)
   CUSTOMER_TILES_PER_S: 2.4,
 
   // ── 경제

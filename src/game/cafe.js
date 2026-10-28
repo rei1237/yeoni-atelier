@@ -371,13 +371,15 @@ function assignTasks(state) {
     for (const id of Object.keys(state.staff)) {
       if (!staffAvailable(state, id) || (task.autoHall && !hallAutomationOn(state,id))) continue;
       const s = state.staff[id];
-      const d = Math.abs(s.x - target.x) + Math.abs(s.y - target.y) + (PEOPLE[id]?.work === 'runner' ? 0 : 0.5);
+      // 가까운 사람이 가되, 이번 영업에 일을 더 많이 맡은 사람은 그만큼 멀리 있는 셈 친다(한 명만 계속 일하지 않게)
+      const d = Math.abs(s.x - target.x) + Math.abs(s.y - target.y) + (PEOPLE[id]?.work === 'runner' ? 0 : 0.5) + (s.jobsTaken || 0) * TEMP.STAFF_TURN_TILES;
       if (!best || d < best.d) best = { id, d };
     }
     // 계산 담당 연이는 홀 일을 대신하지 않는다. 주문은 가능한 직원이 맡을 때까지 보존한다.
     if (!best) continue;
     const s = state.staff[best.id];
     task.assignedTo = best.id;
+    s.jobsTaken = (s.jobsTaken || 0) + 1;
     if (task.type === 'deliver') {
       const more = state.tasks.filter(o => o !== task && !o.assignedTo && o.type === 'deliver' && o.tableNo === task.tableNo && canTake(state, o, best.id));
       for (const o of more) o.assignedTo = best.id;
