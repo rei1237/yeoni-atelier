@@ -42,7 +42,7 @@ export function exchange(state, qty) {
   if (!(n > 0)) return { ok: false, reason: '환전할 개수를 골라 주세요' };
   if ((state.moonstone || 0) < n) return { ok: false, reason: `월정석이 부족합니다 (보유 ${state.moonstone || 0}개)` };
   // 루나 언니 ♥3: 저울 손질로 환전 우대
-  const gold = Math.floor(n * TEMP.MOONSTONE_GOLD * (1 + bondFx(state.affinity).moonRate));
+  const gold = Math.floor(n * TEMP.MOONSTONE_GOLD * (1 + bondFx(state).moonRate));
   state.moonstone -= n;
   state.gold += gold;
   state.stats.moonstonesExchanged += n;

@@ -6,7 +6,7 @@ import {bondFx} from '../data/bonds.js';
 import {emit} from './state.js';
 
 // 게임 속 청토끼 대출. 실제 금융상품·Code Destiny 결제와 무관하다.
-export const exchangeRate=state=>TEMP.MOONSTONE_GOLD*(1+bondFx(state.affinity).moonRate);
+export const exchangeRate=state=>TEMP.MOONSTONE_GOLD*(1+bondFx(state).moonRate);
 const ensure=state=>state.finance||=( {balance:0,requests:{},interest:{}} );
 export function creditView(state){
  const balance=state.finance?.balance||0;

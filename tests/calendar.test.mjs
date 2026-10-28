@@ -73,7 +73,7 @@ test('결말: 마지막 순 결산을 닫으면 한 번 정해지고, 이후는 
   assert.equal(s.calendar.endingId, 'extend');
   assert.equal(Object.keys(s.ledger.interest).length, 1);
   // 후일담에도 인연 이야기는 열린다
-  s.affinity.neo = TEMP.BONDS.TIERS[0]; // 테스트 준비
+  s.affinity.neo = TEMP.BONDS.TIERS[0]; s.bondRank.neo = TEMP.BONDS.PERK_RANKS[0]; // 테스트 준비
   assert.equal(pendingStory(s), 'bond:neo:1');
 
   const t = createGame();

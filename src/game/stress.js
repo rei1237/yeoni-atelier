@@ -18,7 +18,7 @@ export const stressCrew = state => [...new Set(['neo', ...STAFF_CREW, ...Object.
 
 export function changeStress(state, key, id = 'neo') {
   if (!stressCrew(state).includes(id)) return 0;
-  const fx = bondFx(state.affinity), raw = TEMP.NEO_STRESS[key];
+  const fx = bondFx(state), raw = TEMP.NEO_STRESS[key];
   const delta = raw > 0 ? raw * (1 - fx.stressResist) : raw * (1 + fx.stressRecover);
   const before = stressOf(state, id);
   const value = Math.max(0, Math.min(STRESS_MAX, Math.round((before + delta) * 10) / 10));

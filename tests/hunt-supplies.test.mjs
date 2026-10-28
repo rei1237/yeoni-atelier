@@ -6,7 +6,7 @@ import {serialize,deserialize} from '../src/core/save.js';
 import {getHuntWorld,supplyStatus} from '../src/game/hunt.js';
 import {SUPPLY_TEMP} from '../src/data/hunt-supplies.js';
 import {huntSuppliesHtml} from '../src/ui/hunt-supplies.js';
-function ready(){const s=createGame();s.huntUnlocked=true;s.ledger.story.m0=true;s.stats.huntsCompleted=1;s.hunter.maxStage=7;s.moonstone=10000;s.affinity.moka=10000;return s;}
+function ready(){const s=createGame();s.huntUnlocked=true;s.ledger.story.m0=true;s.stats.huntsCompleted=1;s.hunter.maxStage=7;s.moonstone=10000;s.affinity.moka=10000;s.bondRank.moka=10;return s;}
 function use(s,id){return dispatch(s,{type:'hunt.supply',id});}
 test('모카 구매 → 간편 사용 → 재고·HP·재사용 대기 저장, 연타와 가득 찬 체력은 무효',()=>{
  let s=ready();for(let i=0;i<3;i++)assert.ok(dispatch(s,{type:'armory.buy',id:'tonic'}).ok);assert.equal(dispatch(s,{type:'armory.buy',id:'tonic'}).ok,false);assert.equal(s.moonstone,9892);dispatch(s,{type:'hunt.start'});

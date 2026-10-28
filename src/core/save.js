@@ -7,6 +7,7 @@ import {migrateHuntVisits} from '../game/hunt-visits.js';
 import {migrateCounter} from '../game/cafe.js';
 import {ensureBranches} from '../game/branches.js';
 import { customerLook } from '../data/customer-looks.js';
+import { pointsRank } from '../data/bonds.js';
 // 저장·불러오기. 연이의 아틀리에 전용 키만 쓴다(killerflowerpig 의 kfp.* 키는 읽지도 쓰지도 않는다).
 // 개발 모드는 별도 키를 쓰므로 일반 저장을 건드리지 않는다.
 
@@ -65,6 +66,8 @@ function migrate(data) {
   data.learned??={};data.learned.americano??=true; // 새 기본 메뉴는 옛 저장에서도 사용한다
   if (!data.farm) data.farm = { ...newFarm(data.rng?.seed), lastAdvancedDay: data.day };
   data.farm.energy = Number.isFinite(data.farm.energy) ? Math.max(0,Math.min(data.farm.energy,maxFarmEnergy(data.farm))) : maxFarmEnergy(data.farm);
+  // 인연 랭크 이전 저장: 점수로 열려 있던 능력이 그대로 남도록 점수만큼의 랭크로 시작한다
+  if (data.bondRank === undefined) data.bondRank = Object.fromEntries(Object.entries(data.affinity || {}).map(([id, v]) => [id, pointsRank(v || 0)]));
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
   for (const k of ['ledger', 'stats', 'seq', 'quests', 'outfits', 'fever', 'offline', 'gear', 'calendar', 'ap', 'affinity']) data[k] = { ...base[k], ...data[k] };
   // 네오 전용 스트레스 → 전 직원 스트레스. 예전 자동 켜짐은 권한이 아니므로 모두 끈다(인연으로 다시 연다).

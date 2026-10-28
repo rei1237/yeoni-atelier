@@ -54,7 +54,7 @@ import { describeOption, huntCheck, CHEST_WHEEL, CHEST_FALLBACK } from '../game/
 import { HANBI_STAGES } from '../data/hunt-stages.js';
 import { hiddenGuestQuest } from '../game/hidden-guest.js';
 import { survivalReward } from '../game/hunt-rewards.js';
-import { BONDS, BOND_IDS, COMMON_GIFT, bondTier } from '../data/bonds.js';
+import { BONDS, BOND_IDS, COMMON_GIFT, ARCANA, MAX_RANK, bondRank, bondReady, perkTier, withWa } from '../data/bonds.js';
 import { SPEAKERS } from '../story/prologue.js';
 import { townCheck, nextExpansion, areaPrice, decorPrice } from '../game/town.js';
 import { placeLock, PLACE_NAMES, bondOpen, bondMasked, bondName } from '../game/unlocks.js';
@@ -71,7 +71,7 @@ const head = title => `<h2>${title}${btn({ action: 'sheet.close', cls: 'close gh
 const serviceBanner = (key, name, title, line) => `<section class="service-banner" style="${assetStyle(`services/${key}`)}"><div><h3>${esc(title)}</h3><p>${esc(line)}</p></div></section>`;
 const bar = (pct, cls = '') => `<span class="bar" aria-hidden="true"><i class="${cls}" style="width:${Math.max(0, Math.min(100, pct))}%"></i></span>`;
 
-export function sheetHtml(state,ui){const html=sheetBody(state,ui);if(state?.mode!=='prep'||ui.sheet?.kind!=='farm')return html;const helpers=Object.keys(HELPERS).filter(id=>state.roster[id]&&bondTier(state.affinity[id]||0)>=HELPERS[id].tier);return `<div class="delegate-strip"><span>농장 돌봄을 동료에게 부탁할 수 있어요</span>${helpers.map(id=>btn({action:'world.delegate',args:{id},disabled:!!state.ap.delegated?.[id],cls:ui.delegate===id?'on':'',label:`${BONDS[id].name} ${state.ap.delegated?.[id]?'대행 완료':'대행 선택'}`})).join('')}</div>${html}`;}
+export function sheetHtml(state,ui){const html=sheetBody(state,ui);if(state?.mode!=='prep'||ui.sheet?.kind!=='farm')return html;const helpers=Object.keys(HELPERS).filter(id=>state.roster[id]&&perkTier(state,id)>=HELPERS[id].tier);return `<div class="delegate-strip"><span>농장 돌봄을 동료에게 부탁할 수 있어요</span>${helpers.map(id=>btn({action:'world.delegate',args:{id},disabled:!!state.ap.delegated?.[id],cls:ui.delegate===id?'on':'',label:`${BONDS[id].name} ${state.ap.delegated?.[id]?'대행 완료':'대행 선택'}`})).join('')}</div>${html}`;}
 function sheetBody(state, ui) {
   const s = ui.sheet;
   if (!state || !s) return '';
@@ -94,6 +94,7 @@ function sheetBody(state, ui) {
     case 'more': return moreSheet(state, ui);
     case 'debt': return debtSheet(state);
     case 'companions': return companionSheet(state,ui);
+    case 'rankup': return rankUpSheet(state, ui.sheet.up);
     case 'outfits': return state.hostbar.open?dressroomSheet(state, ui):`${head('아직 닫힌 드레스룸')}<div class="locked-room"><b>옷걸이에 초대장이 걸려 있어요</b><p>첫해 5월의 호스트 카페 개업 이야기를 마치면 동료들과 새 의상을 골라요.</p></div>`;
     case 'farm': return placeLock(state,'farm')?`${head(PLACE_NAMES.farm)}${lockedRoom(placeLock(state,'farm'))}`:farmSheet(state, ui);
     case 'hunt': return huntPrepSheet(state,ui);
@@ -273,7 +274,6 @@ function shopSheet(state) {
 const placeOf = id => WORLD_PLACES.find(p => p.id === id) || WORLD_PLACES[0];
 const bondAt = place => BOND_IDS.find(id => BONDS[id].place === place);
 const MYSTERY_FACE = '<span class="mystery-silhouette" aria-hidden="true">?</span>';
-const hearts = t => `<span aria-label="인연 ${t}단계">${Array.from({length:TEMP.BONDS.TIERS.length},(_,i)=>assetIcon(`ui/heart-${i<t?'full':'empty'}`,i<t?'♥':'♡')).join('')}</span>`;
 
 function townSheet(state, tab = 'atelier', ui = {}) {
   const here = placeOf(tab);
@@ -304,19 +304,38 @@ function placeBody(state, id, ui = {}) {
   }
 }
 
-// 인연 카드: 하트 단계·다음 능력·대화(행동력 1)·선물
+// 인연 카드(페르소나식): 아르카나·랭크 10칸·다음 랭크까지 남은 점수·능력 해방 목록·대화(행동력 1)·선물
 function bondCard(state, id) {
-  const b = BONDS[id], v = state.affinity[id] || 0, t = bondTier(v), T = TEMP.BONDS.TIERS;
-  const lo = t ? T[t - 1] : 0, hi = T[t];
-  const next = t < T.length ? `다음 ♥${t + 1}: ${esc(b.perks[t].label)} (${v}/${hi})` : '인연 최고 단계 · 능력이 모두 열렸어요';
+  const b = BONDS[id], v = state.affinity[id] || 0, r = bondRank(state, id), R = TEMP.BONDS.RANKS, P = TEMP.BONDS.PERK_RANKS;
+  const ready = bondReady(state, id), lo = r ? R[r - 1] : 0, hi = R[r], [num, arc] = ARCANA[id] || ['?', ''];
+  const n = P.findIndex(x => x > r);
+  const status = r >= MAX_RANK ? '인연 MAX · 모든 능력이 해방됐어요'
+    : ready ? '✦ 인연이 깊어질 것 같다 · 다음 대화에서 랭크 업'
+    : `다음 랭크까지 ${hi - v}점 · 대화·선물·함께 일하기로 쌓여요`;
+  const pips = Array.from({ length: MAX_RANK }, (_, i) => `<i class="${i < r ? 'on' : ''}${P.includes(i + 1) ? ' perk' : ''}"></i>`).join('');
+  const perks = b.perks.map((p, i) => `<li class="${r >= P[i] ? 'open' : i === n ? 'next' : ''}"><b>Rank ${P[i]}</b><span>${esc(p.label)}</span><small>${r >= P[i] ? '해방' : i === n ? '다음' : '잠김'}</small></li>`).join('');
   const talked = state.ap.talked[id], gifted = state.ap.gifted[id];
-  const talkBtn = btn({ action: 'bond.talk', args: { id }, cls: 'primary', disabled: talked || state.ap.left < 1 || !townCheck(state).ok, title: talked ? '이번 순에 이미 이야기했어요' : state.ap.left < 1 ? '행동력이 없어요 · 영업을 마치면 채워져요' : '', label: talked ? '💬 이야기함' : '💬 대화 (행동력 1)' });
+  const talkBtn = btn({ action: 'bond.talk', args: { id }, cls: 'primary' + (ready && !talked ? ' rank-ready' : ''), disabled: talked || state.ap.left < 1 || !townCheck(state).ok, title: talked ? '이번 순에 이미 이야기했어요' : state.ap.left < 1 ? '행동력이 없어요 · 영업을 마치면 채워져요' : '', label: talked ? '💬 이야기함' : ready ? '✦ 랭크 업 대화 (행동력 1)' : '💬 대화 (행동력 1)' });
   const giftBtn = g => btn({ action: 'bond.gift', args: { id, gift: g.id }, disabled: gifted || state.gold < g.cost || !townCheck(state).ok, title: gifted ? '이번 순에 이미 선물했어요' : state.gold < g.cost ? `골드가 부족합니다 (${g.cost}G)` : '', label: `${esc(g.name)} · ${won(g.cost)}<small>인연 +${g===b.gift?TEMP.BONDS.GIFT_LIKED:TEMP.BONDS.GIFT_COMMON}</small>` });
   const sp = SPEAKERS[b.speaker]?.name || b.name, masked = bondMasked(state, id);
   const title = masked ? '??? · 붉은 봉인의 손님' : sp === b.name ? b.name : `${b.name} · ${sp}`;
-  return `<div class="bond-card"><div class="bc-top"><span class="bond-face">${masked ? MYSTERY_FACE : assetIcon('badges/'+(SPEAKERS[b.speaker]?.portrait||b.speaker||id))}</span><div class="bond-name"><b>${esc(title)}</b><small>인연 ${t}단계</small></div><span class="hearts" aria-label="인연 ${t}단계">${hearts(t)}</span></div>
-    ${bar(t < T.length ? ((v - lo) / (hi - lo)) * 100 : 100, 'bond')}<span class="small">${next}</span>
-    <p class="small bond-gift-status">${gifted?'이번 순 선물을 전했어요. 다음 순에 다시 전할 수 있어요.':'좋아하는 물건은 구매 후 바로 선물해요.'}</p><div class="row">${btn({action:'gift.open',args:{id},cls:'primary',disabled:gifted||!townCheck(state).ok,label:'보유 음식 선물 · '+(state.foodGifts?.items.length||0)+'개'})}${giftBtn(b.gift)}${giftBtn(COMMON_GIFT)}${talkBtn}</div><details class="bond-story-library"><summary>인연 이야기 · 4장</summary>${b.perks.map((perk,index)=>btn({action:'bond.read',args:{id,tier:index+1},disabled:state.mode!=='prep'||!state.ledger.story['bond:'+id+':'+(index+1)],label:'♥'+(index+1)+' · '+(state.ledger.story['bond:'+id+':'+(index+1)]?'이야기 다시 읽기':'인연을 쌓으면 열려요')})).join('')}</details></div>`;
+  return `<div class="bond-card"><div class="bc-top"><span class="bond-face">${masked ? MYSTERY_FACE : assetIcon('badges/'+(SPEAKERS[b.speaker]?.portrait||b.speaker||id))}</span><div class="bond-name"><b>${esc(title)}</b><small class="arcana">${masked ? '?' : num} · ${masked ? '???' : esc(arc)}</small></div><span class="bond-rank${ready ? ' ready' : ''}" aria-label="인연 Rank ${r} / ${MAX_RANK}"><small>RANK</small><b>${r >= MAX_RANK ? 'MAX' : r}</b></span></div>
+    <div class="rank-pips" aria-hidden="true">${pips}</div>${bar(r >= MAX_RANK || ready ? 100 : ((v - lo) / (hi - lo)) * 100, 'bond')}<span class="small bond-status${ready ? ' ready' : ''}">${status}</span>
+    <ul class="bond-perks" aria-label="인연 능력">${perks}</ul>
+    <p class="small bond-gift-status">${gifted?'이번 순 선물을 전했어요. 다음 순에 다시 전할 수 있어요.':'좋아하는 물건은 구매 후 바로 선물해요.'}</p><div class="row">${btn({action:'gift.open',args:{id},cls:'primary',disabled:gifted||!townCheck(state).ok,label:'보유 음식 선물 · '+(state.foodGifts?.items.length||0)+'개'})}${giftBtn(b.gift)}${giftBtn(COMMON_GIFT)}${talkBtn}</div><details class="bond-story-library"><summary>인연 이야기 · 4장</summary>${b.perks.map((perk,index)=>btn({action:'bond.read',args:{id,tier:index+1},disabled:state.mode!=='prep'||!state.ledger.story['bond:'+id+':'+(index+1)],label:'Rank '+P[index]+' · '+(state.ledger.story['bond:'+id+':'+(index+1)]?'이야기 다시 읽기':'인연을 쌓으면 열려요')})).join('')}</details></div>`;
+}
+
+// 랭크 업 카드: 대화가 끝난 직후 한 장. 능력이 해방되면 크게, 다음 해방까지의 목표를 함께 보여 준다.
+function rankUpSheet(state, up) {
+  const masked = bondMasked(state, up.id), [num, arc] = up.arcana || ['?', ''], P = TEMP.BONDS.PERK_RANKS, b = BONDS[up.id];
+  const pips = Array.from({ length: MAX_RANK }, (_, i) => `<i class="${i < up.rank ? 'on' : ''}${i === up.rank - 1 ? ' new' : ''}${P.includes(i + 1) ? ' perk' : ''}"></i>`).join('');
+  const face = masked ? MYSTERY_FACE : assetIcon('badges/' + (SPEAKERS[b.speaker]?.portrait || b.speaker || up.id));
+  return `<section class="rankup-card${up.perk ? ' perk' : ''}" role="status"><p class="rankup-kicker">RANK UP</p>
+    <div class="rankup-arcana"><span class="bond-face">${face}</span><small>${masked ? '?' : num}</small><b>${masked ? '???' : esc(arc)}</b></div>
+    <h2>${esc(withWa(bondName(state, up.id)))}의 인연 · Rank ${up.rank >= MAX_RANK ? 'MAX' : up.rank}</h2><div class="rank-pips" aria-hidden="true">${pips}</div>
+    ${up.perk ? `<div class="rankup-perk"><small>능력 해방</small><b>${esc(up.perk)}</b>${up.story ? '<span>이 랭크의 인연 이야기가 이어집니다</span>' : ''}</div>` : '<p class="small">함께 보낸 시간이 인연이 되었어요.</p>'}
+    <p class="small muted">${up.next ? `다음 해방 · Rank ${up.next.rank} ${esc(up.next.label)}` : '모든 능력이 해방됐어요'}</p>
+    ${btn({ action: 'rankup.close', cls: 'primary', label: up.story ? '이야기 보기' : '계속하기' })}</section>`;
 }
 
 function mokaShop(state) {
@@ -453,7 +472,7 @@ export function automationRow(state, ability) {
   const state_ = st.locked ? '🔒 잠김' : st.on ? (st.running ? '켜짐' : '멈춤') : '꺼짐';
   const control = st.locked ? '<span class="small muted">🔒</span>'
     : btn({ action: 'automation.toggle', args: { ability }, cls: st.on ? 'on' : '', title: st.on ? '끄고 직접 하기' : '켜기', label: st.on ? '자동 켜짐' : '자동 꺼짐' });
-  return `<div class="row automation-row${st.locked ? ' locked' : ''}"><span class="grow small"><b>${esc(a.label)}</b> · 지금 ♥${permission.current} / 필요 ♥${permission.need} · ${state_}${st.reason && !(st.on && st.running && st.reason === '돌아가는 중') ? ` · ${esc(st.reason)}` : ''}</span>${control}</div>`;
+  return `<div class="row automation-row${st.locked ? ' locked' : ''}"><span class="grow small"><b>${esc(a.label)}</b> · 지금 Rank ${permission.current} / 필요 Rank ${permission.need} · ${state_}${st.reason && !(st.on && st.running && st.reason === '돌아가는 중') ? ` · ${esc(st.reason)}` : ''}</span>${control}</div>`;
 }
 
 // 직원 한 명의 스트레스 막대와 다음 영업 휴무(준비 중에만)
@@ -500,7 +519,7 @@ function companionSheet(state,ui) {
   }
   const available=BOND_IDS.filter(id=>bondOpen(state,id));
   const selected=available.includes(ui.companionId)?ui.companionId:available.find(id=>!state.ap.gifted[id])||available[0];
-  const bondRows=`<div class="companion-picker" aria-label="선물할 동료">${available.map(id=>btn({action:'companion.select',args:{id},cls:id===selected?'selected':'',pressed:id===selected,label:(bondMasked(state,id)?MYSTERY_FACE:assetIcon('badges/'+id))+`<b>${esc(bondName(state,id))}</b><small>${state.ap.gifted[id]?'선물 완료':'선물 가능'}</small>`})).join('')}</div>${bondCard(state,selected)}`;
+  const bondRows=`<div class="companion-picker" aria-label="선물할 동료">${available.map(id=>btn({action:'companion.select',args:{id},cls:id===selected?'selected':'',pressed:id===selected,label:(bondMasked(state,id)?MYSTERY_FACE:assetIcon('badges/'+id))+`<b>${esc(bondName(state,id))}</b><small class="pick-rank">${bondReady(state,id)?'✦ ':''}Rank ${bondRank(state,id)}</small><small>${state.ap.gifted[id]?'선물 완료':'선물 가능'}</small>`})).join('')}</div>${bondCard(state,selected)}`;
   for (let i = 0; i < LOCKED_SLOT_COUNT; i++) rows.push('<div class="item"><span class="swatch" style="background:#ddd"></span><div class="meta grow"><b>🔒 새로운 인연</b><span>퀘스트로 영입 (아직 정해진 동료 없음)</span></div></div>');
   return `${head('동료와 인연')}<section class="companion-gifts"><p class="companion-intro">마음을 전할 동료를 골라 주세요.</p><div class="companion-wallet"><span>보유 ${won(state.gold)}</span><span>완성 음식 ${state.foodGifts?.items.length||0}개</span><span>행동력 ${state.ap.left}</span></div><p class="small muted">선물은 행동력 없이, 동료마다 한 순에 한 번 전해요.</p>${bondRows}</section><details class="companion-profiles"><summary>동료 소개 · 근무 · 새로운 만남</summary><p class="small">네오·루나 자매는 창업 동료로 무급입니다. 새 동료는 월 ${won(TEMP.PAYROLL_BASE)}(근무 순 비례) + 근무 중 매출·팁의 ${TEMP.PAYROLL_SHARE*100}%를 월말에 지급해요. 이번 달 예상 ${won(payrollView(state).accrued)} · 미지급 ${won(payrollView(state).arrears)}</p><div class="list">${rows.join('')}</div></details>`;
 

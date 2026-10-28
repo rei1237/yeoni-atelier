@@ -19,8 +19,8 @@ const cmd = (s, type, args = {}) => dispatch(s, { type, ...args });
 test('잠긴 자동화는 엔진이 거절하고, 인연 단계와 그 단계 이야기를 모두 채우면 켜지며 저장 후에도 유지된다', () => {
   const s = createGame();
   let r = cmd(s, 'automation.toggle', { ability: 'kitchen', on: true });
-  assert.equal(r.ok, false); assert.match(r.reason, /♥2/);
-  s.affinity.luna_sis = TEMP.BONDS.TIERS[1];
+  assert.equal(r.ok, false); assert.match(r.reason, /Rank 6/);
+  s.affinity.luna_sis = TEMP.BONDS.TIERS[1]; s.bondRank.luna_sis = TEMP.BONDS.PERK_RANKS[1];
   r = cmd(s, 'automation.toggle', { ability: 'kitchen', on: true });
   assert.equal(r.ok, false, '단계만 올라도 이야기를 보기 전에는 잠김'); assert.match(r.reason, /이야기/);
   unlockAutomation(s, ['kitchen']);

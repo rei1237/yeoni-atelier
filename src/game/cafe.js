@@ -175,7 +175,7 @@ export function cook(state, menuId, orderId=null, timing) {
   if (!chk.ok) return { ok: false, reason: chk.reason };
   // 루나 언니 친밀도 능력: 조리 시간 단축
   const takeaway=state.visits[state.orders[orderId]?.visitId]?.kind==='takeaway';
-  const job = { id: nextId(state, 'job'), menuId, orderId, quality:qualityForTiming(timing,menuId), durationMs: Math.round(m.cookMs * (1 - bondFx(state.affinity).cookSpeed)*(takeaway?.55:1)) };
+  const job = { id: nextId(state, 'job'), menuId, orderId, quality:qualityForTiming(timing,menuId), durationMs: Math.round(m.cookMs * (1 - bondFx(state).cookSpeed)*(takeaway?.55:1)) };
   const capacity=cafeCapacity(state);
   const slots=['current','parallel',...Array.from({length:Math.max(0,capacity.stationSlots-2)},(_,i)=>'slot'+(i+2))];
   if(capacity.stationSlots>1){for(const slot of slots){if(!st[slot]&&!st[heldKey(slot)]&&!queuedJobs(st).length){startJob(state,m.station,job,slot);return {ok:true,started:true,jobId:job.id};}}}
@@ -726,7 +726,7 @@ export function stepCustomers(state, dt, hooks) {
         const satisfaction=waitingSatisfaction(state,visit);
         if(satisfaction<55 && !visit.lateSpoken){visit.lateSpoken=true;guestChatter(state,visit,(state.shift.spawnCount%4)/4,'late');}
         else if(satisfaction<80 && !visit.waitSpoken){visit.waitSpoken=true;guestChatter(state,visit,(state.shift.spawnCount%4)/4,'waiting');}
-        if (open.length && now - open[0].placedAt >= TEMP.FOOD_PATIENCE_MS * (1 + bondFx(state.affinity).patience)) customerLeave(state, c, '음식을 오래 기다려 떠남');
+        if (open.length && now - open[0].placedAt >= TEMP.FOOD_PATIENCE_MS * (1 + bondFx(state).patience)) customerLeave(state, c, '음식을 오래 기다려 떠남');
         break;
       }
       case 'eating':

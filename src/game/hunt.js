@@ -80,7 +80,7 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
   state.people[hunterPerson(hunterId)]??={activity:'idle',form:'human'};
   Object.assign(state.people[hunterPerson(hunterId)], { activity: 'hunting', form: hunterId === 'neo' ? 'cat' : hunterId==='yeoni_pig'?'pig':'tiger', visitId: null, tableNo: null, endAt: null });
   // 장비 + 네오 친밀도 능력(시작 HP·무기 피해·보스 월정석)
-  const fx = bondFx(state.affinity);
+  const fx = bondFx(state);
   const gear = gearBonus(state.gear?.equipped);
   gear.hp += fx.huntHp;
   gear.dmg += fx.huntDmg;

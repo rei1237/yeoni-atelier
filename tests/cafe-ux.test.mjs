@@ -37,7 +37,7 @@ test('테이블 정리·주문·서빙 행동이 실제 상태에 맞게 노출�
 });
 test('주방 설비는 한 번만 나오고 잠긴 자동화에는 인연 조건이 있다',()=>{
  const s=quietShift();assert.equal((panelHtml(s,{selectedSlot:null}).match(/class="station-dock"/g)||[]).length,1);
- const html=automationChips(s);assert.match(html,/aria-describedby="auto-tip-kitchen"/);assert.match(html,/루나 언니/);assert.match(html,/♥2/);
+ const html=automationChips(s);assert.match(html,/aria-describedby="auto-tip-kitchen"/);assert.match(html,/루나 언니/);assert.match(html,/Rank 6/);
  assert.equal(dispatch(s,{type:'automation.toggle',ability:'kitchen'}).ok,false);assert.equal(s.automation.kitchen,false);
 });
 test('같은 시드의 손님 옷색은 같고 저장 왕복과 옛 hue를 보존한다',()=>{

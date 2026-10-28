@@ -1,7 +1,7 @@
 // 게임 내 전용 월정석. 실제 Code Destiny 결제·잔액과 연결하지 않는다. 수치는 TEMP.
 import {recordYunTrade} from './yun-quest.js';
 import { emit } from './state.js';
-import { bondTier } from '../data/bonds.js';
+import { perkTier } from '../data/bonds.js';
 import { workShop } from './bonds.js';
 import { placeLock } from './unlocks.js';
 import { TEMP } from '../config/balance.temp.js';
@@ -71,7 +71,7 @@ export function learnSkill(state,id) {
 export function buySupply(state,id) {
   const item=SUPPLIES[id],chk=check(state,item?.shop==='gear'?'윤달의 무기 공방':'모카 식재료점');if(!chk.ok)return chk;
   if(item?.shop==='gear'){const lock=placeLock(state,'gear');if(lock)return {ok:false,reason:lock};}
-  if(!item || bondTier(state.affinity.moka||0)<item.tier)return {ok:false,reason:'모카와 인연을 쌓으면 새 물품이 열려요'};
+  if(!item || perkTier(state,'moka')<item.tier)return {ok:false,reason:'모카와 인연을 쌓으면 새 물품이 열려요'};
   if(item?.limit && (armory(state).supplies?.[id]||0)>=item.limit)return {ok:false,reason:id==='tonic'?'회복 수프는 3개까지만 챙길 수 있어요':`${item.name} 최대 보유 ${item.limit}개 · 사용한 뒤 다시 구매할 수 있어요`};
   if(state.moonstone<item.cost)return {ok:false,reason:`월정석 ${item.cost}개가 필요해요`};
   const a=ensure(state);state.moonstone-=item.cost;a.supplies[id]=(a.supplies[id]||0)+1;workShop(state);emit('supplyBought',{id});return {ok:true};

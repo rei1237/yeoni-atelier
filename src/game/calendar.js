@@ -8,7 +8,7 @@ import { TEMP } from '../config/balance.temp.js';
 import { PDF } from '../config/balance.pdf.js';
 import { emit } from './state.js';
 import { giftSupply, giftFreeEnhance } from './moka-armory.js';
-import { BONDS, BOND_IDS, bondTier, bondFx } from '../data/bonds.js';
+import { BONDS, BOND_IDS, bondFx, perkTier } from '../data/bonds.js';
 import { advanceFarm } from './farm.js';
 import { cafeProgress } from './cafe-growth.js';
 import { grantEventOutfits } from './outfits.js';
@@ -44,7 +44,7 @@ export function monthName(monthIdx) {
 }
 
 // ── 행동력(AP): 순마다 채워진다. 사냥·대화에 쓴다.
-export const maxActionPoints = state => C.AP_PER_TURN + Math.floor((cafeProgress(state).level - 1) / 3) + bondFx(state.affinity).ap + yeoniEffects(state).ap;
+export const maxActionPoints = state => C.AP_PER_TURN + Math.floor((cafeProgress(state).level - 1) / 3) + bondFx(state).ap + yeoniEffects(state).ap;
 export function apCheck(state, cost = 1) {
   if ((state.ap?.left ?? 0) < cost) return { ok: false, reason: `행동력이 부족합니다 (이번 순 남은 행동력 ${state.ap?.left ?? 0}) · 영업을 마치면 다시 채워져요` };
   return { ok: true };
@@ -62,7 +62,7 @@ export function chargeInterest(state, sh) {
   const key = `m${c.monthIdx}`;
   if (state.ledger.interest[key]) return state.ledger.interest[key];
   // 루나의 검산(친밀도 능력)만큼 이자가 줄어든다
-  const due = state.debt > 0 ? Math.ceil(state.debt * C.INTEREST_RATE * (1 - bondFx(state.affinity).interestCut)) : 0;
+  const due = state.debt > 0 ? Math.ceil(state.debt * C.INTEREST_RATE * (1 - bondFx(state).interestCut)) : 0;
   const paid = Math.min(due, Math.max(0, state.gold));
   const added = due - paid;
   state.gold -= paid;
@@ -85,7 +85,7 @@ export function decideEnding(state) {
 // 결산을 닫고 다음 순으로 넘어갈 때(shift.closeSettlement 에서 부른다)
 export function advanceTurn(state) {
   advanceFarm(state);
-  const fx = bondFx(state.affinity);
+  const fx = bondFx(state);
   state.ap = { left: maxActionPoints(state), talked: {}, gifted: {}, shopped: false, delegated: {}, sheltered: {}, neoTask: null };
   // 모카 ♥3: 순마다 밤이슬
   if (fx.dailyDew > 0) {
@@ -131,7 +131,7 @@ export function pendingHanbiStory(state) {
 export function pendingBondStory(state) {
   for (const id of BOND_IDS) {
     if (!bondOpen(state, id) || bondMasked(state, id)) continue; // 정체를 밝히기 전 서한비의 인연 이야기는 영입 뒤에
-    const t = bondTier(state.affinity?.[id] || 0);
+    const t = perkTier(state, id);
     for (let k = 1; k <= t; k++) if (!state.ledger.story[`bond:${id}:${k}`]) return `bond:${id}:${k}`;
   }
   return null;

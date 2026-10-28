@@ -134,6 +134,10 @@ export const TEMP = Object.freeze({
   // ── 친밀도(임시). 단계 문턱을 넘을 때마다 능력이 열린다(data/bonds.js).
   BONDS: Object.freeze({
     TIERS: Object.freeze([40, 100, 180, 280]),
+    // 페르소나식 인연 랭크: 점수는 다음 랭크의 문턱만 채우고, 랭크는 대화(함께 보내는 시간)에서 하나씩 오른다.
+    // RANKS[r]는 랭크 r+1에 필요한 점수. 능력은 랭크 3·6·8·10에서 해방(=옛 TIERS 점수와 같다).
+    RANKS: Object.freeze([10, 25, 40, 60, 80, 100, 140, 180, 230, 280]),
+    PERK_RANKS: Object.freeze([3, 6, 8, 10]),
     MAX: 300,
     TALK: 6, TALK_RAND: 2,    // 기존 저장 호환 상수. 현재 선택지 대화는 bond-dialogues.js의 +12/+6/+2
     GIFT_LIKED: 14,           // 좋아하는 선물 (순마다 한 사람 한 번)

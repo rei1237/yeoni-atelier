@@ -12,7 +12,7 @@ import * as finance from './finance.js';
 // 엔진 진입점. 화면(UI)·자동 운영·테스트는 모두 dispatch(명령)와 tick(활성 시간 진행)만 쓴다.
 // UI 는 골드·지명 시간·영입 상태를 직접 바꾸지 않는다.
 
-import { bondTier } from '../data/bonds.js';
+import { perkTier } from '../data/bonds.js';
 import { TEMP } from '../config/balance.temp.js';
 import { withEvents } from './state.js';
 import * as cafe from './cafe.js';
@@ -42,7 +42,7 @@ const SHIFT_ONLY = new Set(['order.table','order.quick', 'cook', 'cook.cancelNex
 const FARM_ACTIONS = new Set(['farm.harvest','farm.plant','farm.water','farm.tend']);
 export const HELPERS = Object.freeze({neo:{tier:1,actions:['farm.water','farm.tend']},moka:{tier:2,actions:['farm.water','farm.tend']},yun:{tier:3,actions:['farm.harvest']}});
 // 네오 대행은 같은 순 사냥과 겹치지 않는다(사냥을 다녀왔으면 거절, 대행하면 그 순 사냥 거절)
-export function helperAvailable(state,id,type){const h=HELPERS[id];return !!(h && state.roster[id] && bondTier(state.affinity[id]||0)>=h.tier && h.actions.includes(type) && !state.ap.delegated?.[id] && !(id==='neo'&&state.ap.neoTask==='hunt'));}
+export function helperAvailable(state,id,type){const h=HELPERS[id];return !!(h && state.roster[id] && perkTier(state,id)>=h.tier && h.actions.includes(type) && !state.ap.delegated?.[id] && !(id==='neo'&&state.ap.neoTask==='hunt'));}
 function route(state, cmd) {
  const paid=state.mode==='prep' && FARM_ACTIONS.has(cmd?.type);
  const helper=paid && cmd.helperId && helperAvailable(state,cmd.helperId,cmd.type);

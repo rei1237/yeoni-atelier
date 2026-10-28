@@ -14,7 +14,7 @@ test('동료 조건 안내는 인연과 이야기 조건을 구분하고 네오 
  const s=createGame();unlockAutomation(s,['hall_neo']);const html=automationChips(s);
  assert.match(html,/data-ability="hall_neo" data-locked="false"/);
  assert.match(html,/data-ability="hall" data-locked="true"/);
- assert.match(html,/현재 ♥0 \/ 필요 ♥2/);assert.match(html,/동료와 대화/);
+ assert.match(html,/현재 Rank 0 \/ 필요 Rank 6/);assert.match(html,/동료와 대화/);
  delete s.ledger.story['bond:neo:2'];assert.match(automationChips(s),/이 단계의 인연 이야기/);
 });
 test('지도 보행은 모서리 경로를 따라 걷고 도착은 단 한 번만 반환한다',()=>{

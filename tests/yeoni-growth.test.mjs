@@ -31,7 +31,7 @@ test('직접 농장·대화·선물의 성공만 성장하고 대행과 재실�
  assert.equal(run(s,'bond.talk',{id:'luna',choiceId:q.answers[0].id,token:q.token}).ok,false);
  assert.ok(cook(s,'gift').ok);tick(s,20000);const item=s.foodGifts.items[0];assert.ok(run(s,'gift.food',{id:'luna',itemId:item.id}).ok);assert.equal(s.yeoniGrowth.xp,32);
  assert.equal(run(s,'gift.food',{id:'luna',itemId:item.id}).ok,false);assert.equal(s.yeoniGrowth.xp,32);
- const h=createGame();h.ledger.story.m1=true;h.affinity.neo=100;run(h,'farm.plant',{cropId:'tea',index:0});const xp=h.yeoniGrowth.xp;
+ const h=createGame();h.ledger.story.m1=true;h.affinity.neo=100;h.bondRank.neo=6;run(h,'farm.plant',{cropId:'tea',index:0});const xp=h.yeoniGrowth.xp;
  assert.ok(run(h,'farm.tend',{index:0,helperId:'neo'}).ok);assert.equal(h.yeoniGrowth.xp,xp);
 });
 test('레벨별 효과·칭호 잠금·선택·행동력은 상한과 저장을 지킨다',()=>{

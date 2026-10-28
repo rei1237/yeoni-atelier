@@ -4,17 +4,18 @@ import {dispatch} from './engine.js';
 import {pendingStory} from './calendar.js';
 import {ABILITIES} from './permissions.js';
 import {TEMP} from '../config/balance.temp.js';
+import {pointsRank} from '../data/bonds.js';
 export const HOST_DEMO_SAVE_KEY='yeoni-atelier.host-demo.v1';
 export function createHostDemo(){
  const s=createGame({seed:20261028});
- s.meta.hostDemo=true;s.day=7;s.gold=5000;s.affinity.neo=180;
+ s.meta.hostDemo=true;s.day=7;s.gold=5000;s.affinity.neo=180;s.bondRank.neo=pointsRank(180);
  s.ledger.story.prologue=true;s.ledger.story.m0=true;s.ledger.story.m1=true;
  for(let i=0;i<20&&pendingStory(s);i++){
   const r=dispatch(s,{type:'story.seen',id:pendingStory(s)});if(!r.ok)throw Error(r.reason);
  }
  for(const key of Object.keys(s.stock))s.stock[key]=100;
  for(const ability of ['hall','kitchen']){
-  const a=ABILITIES[ability];s.affinity[a.id]=TEMP.BONDS.TIERS[a.tier-1];
+  const a=ABILITIES[ability];s.affinity[a.id]=TEMP.BONDS.TIERS[a.tier-1];s.bondRank[a.id]=TEMP.BONDS.PERK_RANKS[a.tier-1];
   for(let tier=1;tier<=a.tier;tier++)s.ledger.story[`bond:${a.id}:${tier}`]=true;
   const r=dispatch(s,{type:'automation.toggle',ability,on:true});if(!r.ok)throw Error(r.reason);
  }

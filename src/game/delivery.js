@@ -6,7 +6,7 @@ import {emit} from './state.js';
 export function deliveryQuote(s,items){
  if(!items||typeof items!=='object'||Array.isArray(items))return {ok:false,reason:'주문할 재료를 골라 주세요'};
  const entries=Object.entries(items);if(!entries.length)return {ok:false,reason:'주문할 재료를 골라 주세요'};
- const fx=bondFx(s.affinity);let base=0;
+ const fx=bondFx(s);let base=0;
  for(const [id,n] of entries){const ing=INGREDIENTS[id];if(!ing||!(ing.basic||ing.shop)||!Number.isInteger(n)||n<1||n>99)return {ok:false,reason:'판매 재료와 수량 1~99개를 확인해 주세요'};base+=Math.ceil(ing.price*n*(1-fx.discount));}
  const fee=Math.ceil(TEMP.DELIVERY_FEE*(1-fx.feeCut));return {ok:true,base,fee,cost:base+fee};
 }

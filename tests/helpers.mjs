@@ -12,6 +12,7 @@ export function unlockAutomation(s, abilities) {
   for (const ab of abilities) {
     const a = ABILITIES[ab];
     s.affinity[a.id] = Math.max(s.affinity[a.id] || 0, TEMP.BONDS.TIERS[a.tier - 1]);
+    s.bondRank = { ...s.bondRank, [a.id]: Math.max(s.bondRank?.[a.id] || 0, TEMP.BONDS.PERK_RANKS[a.tier - 1]) };
     for (let t = 1; t <= a.tier; t++) s.ledger.story[`bond:${a.id}:${t}`] = true;
   }
 }

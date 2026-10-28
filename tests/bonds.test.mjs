@@ -37,7 +37,8 @@ test('능력: 단계를 넘으면 재료값·환전·사냥 HP 에 붙고, 인�
   s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 10000; s.ap.left=4; // shopping x2, exchange, hunt // 테스트 준비
   s.affinity = { neo: B.TIERS[0], luna: 0, luna_sis: B.TIERS[2], moka: B.TIERS[0] };
-  const fx = bondFx(s.affinity);
+  s.bondRank = { neo: 3, luna: 0, luna_sis: 8, moka: 3 }; // 테스트 준비: 랭크 3·8 = 능력 1·3단계
+  const fx = bondFx(s);
   assert.equal(fx.huntHp, 40);
   assert.equal(fx.discount, 0.05);
   assert.equal(fx.moonRate, 0.1);

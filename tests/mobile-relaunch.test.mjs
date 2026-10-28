@@ -23,7 +23,7 @@ test('구매는 무료 행동, 농장은 별도 행동력과 순마다 한 번 �
  assert.equal(maxActionPoints(s),3);assert.equal(s.ap.left,3);assert.equal(s.farm.energy,6);
  assert.ok(cmd(s,'shop.buy',{ingredientId:'bean',qty:1}).ok);assert.equal(s.ap.left,3);assert.equal(s.farm.energy,6);
  assert.ok(cmd(s,'farm.plant',{cropId:'wheat',index:0}).ok);assert.equal(s.farm.energy,5);assert.equal(s.ap.left,3);
- s.affinity.neo=60;s.ap.left=0;s.farm.energy=0;
+ s.affinity.neo=60;s.bondRank.neo=3;s.ap.left=0;s.farm.energy=0;
  assert.ok(helperAvailable(s,'neo','farm.tend'));assert.ok(cmd(s,'farm.tend',{index:0,helperId:'neo'}).ok);
  assert.equal(s.farm.energy,0);assert.equal(s.ap.left,0);assert.equal(cmd(s,'farm.tend',{index:0,helperId:'neo'}).ok,false);
  assert.ok(cmd(s,'shop.buy',{ingredientId:'bean',qty:1}).ok);
@@ -84,7 +84,7 @@ test('지연 만족도와 방문 평가는 저장 뒤에도 중복 반영되지 
  s=deserialize(serialize(s)).state;reviewVisit(s,s.visits.v,'식사 완료');assert.equal(s.reputation,score);assert.equal(s.reviews.count,1);
 });
 test('인연 단계에 따라 고민이 바뀌고 숨은 초대장은 다음 단서만 표시할 수 있다',()=>{
- const s=createGame(),first=bondQuestion(s,'neo');s.affinity.neo=180;const later=bondQuestion(s,'neo');
+ const s=createGame(),first=bondQuestion(s,'neo');s.affinity.neo=180;s.bondRank.neo=8;const later=bondQuestion(s,'neo');
  assert.notEqual(first.question,later.question);assert.notEqual(first.token,later.token);assert.equal(new Set(later.answers.map(a=>a.gain)).size,3);
  assert.equal(hiddenGuestQuest(s).next,0);s.ledger.story['hanbi:30']=true;assert.equal(hiddenGuestQuest(s).next,1);
 });

@@ -1,6 +1,6 @@
 // 친밀도(인연) 데이터: 동료별 마을 장소·좋아하는 선물·단계 능력·대화 대사.
 // 모두 게임 오리지널 임시 설정(docs/WORLD.md §2). 원작 능력치·설정이 아니다.
-// 능력(fx)은 단계가 열릴 때마다 더해진다. 문턱은 TEMP.BONDS.TIERS.
+// 능력(fx)은 인연 랭크 3·6·8·10에서 하나씩 해방된다(TEMP.BONDS.PERK_RANKS).
 
 import { TEMP } from '../config/balance.temp.js';
 
@@ -83,17 +83,35 @@ export const BONDS = Object.freeze({
 // 아무에게나 줄 수 있는 선물(좋아하는 선물보다 덜 오른다)
 export const COMMON_GIFT = Object.freeze({ id: 'moon_bun', name: '달빵', cost: 120 });
 
+// 동료마다 한 장의 아르카나(게임 오리지널, docs/WORLD.md). 연이의 타로 상담 세계관에 맞춘 인연 카드다.
+export const ARCANA = Object.freeze({
+  neo: ['VIII', '힘'], luna: ['XVIII', '달'], luna_sis: ['XIV', '절제'], moka: ['X', '운명의 수레바퀴'],
+  yun: ['IX', '은둔자'], seohanbi: ['XX', '심판'], museong: ['IV', '황제'], solv: ['VII', '전차'],
+  bambi: ['XVII', '별'], lune: ['XIX', '태양'], raven: ['XII', '매달린 사람'],
+});
+export const MAX_RANK = TEMP.BONDS.RANKS.length;
+// 받침에 맞춘 '와/과'(윤달과, 네오와)
+export const withWa = n => { const c = n.charCodeAt(n.length - 1) - 0xAC00; return n + (c >= 0 && c < 11172 && c % 28 ? '과' : '와'); };
+
+// 점수로 닿을 수 있는 랭크(옛 저장 이전·테스트 준비용)
+export const pointsRank = v => TEMP.BONDS.RANKS.filter(x => v >= x).length;
+export const bondRank = (state, id) => Math.min(MAX_RANK, state.bondRank?.[id] || 0);
+// 다음 랭크 문턱을 채웠다: 다음 대화에서 랭크 업(인연이 깊어질 것 같다)
+export const bondReady = (state, id) => bondRank(state, id) < MAX_RANK && (state.affinity?.[id] || 0) >= TEMP.BONDS.RANKS[bondRank(state, id)];
+// 해방된 능력 수(0~4)
+export const perkTier = (state, id) => TEMP.BONDS.PERK_RANKS.filter(r => r <= bondRank(state, id)).length;
+
 export function bondTier(v) {
   let t = 0;
   for (const x of TEMP.BONDS.TIERS) if (v >= x) t += 1;
   return t;
 }
 
-// 열린 능력의 합
-export function bondFx(affinity = {}) {
+// 해방된 능력의 합(랭크 기준)
+export function bondFx(state) {
   const fx = { huntHp: 0, huntDmg: 0, bossMoon: 0, ap: 0, patience: 0, interestCut: 0, cookSpeed: 0, moonRate: 0, discount: 0, feeCut: 0, dailyDew: 0, stressResist: 0, stressRecover: 0 };
   for (const id of BOND_IDS) {
-    const t = bondTier(affinity[id] || 0);
+    const t = perkTier(state, id);
     for (const p of BONDS[id].perks.slice(0, t)) for (const [k, v] of Object.entries(p.fx)) fx[k] += v;
   }
   for (const [key, cap] of Object.entries({cookSpeed:.5,discount:.4,feeCut:.75,interestCut:.5,patience:.6,stressResist:.5,stressRecover:1})) fx[key] = Math.min(cap, fx[key]);

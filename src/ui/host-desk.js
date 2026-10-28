@@ -1,5 +1,6 @@
 import {hostFeeQuote} from '../game/host-fees.js';
-import {catCafeActive,catCafeUnlocked,CAT_CAFE_AFFINITY} from '../game/cat-cafe-rules.js';
+import {catCafeActive,catCafeUnlocked,CAT_CAFE_RANK} from '../game/cat-cafe-rules.js';
+import {bondRank} from '../data/bonds.js';
 import {personName} from '../game/state.js';
 import {assetIcon} from './asset-html.js';
 import {btn,esc} from './dom.js';
@@ -15,5 +16,5 @@ export function hostDeskHtml(s){
 export function catCafeControl(s){
  if(!s.hostbar.open)return '';
  const active=catCafeActive(s),unlocked=catCafeUnlocked(s);
- return `<section class="cat-cafe-control"><b>${active?'영냥이 카페 도우미':'네오와 영냥이'}</b><p>${unlocked?'인연 3단계 · 스트레스가 높아도 영냥이 모습으로 서빙·정리와 지명을 도울 수 있어요.':'네오 인연 '+(s.affinity.neo||0)+' / '+CAT_CAFE_AFFINITY+' · 3단계에서 영냥이 카페 근무가 열려요.'}</p>${btn({action:'neo.cafeForm',disabled:!unlocked,label:active?'네오로 돌아오기':'영냥이로 돕기'})}<small>같은 동료 한 명이에요. 접대·운반 중이나 휴무에는 바꿀 수 없어요.</small></section>`;
+ return `<section class="cat-cafe-control"><b>${active?'영냥이 카페 도우미':'네오와 영냥이'}</b><p>${unlocked?'인연 Rank 8 · 스트레스가 높아도 영냥이 모습으로 서빙·정리와 지명을 도울 수 있어요.':'네오 인연 Rank '+bondRank(s,'neo')+' / '+CAT_CAFE_RANK+' · 대화로 랭크를 올리면 영냥이 카페 근무가 열려요.'}</p>${btn({action:'neo.cafeForm',disabled:!unlocked,label:active?'네오로 돌아오기':'영냥이로 돕기'})}<small>같은 동료 한 명이에요. 접대·운반 중이나 휴무에는 바꿀 수 없어요.</small></section>`;
 }

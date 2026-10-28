@@ -9,7 +9,7 @@ import {personName} from '../src/game/state.js';
 import {serialize,deserialize} from '../src/core/save.js';
 import {seat} from './helpers.mjs';
 test('인연 문턱과 휴무를 지키며 높은 스트레스의 영냥이가 서빙과 지명을 돕는다',()=>{
- const s=createHostDemo();s.affinity.neo=179;assert.equal(dispatch(s,{type:'neo.cafeForm'}).ok,false);s.affinity.neo=180;
+ const s=createHostDemo();s.bondRank.neo=7;assert.equal(dispatch(s,{type:'neo.cafeForm'}).ok,false);s.bondRank.neo=8;
  s.dayOff.neo=true;assert.equal(dispatch(s,{type:'neo.cafeForm'}).ok,false);s.dayOff.neo=false;
  s.stress.neo=100;s.resting.neo=true;assert.ok(dispatch(s,{type:'neo.cafeForm',on:true}).ok);assert.ok(catCafeActive(s));assert.equal(personName(s,'neo'),'영냥이');assert.equal(isResting(s,'neo'),false);
  assert.ok(dispatch(s,{type:'shift.start'}).ok);assert.ok(staffAvailable(s,'neo'));changeStress(s,'deliver','neo');assert.equal(isResting(s,'neo'),false);assert.equal(s.stress.neo,100);

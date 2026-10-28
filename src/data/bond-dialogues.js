@@ -1,4 +1,4 @@
-import {bondTier} from './bonds.js';
+import {perkTier} from './bonds.js';
 // 개인의 기질을 이해하는 선택이 가장 큰 인연 보상을 준다. 게임 외전 대화.
 const q=(question,good,neutral,bad,response)=>({question,answers:[{id:'listen',text:good,gain:12,response},{id:'practical',text:neutral,gain:6,response:'그렇게 생각할 수도 있겠네. 조금 더 이야기해 보자.'},{id:'dismiss',text:bad,gain:2,response:'내 마음은 조금 달랐어. 다음엔 다시 이야기하자.'}]});
 export const BOND_DIALOGUES = Object.freeze({
@@ -27,7 +27,7 @@ function shuffled(list,key){
 }
 export function bondQuestion(state,id) {
  const masked=id==='seohanbi'&&!state.roster?.seohanbi,list=masked?SHADOW:BOND_DIALOGUES[id];if(!list)return null;
- const tier=Math.min(3,bondTier(state.affinity[id]||0));
+ const tier=Math.min(3,perkTier(state,id));
  const arc=masked?null:ARCS[id]?.[tier-1];
  const base=arc?q(arc[1],arc[2],'조금 더 생각할 시간을 가져 보자.','그런 고민은 접고 일부터 하자.',arc[3]):list[(state.day-1)%list.length];
  const phase=['첫 만남','마음을 여는 시간','갈림길','함께 쓰는 내일'][tier];

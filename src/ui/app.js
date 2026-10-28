@@ -70,7 +70,7 @@ import { PROLOGUE } from '../story/prologue.js';
 import { MONTH_STORIES, ENDINGS } from '../story/months.js';
 import { careerMonthStory, castBondStory } from '../story/career.js';
 import { BOND_STORIES } from '../story/bonds.js';
-import { BONDS, COMMON_GIFT } from '../data/bonds.js';
+import { BONDS, COMMON_GIFT, bondReady, withWa } from '../data/bonds.js';
 import { SPEAKERS } from '../story/prologue.js';
 import { pendingStory, calendarOf, isEnded, dateLabel } from '../game/calendar.js';
 import { placeLock, bondName, bondMasked } from '../game/unlocks.js';
@@ -226,7 +226,7 @@ function storyBeats(id) {
 
 // 영업 준비 화면에서 아직 안 본 이야기가 있으면 한 번 튼다. 본 기록은 엔진 명령(story.seen)으로만 남긴다.
 function maybeStory() {
-  if (!state || ui.storyHold || novelActive() || ui.confirm || ui.discovery || ui.recruitEvent || ui.ending || state.interior.draft) return;
+  if (!state || ui.storyHold || novelActive() || ui.confirm || ui.discovery || ui.recruitEvent || ui.ending || state.interior.draft || ui.sheet?.kind === 'rankup') return; // 랭크 업 카드를 닫으면 해방 이야기로 잇는다
   const id = pendingStory(state);
   if (!id) return;
   if (id === 'ev:forge' && (ui.sheet || ui.worldTrip)) return; // 금융 센터 볼일을 마치고 창을 닫으면 공방 이야기로 잇는다
@@ -329,7 +329,7 @@ const ACTIONS = {
   // 화면 전용
   'sheet.open': d => { if(d.sheet==='worldcast'&&!worldMeetingAccess(state).unlocked){toast(worldMeetingAccess(state).hint);return;} if(d.sheet==='interior'||d.sheet==='grounds'){ACTIONS['decor.open']({space:d.sheet==='grounds'?'outdoor':''});return;}if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
   'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; maybeVisit(d.tab); },
-  'sheet.close': () => { if(ui.sheet?.kind==='tutorial')finishGuide();else ui.sheet = null; },
+  'sheet.close': () => { if(ui.sheet?.kind==='tutorial')finishGuide();else ui.sheet = ui.sheet?.kind==='rankup'?ui.sheet.back:null; },
   'overlay.settlement': () => {},
   'overlay.hunt': () => {},
   'confirm.yes': () => { const cf = ui.confirm; ui.confirm = null; cf?.onYes(); },
@@ -533,12 +533,15 @@ ACTIONS['bond.talk'] = d => {
   const chk=talkCheck(state,d.id);if(!chk.ok){toast(chk.reason,'bad');return;}
   const q=bondQuestion(state,d.id);if(!q)return;
   const back=ui.sheet,name=bondName(state,d.id),masked=bondMasked(state,d.id),face=masked?'seohanbi_tiger:shadow':null,who=masked?'shadow_tiger':d.id;ui.sheet=null;render(true);
-  const reopen=()=>{ui.sheet=back||{kind:'companions'};render(true);};
+  let up=null;const reopen=()=>{const to=back||{kind:'companions'};ui.sheet=up?{kind:'rankup',up,back:to}:to;render(true);};
   playNovel([{chapter:[name+' · '+q.phase,q.title],bg:'atelier_dark',l:'yeoni:normal',c:face||d.id+':normal',r:null},{s:'nar',t:q.intro},
     {s:d.id,t:q.question,choices:q.answers.map(x=>({id:x.id,text:x.text})),guide:!state.tutorials?.bondtalk}],{
     onGuideSeen:()=>run({type:'tutorial.seen',id:'bondtalk'},{keepQuiet:true}),
     onChoose:choiceId=>{const r=run({type:'bond.talk',id:d.id,choiceId,token:q.token},{keepQuiet:true});if(!r.ok)return r;
-      return {ok:true,beats:[{bg:'atelier_lit',l:'yeoni:smile',c:face||d.id+':smile',s:who,t:r.line},{s:'sys',t:'인연 +'+r.gain+' · 오늘의 대화가 마음에 남았습니다.'}]};},
+      up=r.rankUp;const beats=[{bg:'atelier_lit',l:'yeoni:smile',c:face||d.id+':smile',s:who,t:r.line},{s:'sys',t:'인연 +'+r.gain+' · 오늘의 대화가 마음에 남았습니다.'}];
+      if(up)beats.push({s:'sys',t:'✦ RANK UP · '+withWa(name)+'의 인연이 깊어졌다 · Rank '+up.rank+(up.perk?' · 능력 해방: '+up.perk:'')});
+      else if(bondReady(state,d.id))beats.push({s:'sys',t:'✦ 인연이 깊어질 것 같다 · 다음 대화에서 랭크가 오릅니다.'});
+      return {ok:true,beats};},
     onEnd:reopen,
     onCancel:()=>{reopen();toast('대화를 다음으로 미뤘어요 · 행동력은 쓰지 않았어요');}});
 };
@@ -553,6 +556,7 @@ ACTIONS['yeoni.register']=d=>{if(run({type:'yeoni.menu.register',menuId:d.menu})
 ACTIONS['bond.read']=d=>{const key='bond:'+d.id+':'+d.tier;if(state.mode!=='prep'||!state.ledger.story[key])return;const story=storyBeats(key);if(!story)return;const back=ui.sheet;ui.sheet=null;playNovel(story,{onEnd:()=>{ui.sheet=back;render(true);},onCancel:()=>{ui.sheet=back;render(true);}});};
 ACTIONS['world.companion']=d=>{if(state.roster[d.id]&&BONDS[d.id]){ui.companionId=d.id;ui.sheet={kind:'companions'};}};
 ACTIONS['companion.select']=d=>{if(BONDS[d.id])ui.companionId=d.id;};
+ACTIONS['rankup.close']=()=>{ui.sheet=ui.sheet?.kind==='rankup'?ui.sheet.back:null;};
 ACTIONS['gift.back']=()=>{ui.companionId=ui.giftRecipient;ui.sheet={kind:'companions'};};
 ACTIONS['gift.open']=d=>{ui.giftRecipient=d.id;ui.foodFilter='all';ui.sheet={kind:'foodgift'};};
 ACTIONS['gift.filter']=d=>{ui.foodFilter=d.id;};
@@ -698,7 +702,7 @@ function handleEvents(events) {
       case 'shelterRest': toast(`🐰 루나의 쉼터 · ${ev.name} 스트레스 −${Math.round(ev.recovered)}`, 'good'); break;
       case 'farmDelegated': toast(`🐾 네오가 밭일을 마쳤어요 · 수확 ${ev.harvested} · 다시 심기 ${ev.planted} · 돌봄 ${ev.cared}${ev.stopped ? ' · ' + ev.stopped : ''}`, 'good', 3600); break;
       case 'farmDelegateSkipped': toast(`농장 맡기기는 이번엔 쉬어요 · ${ev.reason}`, '', 3000); break;
-      case 'bondUp': toast(`💗 ${bondName(state,ev.id)} ♥${ev.tier} · ${ev.label}`, 'good', 4000); break;
+      case 'bondReady': if (!novelActive()) toast(`✦ ${withWa(bondName(state,ev.id))}의 인연이 깊어질 것 같다 · 대화하면 Rank ${ev.rank}`, 'good', 4000); break;
       case 'gameEnded': toast('📜 마지막 결산 완료 · 결말이 열립니다', 'good', 3200); break;
       case 'shiftClosed': ui.sheet = null; ui.selectedSlot = null; ui.chatter = null; save(); break; // 마감 화면을 가리는 영업 중 대사는 내린다
       default: break;

@@ -22,7 +22,7 @@ export function buy(state, ingredientId, qty) {
   const n = Math.floor(qty);
   if (!(n > 0 && n <= 99)) return { ok: false, reason: '수량은 1~99 사이여야 합니다' };
   // 모카 친밀도 능력: 단골 할인·배달비 할인
-  const fx = bondFx(state.affinity);
+  const fx = bondFx(state);
   const base = Math.ceil(ing.price * n * (1 - fx.discount));
   const fee = state.mode === 'shift' ? Math.ceil(TEMP.DELIVERY_FEE * (1 - fx.feeCut)) : 0;
   const cost = base + fee;

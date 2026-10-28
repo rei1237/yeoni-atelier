@@ -87,3 +87,30 @@ body[data-editing=true] #topbar button{min-height:44px;min-width:44px}
 .title-room-button{width:100%;min-height:52px;background:#e4eee3;color:#35544b;border-color:#93aa91;display:flex;justify-content:space-between;align-items:center}.game-room-dialog{max-width:760px;width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 32px);overflow:auto}.game-room-dialog h2{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:19px}.game-room-dialog .game-room-art{max-height:40dvh;object-fit:contain}
 .game-room-links a{overflow:hidden;padding:0 0 12px;gap:8px}.game-room-links img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}.game-room-links span{margin-top:0}.game-room-dialog .game-room-links{padding:12px 0}
 .title-room-button{position:relative;isolation:isolate;min-height:60px;padding:14px 22px 14px 48px;border:1px solid #ba8290;border-radius:16px;background:linear-gradient(120deg,#fbe9e9,#f6d8df 55%,#f4e6d2);color:#743b53;box-shadow:inset 0 0 0 3px #fff8edaa,0 4px 12px #7c40551a;font-weight:750}.title-room-button:before{content:'✿';position:absolute;left:18px;color:#b47585;font-size:24px}.title-room-button:after{content:'❧';position:absolute;right:42px;color:#809579;font-size:25px;opacity:.7}.title-secondary:has([data-action="game.install"]){display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.title-menu [data-action="game.install"],.title-menu [data-action="game.exit"]{min-height:54px;border-radius:14px;border:1px solid #c8bca0;box-shadow:inset 0 0 0 3px #fffdf380;font-weight:650;padding:10px 8px}.title-menu [data-action="game.install"]{background:#edf1e4;color:#466453}.title-menu [data-action="game.exit"]{background:#f9eddf;color:#85635c}.title-menu [data-action="game.install"]:before{content:'❧';display:inline-block;margin-right:7px;color:#789473;font-size:20px}.title-menu [data-action="game.exit"]:before{content:'✿';display:inline-block;margin-right:7px;color:#b99186;font-size:18px}.title-menu button:focus-visible{outline:3px solid #805269;outline-offset:3px}
+/* 페르소나식 인연 랭크: 아르카나 배지·랭크 10칸·능력 해방 목록·랭크 업 카드 */
+.bond-name .arcana{font-size:11px;letter-spacing:.08em;color:#8a6a3c;font-weight:700}
+.bond-rank{margin-left:auto;display:grid;place-items:center;min-width:56px;padding:4px 8px;border-radius:10px;background:#3b2a4a;color:#f5dfa8;line-height:1}
+.bond-rank small{font-size:9px;letter-spacing:.14em}.bond-rank b{font-size:22px;font-variant-numeric:tabular-nums}
+.bond-rank.ready{box-shadow:0 0 0 2px #e7c06a,0 0 12px #e7c06a99}
+.rank-pips{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin:2px 0 4px}
+.rank-pips i{height:8px;border-radius:2px;background:#eadbcc;box-shadow:inset 0 0 0 1px #d8c2ac}
+.rank-pips i.on{background:#7a4f8f;box-shadow:none}.rank-pips i.perk{height:12px;margin-top:-2px}.rank-pips i.perk.on{background:#c79a3e}
+.rank-pips i.new{animation:rank-new 1.2s ease-out 2}
+@keyframes rank-new{0%{transform:scaleY(1.8);filter:brightness(1.5)}100%{transform:none;filter:none}}
+.bond-status.ready{color:#8a5a12;font-weight:700}
+.bond-perks{list-style:none;margin:6px 0;padding:0;display:grid;gap:4px}
+.bond-perks li{display:grid;grid-template-columns:62px minmax(0,1fr) auto;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:#f4ece2;color:#8b7a80;font-size:12px}
+.bond-perks li b{font-size:11px;letter-spacing:.04em}.bond-perks li span{overflow-wrap:anywhere}.bond-perks li small{font-size:10px}
+.bond-perks li.open{background:#f6e7c4;color:#5c3f2a}.bond-perks li.open small{color:#8a5a12;font-weight:700}
+.bond-perks li.next{background:#fff;box-shadow:inset 0 0 0 1px #c9a3b2;color:#6b4a5c}
+.bond-card button.rank-ready{background:#3b2a4a;color:#f5dfa8;border-color:#c79a3e}
+.rankup-card{display:grid;justify-items:center;gap:10px;text-align:center;padding:18px 12px;border-radius:14px;background:radial-gradient(circle at 50% 30%,#4d3763,#241a30);color:#f7ead0}
+.rankup-kicker{margin:0;font-size:13px;letter-spacing:.4em;color:#e7c06a;font-weight:800;animation:rank-new 1s ease-out}
+.rankup-arcana{display:grid;justify-items:center;gap:4px}.rankup-arcana small{font-size:12px;letter-spacing:.2em;color:#e7c06a}.rankup-arcana b{font-size:18px}
+.rankup-card h2{margin:0;font-size:18px;color:#fff}.rankup-card .rank-pips{width:min(280px,100%)}
+.rankup-card .rank-pips i{background:#ffffff26;box-shadow:none}.rankup-card .rank-pips i.on{background:#b88ad0}.rankup-card .rank-pips i.perk.on{background:#e7c06a}
+.rankup-perk{display:grid;gap:4px;width:min(320px,100%);padding:10px 12px;border-radius:10px;background:#f7ead0;color:#3b2a4a}
+.rankup-perk small{font-size:11px;letter-spacing:.2em;color:#8a5a12;font-weight:800}.rankup-perk b{font-size:15px;overflow-wrap:anywhere}.rankup-perk span{font-size:12px;color:#6b4a5c}
+.rankup-card .muted{color:#d8c6e0}.rankup-card button{min-height:48px;min-width:180px}
+@media (prefers-reduced-motion:reduce){.rank-pips i.new,.rankup-kicker{animation:none}}
+.companion-picker .pick-rank{color:#3b2a4a;font-weight:800;letter-spacing:.04em}

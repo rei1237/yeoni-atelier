@@ -1,9 +1,10 @@
 import {gainYeoni} from './yeoni-growth.js';
 // 친밀도: 대화(행동력 1, 순마다 한 사람 한 번)·선물(골드, 순마다 한 사람 한 번)·함께 일하기로 오른다.
-// 단계가 열리면 능력(data/bonds.js)이 더해지고 인연 이야기가 한 번 나온다. 수치는 모두 임시값(TEMP.BONDS).
+// 페르소나식 인연 랭크: 점수가 다음 랭크 문턱을 채우면 '인연이 깊어질 것 같다'가 되고, 그 동료와 대화하면 랭크가 하나 오른다.
+// 랭크 3·6·8·10에서 능력(data/bonds.js)이 해방되고 인연 이야기가 한 번 나온다. 수치는 모두 임시값(TEMP.BONDS).
 
 import { TEMP } from '../config/balance.temp.js';
-import { BONDS, COMMON_GIFT, bondTier } from '../data/bonds.js';
+import { BONDS, COMMON_GIFT, ARCANA, MAX_RANK, bondRank, bondReady } from '../data/bonds.js';
 import { bondQuestion } from '../data/bond-dialogues.js';
 import { emit } from './state.js';
 import { apCheck, spendAp } from './calendar.js';
@@ -17,9 +18,21 @@ export function gainBond(state, id, v) {
   const before = state.affinity[id] || 0;
   const after = Math.min(B.MAX, before + v);
   state.affinity[id] = after;
-  const t0 = bondTier(before), t1 = bondTier(after);
-  if (t1 > t0) emit('bondUp', { id, tier: t1, label: BONDS[id].perks[t1 - 1].label });
+  const r = bondRank(state, id);
+  if (r < MAX_RANK && before < B.RANKS[r] && after >= B.RANKS[r]) emit('bondReady', { id, rank: r + 1 });
   return after - before;
+}
+
+// 랭크 업: 문턱을 채운 동료와 시간을 보냈을 때 하나만 오른다. 능력이 해방되면 그 이름을 돌려준다.
+export function rankUp(state, id) {
+  if (!bondReady(state, id)) return null;
+  const rank = bondRank(state, id) + 1, b = BONDS[id];
+  state.bondRank = { ...state.bondRank, [id]: rank };
+  const k = B.PERK_RANKS.indexOf(rank), perk = k >= 0 ? b.perks[k].label : null;
+  const n = B.PERK_RANKS.findIndex(x => x > rank), next = n >= 0 ? { rank: B.PERK_RANKS[n], label: b.perks[n].label } : null;
+  const up = { id, rank, arcana: ARCANA[id], perk, next, story: k >= 0 };
+  emit('bondRankUp', up);
+  return up;
 }
 
 // 대화를 열 수 있는가(상태를 바꾸지 않는다). 화면은 이것으로 소설을 열고, 답을 고른 순간에만 talk 가 행동력을 쓴다.
@@ -42,9 +55,10 @@ export function talk(state, id, choiceId, token) {
   changeStress(state, 'talk', id);
   state.ap.talked = { ...state.ap.talked, [id]: true };
   const v = gainBond(state, id, answer.gain);
+  const up = rankUp(state, id);
   const speaker=bondMasked(state,id)?'shadow_tiger':id, line=answer.response;
   gainYeoni(state,'talk');emit('bondTalk', { id, speaker, line, gain: v });
-  return { ok: true, gain: v, speaker, line };
+  return { ok: true, gain: v, speaker, line, rankUp: up };
 }
 
 export function gift(state, id, giftId) {
