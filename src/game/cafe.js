@@ -94,21 +94,30 @@ function setPath(state, e, to, opts) {
   e.path = p || []; // 검증된 배치에서는 항상 길이 있다. 없으면 제자리 도착으로 처리해 진행이 멈추지 않게 한다.
   if (p && !p.length && Math.hypot(e.x - to.x - .5, e.y - to.y - .5) > .025) e.path = [[to.x, to.y]]; // 같은 칸이어도 중앙까지 걷는다(결제 판정은 칸 중앙에서)
   e.moving = true;
+  e.trafficWait = 0; e.trafficBest = Infinity; e.trafficGhost = 0;
 }
 
+// 길을 비켜 주다 서로 막히면(같은 칸을 향하거나 좁은 길목에서 마주 서면) 아무도 못 움직인다.
+// 남은 거리가 TRAFFIC_YIELD_MS 동안 줄지 않으면 다음 칸에 닿을 때까지 사람을 통과해 걷는다.
+const remainOf=e=>e.path.length?Math.hypot(e.path[0][0]+.5-e.x,e.path[0][1]+.5-e.y)+e.path.length-1:0;
 function moveAlong(state,e,dt,tilesPerS) {
- let dist=tilesPerS*dt/1000;const grid=getGrid(state),actors=cafeActors(state);
+ if(e.trafficGhost&&e.path.length<e.trafficGhost)e.trafficGhost=0;
+ if(!e.trafficGhost&&e.path.length&&(e.trafficWait||0)>=TEMP.TRAFFIC_YIELD_MS)e.trafficGhost=e.path.length;
+ let dist=tilesPerS*dt/1000;const grid=getGrid(state),actors=e.trafficGhost?[]:cafeActors(state);
  while(dist>1e-6&&e.path.length){
   const [tx,ty]=e.path[0],target={x:tx+.5,y:ty+.5},d=Math.hypot(target.x-e.x,target.y-e.y);
   if(e.path.length>1&&d<.8){e.path.shift();continue;}
   if(d<.025){e.x=target.x;e.y=target.y;e.path.shift();continue;}
   const here={x:Math.floor(e.x),y:Math.floor(e.y)},last=e.path.length===1;
   const next=trafficStep(e,target,Math.min(dist,.08),actors,(x,y)=>{const gx=Math.floor(x),gy=Math.floor(y);return grid.walkable(gx,gy)||(gx===here.x&&gy===here.y)||(last&&gx===tx&&gy===ty);});
-  if(!next){e.trafficWait=(e.trafficWait||0)+dt;break;}
-  const dx=next.x-e.x,dy=next.y-e.y,moved=Math.hypot(dx,dy);e.trafficWait=0;
+  if(!next)break;
+  const dx=next.x-e.x,dy=next.y-e.y,moved=Math.hypot(dx,dy);
   e.facing=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');
   e.x=next.x;e.y=next.y;e.walkDistance=((e.walkDistance||0)+moved)%1024;dist-=moved;
  }
+ const remain=remainOf(e);
+ if(!e.path.length||remain<(e.trafficBest??Infinity)-.05){e.trafficBest=remain;e.trafficWait=0;}else e.trafficWait=(e.trafficWait||0)+dt;
+ if(!e.path.length)e.trafficGhost=0;
  const arrived=e.moving&&e.path.length===0;if(arrived)e.moving=false;return arrived;
 }
 
@@ -602,10 +611,11 @@ export function customerLeave(state, c, reason) {
   emit('leave', { tableNo: c.tableNo, reason });
 }
 
-// 포장 손님은 계산 줄 칸·통로 예약 칸이 아닌, 다른 포장 손님과 겹치지 않는 칸에서 기다린다.
+// 포장 손님은 계산 줄 칸·통로 예약 칸·입구에서 자리로 가는 길이 아닌, 다른 포장 손님과 겹치지 않는 칸에서 기다린다.
 function takeawaySpot(state){
  const grid=getGrid(state),L=cafeLayout(state),sp=L.spots.checkout,k=p=>p.x+','+p.y;
- const busy=new Set([...(L.queue||[sp]),...(L.reserved||[]).map(([x,y])=>({x,y})),...Object.values(state.customers).map(c=>c.takeawaySpot).filter(Boolean)].map(k));
+ const walkway=state.tables.flatMap(t=>findPath(grid,L.spots.entrance,t.chair,{goalBlocked:true})||[]).map(([x,y])=>({x,y}));
+ const busy=new Set([...(L.queue||[sp]),...(L.reserved||[]).map(([x,y])=>({x,y})),...walkway,...Object.values(state.customers).map(c=>c.takeawaySpot).filter(Boolean)].map(k));
  for(let r=1;r<6;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
   if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;const p={x:sp.x+dx,y:sp.y+dy};
   if(grid.walkable(p.x,p.y)&&!busy.has(k(p))&&findPath(grid,L.spots.entrance,p))return p;

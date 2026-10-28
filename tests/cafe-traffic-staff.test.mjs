@@ -5,7 +5,10 @@ import {createHostDemo} from '../src/game/host-demo.js';
 import {dispatch,tick} from '../src/game/engine.js';
 import {RECRUITABLE} from '../src/data/companions.js';
 import {seat} from './helpers.mjs';
-import {spawnCustomer} from '../src/game/cafe.js';
+import {spawnCustomer,getGrid} from '../src/game/cafe.js';
+import * as helpers from './helpers.mjs';
+import {cafeSpots} from '../src/data/layout.js';
+import {findPath} from '../src/game/space.js';
 test('좁은 통로에서 마주 오는 두 캐릭터는 간격을 지키고 서로 지나간다',()=>{
  const a={x:.5,y:1.5},b={x:.5,y:4.5},actors=[a,b],walk=(x,y)=>x>=0&&x<1&&y>=0&&y<6;let min=99;
  for(let i=0;i<500;i++){for(const [e,target] of [[a,{x:.5,y:4.5}],[b,{x:.5,y:1.5}]]){const p=trafficStep(e,target,.04,actors,walk);if(p)Object.assign(e,p);}min=Math.min(min,Math.hypot(a.x-b.x,a.y-b.y));}
@@ -24,4 +27,19 @@ for(const id of ['neo',...RECRUITABLE.map(x=>x.id)])test(id+' 출근·서빙·�
  for(let i=0;i<700&&s.tables.find(t=>t.no===guest.tableNo).state!=='dirty';i++)tick(s,100);
  assert.ok(dispatch(s,{type:'clean',tableNo:guest.tableNo}).ok);for(let i=0;i<500&&s.tables.find(t=>t.no===guest.tableNo).state!=='empty';i++)tick(s,100);assert.equal(s.tables.find(t=>t.no===guest.tableNo).state,'empty');
  const host=seat(s,{nominee:id});assert.ok(dispatch(s,{type:'nomination.accept',tableNo:host.tableNo}).ok);tick(s,60000);assert.equal(s.people[id].activity,'idle');for(let i=0;i<300&&s.staff[id].path.length;i++)tick(s,100);assert.equal(s.staff[id].path.length,0);assert.equal(s.shift.hostings.at(-1).nominee,id);
+});
+
+test('같은 칸으로 가던 두 사람이 서로 비키다 멈추면 잠시 뒤 통과해 지나가 카페가 멈추지 않는다',()=>{
+ // 실제 막힘 재현: 네오·루나가 같은 픽업 칸(7,1)으로 동시에 가거나, 포장 손님이 입구 길목에 서 있을 때 끝없이 서로 비켰다
+ const {quietShift}=helpers,s=quietShift();
+ const a=spawnCustomer(s,{kind:'regular'}),b=spawnCustomer(s,{kind:'regular'});
+ Object.assign(a,{state:'leaving',x:4.5,y:14.5,path:[[5,15]],moving:true});Object.assign(b,{state:'leaving',x:6.5,y:14.5,path:[[5,15]],moving:true});
+ for(let i=0;i<100&&(s.customers[a.id]||s.customers[b.id]);i++)tick(s,100);
+ assert.ok(!s.customers[a.id]&&!s.customers[b.id],'둘 다 10초 안에 나가야 한다');
+});
+
+test('포장 손님은 입구에서 자리로 가는 길목에 서서 기다리지 않는다',()=>{
+ const s=helpers.quietShift(),grid=getGrid(s),entrance=cafeSpots(s).entrance;
+ const walkway=new Set(s.tables.flatMap(t=>findPath(grid,entrance,t.chair,{goalBlocked:true})||[]).map(([x,y])=>x+','+y));
+ for(let i=0;i<3;i++){const c=spawnCustomer(s,{kind:'takeaway'});if(c)assert.ok(!walkway.has(c.takeawaySpot.x+','+c.takeawaySpot.y),JSON.stringify(c.takeawaySpot));}
 });
