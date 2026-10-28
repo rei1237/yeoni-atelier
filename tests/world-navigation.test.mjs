@@ -25,4 +25,3 @@ test('무성 상점은 첫해 5월부터 열리고 기존 가구는 그대로 �
  assert.equal(dispatch(s,{type:'town.visit',place:'expand'}).ok,false);assert.equal(dispatch(s,{type:'world.arrive',place:'expand'}).ok,false);assert.deepEqual(s.interior.furniture,original);assert.equal(s.gold,gold);
  s.day=7;assert.equal(dispatch(s,{type:'town.visit',place:'expand'}).ok,true);assert.equal(dispatch(s,{type:'expand.decor',defId:'plant'}).ok,true);
 });
-
