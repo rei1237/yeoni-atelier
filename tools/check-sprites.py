@@ -27,18 +27,22 @@ for group,size,margin in [('actors',128,6),('wardrobe',256,8),('enemies',128,6)]
     previous=x+w
    if previous!=im.width:errors.append(path.name+': 원본 마지막 프레임 누락')
    continue
-  cw,ch=cells.get(f'{group}/{path.stem}') or (size,size)
+  base=path.stem[:-3] if path.stem.endswith('_hd') else path.stem
+  cw,ch=cells.get(f'{group}/{base}') or (size,size)
+  k,m=1,margin
+  if base!=path.stem: # 데스크톱 HD 시트는 같은 이름 원본 시트와 같은 격자를 배율만큼 키운 것
+   k=im.width//Image.open(path.with_name(base+'.webp')).width;cw,ch,m=cw*k,ch*k,margin*k
   if im.width%cw or im.height%ch:errors.append(f'{path.name}: 셀 크기 불일치');continue
   for row in range(im.height//ch):
    for col in range(im.width//cw):
     frames+=1;alpha=im.getchannel('A').crop((col*cw,row*ch,(col+1)*cw,(row+1)*ch));bbox=alpha.getbbox();key=f'{path.name} [{row},{col}]'
     if not bbox:errors.append(key+': 빈 프레임');continue
-    if min(bbox[0],bbox[1],cw-bbox[2],ch-bbox[3])<margin:errors.append(key+': 투명 여백 부족')
+    if min(bbox[0],bbox[1],cw-bbox[2],ch-bbox[3])<m:errors.append(key+': 투명 여백 부족')
     parts=components(np.asarray(alpha)>=24)
     if not parts:errors.append(key+': 본체 없음');continue
     mask=Image.new('L',(cw,ch));draw=ImageDraw.Draw(mask)
     for y,a,b in parts[0]:draw.line((a,y,b-1,y),fill=255)
-    reach=mask.filter(ImageFilter.MaxFilter(7 if size==128 else 13)).load()
+    reach=mask.filter(ImageFilter.MaxFilter(7 if size*k==128 else 13)).load()
     for part in parts[1:]:
      area=sum(b-a for y,a,b in part)
      if area>=4 and not any(reach[x,y] for y,a,b in part for x in range(a,b)):errors.append(key+': 본체와 떨어진 알파 조각')
