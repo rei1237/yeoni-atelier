@@ -104,8 +104,7 @@ function expandCheck(state) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;
   const lock = placeLock(state, 'expand'); if (lock) return { ok:false, reason:lock };
-  if (state.interior.draft) return { ok: false, reason: '인테리어 편집을 먼저 마쳐 주세요' };
-  return { ok: true };
+  return { ok: true }; // 꾸미기 초안 중에도 산다. 구매는 즉시 확정되고 초안에도 함께 들어간다.
 }
 
 export function buyExpansion(state) {
@@ -119,9 +118,10 @@ export function buyExpansion(state) {
   const piece = { uid: ex.id, defId: 'table', x: null, y: null, rot: 0, tableNo: ex.tableNo };
   state.gold -= ex.cost;
   furniture.push(piece);
+  if (state.interior.draft) state.interior.draft.furniture.push({ ...piece });
   state.stats.expansions += 1;
-  emit('expanded', { tableNo: ex.tableNo, label: ex.label });
-  return { ok: true, tableNo: ex.tableNo };
+  emit('expanded', { tableNo: ex.tableNo, label: ex.label, uid: piece.uid });
+  return { ok: true, tableNo: ex.tableNo, uid: piece.uid };
 }
 
 // 공방 증축: 잠긴 구역을 연다(가구는 인테리어·테이블 들이기로 채운다)
@@ -158,6 +158,6 @@ export function buyDecor(state, defId) {
   const bought={uid:nextId(state,'decor'),defId,x:null,y:null,rot:0,...(table?{tableNo:ex.tableNo}:{})};
   state.interior.furniture.push(bought);if(state.interior.draft)state.interior.draft.furniture.push({...bought});
   if(table)state.stats.expansions+=1;
-  emit('decorBought', { defId, name: FURNITURE[defId].name });
-  return { ok: true };
+  emit('decorBought', { defId, name: FURNITURE[defId].name, uid: bought.uid });
+  return { ok: true, uid: bought.uid };
 }

@@ -94,6 +94,8 @@ function migrate(data) {
   migrateHuntVisits(data);
   if(data.hunt)normalizeKfp(data.hunt);
   data.interior.areas ||= []; // 증축 구역 이전 저장
+  // 꾸미기 통합 이전 저장: 옛 실내·증축·정원 안내 중 하나라도 봤으면 통합 안내도 본 것으로 친다
+  if (data.tutorials && (data.tutorials.interior || data.tutorials.expand || data.tutorials.grounds)) data.tutorials.decorate = true;
   checkAchievements(data, { quiet: true }); // 업적 소급(원장으로 보상 1회)
   return data;
 }

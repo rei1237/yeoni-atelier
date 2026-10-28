@@ -11,7 +11,6 @@ export const GUIDES = Object.freeze({
  growth:{title:'레벨과 칭호',image:'bonds',steps:['연이 레벨과 카페 레벨은 따로 성장해요. 연이는 직접 활동으로, 카페는 영업으로 성장해요.','획득한 칭호를 눌러 달 수 있어요. 칭호는 꾸밈용이며 성장 효과를 중복해서 더하지 않아요. 행동력 증가는 다음 순부터 적용돼요.']},
  world:{title:'재성의 섬 산책',image:'shop',steps:['장소를 누르면 연이가 걸어가요. 도착한 장소의 버튼으로 가게나 농장에 들어가요.','아직 잠긴 장소에는 열리는 조건이 표시돼요. 카페로 돌아와 영업을 시작할 수 있어요.']},
  branches:{title:'카페 지점 관리',image:'interior',steps:['지점마다 개설 조건과 비용을 확인해요. 구매한 지점은 영업 준비 중에 이동할 수 있어요.','진행 중인 요리를 마치고 이동해 주세요. 새 지점을 열어도 기존 지점의 배치는 보존돼요.']},
- grounds:{title:'정원과 외관',image:'interior',steps:['꾸미고 싶은 정원이나 외관을 골라요. 구매 조건과 보유 상태를 먼저 확인해요.','배치를 미리 확인한 뒤 적용해요. 편집을 마치고 영업을 준비해 주세요.']},
  staffing:{title:'직원 배치',image:'host',steps:['함께하는 동료 중 카페에서 일할 직원을 선택해요. 배치 가능한 인원과 공간을 확인해요.','동료의 인연 능력과 휴무 상태를 함께 살펴보세요. 자동 운영은 필요한 인연 단계와 이야기를 마친 뒤 켤 수 있어요.']},
  recipe:{title:'레시피 수첩',image:'cook',steps:['메뉴별 재료와 배운 레시피를 확인해요. 손님 주문은 영업 중에 만들어요.','영업 전 여분 음식은 연이의 주방에서 만들어요. 특별 메뉴는 성장과 첫 완성 조건을 채워 등록해요.']},
  finance:{title:'장부와 금융',image:'shop',steps:['보유 골드와 남은 빚, 상환 조건을 확인해요. 표시된 비용을 확인한 뒤 필요한 거래를 골라요.','금융 거래와 재료 구매에는 행동력이 들지 않아요. 월정석과 골드는 서로 다른 재화예요.']},
@@ -33,10 +32,10 @@ export const GUIDES = Object.freeze({
  armory:{title:'윤달의 무기 공방',image:'armory',steps:['윤달에게 월정석으로 사냥꾼별 무기·체력·줍기 범위를 강화해요. 강화에는 레벨 상한이 없어요.','모카에게 산 회복 물품은 사냥 화면의 간편 슬롯에서 써요. 모카와 인연을 쌓으면 수집 향과 방패 등 물품이 늘어나요.']},
  outfits:{title:'갈아입고 카페로',image:'outfits',steps:['함께하는 남성 동료를 고른 뒤 옷을 입어 봐요. 준비 중 입기를 누르면 저장돼요.','카페의 치비 캐릭터도 같은 옷을 입고 이동·접대해요. 의상은 외형 전용이에요.']},
  bonds:{title:'동료에게 마음 전하기',image:'bonds',steps:['위쪽 얼굴을 눌러 동료를 바꾸고 보유 음식이나 좋아하는 물건을 골라요. 구매·선물은 마지막 확인에서 실행하며, 음식과 물건을 합쳐 한 순에 한 번이에요.','동료의 성격과 고민을 듣고 세 답 중 하나를 골라요. 공감하는 답일수록 호감도가 더 올라요.','한 사람과 매 순 한 번 대화할 수 있어요. 인연 단계가 오르면 이야기와 유용한 능력이 열려요.']},
- interior:{title:'가구를 놓고 길을 남기기',image:'interior',steps:['카페의 꾸미기를 눌러 가구를 사고 보유 가구를 배치해요. 테이블과 의자는 따로 놓아요.','가구를 고르고 위치와 방향을 확인해 배치해요. 입구와 통로를 남기고 의자를 테이블 쪽으로 향하게 한 뒤 저장해요.']},
+ decorate:{title:'내 첫 공간 꾸미기',image:'interior',steps:['카페의 꾸미기 하나로 가구 구매·배치, 정원·외부, 공간 확장을 모두 해요. 아래 보유 가구 카드를 고르면 선택돼요.','바닥을 누르면 놓일 자리가 반투명하게 보여요. 추천 자리는 통로를 막지 않는 가까운 칸을 찾아 줘요. 회전으로 방향을 바꿔요.','여기에 놓기로 확정하고, 마지막에 배치 적용을 눌러야 카페에 반영돼요. 되돌리기는 확정한 배치를 한 단계씩 되돌려요.','산 가구는 바로 보관함에 들어와요. 배치를 취소해도 환불되지 않고 보관함에 남아요. 정원·외부에서는 대문에서 입구까지 길을 남겨 주세요.']},
 });
 // 새 조작 화면은 반드시 이 표와 GUIDES에 함께 등록한다.
-export const FEATURE_GUIDES=Object.freeze({worldcast:'worldcast',audio:'music',delivery:'delivery',kitchen:'recipe',craft:'cook',foodgift:'personal',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop',staffing:'staffing',grounds:'grounds',branches:'branches',debt:'finance',quests:'quests',kfp:'kfp',trail:'trail'});
+export const FEATURE_GUIDES=Object.freeze({worldcast:'worldcast',audio:'music',delivery:'delivery',kitchen:'recipe',craft:'cook',foodgift:'personal',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop',staffing:'staffing',branches:'branches',debt:'finance',quests:'quests',kfp:'kfp',trail:'trail'});
 export function guideForContext(s,ui){
  if(!s)return null;
  if(ui.sheet?.kind==='tutorial')return null;
@@ -47,7 +46,7 @@ export function guideForContext(s,ui){
  if(ui.sheet?.kind==='craft'&&ui.craft?.purpose==='gift')return 'personal';
  if(ui.sheet?.kind==='town')return ({moka:'shop',finance:'finance',expand:'expand',luna:'shelter'})[ui.sheet.tab]||null;
  if(ui.sheet)return FEATURE_GUIDES[ui.sheet.kind]||null;
- if(s.interior.draft&&!s.interior.draft.checkoutPreview)return 'interior';
+ if(s.interior.draft)return null; // 꾸미기 화면은 화면 안 단계 안내(decor-screen.js)를 쓴다
  if(ui.screen==='world')return 'world';
  if(ui.screen==='quests')return 'quests';
  if(ui.cafeDrawer==='crew')return 'growth';

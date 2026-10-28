@@ -143,6 +143,7 @@ function execute(state, cmd) {
     case 'interior.rotate': return interior.rotate(state, cmd.uid);
     case 'interior.store': return interior.store(state, cmd.uid);
     case 'interior.place': return interior.place(state, cmd.uid, cmd.x, cmd.y);
+    case 'interior.suggest': return interior.suggest(state, cmd.uid, cmd.near);
     case 'interior.cancel': return interior.cancel(state);
     case 'interior.apply': return interior.apply(state);
 

@@ -16,19 +16,29 @@ export function buyRemodel(state,id){const chk=check(state);if(!chk.ok)return ch
 export function applyRemodel(state,id){const chk=check(state);if(!chk.ok)return chk;if(!REMODELS[id]||!exteriorOf(state).owned.includes(id))return {ok:false,reason:'먼저 구매해 주세요'};state.exterior??={owned:['original'],theme:'original'};state.exterior.theme=id;return {ok:true};}
 export function groundCommand(state,cmd){
  const chk=check(state);if(!chk.ok)return chk;const g=state.outdoor??=newGrounds(),op=cmd.type.slice(8);
- if(op==='begin'){g.draft??={items:g.items.map(x=>({...x})),floor:g.floor};return {ok:true};}
+ if(op==='begin'){g.draft??={items:g.items.map(x=>({...x})),floor:g.floor,undo:[]};return {ok:true};}
  if(op==='cancel'){g.draft=null;return {ok:true};}
- if(op==='expand'){const ex=groundExpansion(state);if(!ex||ex.level!==cmd.level)return {ok:false,reason:'부지를 다시 확인해 주세요'};if(!cmd.confirmed)return {ok:false,reason:'비용을 확인한 뒤 확정해 주세요'};if(g.draft)return {ok:false,reason:'편집을 마친 뒤 넓혀 주세요'};if(state.gold<ex.cost)return {ok:false,reason:'골드가 부족해요'};state.gold-=ex.cost;g.level=ex.level;state.ledger.rewards['ground:'+activeBranch(state)+':'+ex.level]=true;return {ok:true};}
- if(op==='buy'){if(!GARDEN_ITEMS.includes(cmd.id))return {ok:false,reason:'없는 정원 가구예요'};if(g.items.some(x=>x.id===cmd.id))return {ok:true,duplicate:true};if(g.draft)return {ok:false,reason:'편집을 마친 뒤 구매해 주세요'};const cost=gardenPrice(cmd.id);if(state.gold<cost)return {ok:false,reason:'골드가 부족해요'};state.gold-=cost;g.items.push({id:cmd.id,x:null,y:null,rot:0});return {ok:true};}
+ if(op==='expand'){const ex=groundExpansion(state);if(!ex||ex.level!==cmd.level)return {ok:false,reason:'부지를 다시 확인해 주세요'};if(!cmd.confirmed)return {ok:false,reason:'비용을 확인한 뒤 확정해 주세요'};if(state.gold<ex.cost)return {ok:false,reason:'골드가 부족해요'};state.gold-=ex.cost;g.level=ex.level;state.ledger.rewards['ground:'+activeBranch(state)+':'+ex.level]=true;return {ok:true};}
+ if(op==='buy'){if(!GARDEN_ITEMS.includes(cmd.id))return {ok:false,reason:'없는 정원 가구예요'};if(g.items.some(x=>x.id===cmd.id))return {ok:true,duplicate:true};const cost=gardenPrice(cmd.id);if(state.gold<cost)return {ok:false,reason:'골드가 부족해요'};state.gold-=cost;g.items.push({id:cmd.id,x:null,y:null,rot:0});g.draft?.items.push({id:cmd.id,x:null,y:null,rot:0});return {ok:true,id:cmd.id};}
  if(op==='floor.buy'){const d=FLOOR_THEMES[cmd.id];if(!d)return {ok:false,reason:'없는 바닥이에요'};if(g.floors.includes(cmd.id))return {ok:true,duplicate:true};if(state.gold<d.cost)return {ok:false,reason:'골드가 부족해요'};state.gold-=d.cost;g.floors.push(cmd.id);return {ok:true};}
  if(!g.draft)return {ok:false,reason:'먼저 주변 꾸미기를 시작해 주세요'};
  if(op==='floor'){if(!g.floors.includes(cmd.id))return {ok:false,reason:'구매하지 않은 바닥이에요'};g.draft.floor=cmd.id;return {ok:true};}
+ if(op==='undo'){const prior=g.draft.undo?.pop();if(!prior)return {ok:false,reason:'되돌릴 배치가 없어요'};Object.assign(g.draft.items.find(x=>x.id===prior.id),prior.before);return {ok:true,id:prior.id};}
  if(op==='apply'){const valid=validateGround(state,g.draft.items);if(!valid.ok)return valid;g.items=g.draft.items.map(x=>({...x}));g.floor=g.draft.floor;g.draft=null;return {ok:true};}
  const item=g.draft.items.find(x=>x.id===cmd.id);if(!item)return {ok:false,reason:'보유 가구를 골라 주세요'};
+ if(['store','rotate','move','suggest'].includes(op)){(g.draft.undo??=[]).push({id:item.id,before:{x:item.x,y:item.y,rot:item.rot}});if(g.draft.undo.length>30)g.draft.undo.shift();}
+ if(op==='suggest'){const spot=suggestGroundSpot(state,item.id,cmd.near);if(!spot){g.draft.undo.pop();return {ok:false,reason:'대문 길을 막지 않는 빈자리가 없어요'};}Object.assign(item,spot);return {ok:true,...spot};}
  if(op==='store'){item.x=null;item.y=null;return {ok:true};}
  if(op==='rotate'){item.rot=item.rot===2?0:2;return {ok:true};}
  if(op==='move'){if(!Number.isInteger(cmd.x)||!Number.isInteger(cmd.y))return {ok:false,reason:'격자 안을 골라 주세요'};item.x=cmd.x;item.y=cmd.y;return {ok:true};}
  return {ok:false,reason:'없는 주변 꾸미기 명령이에요'};
+}
+// 정원 추천 자리: 기준 칸에서 가까운 순으로 길을 막지 않는 칸을 고른다.
+export function suggestGroundSpot(state,id,near){
+ const items=groundsOf(state).draft?.items;const item=items?.find(x=>x.id===id);if(!item)return null;const {cols,rows}=groundSize(state),c0=near&&Number.isFinite(near.x)?near:item.x!=null?item:{x:2,y:4},saved={x:item.x,y:item.y};
+ const cells=[];for(let y=3;y<rows;y++)for(let x=0;x<cols;x++)cells.push({x,y});cells.sort((a,b)=>Math.hypot(a.x-c0.x,a.y-c0.y)-Math.hypot(b.x-c0.x,b.y-c0.y));
+ let found=null;for(const p of cells){item.x=p.x;item.y=p.y;if(validateGround(state,items).ok){found=p;break;}}
+ Object.assign(item,saved);return found;
 }
 export function validateGround(state,items){
  const {cols,rows}=groundSize(state),blocked=new Set(),key=(x,y)=>x+','+y;

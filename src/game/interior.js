@@ -2,7 +2,7 @@
 // 초안은 저장하지 않는다. 적용할 때만 실제 배치(state.interior.furniture)가 바뀐다.
 
 import { FURNITURE, GRID, cafeLayout } from '../data/layout.js';
-import { inBounds, validateLayout } from './space.js';
+import { inBounds, validateLayout, lockedSet, furnitureCells } from './space.js';
 
 export function editCheck(state) {
   if (state.mode !== 'prep') return { ok: false, reason: state.mode === 'shift' ? '영업 중에는 인테리어를 바꿀 수 없습니다' : state.mode === 'hunt' ? '사냥 중에는 인테리어를 바꿀 수 없습니다' : '결산을 닫은 뒤 편집할 수 있습니다' };
@@ -71,15 +71,52 @@ export function place(state, uid, x, y) {
   const { f, error } = needDraft(state, uid);
   if (error) return error;
   if (f.x != null) return { ok: false, reason: '이미 배치된 가구입니다' };
-  const tryAt = (px, py) => {
-    f.x = px; f.y = py;
-    if (validateLayout(state.interior.draft.furniture, state.interior.areas,cafeLayout(state,true)).ok) return true;
-    f.x = null; f.y = null;
-    return false;
-  };
   if (x != null && y != null) { f.x = x; f.y = y; return { ok: true }; }
-  for (let py = 2; py < GRID.rows; py++) for (let px = 0; px < GRID.cols; px++) if (tryAt(px, py)) return { ok: true };
-  return { ok: false, reason: '놓을 수 있는 빈 자리가 없습니다' };
+  const spot = suggestSpot(state, uid);
+  if (!spot) return { ok: false, reason: '놓을 수 있는 빈 자리가 없습니다' };
+  Object.assign(f, spot);
+  return { ok: true };
+}
+
+// 추천 자리: 기준 칸(없으면 가구의 지금 자리·열린 공간 가운데)에서 가까운 순으로 문제를 늘리지 않는 칸을 찾는다.
+// 초안 가구는 원래 자리로 되돌려 두고 좌표만 돌려준다.
+export function suggestSpot(state, uid, near) {
+  const d = state.interior.draft, f = d && findDraft(state, uid);
+  if (!f) return null;
+  const layout = cafeLayout(state, true), areas = state.interior.areas, saved = { x: f.x, y: f.y, rot: f.rot };
+  const k = (x, y) => y * GRID.cols + x;
+  f.x = null; f.y = null;
+  const base = validateLayout(d.furniture, areas, layout).problems.length;
+  const blocked = new Set([...lockedSet(areas), ...layout.reserved.map(([x, y]) => k(x, y)), ...layout.fixtures.flatMap(q => q.cells.map(([x, y]) => k(x, y)))]);
+  const floorItem = FURNITURE[f.defId].cells.every(c => c.kind === 'floor');
+  for (const o of d.furniture) if (o !== f && o.x != null) for (const c of furnitureCells(o)) if ((c.kind === 'floor') === floorItem) blocked.add(k(c.x, c.y));
+  const open = [];
+  for (let y = 2; y < GRID.rows; y++) for (let x = 0; x < GRID.cols; x++) if (!blocked.has(k(x, y))) open.push({ x, y });
+  if (!open.length) { Object.assign(f, saved); return null; }
+  const c0 = near && Number.isFinite(near.x) ? near : saved.x != null ? saved : open.reduce((m, p) => ({ x: m.x + p.x / open.length, y: m.y + p.y / open.length }), { x: 0, y: 0 });
+  open.sort((a, b) => Math.hypot(a.x - c0.x, a.y - c0.y) - Math.hypot(b.x - c0.x, b.y - c0.y));
+  const rots = [saved.rot, ...[0, 1, 2, 3].filter(r => r !== saved.rot)];
+  let tries = 0, found = null;
+  outer: for (const p of open) for (const rot of rots) {
+    const cells = furnitureCells({ ...f, x: p.x, y: p.y, rot });
+    if (cells.some(c => !inBounds(c.x, c.y) || blocked.has(k(c.x, c.y)))) continue;
+    Object.assign(f, { x: p.x, y: p.y, rot });
+    const v = validateLayout(d.furniture, areas, layout);
+    if (v.problems.length <= base && !v.problems.some(q => q.uid === f.uid)) { found = { x: p.x, y: p.y, rot }; break outer; }
+    if (++tries >= 120) break outer;
+  }
+  Object.assign(f, saved);
+  return found;
+}
+
+// 추천 자리로 미리보기만 옮긴다. 확정은 confirmItem 으로 한다.
+export function suggest(state, uid, near) {
+  const picked = pickItem(state, uid);
+  if (!picked.ok) return picked;
+  const spot = suggestSpot(state, uid, near);
+  if (!spot) return { ok: false, reason: '지금 열린 공간에는 놓을 자리가 없어요 · 보관함에 그대로 있어요' };
+  Object.assign(findDraft(state, uid), spot);
+  return { ok: true, ...spot };
 }
 
 export function preview(state) {
