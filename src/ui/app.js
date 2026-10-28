@@ -44,6 +44,9 @@ import { createJoystick } from '../core/joystick.js';
 import { loadAssetImages, imageFor, ASSETS } from '../render/assets.js';
 import { talkingKey } from '../render/sprite-renderer.js';
 import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe } from '../render/cafe-view.js';
+import { AREAS } from '../data/layout.js';
+import { gardenItem } from '../game/grounds.js';
+import { decorDirty, purchaseGate } from './decor-screen.js';
 import { drawHunt } from '../render/hunt-view.js';
 import { $, morph, toast, floater, shake } from './dom.js';
 import { topbarHtml, panelHtml, bubblesHtml, hitsHtml } from './hud.js';
@@ -91,6 +94,8 @@ let view = null, cssW = 0, cssH = 0, dpr = 1;
 let lastUi = 0;
 const tablePx = {}; // 마감 뒤에도 떠오르는 숫자 위치를 알 수 있게 테이블 화면 좌표를 기억
 
+// 증축 미리보기 중에는 고른 구역까지 무대를 넓혀 보여 준다.
+function stageBounds(){const b=cafeBounds(state),a=state?.interior.draft&&AREAS.find(x=>x.id===ui.decorArea);return a?{cols:Math.max(b.cols,a.rect[2]+1),rows:Math.max(b.rows,a.rect[3]+1)}:b;}
 function resize() {
   const r = el.stage.getBoundingClientRect();
   document.documentElement.style.setProperty('--cafe-stage-height', `${r.height}px`);
@@ -98,7 +103,7 @@ function resize() {
   cssW = Math.max(1, el.stage.clientWidth); cssH = Math.max(1, el.stage.clientHeight);
   el.canvas.width = Math.round(cssW * dpr); el.canvas.height = Math.round(cssH * dpr);
   el.canvas.style.width = `${cssW}px`; el.canvas.style.height = `${cssH}px`;
-  view = computeView(cssW, cssH,{...ui.camera,...cafeBounds(state)});
+  view = computeView(cssW, cssH,{...ui.camera,...stageBounds()});
   lastUi = 0;
 }
 new ResizeObserver(resize).observe(el.stage);
@@ -120,8 +125,26 @@ function navigateScreen(screen, replace=false) {
   ui.worldTrip=null; ui.worldMarker=null; ui.worldCardOpen=false; ui.screen=screen; ui.sheet=null; ui.tablePop=null; ui.cafeDrawer=null;
   history[replace?'replaceState':'pushState']({yeoniScreen:screen},'',screen?'#'+screen:location.pathname+location.search);
 }
-window.addEventListener('popstate',e=>{ui.worldTrip=null;ui.worldMarker=null;ui.worldCardOpen=false;if(state?.interior.draft)run({type:'interior.cancel'});ui.screen=state?(e.state?.yeoniScreen||null):null;ui.sheet=null;ui.tablePop=null;ui.cafeDrawer=null;render(true);});
-document.addEventListener('keydown',e=>{if(e.defaultPrevented||e.key!=='Escape'||novelActive())return;if(ui.worldTrip){ui.worldTrip=null;ui.worldMarker=null;render(true);return;}if(ui.worldCardOpen){ui.worldCardOpen=false;render(true);return;}if(state?.interior.draft&&!ui.sheet){run({type:'interior.cancel'});render(true);return;}if(ui.cafeDrawer){ui.cafeDrawer=null;render(true);}else if(ui.tablePop){ui.tablePop=null;render(true);}else if(ui.screen&&!ui.sheet){navigateScreen(null,true);render(true);}});
+window.addEventListener('popstate',e=>{ui.worldTrip=null;ui.worldMarker=null;ui.worldCardOpen=false;if(state?.interior.draft&&decorBack(true))return;ui.screen=state?(e.state?.yeoniScreen||null):null;ui.sheet=null;ui.tablePop=null;ui.cafeDrawer=null;render(true);});
+document.addEventListener('keydown',e=>{if(e.defaultPrevented||e.key!=='Escape'||novelActive())return;if(ui.worldTrip){ui.worldTrip=null;ui.worldMarker=null;render(true);return;}if(ui.worldCardOpen){ui.worldCardOpen=false;render(true);return;}if(state?.interior.draft&&!ui.sheet&&!ui.confirm){decorBack(false);render(true);return;}if(ui.cafeDrawer){ui.cafeDrawer=null;render(true);}else if(ui.tablePop){ui.tablePop=null;render(true);}else if(ui.screen&&!ui.sheet){navigateScreen(null,true);render(true);}});
+// 꾸미기 뒤로: 고른 가구는 선택만 풀고, 적용 전 변경이 있으면 묻고, 없으면 닫는다. 화면을 유지하면 true.
+function decorBack(fromHistory){
+ const keep=()=>{if(fromHistory)history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);};
+ if(state.interior.draft.itemBefore||ui.decorSpace==='outdoor'&&ui.groundItem){keep();ACTIONS['decor.deselect']();render(true);return true;}
+ if(decorDirty(state)){keep();askDecorDiscard();render(true);return true;}
+ closeDecor();return false;
+}
+function askDecorDiscard(){ui.confirm={title:'적용하지 않은 배치가 있어요',text:'닫으면 이번에 옮긴 배치는 원래대로 돌아가요. 이미 산 가구와 증축한 공간은 그대로 남아요.',yesLabel:'배치 버리고 닫기',noLabel:'계속 꾸미기',onYes:closeDecor};}
+function closeDecor(){if(state.outdoor?.draft)run({type:'grounds.cancel'},{keepQuiet:true});if(state.interior.draft)run({type:'interior.cancel'},{keepQuiet:true});ui.decorSpace='indoor';ui.groundItem=null;ui.decorArea=null;ui.groundExpand=false;ui.remodelPreview=null;resize();}
+// 화면 가운데 칸과 카메라 맞추기(구매·추천 자리·증축 미리보기)
+const viewCenterCell=()=>view?pxToCell(view,cssW/2,cssH/2):undefined;
+function focusCell(x,y){if(!view)return;const v0=computeView(cssW,cssH,{...ui.camera,x:0,y:0,...stageBounds()});ui.camera.x=cssW/2-(v0.ox+(x+.5)*v0.tile);ui.camera.y=cssH/2-(v0.oy+(y+.5)*v0.tile);view=computeView(cssW,cssH,{...ui.camera,...stageBounds()});}
+function afterDecorBuy(uid){
+ ui.decorTab='owned';ui.editTab='all';ui.editCategory='all';
+ const s=run({type:'interior.suggest',uid,near:viewCenterCell()},{keepQuiet:true});
+ if(s.ok){focusCell(s.x,s.y);toast('구매 완료 · 추천 자리에 올려 뒀어요','good',2600);}
+ else toast('구매 완료 · 보관함에 있어요. 지금 열린 공간에는 빈자리가 없어요 · 다른 가구를 보관하거나 공간 확장에서 넓혀요','good',5600);
+}
 function enterWorldPlace(id){
  const p=WORLD_PLACES.find(p=>p.id===id);if(!p)return;
  const lock=placeLock(state,id)||(id!=='atelier'&&!townCheck(state).ok?townCheck(state).reason:'');
@@ -254,7 +277,7 @@ const ACTIONS = {
     const path=worldRoute(WORLD_NAV,at,p.id);if(!path){toast('이동 경로를 찾지 못했어요.');return;}
     ui.worldTrip=createWorldTrip(p.id,path);ui.worldMarker={...path[0],facing:'down',frame:0};
   },
-  'cafe.areaInfo':()=>{if(state.mode!=='prep'){toast('영업을 마친 뒤 꾸미기에서 새 구역을 열 수 있어요.');return;}ui.sheet={kind:'town',tab:'expand'};},
+  'cafe.areaInfo':()=>{if(state.mode!=='prep'){toast('영업을 마친 뒤 꾸미기에서 새 구역을 열 수 있어요.');return;}ACTIONS['decor.open']({tab:'expand'});},
   'cafe.drawer':d=>{ui.cafeDrawer=ui.cafeDrawer===d.tab?null:d.tab;ui.tablePop=null;requestAnimationFrame(()=>document.querySelector('.cafe-drawer:not([hidden]) header button')?.focus());},
   'cafe.drawer.close':()=>{const tab=ui.cafeDrawer;ui.cafeDrawer=null;requestAnimationFrame(()=>document.querySelector('.cafe-actions [data-tab="'+tab+'"]')?.focus());},
   'table.close': () => {ui.tablePop=null;},
@@ -294,7 +317,7 @@ const ACTIONS = {
   'farm.expand': () => run({ type: 'farm.expand' }),
   'farm.greenhouse': () => run({ type: 'farm.greenhouse' }),
   // 화면 전용
-  'sheet.open': d => { if(d.sheet==='worldcast'&&!worldMeetingAccess(state).unlocked){toast(worldMeetingAccess(state).hint);return;} if(d.sheet==='interior'){ACTIONS['interior.begin']();return;}if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
+  'sheet.open': d => { if(d.sheet==='worldcast'&&!worldMeetingAccess(state).unlocked){toast(worldMeetingAccess(state).hint);return;} if(d.sheet==='interior'||d.sheet==='grounds'){ACTIONS['decor.open']({space:d.sheet==='grounds'?'outdoor':''});return;}if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
   'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; maybeVisit(d.tab); },
   'sheet.close': () => { if(ui.sheet?.kind==='tutorial')finishGuide();else ui.sheet = null; },
   'overlay.settlement': () => {},
@@ -411,7 +434,7 @@ const ACTIONS = {
   'grounds.cancel':()=>run({type:'grounds.cancel'}),
   'grounds.apply':()=>run({type:'grounds.apply'}),
   'grounds.select':d=>{ui.groundItem=d.id;},
-  'grounds.cell':d=>{if(ui.groundItem)run({type:'grounds.move',id:ui.groundItem,x:n(d.x),y:n(d.y)});},
+  'grounds.cell':d=>{const x=n(d.x),y=n(d.y);if(ui.groundItem){run({type:'grounds.move',id:ui.groundItem,x,y});return;}const hit=state.outdoor?.draft?.items.find(i=>{const g=gardenItem(i.id);return i.x!=null&&x>=i.x&&x<i.x+(g.width||1)&&y>=i.y&&y<i.y+(g.height||1);});if(hit)ui.groundItem=hit.id;},
   'grounds.nudge':d=>{const item=state.outdoor?.draft?.items.find(x=>x.id===ui.groundItem);if(item)run({type:'grounds.move',id:item.id,x:(item.x??0)+n(d.dx),y:(item.y??3)+n(d.dy)});},
   'grounds.rotate':()=>run({type:'grounds.rotate',id:ui.groundItem}),
   'grounds.store':()=>run({type:'grounds.store',id:ui.groundItem}),
@@ -447,7 +470,25 @@ const ACTIONS = {
   'interior.confirmItem':()=>run({type:'interior.confirmItem'}),
   'interior.cancelItem':()=>run({type:'interior.cancelItem'}),
   'editor.cancel':()=>{run({type:'interior.cancel'});ui.editTab='all';},
-  'editor.shop':()=>{ui.sheet={kind:'town',tab:'expand'};},
+  'editor.shop':()=>{ui.decorTab='shop';},
+  'decor.close':()=>{if(decorDirty(state))askDecorDiscard();else closeDecor();},
+  'decor.space':d=>{if(d.id==='outdoor'){if(state.interior.draft?.checkoutPreview)return;if(state.interior.draft?.itemBefore)run({type:'interior.cancelItem'},{keepQuiet:true});if(!state.outdoor?.draft&&!run({type:'grounds.begin'}).ok)return;}else ui.groundItem=null;ui.decorSpace=d.id==='outdoor'?'outdoor':'indoor';ui.decorArea=null;ui.groundExpand=false;resize();},
+  'decor.tab':d=>{ui.decorTab=d.id;ui.decorArea=null;ui.groundExpand=false;resize();},
+  'decor.theme':d=>{ui.decorTheme=d.id;},
+  'decor.pick':d=>{const dr=state.interior.draft;if(dr?.itemBefore&&dr.selected!==d.uid)run({type:'interior.cancelItem'},{keepQuiet:true});if(run({type:'interior.pick',uid:d.uid}).ok){const f=state.interior.draft.furniture.find(x=>x.uid===d.uid);if(f?.x!=null)focusCell(f.x,f.y);}},
+  'decor.place':()=>run({type:'interior.confirmItem'}),
+  'decor.rotate':()=>run({type:'interior.rotate',uid:state.interior.draft?.selected}),
+  'decor.store':()=>run({type:'interior.store',uid:state.interior.draft?.selected}),
+  'decor.deselect':()=>{if(ui.decorSpace==='outdoor'){ui.groundItem=null;return;}if(state.interior.draft?.itemBefore)run({type:'interior.cancelItem'},{keepQuiet:true});run({type:'interior.select',uid:null},{keepQuiet:true});},
+  'decor.suggest':()=>{if(ui.decorSpace==='outdoor'){run({type:'grounds.suggest',id:ui.groundItem});return;}const dr=state.interior.draft,f=dr?.furniture.find(x=>x.uid===dr.selected);if(!f)return;const r=run({type:'interior.suggest',uid:f.uid,near:f.x==null?viewCenterCell():undefined});if(r.ok)focusCell(r.x,r.y);},
+  'decor.undo':()=>run({type:ui.decorSpace==='outdoor'?'grounds.undo':'interior.undo'}),
+  'decor.skipGuide':()=>run({type:'tutorial.seen',id:'decorate'},{keepQuiet:true}),
+  'decor.apply':()=>{const dr=state.interior.draft;if(!dr)return;if(dr.itemBefore||!interiorPreview(state).ok){run({type:'interior.apply'});return;}if(state.outdoor?.draft&&!run({type:'grounds.apply'}).ok)return;if(run({type:'interior.apply'}).ok){if(!state.tutorials?.decorate)run({type:'tutorial.seen',id:'decorate'},{keepQuiet:true});ui.decorSpace='indoor';ui.groundItem=null;ui.decorArea=null;ui.groundExpand=false;resize();toast('🌸 꾸민 배치를 카페에 적용했어요','good');}},
+  'decor.buy':d=>{if(!purchaseGate(ui,performance.now()))return;const r=run({type:'expand.decor',defId:d.def});if(r.ok)afterDecorBuy(r.uid);},
+  'decor.buyTable':()=>{if(!purchaseGate(ui,performance.now()))return;const r=run({type:'expand.table'});if(r.ok)afterDecorBuy(r.uid);},
+  'decor.area':d=>{ui.decorArea=ui.decorArea===d.id?null:d.id;resize();const a=AREAS.find(x=>x.id===ui.decorArea);if(a)focusCell((a.rect[0]+a.rect[2])/2,(a.rect[1]+a.rect[3])/2);},
+  'decor.buyArea':d=>{if(!purchaseGate(ui,performance.now()))return;if(run({type:'expand.area',id:d.id}).ok){const a=AREAS.find(x=>x.id===d.id);ui.decorArea=null;ui.decorTab='owned';ui.editTab='stored';resize();if(a)focusCell((a.rect[0]+a.rect[2])/2,(a.rect[1]+a.rect[3])/2);}},
+  'decor.gardenBuy':d=>{if(!purchaseGate(ui,performance.now()))return;const r=run({type:'grounds.buy',id:d.id});if(r.ok&&!r.duplicate){ui.groundItem=d.id;ui.decorTab='owned';const s=run({type:'grounds.suggest',id:d.id},{keepQuiet:true});toast(s.ok?'구매 완료 · 추천 자리에 놓았어요. 격자를 눌러 옮길 수 있어요':'구매 완료 · 보관함에 있어요. 격자를 눌러 놓아 주세요','good',4200);}},
   'interior.nudge': d => run({ type: 'interior.nudge', uid: d.uid, dx: n(d.dx), dy: n(d.dy) }),
   'interior.rotate': d => run({ type: 'interior.rotate', uid: d.uid }),
   'interior.store': d => run({ type: 'interior.store', uid: d.uid }),
@@ -465,7 +506,9 @@ const ACTIONS = {
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
   'hunt.retreat', 'hunt.finish', 'hunt.next', 'hunt.chest', 'expand.table']) ACTIONS[t] = () => run({ type: t });
 ACTIONS['shift.start']=()=>{if(!state.tutorials?.opening){ui.guideReturn={kind:null};ui.guideId='opening';ui.guideStep=0;ui.guideAction='shift.start';ui.sheet={kind:'tutorial'};return;}if(run({type:'shift.start'}).ok){ui.cafeDrawer=null;ui.tablePop=null;ui.sheet=null;}};
-ACTIONS['interior.begin']=()=>{const was=!!state?.interior.draft;if(run({type:'interior.begin'}).ok){if(!was)history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.sheet=null;ui.screen=null;ui.cafeDrawer=null;ui.editTab='all';ui.editCategory='all';ui.editSearch='';}};
+// 카페 꾸미기 진입점은 하나다. 월드맵(sheet.open town)을 거치지 않는다.
+ACTIONS['decor.open']=(d={})=>{const was=!!state?.interior.draft;if(!run({type:'interior.begin'}).ok)return;if(!was){history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.editTab='all';ui.editCategory='all';ui.editSearch='';ui.groundItem=null;ui.groundExpand=false;ui.decorArea=null;ui.decorSpace='indoor';ui.decorTab='owned';}ui.sheet=null;ui.screen=null;ui.cafeDrawer=null;ui.tablePop=null;if(d.tab)ui.decorTab=d.tab;if(d.space==='outdoor')ACTIONS['decor.space']({id:'outdoor'});};
+ACTIONS['interior.begin']=()=>ACTIONS['decor.open']();
 ACTIONS['interior.checkoutPreview']=()=>{const was=!!state?.interior.draft;if(run({type:'interior.checkoutPreview'}).ok){if(!was)history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.sheet=null;ui.screen=null;ui.cafeDrawer=null;ui.editTab='all';ui.editCategory='all';ui.editSearch='';}};
 ACTIONS['hunt.pick'] = d => run({ type: 'hunt.pick', index: n(d.index) });
 ACTIONS['workshop.tab']=d=>{ui.armoryTab=d.id;};
@@ -531,7 +574,7 @@ document.addEventListener('input',e=>{if(e.target.matches('[data-editor-search]'
 // 인테리어 편집: 캔버스를 눌러 가구 고르기 / 고른 가구를 그 칸으로 옮기기
 el.canvas.addEventListener('click', e => {
   const draft = state?.interior?.draft;
-  if (!draft || !view || performance.now()<(ui.suppressCanvasClickUntil||0)) return;
+  if (!draft || !view || ui.decorSpace==='outdoor' || performance.now()<(ui.suppressCanvasClickUntil||0)) return;
   const r = el.canvas.getBoundingClientRect();
   const point=canvasPoint(e);
   const cell = pxToCell(view, point.x, point.y);
@@ -618,9 +661,9 @@ function handleEvents(events) {
       case 'exchanged': toast(`⚖ 월정석 ${ev.qty}개 → ${ev.gold}G`, 'good'); gagOnce('luna', pickLine(GAG_LUNA_EXCHANGE), 8000); break;
       case 'placeUnlocked': toast(`🔓 ${ev.name}이 열렸어요`, 'good', 3600); break;
       case 'gearBought': toast(`🗡 ${ev.name} 구입 · 윤달의 무기 공방`, 'good'); gagOnce('stall', pickLine(GAG_GEAR_STALL), 8000); break;
-      case 'expanded': toast(`🪑 ${ev.tableNo}번 테이블을 들였어요 · 다음 영업부터 손님 자리가 늘어요`, 'good', 3600); break;
-      case 'areaOpened': resize(); toast(`🔓 ${ev.name} 증축 완료 · 인테리어에서 테이블과 장식을 놓아 보세요`, 'good', 3600); break;
-      case 'decorBought': toast(`📦 ${ev.name} 보관함에 도착 · 인테리어에서 놓아 주세요`, 'good'); break;
+      case 'expanded': if(!state.interior.draft)toast(`🪑 ${ev.tableNo}번 테이블을 들였어요 · 다음 영업부터 손님 자리가 늘어요`, 'good', 3600); break;
+      case 'areaOpened': resize(); toast(`🔓 ${ev.name} 증축 완료 · 보유 가구를 새 공간에 놓아 보세요`, 'good', 3600); break;
+      case 'decorBought': if(!state.interior.draft)toast(`📦 ${ev.name} 보관함에 도착 · 카페 꾸미기에서 놓아 주세요`, 'good'); break;
       case 'huntFinished': pixelFx(el.stage,'transform',{frames:8}); if ((ev.bag?.moonstone || 0) > 0) gagOnce('hunt', pickLine(GAG_HUNT_RETURN), 0); break;
       case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast(`${hunterName(state.hunt.hunterId)}가 ${state.hunt.depth}단계로 출발했어요 · 보스를 쓰러뜨리면 클리어`, 'good'); break;
       case 'huntPickup': floater(cssW / 2, cssH * 0.4, `+${ev.name}`, '#7d86e8'); break;
@@ -665,7 +708,7 @@ function render(force = false) {
   morph(el.panel, panelHtml(state, ui));
   morph(el.bubbles, state?.mode === 'shift' || state?.mode === 'hunt' ? bubblesHtml(ui) : '');
   morph(el.hits, hitsHtml(state, view, ui)+tableBadgesHtml(state,view)+tablePopHtml(state,view,ui));
-  document.getElementById('camera-controls').hidden=!state||state.mode==='hunt';
+  document.getElementById('camera-controls').hidden=!state||state.mode==='hunt'||!!state.interior.draft&&ui.decorSpace==='outdoor';
   const hunting=state?.mode==='hunt', h=state?.hunt;
   // 보스곡은 서한비(검은 호랑이) 전용. 일반 단계 보스는 깊이별 사냥곡
   const hanbiAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>e.type==='boss_hanbi');
@@ -703,7 +746,7 @@ function draw(t) {
   const draft = state.interior.draft;
   let problemUids;
   if (draft) problemUids = new Set(interiorPreview(state).problems.map(p => p.uid).filter(Boolean));
-  drawCafe(ctx, state, view, { selectedUid: draft?.selected ?? null, problemUids, t, reducedMotion:motionPreference.matches });
+  drawCafe(ctx, state, view, { selectedUid: draft?.selected ?? null, problemUids, focusArea: draft ? ui.decorArea : null, t, reducedMotion:motionPreference.matches });
   for (const tb of state.tables) tablePx[tb.no] = cellToPx(view, tb.table.x + 0.5, tb.table.y);
 }
 
@@ -749,9 +792,15 @@ document.addEventListener('change',e=>{if(e.target.id==='hunt-stage'){ui.huntSta
 // 브라우저 확대에서도 논리 화면 좌표를 한 곳에서 계산한다.
 function canvasPoint(e){const r=el.canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*cssW/r.width,y:(e.clientY-r.top)*cssH/r.height};}
 let cameraDrag=null;
-el.stage.addEventListener('pointerdown',e=>{if(state?.mode==='hunt'||e.target.closest('button')||(ui.camera.zoom<=1&&view.tile*view.cols<=cssW&&view.tile*view.rows<=cssH))return;const p=canvasPoint(e);cameraDrag={x:p.x,y:p.y,px:ui.camera.x,py:ui.camera.y};el.stage.setPointerCapture(e.pointerId);});
-el.stage.addEventListener('pointermove',e=>{if(!cameraDrag)return;const p=canvasPoint(e);if(Math.hypot(p.x-cameraDrag.x,p.y-cameraDrag.y)>6)ui.suppressCanvasClickUntil=performance.now()+400;ui.camera.x=cameraDrag.px+p.x-cameraDrag.x;ui.camera.y=cameraDrag.py+p.y-cameraDrag.y;view=computeView(cssW,cssH,{...ui.camera,...cafeBounds(state)});render(true);});
-el.stage.addEventListener('pointerup',()=>cameraDrag=null);el.stage.addEventListener('pointercancel',()=>cameraDrag=null);
+el.stage.addEventListener('pointerdown',e=>{if(state?.mode==='hunt'||e.target.closest('button,.decor-grounds')||(ui.camera.zoom<=1&&view.tile*view.cols<=cssW&&view.tile*view.rows<=cssH))return;const p=canvasPoint(e);cameraDrag={x:p.x,y:p.y,px:ui.camera.x,py:ui.camera.y};el.stage.setPointerCapture(e.pointerId);});
+el.stage.addEventListener('pointermove',e=>{if(!cameraDrag)return;const p=canvasPoint(e);if(Math.hypot(p.x-cameraDrag.x,p.y-cameraDrag.y)>6)ui.suppressCanvasClickUntil=performance.now()+400;ui.camera.x=cameraDrag.px+p.x-cameraDrag.x;ui.camera.y=cameraDrag.py+p.y-cameraDrag.y;view=computeView(cssW,cssH,{...ui.camera,...stageBounds()});render(true);});
+el.stage.addEventListener('pointerup',()=>cameraDrag=null);
+const zoomTo=z=>{ui.camera.overview=false;ui.camera.zoom=Math.max(1,Math.min(2.4,z));view=computeView(cssW,cssH,{...ui.camera,...stageBounds()});render(true);};
+el.stage.addEventListener('wheel',e=>{if(!state||state.mode==='hunt'||e.target.closest('.decor-grounds,.table-pop'))return;e.preventDefault();zoomTo((ui.camera.zoom||1)*(e.deltaY<0?1.1:1/1.1));},{passive:false});
+const touches=new Map();let pinch=null;
+el.stage.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch'||state?.mode==='hunt')return;touches.set(e.pointerId,canvasPoint(e));if(touches.size===2){const [a,b]=[...touches.values()];pinch={d:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),zoom:ui.camera.zoom||1};cameraDrag=null;}});
+el.stage.addEventListener('pointermove',e=>{if(!touches.has(e.pointerId))return;touches.set(e.pointerId,canvasPoint(e));if(pinch&&touches.size===2){const [a,b]=[...touches.values()];ui.suppressCanvasClickUntil=performance.now()+400;zoomTo(pinch.zoom*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d);}});
+const endTouch=e=>{touches.delete(e.pointerId);if(touches.size<2)pinch=null;};el.stage.addEventListener('pointerup',endTouch);el.stage.addEventListener('pointercancel',endTouch);el.stage.addEventListener('pointercancel',()=>cameraDrag=null);
 
 function beginCraft(menuId,orderId=null){
  if(automationOn(state,'kitchen')){run(orderId?{type:'order.quick',orderId}:{type:'cook',menuId});return;}

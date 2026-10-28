@@ -9,7 +9,7 @@ import {trailButton} from './trail-ui.js';
 import {kfpKit} from './kfp-ui.js';
 import {hunterName,hunterPortrait} from '../game/hunt-cast.js';
 import {huntSuppliesHtml} from './hunt-supplies.js';
-import {editorPanel} from './editor-panel.js';
+import {decorPanel,decorTopbar,decorStageHtml} from './decor-screen.js';
 import {runningJobs,queuedJobs,stationJobs,stationItems,activeSlotNames,heldKey} from '../game/station-slots.js';
 import {activeBranch} from '../game/branches.js';
 import {cafeCapacity,assignedHosts} from '../game/capacity.js';
@@ -59,7 +59,7 @@ function scoreChip(kind,value){
 export function topbarHtml(state, ui) {
   const dev = ui.dev ? '<span class="tag dev">DEV</span>' : '';
   if (!state) return `<div class="tb-col"><span class="clock">연이의 아틀리에</span></div>${dev}`;
-  if(state.interior.draft)return `<div class="cafe-clock"><b>${esc(shortDate(state))}</b><small>실내 꾸미기 · 적용 전</small></div><span class="cafe-gold">${won(state.gold)}</span>${btn({action:'editor.cancel',label:'닫기',title:'편집 취소하고 카페로'})}`;
+  if(state.interior.draft)return decorTopbar(state,ui);
   if(['prep','shift'].includes(state.mode)&&!state.interior.draft)return cafeTopbar(state,ui);
   const stress = state.hostbar.open ? `<span class="stress-chip ${stressStage(state)}" aria-label="네오 스트레스 ${Math.round(stressOf(state))}/100">${assetIcon(`ui/stress-${stressStage(state)}`)}네오 · ${stressLabel(state)}<meter min="0" max="100" value="${stressOf(state)}">${Math.round(stressOf(state))}</meter></span>` : '';
   const cp=cafeProgress(state);
@@ -82,7 +82,7 @@ export function topbarHtml(state, ui) {
   const label = state.mode === 'settlement' ? '결산' : state.interior.draft ? '인테리어 편집' : '영업 준비';
   return `<div class="tb-col"><span class="clock">${esc(shortDate(state))}</span><span class="small muted">${activeBranch(state)}호점 · ${label}</span></div>
     ${gold}${stress}<span class="speed-controls" role="group" aria-label="영업 속도">${btn({action:'play.cycle',label:`${ui.playSpeed||1}배`,title:'영업 속도 바꾸기: 1배, 2배, 3배'})}</span><span class="status cafe-wallet">${assetIcon('icons/moonstone')}${state.moonstone||0}</span>${dev}
-    ${btn({action:state.interior.draft?'editor.cancel':'interior.begin',label:state.interior.draft?'닫기':'꾸미기',title:state.mode==='prep'?'카페 꾸미기 · 가구 구매와 배치':'영업 준비 중에 꾸밀 수 있어요',disabled:state.mode!=='prep',cls:'ghost cafe-decor-entry'})}`;
+    ${btn({action:state.interior.draft?'decor.close':'decor.open',label:state.interior.draft?'닫기':'꾸미기',title:state.mode==='prep'?'카페 꾸미기 · 가구 구매와 배치':'영업 준비 중에 꾸밀 수 있어요',disabled:state.mode!=='prep',cls:'ghost cafe-decor-entry'})}`;
 }
 
 // 사냥 정보는 초상·진행 상황·생존 수치를 분리하고 실제 전투 값만 표시한다.
@@ -117,14 +117,14 @@ export function panelHtml(state, ui) {
   if (state.mode === 'shift'||state.mode==='prep'&&!state.interior.draft) return cafePanel(state, ui);
   if (state.mode === 'hunt') return huntPanel(state);
   if (state.mode === 'settlement') return `<div class="prep">${btn({ action: 'overlay.settlement', label: '📒 결산 보기', cls: 'primary big' })}</div>`;
-  if (state.interior.draft) return editorPanel(state,ui);
+  if (state.interior.draft) return decorPanel(state,ui);
   return prepPanel(state);
 }
 
 // 영업 정보는 요청할 때만 펼친다. 카페 크기는 주문 수와 무관하다.
 function cafeTopbar(state,ui){
  const shift=state.mode==='shift',cp=cafeProgress(state),yp=yeoniProgress(state);
- return `<div class="cafe-status-main"><span class="cafe-seal" aria-hidden="true">${uiIcon('cup')}</span><div class="cafe-clock"><b>${shift?fmtTime(remainingShift(state)):esc(shortDate(state))}</b><small>${activeBranch(state)}호점 · ${shift?(state.paused?'잠시 쉬는 중':'카페 영업 중'):'영업 준비'}</small></div><span class="cafe-gold">${won(state.gold)}</span>${btn({action:'play.cycle',label:(ui.playSpeed||1)+'배',title:'영업 속도'})}${shift?btn({action:'pause',label:state.paused?'계속':'멈춤'}):btn({action:'interior.begin',label:'꾸미기'})}</div><nav class="cafe-status-details" aria-label="카페 주요 정보">${btn({action:'cafe.drawer',args:{tab:'crew'},label:`<small><span class="status-symbol status-popularity">${uiIcon('heart')}</span>인기도</small><b>${popularity(state).toFixed(1)}</b>`})}${btn({action:'cafe.drawer',args:{tab:'crew'},label:`<small><span class="status-symbol status-atmosphere">${uiIcon('leaf')}</span>분위기</small><b>${atmosphere(state)}</b>`})}${btn({action:'cafe.drawer',args:{tab:'crew'},title:state.hostbar.open?'카페 성장 · 네오 스트레스 '+Math.round(stressOf(state))+'/100':'카페 성장',label:`<small><span class="status-symbol status-cafe">${uiIcon('cup')}</span>카페</small><b>Lv.${cp.level}</b>`})}${btn({action:shift?'cafe.drawer':'yeoni.kitchen',args:{tab:'crew'},label:`<small><span class="status-symbol status-yeoni">${uiIcon('flower')}</span>연이</small><b>Lv.${yp.level}</b>`})}${btn({action:shift?'cafe.drawer':'yeoni.kitchen',args:{tab:'crew'},label:`<small><span class="status-symbol status-energy">${uiIcon('energy')}</span>행동력</small><b>${state.ap.left}/${maxActionPoints(state)}</b>`})}</nav>`;
+ return `<div class="cafe-status-main"><span class="cafe-seal" aria-hidden="true">${uiIcon('cup')}</span><div class="cafe-clock"><b>${shift?fmtTime(remainingShift(state)):esc(shortDate(state))}</b><small>${activeBranch(state)}호점 · ${shift?(state.paused?'잠시 쉬는 중':'카페 영업 중'):'영업 준비'}</small></div><span class="cafe-gold">${won(state.gold)}</span>${btn({action:'play.cycle',label:(ui.playSpeed||1)+'배',title:'영업 속도'})}${shift?btn({action:'pause',label:state.paused?'계속':'멈춤'}):btn({action:'decor.open',label:'꾸미기'})}</div><nav class="cafe-status-details" aria-label="카페 주요 정보">${btn({action:'cafe.drawer',args:{tab:'crew'},label:`<small><span class="status-symbol status-popularity">${uiIcon('heart')}</span>인기도</small><b>${popularity(state).toFixed(1)}</b>`})}${btn({action:'cafe.drawer',args:{tab:'crew'},label:`<small><span class="status-symbol status-atmosphere">${uiIcon('leaf')}</span>분위기</small><b>${atmosphere(state)}</b>`})}${btn({action:'cafe.drawer',args:{tab:'crew'},title:state.hostbar.open?'카페 성장 · 네오 스트레스 '+Math.round(stressOf(state))+'/100':'카페 성장',label:`<small><span class="status-symbol status-cafe">${uiIcon('cup')}</span>카페</small><b>Lv.${cp.level}</b>`})}${btn({action:shift?'cafe.drawer':'yeoni.kitchen',args:{tab:'crew'},label:`<small><span class="status-symbol status-yeoni">${uiIcon('flower')}</span>연이</small><b>Lv.${yp.level}</b>`})}${btn({action:shift?'cafe.drawer':'yeoni.kitchen',args:{tab:'crew'},label:`<small><span class="status-symbol status-energy">${uiIcon('energy')}</span>행동력</small><b>${state.ap.left}/${maxActionPoints(state)}</b>`})}</nav>`;
 }
 function hostServiceControls(state){
  const chk=feverCheck(state),active=state.fever.activeUntil!=null;
@@ -142,7 +142,7 @@ function cafePanel(state,ui){
   kitchen:shift?`${stationDock(state)}<h3>픽업 선반</h3>${slots||'<p>루나 언니가 완성한 메뉴가 여기에 놓여요.</p>'}${btn({action:'sheet.open',args:{sheet:'kitchen'},label:'레시피 · 재료 보기'})}`:btn({action:'yeoni.kitchen',cls:'primary',label:'연이의 요리 · 특별 메뉴'})+btn({action:'sheet.open',args:{sheet:'kitchen'},label:'레시피 · 재료 보기'}),
   crew:`${yeoniGrowthHtml(state)}${state.hostbar.open?hostServiceControls(state):''}<div class="cafe-scores">${scoreChip('reputation',popularity(state))}${scoreChip('atmosphere',atmosphere(state))}</div>${automationChips(state)}${btn({action:'sheet.open',args:{sheet:'companions'},label:'동료와 이야기'})}${btn({action:'sheet.open',args:{sheet:'staffing'},label:'직원 배치'})}${btn({action:'sheet.open',args:{sheet:'manage'},label:uiIcon('book')+'카페 수첩'})}`,
   counter:`<p>연이가 한 분씩 계산해 드려요.</p>${queue.length?queue.map((c,i)=>`<p>${i+1}번째 · ${esc(c.label)} · ${won(state.visits[c.visitId]?.bill||0)}${c.payAt?' · 계산 중':' · 기다리는 중'}</p>`).join(''):'<p>아직 계산을 기다리는 손님은 없어요.</p>'}`,
-  prepare:`<p>의자 ${capacity.seats}석 · 루나는 홀, 루나 언니는 주방을 맡아요.</p>${btn({action:'interior.begin',label:'가구 배치하기'})}${state.interior.checkoutLayout!=='entrance-left'?btn({action:'interior.checkoutPreview',label:'입구 계산대 미리보기'}):''}${btn({action:'sheet.open',args:{sheet:'shop'},label:'모카에게 재료 사기'})}${btn({action:'sheet.open',args:{sheet:'town',tab:'expand'},label:'가구 상점 · 카페 증축'})}${btn({action:'sheet.open',args:{sheet:'grounds'},label:'정원 · 외관 꾸미기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}`,
+  prepare:`<p>의자 ${capacity.seats}석 · 루나는 홀, 루나 언니는 주방을 맡아요.</p>${btn({action:'decor.open',label:'카페 꾸미기'})}${state.interior.checkoutLayout!=='entrance-left'?btn({action:'interior.checkoutPreview',label:'입구 계산대 미리보기'}):''}${btn({action:'sheet.open',args:{sheet:'shop'},label:'모카에게 재료 사기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}`,
   menu:navRow([['town','재성의 섬'],['shop','재료'],['companions','동료'],['manage','수첩']]),
  };
  return `<div class="cafe-commandbar">${journeyHtml(state)}${hostDeskHtml(state)}<div class="cafe-utility-line"><p class="cafe-live-line" role="status">${shift?(ready?`완성 ${ready}개 · 픽업 선반에서 전해 주세요`:`손님 ${count}명 · 테이블을 눌러 주문을 받아요`):'오늘은 어떤 손님이 찾아올까요?'}</p>${btn({action:'sheet.open',args:{sheet:'manage'},cls:'cafe-utility',label:uiIcon('book')+'<span>수첩</span>'})}${btn({action:'sheet.open',args:{sheet:'audio'},cls:'cafe-utility',label:uiIcon('music')+'<span>음악</span>'})}${btn({action:'game.title',cls:'cafe-utility',label:'<span>메인</span>',title:'저장하고 메인 화면으로'})}</div>${!shift?`<div class="cafe-opening"><span><b>오늘의 영업</b><small>${capacity.seats}석 · 10분</small></span>${btn({action:'shift.start',cls:'primary cafe-open',disabled:!sc.ok,title:sc.ok?'영업 시작하기':sc.reasons.join(' · '),label:uiIcon('cup')+'<span>영업 시작하기</span>'})}</div>${!sc.ok?`<p class="cafe-start-reason">${esc(sc.reasons.join(' · '))}</p>`:''}`:''}<nav class="cafe-actions" aria-label="카페 조작">${tabs.map(([tab,label])=>btn({action:'cafe.drawer',args:{tab},cls:'cafe-nav-item '+(selected===tab?'selected':''),pressed:selected===tab,label:uiIcon(({orders:'orders',kitchen:'kitchen',crew:'crew',prepare:'cup'})[tab])+`<span>${label}</span>`})).join('')}${btn({action:'delivery.open',cls:'cafe-nav-item',label:uiIcon('cup')+'<span>모카 배달</span>'})}${btn({action:'sheet.open',args:{sheet:'town'},cls:'cafe-nav-item',label:uiIcon('island')+'<span>재성의 섬</span>'})}</nav></div><section class="cafe-drawer" ${selected?'':'hidden'} aria-label="카페 상세 조작"><header><b>${({orders:'손님 주문',kitchen:'주방 · 픽업',crew:'카페와 동료',counter:'연이의 계산대',prepare:'영업 준비',menu:'수첩'})[selected]||''}</b>${btn({action:'cafe.drawer.close',label:'닫기'})}</header><div class="cafe-drawer-body">${Object.entries(panels).map(([id,content])=>`<div data-cafe-tab="${id}" ${selected===id?'':'hidden'}>${content}</div>`).join('')}</div></section>`;
@@ -194,7 +194,7 @@ function shiftPanel(state, ui) {
 function prepPanel(state) {
  const capacity=cafeCapacity(state),sc=startCheck(state), available=recruitView(state).filter(c=>c.status==='available');
  const readyMenus=Object.values(MENUS).filter(m=>state.learned[m.id]&&Object.entries(m.ingredients).every(([id,n])=>(state.stock[id]||0)>=n)).length;
- const summary=`<section class="prep-summary"><h2>오늘의 영업 준비</h2><dl><dt>준비된 메뉴</dt><dd>${readyMenus}종</dd><dt>테이블</dt><dd>${state.interior.furniture.filter(f=>FURNITURE[f.defId]?.table).length}개</dd><dt>직원 배치</dt><dd>${assignedHosts(state).length+3}/${capacity.staffSlots}명</dd><dt>수용 좌석</dt><dd>${capacity.seats} / 최대 ${capacity.tableLimit}</dd><dt>홀 담당</dt><dd>루나</dd><dt>주방 담당</dt><dd>루나 언니</dd></dl><p>${sc.ok?'문을 열 준비가 됐어요. 재료와 자리를 한 번 살펴볼까요?':esc(sc.reasons.join(' · '))}</p><div>${btn({action:'interior.begin',label:'꾸미기 · 가구 배치'})}${btn({action:'sheet.open',args:{sheet:'staffing'},label:'직원 배치'})}${btn({action:'sheet.open',args:{sheet:'grounds'},label:'주변·외관 꾸미기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}</div></section>`;
+ const summary=`<section class="prep-summary"><h2>오늘의 영업 준비</h2><dl><dt>준비된 메뉴</dt><dd>${readyMenus}종</dd><dt>테이블</dt><dd>${state.interior.furniture.filter(f=>FURNITURE[f.defId]?.table).length}개</dd><dt>직원 배치</dt><dd>${assignedHosts(state).length+3}/${capacity.staffSlots}명</dd><dt>수용 좌석</dt><dd>${capacity.seats} / 최대 ${capacity.tableLimit}</dd><dt>홀 담당</dt><dd>루나</dd><dt>주방 담당</dt><dd>루나 언니</dd></dl><p>${sc.ok?'문을 열 준비가 됐어요. 재료와 자리를 한 번 살펴볼까요?':esc(sc.reasons.join(' · '))}</p><div>${btn({action:'decor.open',label:'카페 꾸미기'})}${btn({action:'sheet.open',args:{sheet:'staffing'},label:'직원 배치'})}${btn({action:'decor.open',args:{space:'outdoor'},label:'정원·외부 꾸미기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}</div></section>`;
  return `<div class="cafe-dock">${summary}<div class="day-plan"><span>${esc(dateLabel(state))}</span><span>행동력 ${state.ap?.left??0}/${maxActionPoints(state)}</span></div>${available.length?btn({action:'recruit.event',args:{id:available[0].id},cls:'new-friend',label:available[0].id==='seohanbi'?'봉인된 초대장이 도착했어요':`${esc(available[0].name)}의 초대장` }):''}${btn({action:'shift.start',cls:'primary open-cafe',disabled:!sc.ok,title:sc.ok?'10분 영업을 시작해요':sc.reasons.join(' / '),label:`${assetIcon('icons/fortune_latte')} 카페 문 열기 <small>10:00</small>`})}${navRow([['kitchen','주방'],['farm',placeLock(state,'farm')?'농장 🔒':'농장'],['town','마을'],['manage','수첩']])}</div>`;
 }
 
@@ -241,6 +241,7 @@ function bubbleOf(state, t, now) {
 
 // ── 테이블 터치 영역(최소 44px)
 export function hitsHtml(state, v, ui) {
+  if (state?.interior.draft) return decorStageHtml(state, ui);
   if (!state || !['shift','prep'].includes(state.mode) || !v || state.interior.draft) return '';
   const musicHits=state.interior.furniture.filter(f=>f.defId==='record_player'&&f.x!=null).map(f=>{const cells=furnitureCells(f),x=cells.reduce((n,c)=>n+c.x,0)/cells.length+.5,y=Math.max(...cells.map(c=>c.y))+1,p=cellToPx(v,x,y);return `<button class="hit record-player-hit" data-action="sheet.open" data-sheet="audio" aria-label="LP 플레이어 · 음악 켜기와 곡 선택" style="left:${p.x-v.tile*1.25}px;top:${p.y-v.tile*2.7}px;width:${Math.max(44,v.tile*2.5)}px;height:${Math.max(44,v.tile*2.7)}px"></button>`;}).join('');
   if(state.mode==='prep')return musicHits;

@@ -102,9 +102,10 @@ export function drawCafe(ctx, state, v, opts = {}) {
   const open = state.interior.areas || [];
   for (const a of (state.interior.draft ? AREAS : [])) {
     if (open.includes(a.id) || a.rect[0]>=v.cols || a.rect[1]>=v.rows) continue;
-    const [x0,y0,x1,y1]=a.rect, p=P(x0,y0), aw=(x1-x0+1)*T, ah=(y1-y0+1)*T;
-    ctx.save();ctx.fillStyle='#63536416';ctx.fillRect(p.x,p.y,aw,ah);
-    ctx.strokeStyle='#8e775b99';ctx.lineWidth=1;ctx.setLineDash([3,5]);ctx.strokeRect(p.x+2,p.y+2,aw-4,ah-4);ctx.setLineDash([]);
+    const [x0,y0,x1,y1]=a.rect, p=P(x0,y0), aw=(x1-x0+1)*T, ah=(y1-y0+1)*T, focus=opts.focusArea===a.id;
+    // 꾸미기 '공간 확장'에서 고른 구역은 장미빛으로 넓어질 면적을 보여 준다.
+    ctx.save();ctx.fillStyle=focus?'#e88aa83a':'#63536416';ctx.fillRect(p.x,p.y,aw,ah);
+    ctx.strokeStyle=focus?'#c4567c':'#8e775b99';ctx.lineWidth=focus?2.5:1;ctx.setLineDash(focus?[8,5]:[3,5]);ctx.strokeRect(p.x+2,p.y+2,aw-4,ah-4);ctx.setLineDash([]);
     const w=Math.max(56,Math.min(aw-8,112)),cx=p.x+aw/2,cy=a.id==='salon'&&layout.counterArt?p.y+T*.5:p.y+ah/2,fs=Math.max(11,Math.min(13,T*.4));
     ctx.fillStyle='#fff9eff2';ctx.strokeStyle='#b8a385';roundRect(ctx,cx-w/2,cy-25,w,50,5);ctx.fill();ctx.stroke();
     ctx.font=`600 ${fs}px "Yeoni UI",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#584052';ctx.fillText(a.name,cx,cy-9,w-8);

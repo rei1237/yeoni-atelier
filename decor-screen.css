@@ -1,0 +1,100 @@
+/* 카페 꾸미기 한 화면(src/ui/decor-screen.js). 장미·세이지·아이보리·금 톤, 터치 44px 이상. */
+.decor-screen{--dc-rose:var(--petal-rose,#944b60);--dc-leaf:var(--petal-leaf,#42674e);--dc-line:var(--petal-line,#d9c3a4);--dc-paper:var(--petal-paper,#fff9ef);--dc-ink:var(--petal-ink,#3e3436);--dc-muted:var(--petal-muted,#6e5c54);display:flex;flex-direction:column;height:100%;min-height:0;min-width:0;background:var(--dc-paper);color:var(--dc-ink)}
+.decor-screen button{min-height:44px;word-break:keep-all;overflow-wrap:normal}
+.decor-screen button:focus-visible{outline:3px solid #805c27;outline-offset:2px}
+.decor-screen [aria-disabled=true]{opacity:.55}
+.decor-head{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--dc-line);background:#f9efdf;flex:none}
+.decor-head h2{flex:1;margin:0;font-size:16px;color:var(--petal-deep,#513d4d)}
+.decor-seg{flex:1;display:grid;grid-template-columns:1fr 1fr;padding:3px;gap:3px;background:#efe2cd;border-radius:999px}
+.decor-seg button{border:0;border-radius:999px;background:transparent;box-shadow:none;font-weight:600;font-size:13px;padding:6px 8px}
+.decor-seg button.on{background:var(--dc-paper);color:var(--dc-rose);box-shadow:0 1px 4px #59413229}
+.decor-undo{flex:none;font-size:13px;padding:6px 10px}
+.decor-coach{display:flex;align-items:center;gap:8px;margin:8px 12px 0;padding:6px 6px 6px 10px;background:#fbeae9;border:1px solid #e3b8bf;border-radius:12px;flex:none}
+.decor-coach b{flex:none;font-size:12px;color:#fff;background:var(--dc-rose);border-radius:999px;padding:2px 8px}
+.decor-coach p{flex:1;margin:0;font-size:12px;line-height:1.5;min-width:0}
+.decor-coach button{flex:none;font-size:12px;padding:4px 8px}
+.decor-selection{padding:8px 12px;border-bottom:1px solid var(--dc-line);flex:none}
+.decor-picked{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 10px;align-items:center}
+.decor-picked>.pixel-icon,.decor-picked>img{width:44px;height:44px;object-fit:contain;grid-row:span 2}
+.decor-picked b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.decor-picked small{display:block;font-size:12px;color:var(--dc-muted)}
+.decor-status{grid-column:2;font-size:12px;font-weight:600;line-height:1.45;padding:3px 8px;border-radius:8px;justify-self:start}
+.decor-status.ok{color:#2f5a3b;background:#e5f0df}
+.decor-status.bad{color:#8a2f3f;background:#fbe3e3}
+.decor-status.idle{color:var(--dc-muted);background:#f1e8da}
+.decor-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+.decor-tools button{font-size:13px;padding:6px 4px;min-width:0}
+.decor-tools button.primary{grid-column:1/-1;font-size:15px}
+.decor-nudge{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}
+.decor-nudge button{font-size:14px;padding:4px}
+.decor-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:8px 12px 0;flex:none}
+.decor-tabs button{font-size:13px;font-weight:600;padding:6px 4px;border-radius:10px 10px 0 0;border-bottom:3px solid transparent;box-shadow:none;background:transparent}
+.decor-tabs button.on{color:var(--dc-rose);border-bottom-color:var(--dc-rose);background:#fcf0e8}
+.decor-body{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:8px 12px;border-top:1px solid var(--dc-line);scrollbar-width:thin}
+.decor-hint{margin:0 0 8px;font-size:12px;line-height:1.55;color:var(--dc-muted)}
+.decor-chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:6px;scrollbar-width:none}
+.decor-chips button{flex:none;font-size:12px;padding:4px 12px;border-radius:999px;white-space:nowrap}
+.decor-chips button.on{background:var(--dc-leaf);color:#fff9ef;border-color:var(--dc-leaf)}
+.decor-chip-gap{flex:none;width:1px;margin:6px 2px;background:var(--dc-line)}
+.decor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.decor-card{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;min-height:112px;padding:8px 4px;background:#fffdf8;border:1px solid var(--dc-line);border-radius:12px;box-shadow:none;text-align:center}
+.decor-card .pixel-icon,.decor-card img{width:100%;height:52px;object-fit:contain}
+.decor-card b{font-size:12px;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.decor-card small{font-size:11px;color:var(--dc-muted);margin-top:auto}
+.decor-card.stored{background:#fdf6ea;border-style:dashed}
+.decor-card.selected{border:2px solid var(--dc-rose);background:#fcf0e8}
+.decor-empty{grid-column:1/-1;font-size:13px;line-height:1.6;color:var(--dc-muted);margin:4px 0}
+.decor-empty p{margin:0 0 8px}
+.decor-shop,.decor-areas{display:flex;flex-direction:column;gap:6px}
+.decor-buy{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:10px;padding:6px 8px;background:#fffdf8;border:1px solid var(--dc-line);border-radius:12px}
+.decor-buy>.pixel-icon,.decor-buy>img{width:44px;height:44px;object-fit:contain}
+.decor-buy b{display:block;font-size:13px}
+.decor-buy small{display:block;font-size:11px;line-height:1.45;color:var(--dc-muted)}
+.decor-buy button{min-width:84px;font-size:13px;white-space:nowrap}
+.decor-buy-table{margin-bottom:8px;background:#f4f1e3;border-color:#c6c09a}
+.decor-area{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:4px 8px 4px 4px;border:1px solid var(--dc-line);border-radius:12px;background:#fffdf8}
+.decor-area.on{border:2px solid var(--dc-rose);background:#fcf0e8}
+.decor-area.opened{background:#f0f5ea}
+.decor-area-pick{display:block;text-align:left;border:0;background:transparent;box-shadow:none;padding:6px 8px;min-width:0}
+.decor-area-pick b{display:block;font-size:13px}
+.decor-area-pick small{display:block;font-size:11px;color:var(--dc-muted);line-height:1.45}
+.decor-badge{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:#f1e8da;color:var(--dc-muted);white-space:nowrap}
+.decor-badge.ok{background:#e5f0df;color:#2f5a3b}
+.decor-sub{font-size:13px;margin:12px 0 6px;color:var(--petal-deep,#513d4d)}
+.decor-note{font-size:12px;line-height:1.55;margin-bottom:8px;padding:6px 10px;border:1px solid var(--dc-line);border-radius:10px;background:#fffdf8}
+.decor-note summary{min-height:32px;display:flex;align-items:center;font-weight:600;cursor:pointer}
+.decor-note ul{margin:4px 0 0;padding-left:16px}
+.decor-footer{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:8px;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--dc-line);background:#fbf2e3;flex:none}
+.decor-footer p{grid-column:1/-1;margin:0;font-size:12px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.decor-footer p.ok{color:#2f5a3b}.decor-footer p.bad{color:#8a2f3f}
+.decor-footer button.primary{font-size:15px}
+.decor-screen[data-moving=true] .decor-selection{border-bottom:0;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+/* 정원·외부: 캔버스 위에 격자를 덮어 그대로 스크롤·탭한다 */
+.decor-grounds{position:absolute;inset:0;pointer-events:auto;overflow:auto;display:flex;align-items:center;justify-content:center;padding:12px;background:#ecebd6;touch-action:pan-x pan-y;overscroll-behavior:contain}
+.decor-grounds .grounds-viewport{max-height:100%;max-width:100%;border:0;padding:0;margin:auto;background:transparent}
+.cafe-clock small{white-space:nowrap}
+.decor-close{min-width:56px}
+/* 꾸미는 중 알림은 상단바(닫기)를 덮지 않게 그 아래에 작게 */
+body[data-editing=true] .toasts{top:72px}
+body[data-editing=true] .toast{font-size:12px;padding:7px 10px}
+@media(max-width:899px){
+ body[data-editing=true] #panel:has(.decor-screen[data-moving=true]){flex:0 0 auto;height:auto;max-height:62dvh}
+ .decor-nudge{display:none}
+ .decor-grid{display:flex;overflow-x:auto;padding-bottom:4px;scroll-snap-type:x proximity}
+ .decor-grid .decor-card{flex:0 0 104px;scroll-snap-align:start}
+ .decor-grid .decor-empty{flex:1}
+}
+@media(max-width:899px) and (orientation:landscape){
+ /* 가로 휴대폰: 준비 모드 세로 쌓기 규칙보다 우선해 패널을 오른쪽에 붙인다 */
+ body[data-editing=true][data-mode] #app{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,46%);grid-template-rows:auto minmax(0,1fr)}
+ body[data-editing=true][data-mode] #topbar{grid-column:1/-1;min-height:0;padding-block:3px}
+ body[data-editing=true][data-mode] #stage{grid-column:1;grid-row:2;min-height:0}
+ body[data-editing=true][data-mode] #panel,body[data-editing=true][data-mode] #panel:has(.decor-screen[data-moving=true]){grid-column:2;grid-row:2;flex:none;height:100%;max-height:100%;min-height:0;border-left:1px solid #d9c3a4}
+ .decor-head{padding:6px 8px}.decor-coach{margin:6px 8px 0}.decor-tabs{padding:6px 8px 0}.decor-body{padding:6px 8px}.decor-footer{padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+ body[data-editing=true] .toasts{top:52px;right:46%}
+ .decor-footer p{display:none}
+ .decor-coach p{font-size:11px}
+}
+@media(max-width:360px){.decor-tools button{font-size:12px;padding:6px 2px}.decor-seg button,.decor-tabs button{font-size:12px}}
+/* 낮은 화면에서 배치 중이면 안내 줄을 접어 [여기에 놓기]가 잘리지 않게 */
+@media(max-height:700px){.decor-screen[data-moving=true] .decor-coach{display:none}.decor-coach p{font-size:11px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.decor-coach{margin-top:6px}.decor-body>.decor-hint{display:none}.decor-head{padding-block:6px}}
