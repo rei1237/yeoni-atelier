@@ -11,6 +11,7 @@ export const BOND_IDS = Object.freeze(['neo', 'luna', 'luna_sis', 'moka', ...Obj
 //        patience(음식 기다림 +비율) interestCut(이자 −비율) cookSpeed(조리 시간 −비율)
 //        moonRate(환전 +비율) discount(재료값 −비율) feeCut(배달비 −비율) dailyDew(순마다 밤이슬)
 //        stressResist(직원 스트레스 증가 −비율) stressRecover(휴식·쉼터·결산 회복 +비율)
+//        cookSlots(설비마다 동시 조리 +건) traySlots(픽업 선반 +칸). feeCut 1이면 배달비 0G(무료 배달)
 // 자동화(홀·주방·농장) 해금은 fx가 아니라 permissions.js 가 인연 단계 + 이야기 기록으로 확인한다.
 export const BONDS = Object.freeze({
   ...CAST_BONDS,
@@ -34,10 +35,10 @@ export const BONDS = Object.freeze({
     name: '루나', place: 'atelier', speaker: 'luna',
     gift: { id: 'star_ribbon', name: '별 리본', cost: 220 },
     perks: [
-      { label: '손님이 음식을 10% 더 기다려 줌 · 직원 스트레스 증가 −15%', fx: { patience: 0.1, stressResist: 0.15 } },
-      { label: '손님이 음식을 15% 더 기다려 줌 · 루나 홀 자동(서빙·정리) 해금', fx: { patience: 0.15 } },
-      { label: '루나의 검산: 월 이자 −10%', fx: { interestCut: 0.1 } },
-      { label: '루나의 검산: 월 이자 −15%', fx: { interestCut: 0.15 } },
+      { label: '웃음 주문 · 음식 기다림 +15% · 직원 스트레스 증가 −20%', fx: { patience: 0.15, stressResist: 0.2 } },
+      { label: '쟁반 달리기 · 음식 기다림 +15% · 루나 홀 자동(서빙·정리) 해금', fx: { patience: 0.15 } },
+      { label: '루나의 검산 · 월 이자 −20%', fx: { interestCut: 0.2 } },
+      { label: '눈물 없는 장부 · 월 이자 −30% · 음식 기다림 +10%', fx: { interestCut: 0.3, patience: 0.1 } },
     ],
     talk: [
       ['luna', '연이 언니, 오늘 쟁반 하나도 안 떨어뜨렸어! 칭찬해 줘!'],
@@ -48,12 +49,14 @@ export const BONDS = Object.freeze({
   },
   luna_sis: {
     name: '루나 언니', place: 'luna', speaker: 'luna_sis',
+    // 랭크가 하나 오를 때마다 주문 대기가 조금씩 줄어든다(능력 해방 랭크와 별도로 매 랭크).
+    rankFx: { label: '랭크마다 조리 시간 −2%', fx: { cookSpeed: 0.02 } },
     gift: { id: 'herb_tea', name: '꿀 허브티', cost: 200 },
     perks: [
-      { label: '조리 시간 −8% · 휴식·쉼터 회복 +25%', fx: { cookSpeed: 0.08, stressRecover: 0.25 } },
-      { label: '조리 시간 −8% · 주방 자동(대기 주문 조리) 해금', fx: { cookSpeed: 0.08 } },
-      { label: '저울 손질: 월정석 환전 +10%', fx: { moonRate: 0.1 } },
-      { label: '조리 시간 −9%', fx: { cookSpeed: 0.09 } },
+      { label: '두 번째 냄비 · 설비마다 동시 조리 +1 · 조리 시간 −10% · 휴식 회복 +25%', fx: { cookSlots: 1, cookSpeed: 0.1, stressRecover: 0.25 } },
+      { label: '한 손 더 · 동시 조리 +1 · 조리 시간 −5% · 주방 자동(대기 주문 조리) 해금', fx: { cookSlots: 1, cookSpeed: 0.05 } },
+      { label: '오븐 두 칸 · 동시 조리 +1 · 픽업 선반 +2 · 월정석 환전 +10%', fx: { cookSlots: 1, traySlots: 2, moonRate: 0.1 } },
+      { label: '절제의 주방 · 동시 조리 +2 · 조리 시간 −15%', fx: { cookSlots: 2, cookSpeed: 0.15 } },
     ],
     talk: [
       ['luna_sis', '반죽은 쉬게 해야 부풀어요. 저도… 조금은 쉬어 볼게요.'],
@@ -66,10 +69,10 @@ export const BONDS = Object.freeze({
     name: '모카', place: 'moka', speaker: 'moka',
     gift: { id: 'wireless_mic', name: '무선 마이크', cost: 260 },
     perks: [
-      { label: '단골 할인: 재료값 −5%', fx: { discount: 0.05 } },
-      { label: '긴급 배달비 반값', fx: { feeCut: 0.5 } },
-      { label: '순마다 밤이슬 1개 선물', fx: { dailyDew: 1 } },
-      { label: '찐단골 할인: 재료값 −10%', fx: { discount: 0.1 } },
+      { label: '단골 할인 · 재료값 −10%', fx: { discount: 0.1 } },
+      { label: '긴급 배달비 반값 · 순마다 밤이슬 1개', fx: { feeCut: 0.5, dailyDew: 1 } },
+      { label: '찐단골 할인 · 재료값 −10% · 밤이슬 +1개', fx: { discount: 0.1, dailyDew: 1 } },
+      { label: '평생 무료 배달 · 배달비 0G', fx: { feeCut: 0.5 } },
     ],
     talk: [
       ['moka', '오늘 우유 신선도 별 다섯. 네 장부 정리 실력은 별 셋.'],
@@ -109,11 +112,12 @@ export function bondTier(v) {
 
 // 해방된 능력의 합(랭크 기준)
 export function bondFx(state) {
-  const fx = { huntHp: 0, huntDmg: 0, bossMoon: 0, ap: 0, patience: 0, interestCut: 0, cookSpeed: 0, moonRate: 0, discount: 0, feeCut: 0, dailyDew: 0, stressResist: 0, stressRecover: 0 };
+  const fx = { huntHp: 0, huntDmg: 0, bossMoon: 0, ap: 0, patience: 0, interestCut: 0, cookSpeed: 0, moonRate: 0, discount: 0, feeCut: 0, dailyDew: 0, stressResist: 0, stressRecover: 0, cookSlots: 0, traySlots: 0 };
   for (const id of BOND_IDS) {
     const t = perkTier(state, id);
     for (const p of BONDS[id].perks.slice(0, t)) for (const [k, v] of Object.entries(p.fx)) fx[k] += v;
+    for (const [k, v] of Object.entries(BONDS[id].rankFx?.fx || {})) fx[k] += v * bondRank(state, id);
   }
-  for (const [key, cap] of Object.entries({cookSpeed:.5,discount:.4,feeCut:.75,interestCut:.5,patience:.6,stressResist:.5,stressRecover:1})) fx[key] = Math.min(cap, fx[key]);
+  for (const [key, cap] of Object.entries({cookSpeed:.5,discount:.4,feeCut:1,interestCut:.5,patience:.6,stressResist:.5,stressRecover:1})) fx[key] = Math.min(cap, fx[key]);
   return fx;
 }

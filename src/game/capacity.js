@@ -1,6 +1,8 @@
 import {GRID,FURNITURE,cafeLayout} from '../data/layout.js';
 import {lockedSet,buildGrid,tableGeometry} from './space.js';
 import {usableHosts} from './state.js';
+import {bondFx} from '../data/bonds.js';
+import {TEMP} from '../config/balance.temp.js';
 const capacities=new Map(),seatCache=new WeakMap();
 // TEMP: 열린 바닥에서 수용량을 파생한다. 기본점의 조리·선반은 기존값을 유지한다.
 export function cafeCapacity(state){
@@ -9,8 +11,8 @@ export function cafeCapacity(state){
   value=Object.freeze({tiles,tableLimit:Math.min(60,24+Math.floor(extra/20)),hostSlots:Math.min(16,1+Math.floor(extra/48)),stationSlots:Math.min(6,1+Math.floor(extra/120)),traySlots:Math.min(12,3+Math.floor(extra/80)),takeawayLimit:Math.min(6,2+Math.floor(extra/160))});capacities.set(key,value);}
  const list=state.interior.furniture,sig=key+'|'+cafeLayout(state).id+'|'+list.map(f=>[f.uid,f.defId,f.x,f.y,f.rot].join(':')).join(';');let found=seatCache.get(list);
  if(found?.sig!==sig){const grid=buildGrid(list,areas,cafeLayout(state));found={sig,seats:list.filter(f=>FURNITURE[f.defId]?.table&&f.x!=null).filter(f=>{const g=tableGeometry(grid,f);return g.chair&&g.service;}).length};seatCache.set(list,found);}
- const seats=found.seats;
- return {...value,seats,guestLimit:seats+value.takeawayLimit,staffSlots:value.hostSlots+3};
+ const seats=found.seats,fx=bondFx(state); // 루나 언니 인연: 설비마다 동시 조리·픽업 선반이 늘어난다
+ return {...value,stationSlots:Math.min(TEMP.BONDS.COOK_SLOT_CAP,value.stationSlots+fx.cookSlots),traySlots:value.traySlots+fx.traySlots,seats,guestLimit:seats+value.takeawayLimit,staffSlots:value.hostSlots+3};
 }
 export function assignedHosts(state){const eligible=usableHosts(state),selected=state.staffing?.selected;return (Array.isArray(selected)?selected:eligible).filter(id=>eligible.includes(id)).slice(0,cafeCapacity(state).hostSlots);}
 export function selectStaff(state,id,on){

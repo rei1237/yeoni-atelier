@@ -683,7 +683,7 @@ function handleEvents(events) {
       case 'recruited': toast(`👥 ${ev.name} 영입 완료 · 다음 영업부터 접대 가능`, 'good', 3600); break;
       case 'reward': toast('🎁 보상을 받았습니다', 'good'); break;
       case 'repaid': toast(`💳 ${ev.amount}G 상환 · 남은 빚 ${ev.debt}G`, 'good'); gagOnce('repay', pickLine(GAG_CHEONGTOKKI_REPAY), 0); break;
-      case 'bought': if (ev.delivery) { toast(`🛵 모카 긴급 배달 · 배달비 ${ev.fee}G 포함 ${ev.cost}G`); gagOnce('delivery', pickLine(GAG_MOKA_DELIVERY), 20000); } else gagOnce('moka', pickLine(GAG_MOKA_BUY), 12000); break;
+      case 'bought': if (ev.delivery) { toast(ev.fee?`🛵 모카 긴급 배달 · 배달비 ${ev.fee}G 포함 ${ev.cost}G`:`🛵 모카 무료 배달 · 재료값 ${ev.cost}G`); gagOnce('delivery', pickLine(GAG_MOKA_DELIVERY), 20000); } else gagOnce('moka', pickLine(GAG_MOKA_BUY), 12000); break;
       case 'exchanged': toast(`⚖ 월정석 ${ev.qty}개 → ${ev.gold}G`, 'good'); gagOnce('luna', pickLine(GAG_LUNA_EXCHANGE), 8000); break;
       case 'placeUnlocked': toast(`🔓 ${ev.name}이 열렸어요`, 'good', 3600); break;
       case 'gearBought': toast(`🗡 ${ev.name} 구입 · 윤달의 무기 공방`, 'good'); gagOnce('stall', pickLine(GAG_GEAR_STALL), 8000); break;

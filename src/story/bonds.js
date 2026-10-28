@@ -112,7 +112,7 @@ export const BOND_STORIES = Object.freeze(extendBondScenes({
         ] },
       ] },
       { s: 'luna', t: '나 이제 바빠도 덜 울 것 같아. 언니들도 내가 웃으면 덜 지치잖아!', c: 'luna:smile' },
-      { s: 'sys', t: '[ 루나 Rank 3 · 손님이 음식을 10% 더 기다려 줍니다 · 직원 스트레스 증가 −15% ]' },
+      { s: 'sys', t: '[ 루나 Rank 3 · 손님이 음식을 15% 더 기다려 줍니다 · 직원 스트레스 증가 −20% ]' },
     ],
     [
       { chapter: ['인연 · 루나 Rank 6', '쟁반을 맡겨 줘'], bg: 'atelier_lit', l: 'yeoni:surprised', c: 'luna:cry', r: null },
@@ -151,7 +151,7 @@ export const BOND_STORIES = Object.freeze(extendBondScenes({
         ] },
       ] },
       { s: 'luna', t: '헤헤, 나 이제 숫자 앞에서 안 울어. 아마도!', c: 'luna:smile' },
-      { s: 'sys', t: '[ 루나 Rank 8 · 루나의 검산으로 월 이자 −10% ]' },
+      { s: 'sys', t: '[ 루나 Rank 8 · 루나의 검산으로 월 이자 −20% ]' },
     ],
     [
       { chapter: ['인연 · 루나 Rank 10', '연이 언니의 조수'], bg: 'atelier_lit', l: 'yeoni:smile', c: 'luna:smile', r: 'luna_sis:smile' },
@@ -168,7 +168,7 @@ export const BOND_STORIES = Object.freeze(extendBondScenes({
           { s: 'luna_sis', t: '…괜찮아요. 저 지금 진짜로 괜찮아요.', r: 'luna_sis:smile' },
         ] },
       ] },
-      { s: 'sys', t: '[ 루나 Rank 10 · 월 이자 추가 −15% ]' },
+      { s: 'sys', t: '[ 루나 Rank 10 · 월 이자 추가 −30% · 음식 기다림 추가 +10% ]' },
     ],
   ],
   luna_sis: [
@@ -190,7 +190,7 @@ export const BOND_STORIES = Object.freeze(extendBondScenes({
         ] },
       ] },
       { s: 'luna_sis', t: '쉬는 법을 알아야 쉬게 해 줄 수도 있겠죠. 다들 지치면 저한테 와요.' },
-      { s: 'sys', t: '[ 루나 언니 Rank 3 · 조리 시간 −8% · 휴식·쉼터 회복 +25% ]' },
+      { s: 'sys', t: '[ 루나 언니 Rank 3 · 설비마다 동시 조리 +1 · 조리 시간 −10% · 휴식·쉼터 회복 +25% ]' },
     ],
     [
       { chapter: ['인연 · 루나 언니 Rank 6', '대기 주문은 제가'], bg: 'atelier_dark', l: 'yeoni:surprised', c: 'luna_sis:smile', r: null },
@@ -208,7 +208,7 @@ export const BOND_STORIES = Object.freeze(extendBondScenes({
           { s: 'luna_sis', t: '좋아요. 계산대에서 주문만 잘 알려 주세요.', c: 'luna_sis:smile' },
         ] },
       ] },
-      { s: 'sys', t: '[ 루나 언니 Rank 6 · 조리 시간 추가 −8% · 주방 자동(대기 주문 조리) 해금 — 주방 화면에서 켜고 끌 수 있어요 ]' },
+      { s: 'sys', t: '[ 루나 언니 Rank 6 · 동시 조리 +1 · 조리 시간 추가 −5% · 주방 자동(대기 주문 조리) 해금 — 주방 화면에서 켜고 끌 수 있어요 ]' },
     ],
     [
       { chapter: ['인연 · 루나 언니 Rank 8', '저울을 닦는 손'], bg: 'atelier_lit', l: 'yeoni:normal', c: 'luna_sis:serious', r: null },
@@ -225,7 +225,7 @@ export const BOND_STORIES = Object.freeze(extendBondScenes({
           { s: 'luna_sis', t: '연이 씨가 세는 모습은… 이상하게 마음이 놓여요.', c: 'luna_sis:smile' },
         ] },
       ] },
-      { s: 'sys', t: '[ 루나 언니 Rank 8 · 월정석 환전 +10% ]' },
+      { s: 'sys', t: '[ 루나 언니 Rank 8 · 동시 조리 +1 · 픽업 선반 +2 · 월정석 환전 +10% ]' },
     ],
     [
       { chapter: ['인연 · 루나 언니 Rank 10', '함께 굽는 새벽'], bg: 'atelier_lit', l: 'yeoni:smile', c: 'luna_sis:smile', r: 'luna:smile' },
@@ -241,7 +241,7 @@ export const BOND_STORIES = Object.freeze(extendBondScenes({
           { s: 'luna', t: '첫 판! 첫 판은 제일 맛있어!', r: 'luna:smile' },
         ] },
       ] },
-      { s: 'sys', t: '[ 루나 언니 Rank 10 · 조리 시간 추가 −9% ]' },
+      { s: 'sys', t: '[ 루나 언니 Rank 10 · 동시 조리 +2 · 조리 시간 추가 −15% ]' },
     ],
   ],
   moka: [
@@ -249,27 +249,27 @@ export const BOND_STORIES = Object.freeze(extendBondScenes({
       { chapter: ['인연 · 모카 Rank 3', '별 셋의 단골'], bg: 'atelier_lit', l: 'yeoni:normal', c: 'moka:normal', r: null },
       { s: 'moka', t: '매번 장부 들고 와서 값 깎는 손님, 별 셋. 그래도 꼬박꼬박 오니까 단골 할인.' },
       { s: 'yeoni', t: '별 셋에 할인이면 나한텐 별 다섯이야!', l: 'yeoni:smile' },
-      { s: 'sys', t: '[ 모카 Rank 3 · 재료값 −5% ]' },
+      { s: 'sys', t: '[ 모카 Rank 3 · 재료값 −10% ]' },
     ],
     [
       { chapter: ['인연 · 모카 Rank 6', '오토바이 헬멧'], bg: 'atelier_lit', l: 'yeoni:surprised', c: 'moka:smug', r: null },
       { s: 'moka', t: '영업 중에 급하면 불러, 배달비는 반만 받을게. 내 헬멧 디자인은 별 다섯.' },
       { s: 'yeoni', t: '헬멧에 왜 마이크가 달려 있어?', l: 'yeoni:normal' },
       { s: 'moka', t: '…통화용이야. 질문 별 하나.', c: 'moka:angry' },
-      { s: 'sys', t: '[ 모카 Rank 6 · 긴급 배달비 반값 ]' },
+      { s: 'sys', t: '[ 모카 Rank 6 · 긴급 배달비 반값 · 순마다 밤이슬 1개 ]' },
     ],
     [
       { chapter: ['인연 · 모카 Rank 8', '새벽의 밤이슬'], bg: 'river_night', l: 'yeoni:normal', c: 'moka:normal', r: null },
       { s: 'nar', t: '해 뜨기 전 강가, 모카가 작은 병에 밤이슬을 모으며 낮게 흥얼거렸다.' },
       { s: 'moka', t: '…못 들은 걸로 해. 대신 밤이슬은 매번 하나씩 챙겨 줄게.' },
       { s: 'yeoni', t: '(입막음 값, 밤이슬 한 병. 거래 성사, 별 다섯.)', l: 'yeoni:smile' },
-      { s: 'sys', t: '[ 모카 Rank 8 · 순마다 밤이슬 1개 ]' },
+      { s: 'sys', t: '[ 모카 Rank 8 · 재료값 추가 −10% · 밤이슬 +1개 ]' },
     ],
     [
       { chapter: ['인연 · 모카 Rank 10', '별 다섯 개의 파트너'], bg: 'atelier_lit', l: 'yeoni:smile', c: 'moka:smug', r: null },
-      { s: 'moka', t: '너희 가게 이제 별 넷 반, 다섯은 빚 다 갚는 날 줄게. 그때까진 찐단골 할인.' },
+      { s: 'moka', t: '너희 가게 이제 별 넷 반이야. 배달비는 평생 안 받을게, 별 다섯은 빚 다 갚는 날.' },
       { s: 'yeoni', t: '모카가 별 다섯을 예약해 줬다! 이건 이자보다 확실한 약속이야!', l: 'yeoni:determined' },
-      { s: 'sys', t: '[ 모카 Rank 10 · 재료값 추가 −10% ]' },
+      { s: 'sys', t: '[ 모카 Rank 10 · 평생 무료 배달(배달비 0G) ]' },
     ],
   ],
 }));
