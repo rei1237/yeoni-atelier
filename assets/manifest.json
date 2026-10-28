@@ -499,6 +499,13 @@
     "actors/neo_cat_cafe",
     "ui/game_room",
     "ui/game_flying",
-    "ui/game_killer"
+    "ui/game_killer",
+    "actors/neo_stage",
+    "actors/solv_stage",
+    "actors/bambi_stage",
+    "effects/stage_fx",
+    "actors/lune_stage",
+    "actors/raven_stage",
+    "actors/yeoni_cheer"
   ]
 }

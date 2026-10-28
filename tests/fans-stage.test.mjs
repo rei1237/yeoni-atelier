@@ -112,3 +112,23 @@ test('정기 콘서트: 멤버 합류 뒤 한 달에 한 번, 행동력 1로 티
   assert.equal(dispatch(back, { type: 'concert.hold' }).ok, false, '저장 뒤에도 이번 달은 열었다');
   assert.equal(back.gold, s.gold);
 });
+
+test('무대 그림: 네오가 가운데, 멤버는 공연 시트로 노래→춤→인사를 돌고 빈 계산대의 연이는 응원한다', async () => {
+  const { stageLineup } = await import('../src/render/cafe-view.js');
+  const { ASSETS } = await import('../src/render/assets.js');
+  const s = quietShift();
+  join(s, 'solv'); join(s, 'bambi');
+  addFever(s, 100, 'test');
+  assert.ok(dispatch(s, { type: 'stage.perform' }).ok);
+  const yeoni = { key: 'yeoni', x: 10.5, y: 1.5, o: { state: 'idle', facing: 'right' } };
+  const line = stageLineup(s, [yeoni], false);
+  assert.equal(line[0].key, ASSETS.actors.neo_stage ? 'neo_stage' : 'neo');
+  assert.equal(line[0].x, 6, '네오가 가운데');
+  assert.deepEqual(line.map(a => a.x).sort((a, b) => a - b), [4.5, 6, 7.5]);
+  for (const a of line) if (ASSETS.actors[a.key].states.sing) assert.equal(a.o.state, 'sing', '첫 3초는 노래');
+  tickTo(s, s.shift.elapsedMs + 3200);
+  for (const a of stageLineup(s, [], false)) if (ASSETS.actors[a.key].states.dance) assert.equal(a.o.state, 'dance');
+  if (ASSETS.actors.yeoni_cheer) assert.equal(yeoni.key, 'yeoni_cheer', '계산대가 비면 연이가 응원한다');
+  tickTo(s, s.stage.activeUntil);
+  assert.equal(s.stage.activeUntil, null);
+});

@@ -682,6 +682,13 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 | actors/yeoni_cook_bake | 연이 빵·쿠키 굽기 | 512×384 | 완료 |
 | actors/luna_sis_close | 루나 언니 마감 설거지 | 512×384 | 완료 |
 | actors/luna_close | 루나 마감 비질·찻잔 닦기 | 512×384 | 완료 |
+| actors/neo_stage | 네오 카페 무대 공연(노래·춤·인사) | 512×384 | 완료 |
+| actors/solv_stage | 솔브 카페 무대 공연(노래·춤·인사) | 512×384 | 완료 |
+| actors/bambi_stage | 밤비 카페 무대 공연(노래·춤·인사) | 512×384 | 완료 |
+| effects/stage_fx | 무대 꽃잎 지폐·금화·벚꽃잎 | 512×384 | 완료 |
+| actors/lune_stage | 루네 카페 무대 공연(노래·춤·인사) | 512×384 | 완료 |
+| actors/raven_stage | 레이븐 카페 무대 공연(노래·춤·인사) | 512×384 | 완료 |
+| actors/yeoni_cheer | 연이 무대 응원(박수·응원봉·금화 받기) | 512×384 | 완료 |
 | actors/neo_close | 네오 마감 걸레질·컵 세척 | 512×384 | 완료 |
 | icons/yeoni_moon_latte | moon-latte | 128×128 | 완료 |
 | icons/yeoni_rose_mille | rose-mille | 128×128 | 완료 |

@@ -183,11 +183,13 @@ export function drawCafe(ctx, state, v, opts = {}) {
       actors.push({key:pose.key,x:c.x,y:c.y,seated:pose.seated,seatBlend:pose.seatBlend,cashierFront:layout.id==='legacy'&&c.state==='checkout'&&c.x>SPOTS.yeoniHome.x&&c.y<SPOTS.checkout.y+1.2,o:{state:pose.state,facing:pose.facing,walkDistance:c.walkDistance,animationFrame:pose.animationFrame,flipX:pose.flipX,name:null}});
     }
     for (const s of Object.values(state.staff)) {
+      if(s.id==='neo'&&onStage(state,'neo'))continue; // 무대에 오른 네오는 아래 공연 줄에 선다
       const map = { walk: 'walk', serve: 'serve', clean: 'clean', host: 'host', react: 'react' };
       let st = map[s.action] || 'idle';
       if (s.action === 'cook') st = 'cook'; // 루나 언니가 굽는 중
       actors.push({ key: s.id==='neo'&&catCafeActive(state)?'neo_cat_cafe':ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, walkDistance:s.walkDistance, servicePose:s.id==='neo'&&catCafeActive(state)?null:s.servicePose?{...s.servicePose,progress:Math.max(0,Math.min(1,(state.shift.elapsedMs-s.servicePose.at)/(s.servicePose.until-s.servicePose.at)))}:null, cooking:staffCookingPose(state,s,opts.reducedMotion), closing:s.id==='neo'&&catCafeActive(state)?null:closingChore(s.id,s,state.shift.elapsedMs,shiftDuration(state),TEMP.CLOSING_MS,opts.reducedMotion), gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, carryMore: (s.carryMore||[]).map(it=>it.menuId), ...outfitLook(state, s.id) } });
     }
+    if(state.stage?.activeUntil!=null)actors.push(...stageLineup(state,actors,opts.reducedMotion));
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
     const personalJob=state.foodGifts?.job?.maker==='yeoni'?state.foodGifts.job:null;
     actors.push({ key: 'yeoni', x: (personalJob?SPOTS.drinkFront.x:SPOTS.yeoniHome.x) + 0.5, y: (personalJob?SPOTS.drinkFront.y:SPOTS.yeoniHome.y) + 0.5, o: { cooking:personalJob?cookingPose(personalJob,MENUS[personalJob.menuId].station,opts.reducedMotion):null,state:personalJob?'cook':'idle', facing: layout.yeoniFacing, name: '연이', ...outfitLook(state, 'yeoni') } });
@@ -269,10 +271,40 @@ function drawTable(ctx, state, p, T, f, tb, t) {
   label(ctx, String(f.tableNo), p.x + T * 0.2, p.y + T * 0.23, T * 0.24, '#5a3b22');
 }
 
+// 무대 공연: 네오를 가운데에, 나머지 멤버를 좌우로 홀 가운데 줄에 세우고 노래 → 춤 → 인사를 3초씩 돈다.
+// 계산대가 비어 있으면 연이는 박수·응원봉을 흔들고, 금화가 날아온 직후에는 금화를 받아 든다.
+const STAGE_BEAT_MS=3000,STAGE_ROW_Y=7,STAGE_GAP=1.5; // 기본 배치에서 비어 있는 LP 플레이어 옆 줄
+const onStage=(state,id)=>state.stage?.activeUntil!=null&&state.people[id]?.activity==='performing'&&!(id==='neo'&&catCafeActive(state));
+export function stageLineup(state,actors,reduced){
+ const st=state.stage,now=state.shift.elapsedMs,start=st.activeUntil-TEMP.STAGE.DURATION_MS;
+ const phase=['sing','dance','greet'][Math.floor(Math.max(0,now-start)/STAGE_BEAT_MS)%3];
+ const ids=(st.performers||[]).filter(id=>onStage(state,id)).sort((a,b)=>(b==='neo')-(a==='neo'));
+ const yeoni=actors.find(a=>a.key==='yeoni');
+ if(yeoni&&ASSETS.actors.yeoni_cheer&&(yeoni.o.state||'idle')==='idle'&&!yeoni.o.gesture&&!yeoni.o.carry){
+  const since=now-(st.nextThrowAt-TEMP.STAGE.THROW_EVERY_MS);
+  Object.assign(yeoni,{key:'yeoni_cheer',o:{...yeoni.o,state:st.gold>0&&since>=0&&since<1200?'count':Math.floor(now/STAGE_BEAT_MS)%2?'cheer':'clap',facing:'down',outfitId:null,animationFrame:reduced?0:null}});
+ }
+ return ids.map((id,i)=>{const side=i?Math.ceil(i/2)*(i%2?-1:1):0,key=ASSETS.actors[id+'_stage']?id+'_stage':id;
+  return {key,x:6+side*STAGE_GAP,y:STAGE_ROW_Y,o:{state:key===id?'idle':phase,facing:'down',animationFrame:reduced?0:null,name:staffName(state,id)}};});
+}
+
 // 여러 칸짜리 가구 그림을 한 장으로 그린다(러그·책장 등). 그림이 없으면 false.
-// 무대 공연: 금화를 던진 테이블 위로 꽃잎 지폐와 금화가 도트로 흩날린다(캐릭터를 그린 뒤 한꺼번에)
+// 무대 공연: 금화를 던진 테이블 위로 꽃잎 지폐와 금화가 흩날린다(캐릭터를 그린 뒤 한꺼번에, 효과 시트가 없으면 도트)
 const stageRain = [];
 function drawStageRain(ctx, p, T, t, seed) {
+  const fx = imageFor('effects/stage_fx');
+  if (fx) { // 줄 0 꽃잎 지폐 · 1 금화 · 2 벚꽃잎, 칸마다 4프레임
+    ctx.save();
+    for (let i = 0; i < 7; i++) {
+      const ph = (t / 1100 + i / 7 + seed * 0.17) % 1, size = T * (i % 3 === 2 ? 0.42 : 0.56);
+      const x = p.x + T * (-0.3 + ((i * 37 + seed * 23) % 160) / 100) + Math.sin(t / 280 + i * 1.7) * T * 0.1;
+      const y = p.y - T * 0.7 + ph * T * 1.4;
+      ctx.globalAlpha = 1 - ph * 0.7;
+      ctx.drawImage(fx, (Math.floor(t / 140 + i) % 4) * 128, (i % 3) * 128, 128, 128, x - size / 2, y - size / 2, size, size);
+    }
+    ctx.restore();
+    return;
+  }
   const u = Math.max(2, Math.round(T / 18));
   ctx.save();
   for (let i = 0; i < 7; i++) {

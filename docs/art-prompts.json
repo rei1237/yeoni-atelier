@@ -4035,5 +4035,73 @@
     ],
     "prompt": "High-resolution remaster of the attached cafe title illustration at 1536x1024: keep the exact composition, all five characters (pink-haired bunny-ear waitress Luna on the left, silver-haired man Neo, long pink-haired Yeoni with a teacup, otter in a purple beret holding a tart, white bunny with a pink bow and basket), the flower garden cafe, distant castle and lake. Sharper line work and finer flowers, lace and porcelain detail; no text, no new characters.",
     "normalization": "1536×1024 WebP q84, 데스크톱(min-width:1024px) CSS 전용"
+  },
+  {
+    "id": "actors/neo_stage",
+    "tool": "image_gen built-in (codex exec)",
+    "sourceFile": "D:/yeoni-qa/art/stage-v1/neo.png",
+    "references": [
+      "actors/neo"
+    ],
+    "prompt": "Production GAME SPRITE SHEET in the same soft hand-painted chibi fantasy cafe idol style as the attached sheet. The character is Neo, a gentle human young man with fluffy silver-white hair, white shirt, black trousers, black shoes, exactly as attached. He is modest and kind, performing for the cafe owner, never showing off. TRANSPARENT background. Exactly FOUR columns by THREE rows = 12 full-body chibi sprites, identical character scale in every cell, soles aligned on one baseline per row, generous empty transparent spacing between figures so no two figures touch, no cell lines, no text, no floor, no shadows, no musical notes, no sparkles, no light beams, no detached objects. Every frame is ONE connected silhouette (the microphone always touches the hand). All poses three-quarter front view facing the viewer, the same face, hair and outfit as the attached reference sheet in every frame. ROW 1 SING: holding one small silver handheld microphone close to the mouth with one hand, the other hand relaxed near the chest, a gentle four-frame sway loop. ROW 2 DANCE: a compact idol dance step loop with elbows close to the body: small step left, shoulder pop, small step right, return to center; arms never stretched wide, never raised above the head, head never tilted back. ROW 3 GREET: four-frame loop: small wave of one hand at shoulder height, hand over the heart, polite shallow bow, upright warm smile; the microphone stays held in one hand.",
+    "normalization": "알파 연결 실루엣 12개, 128셀 발 기준점64,122, 공통 스케일, WebP q90"
+  },
+  {
+    "id": "actors/solv_stage",
+    "tool": "image_gen built-in (codex exec)",
+    "sourceFile": "D:/yeoni-qa/art/stage-v1/solv.png",
+    "references": [
+      "actors/solv"
+    ],
+    "prompt": "Production GAME SPRITE SHEET in the same soft hand-painted chibi fantasy cafe idol style as the attached sheet. The character is Solv, a human young man with messy black hair, dark coat with fur collar, gold chain jewelry and short dark cape, exactly as attached. Main dancer, sharp but compact moves. TRANSPARENT background. Exactly FOUR columns by THREE rows = 12 full-body chibi sprites, identical character scale in every cell, soles aligned on one baseline per row, generous empty transparent spacing between figures so no two figures touch, no cell lines, no text, no floor, no shadows, no musical notes, no sparkles, no light beams, no detached objects. Every frame is ONE connected silhouette (the microphone always touches the hand). All poses three-quarter front view facing the viewer, the same face, hair and outfit as the attached reference sheet in every frame. ROW 1 SING: holding one small silver handheld microphone close to the mouth with one hand, the other hand relaxed near the chest, a gentle four-frame sway loop. ROW 2 DANCE: a compact idol dance step loop with elbows close to the body: small step left, shoulder pop, small step right, return to center; arms never stretched wide, never raised above the head, head never tilted back. ROW 3 GREET: four-frame loop: small wave of one hand at shoulder height, hand over the heart, polite shallow bow, upright warm smile; the microphone stays held in one hand.",
+    "normalization": "알파 연결 실루엣 12개, 128셀 발 기준점64,122, 공통 스케일, WebP q90"
+  },
+  {
+    "id": "actors/bambi_stage",
+    "tool": "image_gen built-in (codex exec)",
+    "sourceFile": "D:/yeoni-qa/art/stage-v1/bambi.png",
+    "references": [
+      "actors/bambi"
+    ],
+    "prompt": "Production GAME SPRITE SHEET in the same soft hand-painted chibi fantasy cafe idol style as the attached sheet. The character is Bambi, a human young man with soft lavender-silver hair, dark gold-trimmed jacket and sheer grey cape, exactly as attached. Main vocalist, calm and warm. TRANSPARENT background. Exactly FOUR columns by THREE rows = 12 full-body chibi sprites, identical character scale in every cell, soles aligned on one baseline per row, generous empty transparent spacing between figures so no two figures touch, no cell lines, no text, no floor, no shadows, no musical notes, no sparkles, no light beams, no detached objects. Every frame is ONE connected silhouette (the microphone always touches the hand). All poses three-quarter front view facing the viewer, the same face, hair and outfit as the attached reference sheet in every frame. ROW 1 SING: holding one small silver handheld microphone close to the mouth with one hand, the other hand relaxed near the chest, a gentle four-frame sway loop. ROW 2 DANCE: a compact idol dance step loop with elbows close to the body: small step left, shoulder pop, small step right, return to center; arms never stretched wide, never raised above the head, head never tilted back. ROW 3 GREET: four-frame loop: small wave of one hand at shoulder height, hand over the heart, polite shallow bow, upright warm smile; the microphone stays held in one hand.",
+    "normalization": "알파 연결 실루엣 12개, 128셀 발 기준점64,122, 공통 스케일, WebP q90"
+  },
+  {
+    "id": "effects/stage_fx",
+    "tool": "image_gen built-in (codex exec)",
+    "sourceFile": "D:/yeoni-qa/art/stage-v1/stage_fx.png",
+    "references": [],
+    "prompt": "Production GAME EFFECT SPRITE SHEET in soft hand-painted fantasy cafe game style. TRANSPARENT background. Exactly FOUR columns by THREE rows = 12 separate small objects, each object centered in its own cell with generous transparent spacing, all objects the same scale, no cell lines, no text, no background, no shadows, no sparkles detached from the object. Each object is ONE connected shape. ROW 1: a pink flower-petal banknote (a small rectangular pale pink paper bill with a white five-petal flower emblem in the middle and a thin rose border) fluttering: flat, tilted, curled, flipped. ROW 2: a shiny gold coin with a tiny crescent moon emblem spinning: front face, three-quarter, edge-on thin, three-quarter other side. ROW 3: a single soft cherry-blossom petal of pale pink drifting: four rotations.",
+    "normalization": "알파 연결 물체 12개, 128셀 균등 배율, WebP q90"
+  },
+  {
+    "id": "actors/lune_stage",
+    "tool": "image_gen built-in (codex exec)",
+    "sourceFile": "D:/yeoni-qa/art/stage-v1/lune.png",
+    "references": [
+      "actors/lune"
+    ],
+    "prompt": "Production GAME SPRITE SHEET in the same soft hand-painted chibi fantasy cafe idol style as the attached sheet. The character is Lune, a human young man with long wavy lilac hair, black outfit with sheer lavender cape, exactly as attached. Lead vocalist, graceful. TRANSPARENT background. Exactly FOUR columns by THREE rows = 12 full-body chibi sprites, identical character scale in every cell, soles aligned on one baseline per row, generous empty transparent spacing between figures so no two figures touch, no cell lines, no text, no floor, no shadows, no musical notes, no sparkles, no light beams, no detached objects. Every frame is ONE connected silhouette (the microphone always touches the hand). All poses three-quarter front view facing the viewer, the same face, hair and outfit as the attached reference sheet in every frame. ROW 1 SING: holding one small silver handheld microphone close to the mouth with one hand, the other hand relaxed near the chest, a gentle four-frame sway loop. ROW 2 DANCE: a compact idol dance step loop with elbows close to the body: small step left, shoulder pop, small step right, return to center; arms never stretched wide, never raised above the head, head never tilted back. ROW 3 GREET: four-frame loop: small wave of one hand at shoulder height, hand over the heart, polite shallow bow, upright warm smile; the microphone stays held in one hand.",
+    "normalization": "알파 연결 실루엣 12개, 128셀 발 기준점64,122, 공통 스케일, WebP q90"
+  },
+  {
+    "id": "actors/raven_stage",
+    "tool": "image_gen built-in (codex exec)",
+    "sourceFile": "D:/yeoni-qa/art/stage-v1/raven.png",
+    "references": [
+      "actors/raven"
+    ],
+    "prompt": "Production GAME SPRITE SHEET in the same soft hand-painted chibi fantasy cafe idol style as the attached sheet. The character is Raven, a human young man with spiky black hair, black fur-collared coat with gold chains and dark cape, exactly as attached. Main rapper, cool and confident but polite. TRANSPARENT background. Exactly FOUR columns by THREE rows = 12 full-body chibi sprites, identical character scale in every cell, soles aligned on one baseline per row, generous empty transparent spacing between figures so no two figures touch, no cell lines, no text, no floor, no shadows, no musical notes, no sparkles, no light beams, no detached objects. Every frame is ONE connected silhouette (the microphone always touches the hand). All poses three-quarter front view facing the viewer, the same face, hair and outfit as the attached reference sheet in every frame. ROW 1 SING: holding one small silver handheld microphone close to the mouth with one hand, the other hand relaxed near the chest, a gentle four-frame sway loop. ROW 2 DANCE: a compact idol dance step loop with elbows close to the body: small step left, shoulder pop, small step right, return to center; arms never stretched wide, never raised above the head, head never tilted back. ROW 3 GREET: four-frame loop: small wave of one hand at shoulder height, hand over the heart, polite shallow bow, upright warm smile; the microphone stays held in one hand.",
+    "normalization": "알파 연결 실루엣 12개, 128셀 발 기준점64,122, 공통 스케일, WebP q90"
+  },
+  {
+    "id": "actors/yeoni_cheer",
+    "tool": "image_gen built-in (codex exec)",
+    "sourceFile": "D:/yeoni-qa/art/stage-v1/yeoni_cheer.png",
+    "references": [
+      "actors/yeoni"
+    ],
+    "prompt": "Production GAME SPRITE SHEET in the same soft hand-painted chibi fantasy cafe idol style as the attached sheet. The character is Yeoni, a young woman with long wavy pink hair, pink flower hair ornament, cream vintage lace dress, small brown shoulder bag, brown boots, exactly as attached. She stands behind a cafe register cheering for an idol stage show. TRANSPARENT background. Exactly FOUR columns by THREE rows = 12 full-body chibi sprites, identical character scale in every cell, soles aligned on one baseline per row, generous empty transparent spacing between figures so no two figures touch, no cell lines, no text, no floor, no shadows, no props except what is described, no detached objects. Every frame is ONE connected silhouette. All poses three-quarter front view facing the viewer. ROW 1 CLAP: four-frame clapping loop in front of the chest, delighted smile. ROW 2 CHEER: four-frame loop holding one small pink glow stick with both hands and swaying it gently side to side, the stick always touching her hands. ROW 3 COUNT: four-frame loop catching one small gold coin in both cupped hands, holding it to the chest, happy surprised face, bouncing on her toes.",
+    "normalization": "알파 연결 실루엣 12개, 128셀 발 기준점64,122, 공통 스케일, WebP q90"
   }
 ]
