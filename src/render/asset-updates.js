@@ -8519,6 +8519,16 @@ export const ASSET_UPDATES = {
         318
       ],
       "opaque": true
+    },
+    "finance": {
+      "kind": "object",
+      "label": "finance",
+      "path": "assets/illustrated/guides/finance.webp",
+      "dimensions": [
+        498,
+        318
+      ],
+      "opaque": true
     }
   },
   "effects": {

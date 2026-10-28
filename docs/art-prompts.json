@@ -2177,6 +2177,13 @@
     "processing": "Original art, WebP export, alpha component isolation for individual props."
   },
   {
+    "id": "guides/finance",
+    "tool": "imagegen",
+    "sourceFile": "D:/yeoni-qa/art/cafe-ux/finance-guide-20261028/cheongtokki-finance-guide-v2.png",
+    "prompt": "Redraw from v1 scene with references portraits/talking/actors cheongtokki: animal rabbit head with short furry muzzle, small pink nose, fluffy blue-grey cheek tufts, sly half-lidded lilac eyes, messy dark navy hair, two long upright ears fully in frame; deep purple high-collar cape with gold embroidery, black vest with gold chain, purple gem brooch, white cuffs, blue-grey furred hands. Dark-wood banker's counter, open ledger with unreadable columns, gold coin held up, brass balance scale, coin stacks, dish of glowing pale-violet moonstones, quill, sealed scroll, bookshelves, lanterns, round moon window, white and lilac flowers. Premium soft painted anime game illustration, warm gold and plum palette, no text.",
+    "processing": "Original art, WebP export (center crop to guide ratio 498x318), original PNG kept on D."
+  },
+  {
     "id": "guides/outfits",
     "tool": "imagegen",
     "sourceFile": "exec-b476dc41-8519-47ca-a6d1-af142312e560.png",

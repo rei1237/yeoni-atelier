@@ -440,6 +440,7 @@
 | tiles/hunt_heukwol | assets/illustrated/tiles/hunt_heukwol.webp | 512×512 | 완료 |
 | backgrounds/crafting | assets/illustrated/backgrounds/crafting.webp | 960×640 | 완료 |
 | guides/shop | assets/illustrated/guides/shop.webp | 498×318 | 완료 |
+| guides/finance | assets/illustrated/guides/finance.webp | 498×318 | 완료 |
 | actors/yeoni_farm | assets/illustrated/actors/yeoni_farm.webp | 512×512 | 완료 |
 | backgrounds/farm_ground | assets/illustrated/backgrounds/farm_ground.webp | 800×800 | 완료 |
 | farm/bed_empty | assets/illustrated/farm/bed_empty.webp | 256×256 | 완료 |
