@@ -10118,3 +10118,8 @@ ASSET_UPDATES.actors.neo_cat_cafe={...ASSET_UPDATES.actors.neo_cat,path:"assets/
 
 // 모바일 배포 용량: 구도와 비율을 보존한 타이틀 이미지.
 ASSET_UPDATES.backgrounds.title.dimensions=[600,900];
+
+// 마감 30초 정리 동작(2026-10-28): 1줄 설거지·비질·걸레질, 2줄 정리, 3줄 마무리.
+ASSET_UPDATES.actors.luna_sis_close={"kind": "actor", "label": "루나 언니 마감 설거지", "path": "assets/illustrated/actors/luna_sis_close.webp", "dimensions": [512, 384], "frame": {"w": 128, "h": 128}, "anchor": {"x": 64, "y": 122}, "columns": 4, "directionRows": 0, "directions": ["left"], "stateRows": {"chore": 0, "tidy": 1, "done": 2}, "states": {"chore": {"frames": 4, "fps": 6.25, "loop": true}, "tidy": {"frames": 4, "fps": 6.25, "loop": true}, "done": {"frames": 4, "fps": 6.25, "loop": true}}};
+ASSET_UPDATES.actors.luna_close={"kind": "actor", "label": "루나 마감 비질·찻잔 닦기", "path": "assets/illustrated/actors/luna_close.webp", "dimensions": [512, 384], "frame": {"w": 128, "h": 128}, "anchor": {"x": 64, "y": 122}, "columns": 4, "directionRows": 0, "directions": ["left"], "stateRows": {"chore": 0, "tidy": 1, "done": 2}, "states": {"chore": {"frames": 4, "fps": 6.25, "loop": true}, "tidy": {"frames": 4, "fps": 6.25, "loop": true}, "done": {"frames": 4, "fps": 6.25, "loop": true}}};
+ASSET_UPDATES.actors.neo_close={"kind": "actor", "label": "네오 마감 걸레질·컵 세척", "path": "assets/illustrated/actors/neo_close.webp", "dimensions": [512, 384], "frame": {"w": 128, "h": 128}, "anchor": {"x": 64, "y": 122}, "columns": 4, "directionRows": 0, "directions": ["left"], "stateRows": {"chore": 0, "tidy": 1, "done": 2}, "states": {"chore": {"frames": 4, "fps": 6.25, "loop": true}, "tidy": {"frames": 4, "fps": 6.25, "loop": true}, "done": {"frames": 4, "fps": 6.25, "loop": true}}};

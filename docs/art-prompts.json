@@ -3992,5 +3992,38 @@
     "tool": "built-in image_gen",
     "prompt": "New official rounded pink lotus pig with purple scarf and wood-stock cartoon gun, no cigarette. Original blue zombie rabbits and abandoned moonlit city. No old flat pig design.",
     "reference": "D:/CodeDestiny-Build/연이 프로필1.png; original blue zombie rabbits only"
+  },
+  {
+    "id": "actors/luna_sis_close",
+    "tool": "image_gen built-in (codex exec)",
+    "sourceFile": "D:/yeoni-qa/art/closing-v1/luna-sis-close.png",
+    "references": [
+      "actors/luna_sis",
+      "actors/luna_sis_cook"
+    ],
+    "prompt": "Same character and soft hand-painted chibi cafe style as the attached sheets, transparent background, 4 columns x 3 rows, three-quarter view facing left, identical scale, soles on one baseline per row, looping frames. Row 1 washing dishes in a small wooden basin with suds, Row 2 drying a plate with a cloth and stacking plates, Row 3 done: wiping brow with a towel, relieved closed-eye smile.",
+    "normalization": "알파 연결 실루엣 12개, 128셀 발 기준점64,122, 공통 스케일, WebP q86"
+  },
+  {
+    "id": "actors/luna_close",
+    "tool": "image_gen built-in (codex exec)",
+    "sourceFile": "D:/yeoni-qa/art/closing-v1/luna-close.png",
+    "references": [
+      "actors/luna",
+      "actors/luna_wipe"
+    ],
+    "prompt": "Same character and soft hand-painted chibi cafe style as the attached sheets, transparent background, 4 columns x 3 rows, three-quarter view facing left, identical scale, soles on one baseline per row, looping frames. Row 1 sweeping the floor with a small broom with dust puffs, Row 2 polishing a teacup with a blue cloth, Row 3 done: happy hop holding the broom.",
+    "normalization": "알파 연결 실루엣 12개, 128셀 발 기준점64,122, 공통 스케일, WebP q86"
+  },
+  {
+    "id": "actors/neo_close",
+    "tool": "image_gen built-in (codex exec)",
+    "sourceFile": "D:/yeoni-qa/art/closing-v1/neo-close.png",
+    "references": [
+      "actors/neo",
+      "actors/neo_wipe"
+    ],
+    "prompt": "Same character and soft hand-painted chibi cafe style as the attached sheets, transparent background, 4 columns x 3 rows, three-quarter view facing left, identical scale, soles on one baseline per row, looping frames. Row 1 mopping the floor, Row 2 washing a cup in a steel basin, Row 3 done: modest pose resting the mop on his shoulder (no spread arms, head not tilted back).",
+    "normalization": "알파 연결 실루엣 12개, 128셀 발 기준점64,122, 공통 스케일, WebP q86"
   }
 ]

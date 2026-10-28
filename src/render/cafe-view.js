@@ -1,6 +1,7 @@
 import {catCafeActive} from '../game/cat-cafe-rules.js';
 import {customerPose} from './customer-pose.js';
 import {cookingPose,staffCookingPose} from './cooking-pose.js';
+import {closingChore} from './staff-motion.js';
 import {runningJobs,queuedJobs,stationJobs,stationItems,activeSlotNames,heldKey} from '../game/station-slots.js';
 import {assignedHosts,cafeCapacity} from '../game/capacity.js';
 import {REMODELS,exteriorOf} from '../game/grounds.js';
@@ -15,7 +16,8 @@ import { MENUS } from '../data/menus.js';
 import { OUTFITS } from '../data/outfits.js';
 import {atmosphere} from '../game/cafe-growth.js';
 import { CUSTOMER_WEALTH } from '../data/customer-wealth.js';
-import {personName,usableHosts} from '../game/state.js';
+import {personName,usableHosts,shiftDuration} from '../game/state.js';
+import { TEMP } from '../config/balance.temp.js';
 import { ASSETS,imageFor } from './assets.js';
 import { furnitureCells } from '../game/space.js';
 import { drawActor, roundRect, drawObjectImage, drawFood, nameTag } from './sprite-renderer.js';
@@ -184,7 +186,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
       const map = { walk: 'walk', serve: 'serve', clean: 'clean', host: 'host', react: 'react' };
       let st = map[s.action] || 'idle';
       if (s.action === 'cook') st = 'cook'; // 루나 언니가 굽는 중
-      actors.push({ key: s.id==='neo'&&catCafeActive(state)?'neo_cat_cafe':ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, walkDistance:s.walkDistance, servicePose:s.id==='neo'&&catCafeActive(state)?null:s.servicePose?{...s.servicePose,progress:Math.max(0,Math.min(1,(state.shift.elapsedMs-s.servicePose.at)/(s.servicePose.until-s.servicePose.at)))}:null, cooking:staffCookingPose(state,s,opts.reducedMotion), gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, carryMore: (s.carryMore||[]).map(it=>it.menuId), ...outfitLook(state, s.id) } });
+      actors.push({ key: s.id==='neo'&&catCafeActive(state)?'neo_cat_cafe':ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, walkDistance:s.walkDistance, servicePose:s.id==='neo'&&catCafeActive(state)?null:s.servicePose?{...s.servicePose,progress:Math.max(0,Math.min(1,(state.shift.elapsedMs-s.servicePose.at)/(s.servicePose.until-s.servicePose.at)))}:null, cooking:staffCookingPose(state,s,opts.reducedMotion), closing:s.id==='neo'&&catCafeActive(state)?null:closingChore(s.id,s,state.shift.elapsedMs,shiftDuration(state),TEMP.CLOSING_MS,opts.reducedMotion), gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, carryMore: (s.carryMore||[]).map(it=>it.menuId), ...outfitLook(state, s.id) } });
     }
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
     const personalJob=state.foodGifts?.job?.maker==='yeoni'?state.foodGifts.job:null;

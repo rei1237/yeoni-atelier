@@ -23,6 +23,7 @@ export function drawActor(ctx, key, o) {
   if(o.state==='walk'&&Number.isFinite(o.walkDistance))o={...o,animationFrame:o.reducedMotion?0:Math.floor(o.walkDistance*4)%4};
   if(key==='yeoni'&&o.cooking){const sheet=yeoniCookSheet(o.cooking.stationId);if(imageFor('actors/'+sheet))key=sheet;else if(imageFor('actors/yeoni_cook'))key='yeoni_cook';}
   if(key.startsWith('yeoni_cook')){o={...o,state:o.cooking.phase,animationFrame:o.cooking.frame,facing:'left',idleMotion:false,outfitId:null};}
+  if(o.closing&&!o.cooking&&imageFor(o.closing.key)){key=o.closing.key;o={...o,state:o.closing.state,animationFrame:o.closing.frame,facing:'left',idleMotion:false,outfitId:null};}
   const work=staffMotion(key,o);
   if(work&&imageFor(work.key)){key=work.key;o={...o,animationFrame:work.frame,idleMotion:false,outfitId:null};}
   if(key==='yeoni'&&o.facing==='left'&&(o.state||'idle')!=='walk'&&imageFor('yeoni_idle_left')){key='yeoni_idle_left';o={...o,state:o.gesture?.kind||'idle',animationFrame:o.reducedMotion?0:o.gesture?Math.min(3,Math.floor(o.gesture.age/260)):0,idleMotion:false,outfitId:null};}

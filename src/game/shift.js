@@ -9,7 +9,7 @@ import {arrivalMultiplier,takeawayChance} from './cafe-growth.js';
 import { RULES } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
 import { emit, usableHosts, emptyStations, shiftDuration, lastAcceptAt } from './state.js';
-import { checkout, setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave } from './cafe.js';
+import { checkout, setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave, settleClosingOrders } from './cafe.js';
 import { settleDue, settleHosting, hostingVisits, stepHosting, onRequesting } from './nomination.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
 import { chargeInterest, advanceTurn } from './calendar.js';
@@ -78,7 +78,11 @@ function nextSpec(state) {
 
 function stepSpawn(state) {
   const sh = state.shift;
-  if (sh.elapsedMs < sh.nextSpawnAt || sh.elapsedMs >= shiftDuration(state) - 80000) return;
+  if (sh.elapsedMs >= shiftDuration(state) - TEMP.CLOSING_MS) { // 마감 준비: 새 손님은 받지 않고 직원은 정리를 시작한다
+    if (sh.closingAt == null) { sh.closingAt = sh.elapsedMs; emit('closingStart'); }
+    return;
+  }
+  if (sh.elapsedMs < sh.nextSpawnAt) return;
   const spec=nextSpec(state);
   if (!state.tables.some(t => t.state === 'empty') && spec.kind!=='takeaway') { sh.nextSpawnAt = sh.elapsedMs + 2000; return; }
   spawnCustomer(state, spec);
@@ -110,11 +114,13 @@ export function closeShift(state) {
   if (!sh || state.mode !== 'shift') return;
   settleDue(state); // 30:00 에 끝나는 마지막 접대를 먼저 정산
   for (const v of hostingVisits(state)) settleHosting(state, v); // (규칙상 남을 수 없지만 안전장치: 300초 미달 → 팁 없음)
+  const settled = settleClosingOrders(state); // 끝까지 남은 손님의 주문도 매출에 넣는다
   for (const c of Object.values(state.customers)) if (c.state !== 'leaving') customerLeave(state, c, '영업 종료');
   for(const visit of Object.values(state.visits))checkout(state,visit); // 마감 직전 계산대 대기도 같은 원장으로 정산
-  let wasted = state.tray.filter(Boolean).length;
-  for (const st of Object.values(state.stations)) wasted += runningJobs(st).length+stationItems(st).length;
-  for (const s of Object.values(state.staff)) wasted += (s.carry ? 1 : 0) + (s.carryMore?.length || 0);
+  const spare = it => it && !settled.has(it.orderId) && !settled.has(it.reservedFor); // 마감 정산된 주문 몫은 버린 음식이 아니다
+  let wasted = state.tray.filter(spare).length;
+  for (const st of Object.values(state.stations)) wasted += runningJobs(st).filter(j => !settled.has(j.orderId)).length+stationItems(st).filter(spare).length;
+  for (const s of Object.values(state.staff)) wasted += [s.carry, ...(s.carryMore || [])].filter(spare).length;
   sh.wasted = wasted;
   const settlement = {
     shiftId: sh.id, day: sh.day,

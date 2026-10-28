@@ -19,13 +19,13 @@ export const TEMP = Object.freeze({
   // ── 손님
   SPAWN_FIRST_MS: 4000,
   SPAWN_INTERVAL_MS: Object.freeze([16000, 30000]),
-  LAST_SEATING_ELAPSED_MS: 520 * 1000, // 08:40 이후 새 손님 입장 없음
+  CLOSING_MS: 30000,          // TEMP 사용자 요청 2026-10-28: 끝나기 30초 전부터 입장 마감, 직원은 설거지·청소로 마무리
   NOMINATE_CHANCE: 0.38,
   ORDER_THINK_MS: 3000,       // 착석 후 주문까지
   EAT_MS: 26000,              // 일반 손님 식사 시간
   FOOD_PATIENCE_MS: 150000,   // 주문 후 이 시간 안에 못 받으면 떠남(매출 없음)
   NOMINATION_PATIENCE_MS: 45000, // 지명 요청을 이 시간 동안 처리 안 하면 일반 식사로 전환
-  SERVE_BUFFER_MS: 10000,     // 늦은 주문 판단: 조리 시간 + 이 값이 남은 시간보다 길면 주문 안 함
+  SERVE_BUFFER_MS: 10000,     // 접대 손님의 늦은 주문 판단: 조리 시간 + 이 값이 남은 접대 시간보다 길면 주문 안 함
 
   // ── 지명 대기 불만(0~20 범위 안의 임시 규칙)
   WAIT_PENALTY_GRACE_MS: 8000,

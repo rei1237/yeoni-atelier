@@ -19,7 +19,7 @@ import { TEMP } from '../config/balance.temp.js';
 import { MENUS, MENU_ORDER, INGREDIENTS, ingredientCostOf } from '../data/menus.js';
 import { SPOTS, FURNITURE, cafeSpots, cafeLayout } from '../data/layout.js';
 import { PEOPLE, STAFF_CREW } from '../data/companions.js';
-import { emit, nextId, remainingShift, usableHosts } from './state.js';
+import { emit, nextId, usableHosts } from './state.js';
 import { buildGrid, findPath, tableGeometry } from './space.js';
 import { nextRandom, randRange, pick } from '../core/rng.js';
 import { bondFx } from '../data/bonds.js';
@@ -304,7 +304,7 @@ export function findServeTarget(state, item) {
   return o ? o.tableNo : null;
 }
 
-function recordServe(state, order, item) {
+function recordServe(state, order, item, opts = {}) {
   if (state.ledger.sales[order.id] != null) return; // 같은 주문을 두 번 매출로 잡지 않는다
   const now = state.shift.elapsedMs;
   const visit = state.visits[order.visitId];
@@ -325,6 +325,7 @@ function recordServe(state, order, item) {
   const quality=item?.quality||'good',rating=foodScore(waitS,ambience(state),quality),food=rating.score;
   Object.assign(order,{quality,qualityDelta:rating.qualityDelta,foodBase:rating.base,foodScore:food,jobId:item?.jobId||null,servedItemId:item?.id||order.itemId||null});
   visit.foodScores.push(food);
+  if (opts.closing) return; // 영업 종료 정산: 장부만 남기고 식사·대화·연출은 생략
   const c = state.customers[visit.customerId];
   if (c) {
     c.action = 'eat'; c.actionUntil = now + TEMP.EAT_MS;
@@ -337,6 +338,22 @@ function recordServe(state, order, item) {
   if(cafeProgress(state).level>levelBefore){const next=cafeProgress(state).level;emit('cafeLevelUp',{level:next,apGain:Math.floor((next-1)/3)-Math.floor((levelBefore-1)/3)});};
   if(visit.kind==='takeaway' && c && !openOrdersOfVisit(state,visit).length){state.stats.takeaways=(state.stats.takeaways||0)+1;customerLeave(state,c,'포장 수령');}
 
+}
+
+// 영업 종료 시각에 남은 손님의 주문도 계산서에 담는다. 정산한 주문 id를 돌려준다(남은 음식을 버린 것으로 세지 않기 위해).
+export function settleClosingOrders(state) {
+  const settled = new Set();
+  for (const c of Object.values(state.customers)) {
+    if (['checkout', 'leaving'].includes(c.state)) continue;
+    const visit = state.visits[c.visitId];
+    if (!visit) continue;
+    for (const o of openOrdersOfVisit(state, visit)) {
+      const item = state.tray.find(it => it && (it.id === o.itemId || it.reservedFor === o.id)) || null;
+      recordServe(state, o, item, { closing: true });
+      settled.add(o.id);
+    }
+  }
+  return settled;
 }
 
 // ── 정리
@@ -734,11 +751,12 @@ export function stepCustomers(state, dt, hooks) {
         break;
       case 'thinking':
         if (now >= c.orderAt) {
-          const menuId = chooseMenu(state, remainingShift(state),visit);
-          if (!menuId) { customerLeave(state, c, remainingShift(state) < 60000 ? '마감이 가까워 주문하지 않음' : '주문할 수 있는 메뉴가 없음'); break; }
+          // 마감 시각에 남은 주문도 매출로 잡으므로 일반 손님은 남은 영업 시간으로 메뉴를 거르지 않는다.
+          const menuId = chooseMenu(state, Infinity,visit);
+          if (!menuId) { customerLeave(state, c, '주문할 수 있는 메뉴가 없음'); break; }
           placeOrder(state, visit, menuId);
           const extraChance={frugal:.12,ordinary:.3,generous:.6,tycoon:.85}[visit.wealthId]||0;
-          if(nextRandom(state.rng)<extraChance){const extra=chooseMenu(state,remainingShift(state),visit);if(extra)placeOrder(state,visit,extra);if(visit.wealthId==='tycoon'&&nextRandom(state.rng)<.4){const third=chooseMenu(state,remainingShift(state),visit);if(third)placeOrder(state,visit,third);}}
+          if(nextRandom(state.rng)<extraChance){const extra=chooseMenu(state,Infinity,visit);if(extra)placeOrder(state,visit,extra);if(visit.wealthId==='tycoon'&&nextRandom(state.rng)<.4){const third=chooseMenu(state,Infinity,visit);if(third)placeOrder(state,visit,third);}}
           c.state = 'waiting_food';
         }
         break;
