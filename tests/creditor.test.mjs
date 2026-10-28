@@ -9,6 +9,8 @@ import { pendingStory } from '../src/game/calendar.js';
 import { interestRate, nextHike, neoHikeBonus, interestDue, checkCreditor, creditorView, pendingCreditorStory } from '../src/game/creditor.js';
 import { serialize, deserialize } from '../src/core/save.js';
 import { tickTo } from './helpers.mjs';
+import { ENDINGS } from '../src/story/months.js';
+import { creditsScreen } from '../src/ui/credits.js';
 
 const C = TEMP.CALENDAR;
 
@@ -141,4 +143,16 @@ test('약속 달성은 다음 달 이자를 깎고, 이전 저장·옛 180순 �
   closeLate(legacy, 20); closeLate(legacy, 21);
   assert.equal(legacy.creditor.warnings, 0);
   assert.equal(creditorView(legacy), null);
+});
+
+test('배드 엔딩: 결말 장면을 본 뒤 후일담 이야기·자유 영업이 없고, 크레딧에 출연·음악이 흐른다', () => {
+  const s = toUltimatum();
+  closeLate(s, 9);
+  assert.equal(s.mode, 'prep');
+  assert.ok(ENDINGS.bad.beats.length > 3);
+  assert.ok(dispatch(s, { type: 'story.seen', id: 'ending:bad' }).ok);
+  assert.equal(pendingStory(s), null, '가게를 내준 뒤에는 후일담이 없다');
+  for (const type of ['shift.start', 'hunt.start', 'debt.repay']) assert.equal(dispatch(s, { type, amount: 1, requestId: 'x' }).ok, false, type);
+  const html = creditsScreen(s, ENDINGS.bad.title);
+  for (const t of ['연이', '네오', '청토끼', 'DEST1NOVA', '다시 시작', '건너뛰기', ENDINGS.bad.title]) assert.ok(html.includes(t), t);
 });

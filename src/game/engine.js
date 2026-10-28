@@ -37,6 +37,8 @@ import { startStage, holdConcert } from './fans.js';
 
 // 일시정지 중에도 받는 명령
 const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle', 'automation.toggle', 'tutorial.seen']);
+// 배드 엔딩(가게를 내줌) 뒤에는 후일담 자유 영업이 없다: 결산 닫기·결말 기록만 받는다
+const AFTER_BAD_END = new Set(['story.seen', 'settlement.close', 'tutorial.seen', 'pause', 'resume']);
 // 영업 중에만 의미가 있는 명령
 const SHIFT_ONLY = new Set(['order.table','order.quick', 'cook', 'cook.cancelNext', 'cook.cancel', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate', 'stage.perform']);
 
@@ -59,6 +61,7 @@ function execute(state, cmd) {
   if(state.interior.draft?.checkoutPreview&&!t?.startsWith('interior.')&&t!=='tutorial.seen')return {ok:false,reason:'계산대 미리보기를 적용하거나 취소한 뒤 이용해 주세요'};
   if(state.foodGifts?.job&&['shift.start','hunt.start','branch.switch','interior.begin','farm.plant','farm.water','farm.tend','farm.harvest','farm.careAll','bond.talk'].includes(t))return {ok:false,reason:'진행 중인 여분 조리를 마치거나 취소해 주세요'};
   if (state.paused && !ALLOWED_WHILE_PAUSED.has(t) && !(t==='hunt.finish' && state.mode==='hunt' && state.hunt && state.hunt.status!=='running')) return { ok: false, reason: '일시정지 중입니다 — 계속하기를 눌러 주세요' };
+  if (state.calendar?.endingId === 'bad' && !AFTER_BAD_END.has(t)) return { ok: false, reason: '가게를 내준 뒤에는 영업할 수 없어요 · 새 게임이나 결말 다시 보기를 골라 주세요' };
   if (SHIFT_ONLY.has(t) && state.mode !== 'shift') return { ok: false, reason: '정규 영업 중에만 할 수 있습니다' };
   if(t?.startsWith('grounds.'))return groundCommand(state,cmd);
   switch (t) {

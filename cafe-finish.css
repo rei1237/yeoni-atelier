@@ -125,3 +125,17 @@ body[data-editing=true] #topbar button{min-height:44px;min-width:44px}
 
 /* 6-1 청토끼 통첩: 영업 화면 위 한 줄 경고 */
 .creditor-alert{display:block;width:100%;min-height:40px;margin:0 0 6px;padding:8px 12px;border:1px solid #c98a9d;border-radius:12px;background:#fbe9ee;color:#7a2f4a;font-size:12px;font-weight:700;text-align:left;white-space:normal;line-height:1.4}
+/* 빚 상환 시트의 진행 막대: 인라인 span 이면 안쪽 height:100% 가 시트 높이로 늘어난다 */
+.sheet>.bar{display:block;margin:6px 0 10px}
+/* 청토끼 카드는 값이 길어 항목명 위·값 아래 한 칸으로 쌓는다 */
+.creditor-card{grid-template-columns:1fr;gap:2px}.creditor-card>b{margin-bottom:6px}.creditor-card>b:last-child{margin-bottom:0}
+/* 6-1 결말 크레딧: 전체 화면, 아래→위 */
+.credits{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;background:#1d1626;color:#f5ead8}
+.credits-view{flex:1;overflow:hidden;position:relative}
+.credits-roll{position:absolute;left:0;right:0;top:100%;padding:0 16px 48px;text-align:center;animation:credits-roll var(--roll-s,60s) linear forwards}
+.credits-roll h2{margin:0 0 6px;font-size:24px;letter-spacing:.04em}.credits-roll h3{margin:36px 0 10px;font-size:15px;color:#d9b98a}.credits-roll h4{margin:18px 0 6px;font-size:13px;color:#e9cfa8}
+.credits-roll p{margin:4px 0;font-size:13px;line-height:1.5}.credits-ending{color:#d9b98a}.credits-thanks{margin-top:56px}
+.credits-actions{display:flex;gap:8px;justify-content:center;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:#140f1b}
+.credits-actions button{min-height:44px;min-width:120px}
+@keyframes credits-roll{to{transform:translateY(calc(-100% - 100dvh))}}
+@media (prefers-reduced-motion:reduce){.credits-view{overflow:auto}.credits-roll{position:static;animation:none;padding-top:32px}}

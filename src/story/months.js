@@ -210,4 +210,23 @@ export const ENDINGS = Object.freeze({
       { s: 'impact', t: 'TO BE CONTINUED · 다시 한번, 영업 시작', bg: 'atelier_lit' },
     ],
   },
+  // 청토끼 통첩 기한 초과(6-1). 가게를 내주는 결말이며 청토끼 자신의 결말은 쓰지 않는다
+  bad: {
+    title: '불 꺼진 계산대',
+    beats: [
+      { chapter: ['EPILOGUE', '불 꺼진 계산대'], bg: 'atelier_dark', l: 'yeoni:sulky', c: 'cheongtokki:normal', r: 'neo:serious' },
+      ENDING_HEAD,
+      { s: 'nar', t: '통첩 기한의 마지막 하순, 마감 종이 울리고도 장부의 숫자는 끝내 맞지 않았다.' },
+      { s: 'rab', t: '어머~ 약속한 날이 지났네요. 계약대로 가게 열쇠는 오늘 돌려받을게요~' },
+      { s: 'sys', t: '[ 청토끼 통첩 기한 초과 · 아틀리에를 청토끼 금융에 넘겨줍니다 ]' },
+      { s: 'yeoni', t: '알아. 계산은 내가 제일 잘 아니까.', l: 'yeoni:sulky' },
+      { s: 'luna', t: '연이 언니, 우리 오븐이랑 의자… 다 두고 가?', c: 'luna:cry' },
+      { s: 'luna_sis', t: '괜찮아요. 오븐은 두고 가도, 굽는 법은 손이 기억하니까요.', c: 'luna_sis:tired' },
+      { s: 'nar', t: '네오는 마지막까지 연이 곁에 서서, 계산대 위 장부를 조용히 덮어 주었다.', r: 'neo:serious' },
+      { s: 'neo', t: '연이 탓 아니야. 다음엔 내가 더 오래 버틸게.' },
+      { s: 'yeoni', t: '(이번 장부 평점은 별 하나.) 그래도 다음 장부 첫 줄엔 우리 이름부터 적을 거야.', l: 'yeoni:determined' },
+      { s: 'nar', t: '문에 걸린 팻말이 「영업 종료」로 뒤집혔다. 달빛만이 빈 가게를 오래 비추었다.' },
+      { s: 'impact', t: 'BAD END · 다시, 첫날의 계산대에서', bg: 'atelier_dark' },
+    ],
+  },
 });

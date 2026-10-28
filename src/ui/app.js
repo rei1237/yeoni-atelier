@@ -199,7 +199,7 @@ function startNew() {
   state = HOST_DEMO?createHostDemo():createGame({ dev: DEV, seed: (Date.now() % 2147483647) | 0 });
   ui.worldAt='atelier';
   recordWallClock(state, Date.now());
-  ui.sheet = null; ui.selectedSlot = null; ui.recruitEvent = null; ui.ending = null;
+  ui.sheet = null; ui.selectedSlot = null; ui.recruitEvent = null; ui.ending = null; ui.credits = false;
   save();
   if(HOST_DEMO){ui.guideId='host';ui.guideStep=0;ui.guideReturn={kind:null};ui.sheet={kind:'tutorial'};return;}
   // 새 게임은 프롤로그부터. 영업 준비 화면이라 그동안 시간은 흐르지 않는다.
@@ -212,7 +212,7 @@ function goTitle() {
   if (state && (state.mode === 'shift' || state.mode === 'hunt') && !state.paused) dispatch(state, { type: 'pause' });
   save();
   history.replaceState({},'',location.pathname+location.search);
-  ui.screen=null; state = null; ui.sheet = null; ui.selectedSlot = null; ui.recruitEvent = null; ui.ending = null;
+  ui.screen=null; state = null; ui.sheet = null; ui.selectedSlot = null; ui.recruitEvent = null; ui.ending = null; ui.credits = false;
 }
 
 // 달 이야기·결말: id → 박자
@@ -230,6 +230,8 @@ function storyBeats(id) {
 // 영업 준비 화면에서 아직 안 본 이야기가 있으면 한 번 튼다. 본 기록은 엔진 명령(story.seen)으로만 남긴다.
 function maybeStory() {
   if (!state || ui.storyHold || novelActive() || ui.confirm || ui.discovery || ui.recruitEvent || ui.ending || state.interior.draft || ui.sheet?.kind === 'rankup') return; // 랭크 업 카드를 닫으면 해방 이야기로 잇는다
+  // 배드 엔딩 저장: 결말을 본 뒤에는 영업 화면 대신 결말 창(새 게임·다시 보기·크레딧)만 남긴다
+  if (state.calendar?.endingId === 'bad' && state.ledger.story['ending:bad']) { ui.sheet = null; ui.ending = 'bad'; render(true); return; }
   const id = pendingStory(state);
   if (!id) return;
   if (id === 'ev:forge' && (ui.sheet || ui.worldTrip)) return; // 금융 센터 볼일을 마치고 창을 닫으면 공방 이야기로 잇는다
@@ -398,6 +400,8 @@ const ACTIONS = {
   'game.title': () => goTitle(),
   'game.prologue': () => {if(!state&&!novelActive())playNovel(PROLOGUE, { onEnd: () => render(true) });},
   'story.replay': () => { ui.ending = null; replayStory(); },
+  'credits.open': () => { ui.credits = true; },
+  'credits.close': () => { ui.credits = false; },
   'ending.close': () => { ui.ending = null; toast('☕ 후일담 영업 · 이제 이자도 만기도 없어요. 마음껏 가게를 키워 보세요', 'good', 3600); },
 
   'dev.speed': d => { if (DEV) { ui.speed = n(d.speed); toast(`DEV 배속 ×${ui.speed} (저장 안 됨)`); } },

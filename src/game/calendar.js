@@ -36,6 +36,7 @@ export const turnsLeft = state => Math.max(0, totalTurns(state) - (state.day - 1
 export const isEnded = state => !!state.calendar?.ended;
 
 export function dateLabel(state, day = state.day) {
+  if (state.calendar?.endingId === 'bad') return '가게를 내준 뒤'; // 배드 엔딩은 마지막 순 전에 끝날 수 있다
   if (isEnded(state)) return `후일담 ${day - totalTurns(state)}일째`;
   const c = calendarOf(day);
   return `운영 ${1 + Math.floor(c.monthIdx / 12)}년차 ${c.month}월(${BRANCH[c.month]}월) ${PARTS[c.part]}`;
@@ -109,7 +110,8 @@ import {pendingBloomStory} from './hunt-cast.js';
 export function pendingStory(state) {
   if (state.mode !== 'prep') return null;
   // 후일담: 결말을 본 뒤에도 인연 이야기는 이어진다
-  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : pendingHanbiStory(state) || pendingBloomStory(state) || pendingBondStory(state) || pendingBranchStory(state);
+  // 배드 엔딩(가게를 내줌)에는 후일담이 없다
+  if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : state.calendar.endingId === 'bad' ? null : pendingHanbiStory(state) || pendingBloomStory(state) || pendingBondStory(state) || pendingBranchStory(state);
   const c = calendarOf(state.day);
   const id = `m${c.monthIdx}`;
   if (!state.ledger.story[id]) return id;

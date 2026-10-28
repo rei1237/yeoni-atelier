@@ -1,4 +1,5 @@
 import {pixelIcon,pxBtn} from './pixel-icons.js';
+import { creditsScreen } from './credits.js';
 import {titleGameRoom,gameRoomSheet} from './game-room.js';
 import {hostFeeQuote} from '../game/host-fees.js';
 import {catCafeActive} from '../game/cat-cafe-rules.js';
@@ -564,6 +565,7 @@ export function overlayHtml(state, ui) {
   if (state.mode === 'hunt' && state.hunt?.status === 'running' && state.hunt.stageChoice) return stageClearDialog(state);
   if (ui.discovery && MENUS[ui.discovery]) return discoveryDialog(state,ui.discovery);
   // Recruitment is played in the illustrated novel layer.
+  if (ui.credits) return creditsScreen(state, ENDINGS[state.calendar?.endingId]?.title);
   if (ui.ending && ENDINGS[ui.ending]) return endingDialog(state, ui.ending);
   return '';
 }
@@ -595,6 +597,7 @@ const ENDING_HINT = {
   clear: `빚을 다 갚았습니다. 동료 친밀도 합계가 ${TEMP.CALENDAR.ENDING_BOND_BEST} 이상이면 또 다른 결말이 기다려요(임시 기준).`,
   close: '빚을 60% 넘게 갚았습니다. 남은 빚을 모두 갚으면 다른 결말이 열려요.',
   extend: '빚이 많이 남았습니다. 가게 확장·사냥·동료 친밀도로 다음 회차를 노려 보세요.',
+  bad: '청토끼 통첩 기한을 넘겨 가게를 내줬습니다. 다음에는 약속 달마다 누적 상환을 채우고, 하순마다 붙는 이자보다 더 갚아 보세요.',
 };
 function endingDialog(state, id) {
   const e = ENDINGS[id];
@@ -602,7 +605,7 @@ function endingDialog(state, id) {
   return `<div class="dialog ending" role="dialog" aria-modal="true"><p class="small muted">꿀꿀 운세 외전 · 게임 오리지널 결말</p><h2>📜 ${esc(e.title)}</h2>
     <div class="kv"><span>마지막 결산 남은 빚</span><b>${won(state.calendar.endedDebt ?? state.debt)}</b><span>갚은 총액</span><b>${won(state.repaidTotal)}</b><span>동료 친밀도</span><b>${esc(bonds)}</b></div>
     <p class="small">${esc(ENDING_HINT[id] || '')}</p>
-    <div class="stack">${btn({ action: 'ending.close', cls: 'primary', label: '☕ 후일담 영업 계속하기' })}${btn({ action: 'story.replay', label: '📖 결말 다시 보기' })}${btn({ action: 'game.new', label: '🌱 새 게임' })}</div></div>`;
+    <div class="stack">${id === 'bad' ? '' : btn({ action: 'ending.close', cls: 'primary', label: '☕ 후일담 영업 계속하기' })}${btn({ action: 'credits.open', cls: id === 'bad' ? 'primary' : '', label: '🎬 크레딧 보기' })}${btn({ action: 'story.replay', label: '📖 결말 다시 보기' })}${btn({ action: 'game.new', label: '🌱 새 게임' })}</div></div>`;
 }
 
 // 사냥 대화상자 제목 위 장식(초승달·꽃잎·금 가는 선). 이미지 에셋 없이 인라인 SVG
