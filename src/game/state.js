@@ -49,13 +49,14 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     armory: {upgrades:{},supplies:{},skills:Object.fromEntries(TEMP.HUNT_SKILLS.START.map(id=>[id,1]))},
     gear: { owned: [], equipped: { weapon: null, armor: null, charm: null } }, // 영냥이 장비(data/gear.js)
     learned,
+    yeoniGrowth:{xp:0,counts:{},recipes:{},title:'beginner'},
     // 접대 가능한 명단: 새 게임은 네오 한 명
     roster: Object.fromEntries(RULES.STARTING_ROSTER.map(id => [id, { usableFrom: 1 }])),
     // 동일 인물 활동 잠금: 네오와 영냥이는 같은 id 'neo' 를 쓴다
     people: Object.fromEntries(RULES.STARTING_ROSTER.map(id => [id, { activity: 'idle', form: 'human', visitId: null, tableNo: null, endAt: null }])),
     recruitment: {},
     fever: { gauge: 0, activeUntil: null },
-    interior: { checkoutLayout:'entrance', furniture: splitFurniture(START_FURNITURE), areas: [], draft: null },
+    interior: { checkoutLayout:'entrance-left', furniture: splitFurniture(START_FURNITURE), areas: [], draft: null },
     outfits: { owned: [...START_OUTFITS], equipped },
     quests: { claimed: {} },
     stats: { served: 0, servedSpecial: 0, shiftsCompleted: 0, repayCount: 0, nightDewObtained: 0, recruited: 0, huntsCompleted: 0, moonstonesObtained: 0, moonstonesExchanged: 0, expansions: 0, areasOpened: 0 },

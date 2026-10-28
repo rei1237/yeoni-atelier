@@ -1,3 +1,6 @@
+import {orderDelivery} from './delivery.js';
+import {cookTable} from './table-cooking.js';
+import {gainYeoni,equipYeoniTitle,registerYeoniMenu} from './yeoni-growth.js';
 import {chooseTrail} from './hunt-trails.js';
 import {placeLock} from './unlocks.js';
 import {beginGiftCook,stepGiftCook,cancelGiftCook,giftFood} from './food-gifts.js';
@@ -34,7 +37,7 @@ import { delegateFarm } from './farm-delegate.js';
 // 일시정지 중에도 받는 명령
 const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle', 'automation.toggle', 'tutorial.seen']);
 // 영업 중에만 의미가 있는 명령
-const SHIFT_ONLY = new Set(['order.quick', 'cook', 'cook.cancelNext', 'cook.cancel', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate']);
+const SHIFT_ONLY = new Set(['order.table','order.quick', 'cook', 'cook.cancelNext', 'cook.cancel', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate']);
 
 const FARM_ACTIONS = new Set(['farm.harvest','farm.plant','farm.water','farm.tend']);
 export const HELPERS = Object.freeze({neo:{tier:1,actions:['farm.water','farm.tend']},moka:{tier:2,actions:['farm.water','farm.tend']},yun:{tier:3,actions:['farm.harvest']}});
@@ -46,19 +49,22 @@ function route(state, cmd) {
  if(paid && cmd.helperId && !helper)return {ok:false,reason:'이 일을 대신할 수 없거나 이번 순 대행을 이미 마쳤어요'};
  if(paid && !helper){const chk=farm.farmEnergyCheck(state);if(!chk.ok)return chk;}
  const result=execute(state,cmd);
- if(paid && result?.ok && !result.duplicate){if(helper){state.ap.delegated??={};state.ap.delegated[cmd.helperId]=true;if(cmd.helperId==='neo')state.ap.neoTask='farm';}else farm.spendFarmEnergy(state);}
+ if(paid && result?.ok && !result.duplicate){if(helper){state.ap.delegated??={};state.ap.delegated[cmd.helperId]=true;if(cmd.helperId==='neo')state.ap.neoTask='farm';}else {farm.spendFarmEnergy(state);gainYeoni(state,'farm');}}
+ if(result?.ok&&!result.duplicate&&state.day===1&&cmd.type==='clean'){state.tutorialProgress??={};state.tutorialProgress.clean=true;}
  return result;
 }
 function execute(state, cmd) {
   const t = cmd?.type;
-  if(state.interior.draft?.checkoutPreview&&!t?.startsWith('interior.'))return {ok:false,reason:'계산대 미리보기를 적용하거나 취소한 뒤 이용해 주세요'};
-  if(state.foodGifts?.job&&['shift.start','hunt.start','branch.switch'].includes(t))return {ok:false,reason:'루나 언니의 선물 조리를 마치거나 취소해 주세요'};
+  if(state.interior.draft?.checkoutPreview&&!t?.startsWith('interior.')&&t!=='tutorial.seen')return {ok:false,reason:'계산대 미리보기를 적용하거나 취소한 뒤 이용해 주세요'};
+  if(state.foodGifts?.job&&['shift.start','hunt.start','branch.switch','interior.begin','farm.plant','farm.water','farm.tend','farm.harvest','farm.careAll','bond.talk'].includes(t))return {ok:false,reason:'진행 중인 여분 조리를 마치거나 취소해 주세요'};
   if (state.paused && !ALLOWED_WHILE_PAUSED.has(t) && !(t==='hunt.finish' && state.mode==='hunt' && state.hunt && state.hunt.status!=='running')) return { ok: false, reason: '일시정지 중입니다 — 계속하기를 눌러 주세요' };
   if (SHIFT_ONLY.has(t) && state.mode !== 'shift') return { ok: false, reason: '정규 영업 중에만 할 수 있습니다' };
   if(t?.startsWith('grounds.'))return groundCommand(state,cmd);
   switch (t) {
     case 'remodel.buy':return buyRemodel(state,cmd.id);
     case 'remodel.apply':return applyRemodel(state,cmd.id);
+    case 'yeoni.menu.register':return registerYeoniMenu(state,cmd.menuId);
+    case 'yeoni.title':return equipYeoniTitle(state,cmd.id);
     case 'tutorial.seen':
       if(!/^[a-z]+$/.test(cmd.id||''))return {ok:false,reason:'안내를 찾을 수 없어요'};
       state.tutorials??={};state.tutorials[cmd.id]=true;return {ok:true};
@@ -93,6 +99,8 @@ function execute(state, cmd) {
     case 'help.respond': return nom.respondHelp(state, cmd.visitId, cmd.index, cmd.choice);
     case 'fever.activate': return nom.activateFever(state);
 
+    case 'shop.deliver':return orderDelivery(state,cmd.items,cmd.requestId);
+    case 'order.table':return cookTable(state,Number(cmd.no),cmd.timing);
     case 'shop.buy': return eco.buy(state, cmd.ingredientId, cmd.qty);
     case 'farm.plant': return farm.plant(state, cmd.cropId, cmd.index);
     case 'farm.water': return farm.care(state, cmd.index, 'water');

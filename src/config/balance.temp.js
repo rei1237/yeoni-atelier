@@ -104,7 +104,7 @@ export const TEMP = Object.freeze({
 
   // ── 마을(임시). 월정석 환전·모카 긴급 배달·가게 확장
   MOONSTONE_GOLD: 500,          // 청토끼 금융 센터 기본 환율(임시). 10-26: 단계 사냥 수급 증가로 1,200→500
-  DELIVERY_FEE_RATE: 0.25,    // 영업 중 모카 긴급 배달 = 재료값 +25%
+  DELIVERY_FEE: 200,    // 영업 중 모카 긴급 배달 = 주문당 기본 200G
   TABLE_PRICE_BASE: 2500,     // 6번 테이블 값. 한 개 들일 때마다 ×1.6 (2,500 → 4,000 → 6,400 …)
   TABLE_PRICE_GROWTH: 1.6,
   MAX_TABLES: 24,

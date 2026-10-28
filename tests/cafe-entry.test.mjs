@@ -9,7 +9,7 @@ import {sheetHtml} from '../src/ui/sheets.js';
 
 test('새 카페는 입구 계산대와 유효한 서빙 통로로 시작한다',()=>{
  const s=createGame(),layout=cafeLayout(s);
- assert.equal(layout.id,'entrance');
+ assert.equal(layout.id,'entrance-left');
  assert.ok(validateLayout(s.interior.furniture,s.interior.areas,layout).ok);
  assert.ok(dispatch(s,{type:'shift.start'}).ok);
  assert.deepEqual(s.staff.yeoni.home,layout.spots.yeoniHome);
@@ -19,8 +19,8 @@ test('준비 중 옛 저장은 가구 충돌이 없을 때만 입구 계산대�
  const s=createGame();delete s.interior.checkoutLayout;
  const furniture=structuredClone(s.interior.furniture),gold=s.gold;
  let n=deserialize(serialize(s)).state;
- assert.equal(cafeLayout(n).id,'entrance');assert.deepEqual(n.interior.furniture,furniture);assert.equal(n.gold,gold);
- s.interior.furniture.push({uid:'entrance-plant',defId:'plant',x:8,y:14,rot:0});
+ assert.equal(cafeLayout(n).id,'entrance-left');assert.deepEqual(n.interior.furniture,furniture);assert.equal(n.gold,gold);
+ s.interior.furniture.push({uid:'entrance-plant',defId:'plant',x:2,y:14,rot:0});
  n=deserialize(serialize(s)).state;
  assert.equal(cafeLayout(n).id,'legacy');assert.deepEqual(n.interior.furniture,s.interior.furniture);
 });

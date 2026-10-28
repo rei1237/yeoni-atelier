@@ -673,3 +673,8 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 사용자 승인한 신규 원화는 외부 참조 이미지 없이 생성했으며 원본은 D:/yeoni-qa/art/cafe-ux/new-island-20261028/original-worldmap.png에 보존한다. assets/ui/jaeseong-island.webp는 1152×768 경량 파생본이다. 새 원화의 위치·길은 src/ui/world-navigation-data.js를 따른다.
 
 카드 뒤집기 뒷면 assets/ui/island-card-back.webp는 Code Destiny의 달빛 타로 뒷면을 480×720 WebP로 축소한 CSS 전용 파생본이다. 출처는 docs/REUSE.md를 따른다.
+
+| actors/yeoni_cook | yeoni_cook | 512×384 | 완료 |
+| icons/yeoni_moon_latte | moon-latte | 128×128 | 완료 |
+| icons/yeoni_rose_mille | rose-mille | 128×128 | 완료 |
+| icons/yeoni_garden_quiche | garden-quiche | 128×128 | 완료 |

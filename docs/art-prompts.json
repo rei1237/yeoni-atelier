@@ -3734,5 +3734,33 @@
   {
     "id": "actors/customer_transition@look7",
     "prompt": "사용자 제공 고객 전환 v2 정확 SOURCE_QA rect. 네 방향 서기→굽힘→앉기 및 결제4프레임. 원본 D드라이브 보존."
+  },
+  {
+    "id": "actors/yeoni_cook",
+    "tool": "image_gen built-in",
+    "sourceFile": "moonlight-review/art-originals/yeoni-cooking.png",
+    "prompt": "Production GAME SPRITE SHEET. Use attached image ONLY as character identity reference: Yeoni, young woman with long wavy pink hair, floral hair ornament, cream vintage lace dress and brown boots. Create cooking animation in identical soft hand-painted chibi fantasy cafe style, now wearing a sage apron. TRANSPARENT background. Exact FOUR columns by THREE rows (12 full-body sprites), identical scale, aligned soles, generous empty spacing, no cell lines or words. Every pose faces upper-left three-quarter/back toward kitchen, face slightly visible. Row1 four successive preparing and stirring bowl poses. Row2 four successive whisking/pouring pitcher poses. Row3 four successive plating dish and presenting poses. Hands and bowl/pitcher included; no furniture, no countertop. Each silhouette fully contained within its own cell with blank margins on all sides. Crisp readable small game art, not pixel art.",
+    "normalization": "알파 연결 실루엣 12개, 발 기준점64,122"
+  },
+  {
+    "id": "icons/yeoni_moon_latte",
+    "tool": "image_gen built-in",
+    "sourceFile": "moonlight-review/art-originals/moon-latte.png",
+    "prompt": "Single premium drink game inventory illustration: moon garden cream latte, elegant ivory porcelain cup and saucer with fine gold rim, coffee foam with crescent latte art, pastel pink cream flower and tiny sage green sugar leaf. Soft hand-painted fantasy cafe game art, warm cream pink sage palette, three-quarter overhead view, centered fully visible object, generous transparent padding. No text, no background, no table, no extra items. Readable at 96 pixels. Transparent background.",
+    "normalization": "128px WebP export"
+  },
+  {
+    "id": "icons/yeoni_rose_mille",
+    "tool": "image_gen built-in",
+    "sourceFile": "moonlight-review/art-originals/rose-mille.png",
+    "prompt": "Single premium dessert game inventory illustration: rose blossom mille-feuille pastry with layered golden puff pastry, vanilla cream, delicate pink sugar rose on top, small white porcelain dessert plate with thin gold rim. Soft hand-painted fantasy Korean cafe game art, warm cream pink sage palette, three-quarter overhead view, centered fully visible object, generous transparent padding. No text, no background, no table, no extra items. Readable at 96 pixels. Transparent background.",
+    "normalization": "128px WebP export"
+  },
+  {
+    "id": "icons/yeoni_garden_quiche",
+    "tool": "image_gen built-in",
+    "sourceFile": "moonlight-review/art-originals/garden-quiche.png",
+    "prompt": "Single premium savory dish game inventory illustration: flower garden golden egg quiche, small round golden pastry crust with creamy egg custard, delicate edible pink sugar flower garnish and tiny herb leaves, elegant ivory ceramic plate with fine gold rim. Soft hand-painted fantasy cafe game art, warm cream pink sage palette, three-quarter overhead view, centered fully visible object, generous transparent padding. No text, no background, no table, no extra items. Readable at 96 pixels. Transparent background.",
+    "normalization": "128px WebP export"
   }
 ]

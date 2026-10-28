@@ -49,9 +49,9 @@ function migrate(data) {
   }
   ensureBranches(data);
   migrateFurniture(data);
-  if(data.mode==='prep'&&!data.interior.checkoutLayout){
-    const candidate={...data,interior:{...data.interior,checkoutLayout:'entrance'}};
-    if(validateLayout(data.interior.furniture,data.interior.areas||[],cafeLayout(candidate)).ok)data.interior.checkoutLayout='entrance';
+  if(data.mode==='prep'&&(!data.interior.checkoutLayout||data.interior.checkoutLayout==='entrance')){
+    const candidate={...data,interior:{...data.interior,checkoutLayout:'entrance-left'}};
+    if(validateLayout(data.interior.furniture,data.interior.areas||[],cafeLayout(candidate)).ok)data.interior.checkoutLayout='entrance-left';
   }
   migrateCounter(data);
   data.startingDebt ??= 120000; // 이전 저장의 원금과 상환 진척은 보존

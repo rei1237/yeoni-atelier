@@ -25,6 +25,11 @@ export const INGREDIENTS = Object.freeze({
 // station: 'drink' = 음료 머신, 'oven' = 오븐
 // group: 기획서 조리 시간 구분(drink / dessert / meal)
 export const MENUS = Object.freeze({
+  // TEMP: 연이 성장으로 해금 → 직접 완성 → 카페 등록. 사냥 전용 메뉴와 별도.
+  yeoni_moon_latte:{id:'yeoni_moon_latte',name:'달빛 크림 라테',short:'달빛 라테',station:'drink',group:'drink',cookMs:18000,price:360,ingredients:{bean:1,milk:2,sugar:1},color:'#e4c5c8',learned:false,special:true,yeoniLevel:3,reputationBonus:.3},
+  yeoni_rose_mille:{id:'yeoni_rose_mille',name:'장미 밀푀유',short:'장미 밀푀유',station:'oven',group:'dessert',cookMs:26000,price:540,ingredients:{flour:2,egg:1,milk:1,sugar:1},color:'#d792a6',learned:false,special:true,yeoniLevel:6,reputationBonus:.5},
+  yeoni_garden_quiche:{id:'yeoni_garden_quiche',name:'꽃정원 키슈',short:'꽃정원 키슈',station:'oven',group:'meal',cookMs:30000,price:720,ingredients:{flour:2,egg:2,milk:1,pumpkin:1},color:'#a3b88a',learned:false,special:true,yeoniLevel:10,reputationBonus:.7},
+
   americano:{id:'americano',name:'새벽별 아메리카노',short:'아메리카노',station:'drink',group:'drink',cookMs:10000,price:100,ingredients:{bean:1},color:'#684732',learned:true}, // TEMP: 원가30G, 물은 재고가 아니다
   lotus_moon:{id:'lotus_moon',name:'달빛 연꽃차',short:'달빛 연꽃차',station:'drink',group:'drink',cookMs:36000,price:2800,ingredients:{moon_lotus:2,tea:1},color:'#b48bc6',learned:false,special:true,nominationOnly:true,huntStage:20},
   honey_peach:{id:'honey_peach',name:'꿀복숭아차',short:'꿀복숭아차',station:'drink',group:'drink',cookMs:38000,price:3200,ingredients:{dream_honey:2,tea:1},color:'#b48bc6',learned:false,special:true,nominationOnly:true,huntStage:30},
@@ -49,7 +54,7 @@ export const MENUS = Object.freeze({
   night_dew_latte: { id: 'night_dew_latte', name: '밤이슬 라테', short: '밤라테', station: 'drink', group: 'drink',   cookMs: 16000, price: 320, ingredients: { night_dew: 1, milk: 1, bean: 1 }, color: '#7d86e8', learned: false, special: true },
 });
 
-export const MENU_ORDER = Object.freeze(['americano','fortune_latte', 'starlight_tea', 'flower_cookie', 'moon_pudding', 'lucky_sand', 'moon_milk_tea', 'stardust_castella', 'oink_cream_latte', 'night_dew_latte', 'lotus_berry_tart', 'moon_rice_bowl', 'golden_pumpkin_soup','lotus_moon','honey_peach','star_black_tea','gold_cinnamon','white_lotus_healing','black_moon_brown_rice']);
+export const MENU_ORDER = Object.freeze(['yeoni_moon_latte','yeoni_rose_mille','yeoni_garden_quiche','americano','fortune_latte', 'starlight_tea', 'flower_cookie', 'moon_pudding', 'lucky_sand', 'moon_milk_tea', 'stardust_castella', 'oink_cream_latte', 'night_dew_latte', 'lotus_berry_tart', 'moon_rice_bowl', 'golden_pumpkin_soup','lotus_moon','honey_peach','star_black_tea','gold_cinnamon','white_lotus_healing','black_moon_brown_rice']);
 
 export function ingredientCostOf(menuId) {
   const m = MENUS[menuId];

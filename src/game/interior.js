@@ -134,6 +134,6 @@ export function previewCheckout(state){
  if(state.interior.draft&&(state.interior.draft.itemBefore||JSON.stringify(state.interior.draft.furniture)!==JSON.stringify(state.interior.furniture)))return {ok:false,reason:'현재 꾸미기를 저장하거나 취소한 뒤 계산대 미리보기를 열어 주세요'};
  if(state.interior.checkoutLayout==='entrance')return {ok:false,reason:'이미 입구 계산대를 사용하고 있어요'};
  const baseFingerprint=layoutFingerprint(state);begin(state);
- Object.assign(state.interior.draft,{checkoutLayout:'entrance',checkoutPreview:true,baseFingerprint});
+ Object.assign(state.interior.draft,{checkoutLayout:'entrance-left',checkoutPreview:true,baseFingerprint});
  return {ok:true};
 }

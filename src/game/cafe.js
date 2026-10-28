@@ -1,3 +1,4 @@
+import {yeoniEffects} from './yeoni-growth.js';
 import {cafeCapacity,assignedHosts} from './capacity.js';
 import {activeSlotNames,heldKey,runningJobs,queuedJobs,stationJobs,stationItems} from './station-slots.js';
 export {stationJobs,stationItems} from './station-slots.js';
@@ -285,12 +286,13 @@ function recordServe(state, order, item) {
   const now = state.shift.elapsedMs;
   const visit = state.visits[order.visitId];
   const levelBefore=cafeProgress(state).level;
-  const revenue = Math.floor(order.price * (visit.acceptAt != null ? hostRevenueMultiplier(visit.nominee) : 1)*(visit.motive==='atmosphere'?1+Math.min(.3,atmosphere(state)/200):1));
+  const revenue = Math.floor(order.price * (1+yeoniEffects(state).revenue) * (visit.acceptAt != null ? hostRevenueMultiplier(visit.nominee) : 1)*(visit.motive==='atmosphere'?1+Math.min(.3,atmosphere(state)/200):1));
   state.ledger.sales[order.id] = revenue;
   visit.bill=(visit.bill||0)+revenue;
   state.shift.sales += revenue;
   state.shift.servedCount += 1;
   state.stats.served += 1;
+  if(MENUS[order.menuId].reputationBonus)changePopularity(state,MENUS[order.menuId].reputationBonus);
 
   if (MENUS[order.menuId].special) state.stats.servedSpecial += 1;
   order.status = 'served';
@@ -691,7 +693,7 @@ export function checkout(state,visit){
 
 // 이전 영업 저장의 계산 동선만 새 고정 설비 위치로 연결한다.
 export function migrateCounter(state){
- const version=state.interior?.checkoutLayout==='entrance'?3:2;
+ const version=state.interior?.checkoutLayout==='entrance-left'?4:state.interior?.checkoutLayout==='entrance'?3:2;
  if(state.cafeLayoutVersion===version)return;
  if(state.mode==='shift'&&state.staff?.yeoni){const s=state.staff.yeoni;s.home={...cafeSpots(state).yeoniHome};s.x=s.home.x+.5;s.y=s.home.y+.5;s.path=[];s.facing=cafeLayout(state).yeoniFacing;
   for(const c of Object.values(state.customers||{})){if(c.state==='checkout'){delete c.checkoutTarget;c.payAt=null;setPath(state,c,nearestWalkable(getGrid(state),cafeSpots(state).checkout));}else if(state.visits[c.visitId]?.kind==='takeaway'&&c.state==='entering')setPath(state,c,nearestWalkable(getGrid(state),cafeSpots(state).checkout));}

@@ -1,3 +1,4 @@
+import {gainYeoni} from './yeoni-growth.js';
 // 친밀도: 대화(행동력 1, 순마다 한 사람 한 번)·선물(골드, 순마다 한 사람 한 번)·함께 일하기로 오른다.
 // 단계가 열리면 능력(data/bonds.js)이 더해지고 인연 이야기가 한 번 나온다. 수치는 모두 임시값(TEMP.BONDS).
 
@@ -41,7 +42,7 @@ export function talk(state, id, choiceId, token) {
   state.ap.talked = { ...state.ap.talked, [id]: true };
   const v = gainBond(state, id, answer.gain);
   const speaker=id, line=answer.response;
-  emit('bondTalk', { id, speaker, line, gain: v });
+  gainYeoni(state,'talk');emit('bondTalk', { id, speaker, line, gain: v });
   return { ok: true, gain: v, speaker, line };
 }
 
@@ -59,7 +60,7 @@ export function gift(state, id, giftId) {
   state.ap.gifted = { ...state.ap.gifted, [id]: true };
   const v = gainBond(state, id, g === b.gift ? B.GIFT_LIKED : B.GIFT_COMMON);
   changeStress(state, 'gift', id);
-  emit('bondGift', { id, giftId: g.id, gain: v, liked: g === b.gift });
+  gainYeoni(state,'gift');emit('bondGift', { id, giftId: g.id, gain: v, liked: g === b.gift });
   return { ok: true, gain: v, liked: g === b.gift };
 }
 

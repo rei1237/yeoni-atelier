@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.28.2",
-  "name": "연이의 아틀리에 · 카페 동선과 달그늘 HUD",
+  "version": "2026.10.28.3",
+  "name": "연이의 아틀리에 · 첫날 안내와 연이의 주방",
   "musicTracks": 103,
-  "assetBytes": 14952742,
+  "assetBytes": 14987002,
   "channel": "production",
-  "baseCommit": "64c9f7d3770021dc414297d2d954d5f91acec0b5",
+  "baseCommit": "a789ccd69984214a2d1a94db7354d4a8923e257b",
   "newTitleArt": true
 }

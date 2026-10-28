@@ -1,3 +1,4 @@
+import {yeoniEffects} from './yeoni-growth.js';
 import {pendingBranchStory} from './branches.js';
 // 달력: 정규 영업 1회 = 한 순(상순·중순·하순). 3순이 한 달, 3월에서 시작해 정해진 달까지 간다(프린세스 메이커식 월 단위 진행).
 // 하순 영업을 마치면 청토끼 금융 이자가 나간다. 마지막 순을 마치면 결말이 정해지고, 그 뒤로는 후일담(자유 영업)이다.
@@ -42,7 +43,7 @@ export function monthName(monthIdx) {
 }
 
 // ── 행동력(AP): 순마다 채워진다. 사냥·대화에 쓴다.
-export const maxActionPoints = state => C.AP_PER_TURN + Math.floor((cafeProgress(state).level - 1) / 3) + bondFx(state.affinity).ap;
+export const maxActionPoints = state => C.AP_PER_TURN + Math.floor((cafeProgress(state).level - 1) / 3) + bondFx(state.affinity).ap + yeoniEffects(state).ap;
 export function apCheck(state, cost = 1) {
   if ((state.ap?.left ?? 0) < cost) return { ok: false, reason: `행동력이 부족합니다 (이번 순 남은 행동력 ${state.ap?.left ?? 0}) · 영업을 마치면 다시 채워져요` };
   return { ok: true };

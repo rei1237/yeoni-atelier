@@ -10066,3 +10066,9 @@ for(const id of ['luna','neo'])for(const kind of ['tray_walk','place_plate']){
  const def=ASSET_UPDATES.actors[id+'_'+kind],ratio=id==='luna'?(0.28205128205128205/.34):1;
  def.traySockets=Object.fromEntries(Object.entries(def.traySockets).map(([dir,[x,y]])=>[dir,[64+(x-64)*ratio,121+(y-122)*ratio]]));
 }
+
+// 연이 개인 조리와 성장 레시피. 원본 실루엣 분리 후 128px 고정 발 기준점으로 패킹.
+ASSET_UPDATES.actors.yeoni_cook={"kind": "actor", "label": "연이 직접 조리", "path": "assets/illustrated/actors/yeoni_cook.webp", "dimensions": [512, 384], "frame": {"w": 128, "h": 128}, "anchor": {"x": 64, "y": 122}, "columns": 4, "directionRows": 0, "directions": ["left"], "stateRows": {"prepare": 0, "extract": 1, "bake": 1, "plate": 2}, "states": {"prepare": {"frames": 4, "fps": 6.25, "loop": true}, "extract": {"frames": 4, "fps": 6.25, "loop": true}, "bake": {"frames": 4, "fps": 6.25, "loop": true}, "plate": {"frames": 4, "fps": 6.25, "loop": true}}};
+ASSET_UPDATES.icons.yeoni_moon_latte={"kind": "icon", "label": "moon-latte", "path": "assets/illustrated/icons/yeoni_moon_latte.webp", "px": 128, "dimensions": [128, 128]};
+ASSET_UPDATES.icons.yeoni_rose_mille={"kind": "icon", "label": "rose-mille", "path": "assets/illustrated/icons/yeoni_rose_mille.webp", "px": 128, "dimensions": [128, 128]};
+ASSET_UPDATES.icons.yeoni_garden_quiche={"kind": "icon", "label": "garden-quiche", "path": "assets/illustrated/icons/yeoni_garden_quiche.webp", "px": 128, "dimensions": [128, 128]};

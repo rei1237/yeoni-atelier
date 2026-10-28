@@ -1,3 +1,4 @@
+import {tableCookingOrders} from '../game/table-cooking.js';
 import {runningJobs,queuedJobs,stationJobs,stationItems,activeSlotNames,heldKey} from '../game/station-slots.js';
 import {qualityOf} from '../data/cooking-quality.js';
 import { MENUS } from '../data/menus.js';
@@ -44,6 +45,7 @@ export function tablePopHtml(state,v,ui) {
       const item=state.tray.find(it=>it?.menuId===o.menuId&&!it.reservedFor&&(!it.orderId||it.orderId===o.id));
       return `<div class="table-order">${assetIcon('icons/'+o.menuId)}<span>${esc(MENUS[o.menuId].short)}</span>${o.status==='served'?`<small>${qualityOf(o.quality).label} · ${o.foodScore??'—'}점<br>대기·분위기 ${o.foodBase??'—'} ${o.qualityDelta>=0?'+':''}${o.qualityDelta??0}</small>`:o.status==='assigned'?'<small>가져가는 중</small>':job?`<small>조리 중 ${Math.ceil((job.durationMs-(job.progressMs||0))/1000)}초</small>`:item?btn({action:'serve',args:{item:item.id,no:t.no},label:qualityOf(item.quality).label+' · 전달하기',cls:'primary'}):btn({action:'order.quick',args:{id:o.id},label:'만들기',cls:'primary'})}</div>`;
     }).join('');
+    if(tableCookingOrders(state,t.no).length>1)body+=btn({action:'order.table',args:{no:t.no},cls:'primary big',label:'이 테이블 주문 한 번에 만들기'});
     if(visit.kind==='nomination')body+=btn({action:'sheet.open',args:{sheet:'table',no:t.no},label:'접대 자세히'});
     for(const h of visit.help||[])if(h.status==='open'){const scene=HELP_SCENES[h.kind];body+=`<div class="table-help"><b>${esc(HELP_KINDS[h.kind].label)}</b><p>${esc(scene.prompt)}</p>${scene.choices.map(([choice,label])=>btn({action:'help.respond',args:{visit:visit.id,index:h.index,choice},label:esc(label)})).join('')}</div>`;}
   }

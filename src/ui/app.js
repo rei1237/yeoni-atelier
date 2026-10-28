@@ -23,7 +23,8 @@ import {TEMP as GAME_TEMP} from '../config/balance.temp.js';
 
 import {showHelpFeedback} from './help-feedback.js';
 import { unlockAudio,setAudioScene,audioAction,sound,audioStatus } from './audio.js';
-import { GUIDES } from './tutorials.js';
+import {tableCookingOrders} from '../game/table-cooking.js';
+import { GUIDES,guideForContext } from './tutorials.js';
 import { btn } from './dom.js';
 import { TEMP } from '../config/balance.temp.js';
 import { createGame, personName, personDef } from '../game/state.js';
@@ -270,7 +271,7 @@ const ACTIONS = {
   'chatter.close':()=>{ui.chatter=null;},
   'audio.change': d => audioAction(d.key,d.value),
   'guide.select': d => {ui.guideId=d.id;ui.guideStep=0;ui.sheet={kind:'tutorial'};},
-  'guide.next':()=>{const g=GUIDES[ui.guideId||'cook'];if((ui.guideStep||0)<g.steps.length-1)ui.guideStep=(ui.guideStep||0)+1;else finishGuide();},
+  'guide.next':()=>{const g=GUIDES[ui.guideId||'cook'];if((ui.guideStep||0)<g.steps.length-1)ui.guideStep=(ui.guideStep||0)+1;else finishGuide(true);},
   'guide.back':()=>{ui.guideStep=Math.max(0,(ui.guideStep||0)-1);},
   'guide.close':()=>finishGuide(),
   'hunt.start': () => { ui.sheet = { kind: 'hunt' }; },
@@ -382,13 +383,14 @@ const ACTIONS = {
   'nomination.propose': d => run({ type: 'nomination.propose', tableNo: n(d.no), personId: d.person }),
   'help.respond': d => run({ type: 'help.respond', visitId: d.visit, index: n(d.index), choice: d.choice }),
   'cook': d => beginCraft(d.menu),
+  'order.table':d=>{const orders=tableCookingOrders(state,n(d.no));if(!orders.length)return;beginCraft(orders[0].menuId,orders[0].id);ui.craft.tableNo=n(d.no);ui.craft.batchMenus=orders.map(o=>o.menuId);},
   'order.quick': d => {const o=state.orders[d.id];if(!o)return;if(state.tray.some(it=>it?.menuId===o.menuId&&!it.reservedFor&&(!it.orderId||it.orderId===o.id)))run({type:'order.quick',orderId:d.id});else beginCraft(o.menuId,d.id);},
   'craft.cancel':()=>{const gift=ui.craft?.purpose==='gift';ui.craft=null;ui.sheet=gift?{kind:'foodgift'}:null;},
   'craft.assist':()=>{if(ui.craft?.step===1)ui.craft.assist=!ui.craft.assist;},
-  'craft.mix':()=>{const c=ui.craft;if(c&&!Object.keys(craftShortage(state,c.menuId)).length&&mixCraft(c))sound('cook');},
+  'craft.mix':()=>{const c=ui.craft;if(c&&!Object.keys(craftShortage(state,c.batchMenus||c.menuId)).length&&mixCraft(c))sound('cook');},
   // 부족한 만큼만 모카 긴급 배달(영업 중 배달비 포함). 구매는 재료마다 엔진 명령 한 번.
-  'craft.restock':()=>{const c=ui.craft;if(!c)return;for(const [id,qty] of Object.entries(craftShortage(state,c.menuId)))if(deliverable(id)&&!run({type:'shop.buy',ingredientId:id,qty}).ok)break;},
-  'craft.heat':()=>{const c=ui.craft;if(!c||c.step!==1)return;const timing=craftHeat(c),quality=craftQuality(timing,c.menuId);const r=run(c.purpose==='gift'?{type:'gift.cook',menuId:c.menuId,timing,requestId:c.requestId}:c.orderId?{type:'order.quick',orderId:c.orderId,timing}:{type:'cook',menuId:c.menuId,timing});if(r.ok){sound('cook');c.step=2;c.jobId=r.jobId;c.quality=quality;c.timing=timing;c.perfect=quality==='완벽';toast(c.purpose==='gift'?'선물 조리를 시작했어요. 완성되면 선물 보관함에 담아요.':'조리를 시작했어요. 완성되면 픽업 선반에서 만나요.','good');}},
+  'craft.restock':()=>{const c=ui.craft;if(!c)return;ui.deliveryCart=craftShortage(state,c.batchMenus||c.menuId);ui.deliveryReturn={kind:'craft'};ui.deliveryRequest='delivery-'+crypto.randomUUID();ui.sheet={kind:'delivery'};},
+  'craft.heat':()=>{const c=ui.craft;if(!c||c.step!==1)return;const timing=craftHeat(c),quality=craftQuality(timing,c.menuId);const r=run(c.purpose==='gift'?{type:'gift.cook',menuId:c.menuId,timing,requestId:c.requestId}:c.tableNo?{type:'order.table',no:c.tableNo,timing}:c.orderId?{type:'order.quick',orderId:c.orderId,timing}:{type:'cook',menuId:c.menuId,timing});if(r.ok){sound('cook');c.step=2;c.jobId=r.jobId;c.jobIds=r.jobIds;c.quality=quality;c.timing=timing;c.perfect=quality==='완벽';toast(c.purpose==='gift'?'선물 조리를 시작했어요. 완성되면 선물 보관함에 담아요.':'조리를 시작했어요. 완성되면 픽업 선반에서 만나요.','good');}},
 
   'grounds.tab':d=>{ui.groundTab=n(d.id);ui.remodelPreview=null;},
   'grounds.begin':()=>run({type:'grounds.begin'}),
@@ -448,7 +450,7 @@ const ACTIONS = {
 };
 for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.activate', 'interior.begin', 'interior.cancel', 'interior.apply',
   'hunt.retreat', 'hunt.finish', 'hunt.next', 'hunt.chest', 'expand.table']) ACTIONS[t] = () => run({ type: t });
-ACTIONS['shift.start']=()=>{if(run({type:'shift.start'}).ok){ui.cafeDrawer=null;ui.tablePop=null;ui.sheet=null;}};
+ACTIONS['shift.start']=()=>{if(!state.tutorials?.opening){ui.guideReturn={kind:null};ui.guideId='opening';ui.guideStep=0;ui.guideAction='shift.start';ui.sheet={kind:'tutorial'};return;}if(run({type:'shift.start'}).ok){ui.cafeDrawer=null;ui.tablePop=null;ui.sheet=null;}};
 ACTIONS['interior.begin']=()=>{const was=!!state?.interior.draft;if(run({type:'interior.begin'}).ok){if(!was)history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.sheet=null;ui.screen=null;ui.cafeDrawer=null;ui.editTab='all';ui.editCategory='all';ui.editSearch='';}};
 ACTIONS['interior.checkoutPreview']=()=>{const was=!!state?.interior.draft;if(run({type:'interior.checkoutPreview'}).ok){if(!was)history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.sheet=null;ui.screen=null;ui.cafeDrawer=null;ui.editTab='all';ui.editCategory='all';ui.editSearch='';}};
 ACTIONS['hunt.pick'] = d => run({ type: 'hunt.pick', index: n(d.index) });
@@ -471,6 +473,13 @@ ACTIONS['bond.talk'] = d => {
     onCancel:()=>{reopen();toast('대화를 다음으로 미뤘어요 · 행동력은 쓰지 않았어요');}});
 };
 let giftRequestSeq=0;
+ACTIONS['delivery.open']=()=>{ui.deliveryCart={};ui.deliveryReturn=null;ui.deliveryRequest='delivery-'+crypto.randomUUID();ui.sheet={kind:'delivery'};};
+ACTIONS['delivery.close']=()=>{ui.sheet=ui.deliveryReturn||null;ui.deliveryReturn=null;};
+ACTIONS['delivery.qty']=d=>{ui.deliveryCart??={};const qty=Math.max(0,Math.min(99,(ui.deliveryCart[d.id]||0)+n(d.delta)));if(qty)ui.deliveryCart[d.id]=qty;else delete ui.deliveryCart[d.id];ui.deliveryRequest='delivery-'+crypto.randomUUID();};
+ACTIONS['delivery.order']=()=>{ui.deliveryRequest??='delivery-'+crypto.randomUUID();const result=run({type:'shop.deliver',items:{...ui.deliveryCart},requestId:ui.deliveryRequest});if(result.ok){ui.deliveryCart={};ui.deliveryRequest=null;ui.sheet=ui.deliveryReturn||null;ui.deliveryReturn=null;toast('모카 배달 도착 · 재료값 '+result.base+'G + 배달비 '+result.fee+'G','good');}};
+ACTIONS['yeoni.kitchen']=()=>{ui.giftRecipient=null;ui.foodFilter='all';ui.sheet={kind:'foodgift'};};
+ACTIONS['yeoni.title']=d=>run({type:'yeoni.title',id:d.id});
+ACTIONS['yeoni.register']=d=>{if(run({type:'yeoni.menu.register',menuId:d.menu}).ok)toast('카페 메뉴에 등록했어요. 다음 손님부터 주문할 수 있어요.','good');};
 ACTIONS['gift.open']=d=>{ui.giftRecipient=d.id;ui.foodFilter='all';ui.sheet={kind:'foodgift'};};
 ACTIONS['gift.filter']=d=>{ui.foodFilter=d.id;};
 ACTIONS['gift.prepare']=d=>{ui.craft={...newCraft(d.menu),purpose:'gift',requestId:'gift-'+Date.now()+'-'+(++giftRequestSeq)};ui.craft.assist=motionPreference.matches;ui.sheet={kind:'craft'};};
@@ -552,6 +561,7 @@ function handleEvents(events) {
     if(ev.type==='huntEvent'&&ev.warn)sound('boss');
     const p = ev.tableNo != null ? tableAt(ev.tableNo) : null;
     switch (ev.type) {
+      case 'yeoniLevelUp':toast('연이 Lv.'+ev.level+' · 성장 효과와 새 레시피를 주방에서 확인하세요.','good');break;
       case 'giftFoodReady':toast('선물 보관함에 완성된 음식을 담았어요.','good');break;
       case 'huntCritical': ui.critLine=(ui.critLine||0)+1;showCafeLine(CAFE_LINES.critical[ui.critLine%CAFE_LINES.critical.length],'영냥이','neo_cat');sound('level');break;
       case 'huntStageClear': if(ev.tired)showCafeLine(tiredLine(ev.hunterId),ev.hunterId==='seohanbi'?'서한비':'영냥이',ev.hunterId==='seohanbi'?'seohanbi':'neo_cat');break;
@@ -642,11 +652,11 @@ function render(force = false) {
   // 보스곡은 서한비(검은 호랑이) 전용. 일반 단계 보스는 깊이별 사냥곡
   const hanbiAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>e.type==='boss_hanbi');
   setAudioScene(novelActive()?'story':hunting?(h.status!=='running'?'huntResult':hanbiAlive?'huntBoss':h.depth>=55?'huntDeep':'hunt'):state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind==='hunt'?'huntPrep':ui.sheet?.kind||(state?'cafe':'title'));
-  const guide=({kitchen:'cook',craft:'cook',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop'})[ui.sheet?.kind] || (state?.interior.draft&&!state.interior.draft.checkoutPreview?'interior':null);
+  const guide=guideForContext(state,ui);
   // 잠긴 농장·공방에서는 안내를 띄우지 않는다
   const guideLocked=guide==='farm'?placeLock(state,'farm'):guide==='armory'?placeLock(state,'gear'):'';
   if(state && ui.sheet?.kind!=='tutorial' && guide && !guideLocked && (guide!=='outfits'||state.hostbar.open) && !state.tutorials?.[guide] && !novelActive()){
-    ui.guideReturn=ui.sheet;ui.guideId=guide;ui.guideStep=0;ui.sheet={kind:'tutorial'};
+    ui.guideReturn=ui.sheet||{kind:null};ui.guideId=guide;ui.guideStep=0;ui.sheet={kind:'tutorial'};
   }
   const sh = sheetHtml(state, ui);
   el.sheetWrap.hidden = !sh;
@@ -731,10 +741,10 @@ function beginCraft(menuId,orderId=null){
  ui.cafeDrawer=null;ui.tablePop=null;ui.playSpeed=1;ui.craft=newCraft(menuId,orderId);ui.craft.assist=motionPreference.matches;ui.sheet={kind:'craft'};
 }
 
-function finishGuide(){const back=ui.guideReturn;ui.guideReturn=null;run({type:'tutorial.seen',id:ui.guideId||'cook'});ui.sheet=back||null;}
+function finishGuide(proceed=false){const back=ui.guideReturn,action=ui.guideAction;ui.guideReturn=null;ui.guideAction=null;run({type:'tutorial.seen',id:ui.guideId==='firstday'?'firstdayintro':ui.guideId||'cook'});ui.sheet=back?.kind?back:null;if(proceed&&action)ACTIONS[action]();}
 function showCafeLine(line,speaker,portrait='customer'){
  const now=performance.now();if(ui.chatter&&now<ui.chatter.until-1800)return;
- ui.chatter={line,speaker,portrait,until:now+6500};
+ const hunting=state?.mode==='hunt';if(hunting&&now-(ui.lastHuntChatter||0)<8000)return;if(hunting)ui.lastHuntChatter=now;ui.chatter={line,speaker,portrait,hunting,until:now+(hunting?1800:4500)};
 }
 document.addEventListener('change',e=>{if(e.target.id==='guide-selector'){ui.guideId=e.target.value;ui.guideStep=0;render(true);}});
 

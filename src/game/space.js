@@ -32,6 +32,7 @@ export function lockedSet(open = []) {
 export function buildGrid(furniture, open = [], layout = cafeLayout()) {
   const n = GRID.cols * GRID.rows;
   const locked = lockedSet(open);
+  for(const [x,y] of layout.serviceCells||[])locked.delete(key(x,y));
   const fixture = new Array(n).fill(null);
   const block = new Array(n).fill(null);
   const floor = new Array(n).fill(null);

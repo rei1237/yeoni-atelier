@@ -1,6 +1,25 @@
 import { btn,esc } from './dom.js';
 import { assetIcon } from './asset-html.js';
+import {firstDayStep} from '../game/first-day.js';
 export const GUIDES = Object.freeze({
+ delivery:{title:'모카 묶음 배달',image:'shop',steps:['여러 재료를 장바구니에 담고 수량을 골라요. 주문 한 건당 기본 배달비 200G가 붙고, 모카 인연 능력이 있으면 할인이 적용돼요.','재료값·배달비·총액을 확인하고 주문해요. 영업 전에 가게에서 직접 구매하면 배달비가 없어요.']},
+ batch:{title:'한 테이블 함께 조리',image:'cook',steps:['한 번의 재료 준비와 타이밍으로 이 테이블의 미조리 주문들을 함께 시작해요. 이미 만드는 메뉴는 중복하지 않아요.','설비가 비어 있으면 함께 만들고, 꽉 차면 순서대로 만들어요. 전체 주문의 재료나 대기 공간이 부족하면 아무 메뉴도 시작하지 않아요.']},
+ firstday:{title:'연이와 보내는 첫날',image:'cook',steps:['첫날에는 행동력 3이 있어요. 연이의 요리와 동료 대화를 따라 해 보세요. 실제 활동에 성공하면 행동력이 자동으로 줄어요.','화면 아래 첫날 안내가 다음 할 일을 알려 줘요. 준비가 끝나면 영업을 열고 주문·조리·서빙·정리를 차례로 배워요.']},
+ opening:{title:'첫 영업을 열어요',image:'cook',steps:['영업은 10분 동안 진행돼요. 손님이 주문하면 메뉴를 눌러 재료를 준비하고 조리를 시작해요. 주문 조리에는 행동력이 들지 않아요.','완성된 음식은 한 번 눌러 전달해요. 식사를 마친 손님은 입구 연이에게 계산해요. 떠난 자리는 정리해 다음 손님을 맞아요.','아래 안내가 첫 주문부터 자리 정리까지 이어져요. 안내 창을 읽는 동안 영업 시간은 멈춰요. 결산을 마치면 행동력이 다시 채워져요.']},
+ personal:{title:'연이의 요리와 성장',image:'cook',steps:['연이가 준비 시간에 직접 요리해요. 조리를 시작하면 행동력 1과 재료가 사용되고, 완성하면 경험치 12를 얻어요. 같은 날 취소하면 비용을 돌려받아요.','요리·직접 농장 일·대화·선물로 연이가 성장해요. 레벨이 오르면 음식 매출과 연이 조리 속도에 도움이 돼요. 성장 효과와 칭호에서 조건을 확인해요.']},
+ signatures:{title:'연이의 특별 메뉴',image:'cook',steps:['Lv.3 달빛 크림 라테, Lv.6 장미 밀푀유, Lv.10 꽃정원 키슈가 열려요. 해금된 요리를 연이가 한 번 완성해 보세요.','완성한 뒤 카페 메뉴로 등록하면 손님이 주문할 수 있어요. 일반 메뉴보다 높은 기본 판매가와 판매마다 인기도 보너스가 있어요. 보관 음식은 등록으로 사라지지 않아요.']},
+ growth:{title:'레벨과 칭호',image:'bonds',steps:['연이 레벨과 카페 레벨은 따로 성장해요. 연이는 직접 활동으로, 카페는 영업으로 성장해요.','획득한 칭호를 눌러 달 수 있어요. 칭호는 꾸밈용이며 성장 효과를 중복해서 더하지 않아요. 행동력 증가는 다음 순부터 적용돼요.']},
+ world:{title:'재성의 섬 산책',image:'shop',steps:['장소를 누르면 연이가 걸어가요. 도착한 장소의 버튼으로 가게나 농장에 들어가요.','아직 잠긴 장소에는 열리는 조건이 표시돼요. 카페로 돌아와 영업을 시작할 수 있어요.']},
+ branches:{title:'카페 지점 관리',image:'interior',steps:['지점마다 개설 조건과 비용을 확인해요. 구매한 지점은 영업 준비 중에 이동할 수 있어요.','진행 중인 요리를 마치고 이동해 주세요. 새 지점을 열어도 기존 지점의 배치는 보존돼요.']},
+ grounds:{title:'정원과 외관',image:'interior',steps:['꾸미고 싶은 정원이나 외관을 골라요. 구매 조건과 보유 상태를 먼저 확인해요.','배치를 미리 확인한 뒤 적용해요. 편집을 마치고 영업을 준비해 주세요.']},
+ staffing:{title:'직원 배치',image:'host',steps:['함께하는 동료 중 카페에서 일할 직원을 선택해요. 배치 가능한 인원과 공간을 확인해요.','동료의 인연 능력과 휴무 상태를 함께 살펴보세요. 자동 운영은 필요한 인연 단계와 이야기를 마친 뒤 켤 수 있어요.']},
+ recipe:{title:'레시피 수첩',image:'cook',steps:['메뉴별 재료와 배운 레시피를 확인해요. 손님 주문은 영업 중에 만들어요.','영업 전 여분 음식은 연이의 주방에서 만들어요. 특별 메뉴는 성장과 첫 완성 조건을 채워 등록해요.']},
+ finance:{title:'장부와 금융',image:'shop',steps:['보유 골드와 남은 빚, 상환 조건을 확인해요. 표시된 비용을 확인한 뒤 필요한 거래를 골라요.','금융 거래와 재료 구매에는 행동력이 들지 않아요. 월정석과 골드는 서로 다른 재화예요.']},
+ expand:{title:'가구 상점과 증축',image:'interior',steps:['구매 가능한 가구와 증축 조건을 확인해요. 잠겨 있으면 개방 시기를 알려 드려요.','카페의 꾸미기에서 보유 가구를 배치해요. 통로를 남기고 적용하면 영업에 반영돼요.']},
+ shelter:{title:'루나의 쉼터',image:'bonds',steps:['동료의 스트레스와 쉼터 이용 조건을 확인해요. 필요한 동료를 골라 쉬게 해 주세요.','회복 비용과 이용 가능 횟수는 버튼의 안내를 확인해요.']},
+ quests:{title:'오늘의 목표와 보상',image:'shop',steps:['퀘스트의 목표와 현재 진행도를 확인해요. 달성한 목표는 보상 받기를 눌러 마무리해요.','보상은 한 번만 받아요. 아직 열리지 않은 목표는 이야기를 진행하며 만나게 돼요.']},
+ kfp:{title:'무기 조합과 진화',image:'hunt',steps:['현재 무기와 조합 조건을 확인해요. 조건을 채운 조합만 선택할 수 있어요.','선택 창을 읽는 동안 사냥은 멈춰요. 조합을 마치면 전투로 돌아가요.']},
+ trail:{title:'사냥 중 만난 갈림길',image:'hunt',steps:['각 선택의 효과를 읽고 이번 사냥에 맞는 길을 골라요.','선택 화면을 보는 동안 전투는 멈춰요. 선택 후 사냥을 이어 가요.']},
  shop:{title:'모카의 식재료점',image:'shop',steps:['식재료와 회복 물품을 골라요. 구매에는 행동력이 들지 않아요.','무기 강화는 윤달의 공방에서 해요. 모카와 친해지면 도움 물품이 늘어나요.']},
  cook:{title:'주문을 눌러 만들기',image:'cook',steps:['손님 테이블의 주문을 눌러요. 음료는 머신, 빵은 오븐에서 만들어요.','같은 손님의 두 메뉴도 각각 눌러 함께 만들 수 있어요. 부족한 재료는 모카에게 살 수 있어요.']},
  serve:{title:'완성된 음식은 한 번 탭',image:'serve',steps:['카페의 픽업 선반이나 주방 버튼에서 완성된 음식을 눌러요. 기다리는 테이블로 연결돼요.','직원이 음식을 나르면 손님은 식사 후 연이의 계산대로 가요. 빈자리의 정리 버튼을 누르면 다음 손님을 맞을 수 있어요.']},
@@ -12,6 +31,23 @@ export const GUIDES = Object.freeze({
  bonds:{title:'답을 고르며 가까워지기',image:'bonds',steps:['동료의 성격과 고민을 듣고 세 답 중 하나를 골라요. 공감하는 답일수록 호감도가 더 올라요.','한 사람과 매 순 한 번 대화할 수 있어요. 인연 단계가 오르면 이야기와 유용한 능력이 열려요.']},
  interior:{title:'가구를 놓고 길을 남기기',image:'interior',steps:['카페의 꾸미기를 눌러 가구를 사고 보유 가구를 배치해요. 테이블과 의자는 따로 놓아요.','가구를 고르고 위치와 방향을 확인해 배치해요. 입구와 통로를 남기고 의자를 테이블 쪽으로 향하게 한 뒤 저장해요.']},
 });
+// 새 조작 화면은 반드시 이 표와 GUIDES에 함께 등록한다.
+export const FEATURE_GUIDES=Object.freeze({delivery:'delivery',kitchen:'recipe',craft:'cook',foodgift:'personal',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop',staffing:'staffing',grounds:'grounds',branches:'branches',debt:'finance',quests:'quests',kfp:'kfp',trail:'trail'});
+export function guideForContext(s,ui){
+ if(!s)return null;
+ if(ui.sheet?.kind==='tutorial')return null;
+ if(ui.sheet?.kind==='foodgift'&&s.tutorials?.personal&&!s.tutorials?.signatures&&(s.yeoniGrowth?.xp||0)>=72)return 'signatures';
+ if(ui.sheet?.kind==='craft'&&ui.craft?.tableNo)return 'batch';
+ if(ui.sheet?.kind==='craft'&&ui.craft?.purpose==='gift')return 'personal';
+ if(ui.sheet?.kind==='town')return ({moka:'shop',finance:'finance',expand:'expand',luna:'shelter'})[ui.sheet.tab]||null;
+ if(ui.sheet)return FEATURE_GUIDES[ui.sheet.kind]||null;
+ if(s.interior.draft&&!s.interior.draft.checkoutPreview)return 'interior';
+ if(ui.screen==='world')return 'world';
+ if(ui.screen==='quests')return 'quests';
+ if(ui.cafeDrawer==='crew')return 'growth';
+ return s.day===1&&s.mode==='prep'&&!s.tutorials?.firstdayintro?'firstday':null;
+}
+export function journeyHtml(s){const step=firstDayStep(s);return step?`<section class="first-day-guide" aria-label="첫날 실습 안내"><div><small>연이의 첫날 · ${s.mode==='prep'?'영업 준비':'첫 영업'}</small><b>${esc(step.title)}</b><p>${esc(step.text)}</p></div>${btn({action:step.action,args:step.args||{},cls:'primary',label:step.label})}</section>`:'';}
 export function tutorialSheet(ui) {
  const id=GUIDES[ui.guideId]?ui.guideId:'cook',g=GUIDES[id],step=Math.min(ui.guideStep||0,g.steps.length-1);
  return `<h2>${ui.guideReturn?'처음 만나는 '+g.title:'튜토리얼'}${btn({action:'guide.close',cls:'close ghost',label:'✕',title:'안내 닫기'})}</h2>${ui.guideReturn?'':`<label class="guide-selector">다시 볼 기능<select id="guide-selector">${Object.entries(GUIDES).map(([key,x])=>`<option value="${key}" ${key===id?'selected':''}>${esc(x.title)}</option>`).join('')}</select></label>`}<div class="guide-picture">${assetIcon(`guides/${g.image}`)}</div><p class="eyebrow">${step+1} / ${g.steps.length}</p><h3>${esc(g.title)}</h3><p class="guide-instruction">${esc(g.steps[step])}</p><div class="row">${step?btn({action:'guide.back',label:'이전'}):''}${btn({action:'guide.next',cls:'primary grow',label:step===g.steps.length-1?'시작하기':'다음'})}</div><p class="small muted">기타 → 튜토리얼에서 언제든 다시 볼 수 있어요.</p>`;

@@ -94,11 +94,13 @@ for(const def of Object.values(FURNITURE))Object.assign(def,furnitureMetrics(def
 // 계산대 이전은 명시 적용된 지점에만 쓴다. 값이 없는 저장은 기존 배치다.
 const LEGACY_CAFE_LAYOUT=Object.freeze({id:'legacy',spots:SPOTS,fixtures:FIXTURES,reserved:RESERVED,yeoniFacing:'right',customerFacing:'left'});
 const ENTRANCE_QUEUE=Object.freeze([{x:7,y:15},{x:6,y:14},{x:6,y:13}]);
-const ENTRANCE_CAFE_LAYOUT=Object.freeze({id:'entrance',spots:{...SPOTS,yeoniHome:{x:7,y:13},checkout:ENTRANCE_QUEUE[0]},
+const ENTRANCE_CAFE_LAYOUT=Object.freeze({id:'entrance',counterArt:{x:6.4,y:12.2,w:3.2,h:2.4,frontY:13.1,depth:14.5},spots:{...SPOTS,yeoniHome:{x:7,y:13},checkout:ENTRANCE_QUEUE[0]},
  fixtures:FIXTURES.map(f=>f.id==='counter'?{...f,cells:[[7,14],[8,14]]}:f),
  reserved:[...RESERVED,[7,13],...ENTRANCE_QUEUE.map(p=>[p.x,p.y])],queue:ENTRANCE_QUEUE,yeoniFacing:'down',customerFacing:'up'});
+const LEFT_QUEUE=Object.freeze([{x:4,y:13},{x:4,y:12},{x:3,y:12}]);
+const LEFT_CAFE_LAYOUT=Object.freeze({id:'entrance-left',serviceCells:[[1,13],[1,12],[2,12]],counterArt:{x:1.8,y:12.2,w:2.5,h:2.4,frontY:13.2,depth:14.5},spots:{...SPOTS,yeoniHome:{x:1,y:13},checkout:LEFT_QUEUE[0]},fixtures:FIXTURES.map(f=>f.id==='counter'?{...f,cells:[[2,13],[3,13],[2,14],[3,14]]}:f),reserved:[...RESERVED,[1,13],[1,12],[2,12],...LEFT_QUEUE.map(p=>[p.x,p.y])],queue:LEFT_QUEUE,yeoniFacing:'right',customerFacing:'left'});
 export function cafeLayout(state,preview=false){
  const id=preview&&state?.interior?.draft?state.interior.draft.checkoutLayout:state?.interior?.checkoutLayout;
- return id==='entrance'?ENTRANCE_CAFE_LAYOUT:LEGACY_CAFE_LAYOUT;
+ return id==='entrance-left'?LEFT_CAFE_LAYOUT:id==='entrance'?ENTRANCE_CAFE_LAYOUT:LEGACY_CAFE_LAYOUT;
 }
 export const cafeSpots=state=>cafeLayout(state).spots;

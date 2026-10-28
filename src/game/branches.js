@@ -23,7 +23,7 @@ export function branchOffer(state){const b=nextBranch(state);return b&&earnedRev
 export function pendingBranchStory(state){const b=branchOffer(state);return b&&!state.ledger.story['branch:'+b.id]?'branch:'+b.id:null;}
 const canChange=state=>state.mode!=='prep'?{ok:false,reason:'영업·사냥·결산을 마치고 지점을 바꿔 주세요'}:state.interior.draft||state.outdoor?.draft?{ok:false,reason:'꾸미기 초안을 먼저 적용하거나 취소해 주세요'}:{ok:true};
 function snapshot(state){return Object.fromEntries(LOCAL.filter(k=>state[k]!==undefined).map(k=>[k,clone(state[k])]));}
-function fresh(){return {interior:{checkoutLayout:'entrance',furniture:splitFurniture(START_FURNITURE),areas:[],draft:null},reputation:25,tables:[],customers:{},visits:{},orders:{},stations:emptyStations(),tray:[null,null,null],tasks:[],staff:{},lastSettlement:null,automation:{hall:false,hall_neo:false,kitchen:false,farm:false}};}
+function fresh(){return {interior:{checkoutLayout:'entrance-left',furniture:splitFurniture(START_FURNITURE),areas:[],draft:null},reputation:25,tables:[],customers:{},visits:{},orders:{},stations:emptyStations(),tray:[null,null,null],tasks:[],staff:{},lastSettlement:null,automation:{hall:false,hall_neo:false,kitchen:false,farm:false}};}
 export function buyBranch(state,id,confirmed=false){
  const check=canChange(state);if(!check.ok)return check;
  const b=BRANCHES.find(b=>b.id===id);if(!b||id===1)return {ok:false,reason:'개점할 지점이 없습니다'};

@@ -1,3 +1,4 @@
+import {gainYeoni} from './yeoni-growth.js';
 import { CROPS, FARM, farmLevel, farmSeason, farmWeather, maxFarmEnergy } from '../data/farm.js';
 export function farmEnergyCheck(state,cost=1){return state.farm.energy>=cost?{ok:true}:{ok:false,reason:`농장 행동력이 부족해요 (${state.farm.energy}/${maxFarmEnergy(state.farm)}) · 영업을 마치면 다시 채워져요`};}
 export function spendFarmEnergy(state,cost=1){state.farm.energy-=cost;}
@@ -47,7 +48,7 @@ export function careAll(state) {
   state.farm.plots.forEach((p,i)=>{if(!p||p.growth>=CROPS[p.cropId].turns)return; if(p.wateredDay!==state.day&&farmWeather(state.farm,state.day)!=='rain')tasks.push([i,'water']);if(p.caredDay!==state.day)tasks.push([i,'tend']);});
   if(!tasks.length)return fail('모든 밭을 돌봤어요');
   const ap=farmEnergyCheck(state,tasks.length);if(!ap.ok)return ap;
-  for(const [i,kind] of tasks)care(state,i,kind);
+  for(const [i,kind] of tasks){if(care(state,i,kind).ok)gainYeoni(state,'farm');}
   spendFarmEnergy(state,tasks.length);return {ok:true,count:tasks.length};
 }
 export function farmForecast(state,p){

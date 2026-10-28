@@ -17,6 +17,8 @@ import {creditView,exchangeRate} from '../game/finance.js';
 import {menuPrice,cafeProgress} from '../game/cafe-growth.js';
 import {payrollView} from '../game/payroll.js';
 import { armorySheet, supplyShop } from './armory.js';
+import {deliverySheet} from './delivery.js';
+import {tableCookingOrders} from '../game/table-cooking.js';
 import { tutorialSheet } from './tutorials.js';
 import { automationStatus } from '../game/auto.js';
 import { ABILITIES, abilityCheck } from '../game/permissions.js';
@@ -78,7 +80,8 @@ function sheetBody(state, ui) {
     case 'table': return tableSheet(state, s.no, ui);
     case 'craft': return craftingSheet(state, ui);
     case 'kitchen': return kitchenSheet(state, ui);
-    case 'shop': return shopSheet(state);
+    case 'delivery':return deliverySheet(state,ui);
+    case 'shop': return state.mode==='shift'?deliverySheet(state,ui):shopSheet(state);
     case 'town': return townSheet(state, s.tab);
     case 'quests': return questSheet(state);
     case 'more': return moreSheet(state, ui);
@@ -126,7 +129,7 @@ function ordersHtml(state, visit, no) {
   const orders = visit.orderIds.map(id => state.orders[id]).filter(Boolean);
   if (!orders.length) return '<p class="small muted">아직 주문 전입니다 (메뉴 고르는 중).</p>';
   const usedItems = new Set();
-  return `<div class="list">${orders.map(o => {
+  return `${tableCookingOrders(state,no).length>1?btn({action:'order.table',args:{no},cls:'primary big',label:'이 테이블 주문 한 번에 만들기'}):''}<div class="list">${orders.map(o => {
     const m = MENUS[o.menuId];
     let action = '';
     if (o.status === 'waiting') {
@@ -265,7 +268,7 @@ function kitchenSheet(state, ui) {
 
 // ── 재료: 모카 식재료점(마을) 또는 영업 중 모카 긴급 배달(배달비 포함). 값 계산은 economy.buy 와 같은 식.
 function ingredientRows(state, delivery) {
-  const cost = (ing, n) => ing.price * n + (delivery ? Math.ceil(ing.price * n * TEMP.DELIVERY_FEE_RATE) : 0);
+  const cost = (ing, n) => ing.price * n + (delivery ? Math.ceil(TEMP.DELIVERY_FEE) : 0);
   return Object.values(INGREDIENTS).filter(ing => ing.basic || ing.shop).map(ing => {
     const c1 = cost(ing, 1), c5 = cost(ing, 5);
     return `<div class="item">${assetIcon(`icons/${ing.id}`,`<i class="swatch" style="background:${ing.color}"></i>`)}<div class="meta grow"><b>${esc(ing.name)} ${state.stock[ing.id] || 0}개</b><span>개당 ${won(ing.price)}${ing.shop ? ' · 모카 특별 재료' : ''}</span></div>
@@ -275,7 +278,7 @@ function ingredientRows(state, delivery) {
 
 function shopSheet(state) {
   if (state.mode !== 'shift') return `${head('🧺 재료')}<p class="small">재료는 마을 「모카 식재료점」에서 사요.</p><div class="stack">${btn({ action: 'sheet.open', args: { sheet: 'town', tab: 'moka' }, cls: 'primary', label: '🏘 마을 나가기' })}</div>`;
-  return `${head('모카의 긴급 배달')}${serviceBanner('delivery','MOKA DELIVERY','부족한 재료, 지금 배달','가게는 맡겨 둬. 신선한 재료로 가져올게!')}<p class="small">보유 ${won(state.gold)} · 영업 중에는 가게를 비울 수 없어 배달비 ${Math.round(TEMP.DELIVERY_FEE_RATE * 100)}%가 붙어요 (괄호 안이 낼 돈)</p><div class="list">${ingredientRows(state, true)}</div>`;
+  return `${head('모카의 긴급 배달')}${serviceBanner('delivery','MOKA DELIVERY','부족한 재료, 지금 배달','가게는 맡겨 둬. 신선한 재료로 가져올게!')}<p class="small">보유 ${won(state.gold)} · 영업 중에는 가게를 비울 수 없어 배달비 ${TEMP.DELIVERY_FEE}G가 붙어요 (괄호 안이 낼 돈)</p><div class="list">${ingredientRows(state, true)}</div>`;
 }
 
 // ── 마을 나가기(영업 준비 중에만): 월드 맵. 장소를 누르면 연이가 그곳으로 가고, 그 장소의 동료·가게가 아래에 열린다.

@@ -70,7 +70,7 @@ test('모카 식재료점: 준비 중엔 재료값만, 영업 중엔 긴급 배�
   t.gold = 1000;
   const r2 = dispatch(t, { type: 'shop.buy', ingredientId: 'night_dew', qty: 2 });
   assert.ok(r2.ok, r2.reason);
-  assert.equal(r2.fee, Math.ceil(180 * TEMP.DELIVERY_FEE_RATE));
+  assert.equal(r2.fee, TEMP.DELIVERY_FEE);
   assert.equal(t.gold, 1000 - 180 - r2.fee);
 });
 

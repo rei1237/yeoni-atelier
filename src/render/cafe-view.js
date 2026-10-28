@@ -103,7 +103,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
     const [x0,y0,x1,y1]=a.rect, p=P(x0,y0), aw=(x1-x0+1)*T, ah=(y1-y0+1)*T;
     ctx.save();ctx.fillStyle='#63536416';ctx.fillRect(p.x,p.y,aw,ah);
     ctx.strokeStyle='#8e775b99';ctx.lineWidth=1;ctx.setLineDash([3,5]);ctx.strokeRect(p.x+2,p.y+2,aw-4,ah-4);ctx.setLineDash([]);
-    const w=Math.max(56,Math.min(aw-8,112)),cx=p.x+aw/2,cy=p.y+ah/2,fs=Math.max(11,Math.min(13,T*.4));
+    const w=Math.max(56,Math.min(aw-8,112)),cx=p.x+aw/2,cy=a.id==='salon'&&layout.counterArt?p.y+T*.5:p.y+ah/2,fs=Math.max(11,Math.min(13,T*.4));
     ctx.fillStyle='#fff9eff2';ctx.strokeStyle='#b8a385';roundRect(ctx,cx-w/2,cy-25,w,50,5);ctx.fill();ctx.stroke();
     ctx.font=`600 ${fs}px "Yeoni UI",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#584052';ctx.fillText(a.name,cx,cy-9,w-8);
     ctx.font='11px "Yeoni UI",sans-serif';ctx.fillStyle='#78634e';ctx.fillText('꾸미기 · 증축',cx,cy+10,w-8);ctx.restore();
@@ -141,7 +141,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   for (const fx of FIXTURES) {
     if (fx.wall) continue;
     const b = cellsBox(fx.cells), p = P(b.x, b.y);
-    if(fx.id==='counter'&&layout.id==='entrance'){drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',P(6.4,12.2).x,P(6.4,12.2).y,T*3.2,T*2.4);continue;}
+    if(fx.id==='counter'&&layout.counterArt){const a=layout.counterArt;drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',P(a.x,a.y).x,P(a.x,a.y).y,T*a.w,T*a.h);continue;}
     if (!drawObjectImage(ctx, 'objects', !luxurious && ASSETS.objects[`basic_${fx.id}`] ? `basic_${fx.id}` : fx.id, p.x-T*.25, p.y, b.w*T+T*.5, T*1.9)) {
       ctx.fillStyle = fx.color;
       roundRect(ctx, p.x + 2, p.y + 2, b.w * T - 4, b.h * T - 4, T * 0.15); ctx.fill();
@@ -154,7 +154,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   const pieces=[];
   // 계산대 앞판은 직원의 다리 앞, 손님의 몸 뒤다. 상판 위 손과 얼굴은 가리지 않는다.
   const cashier=FIXTURES.find(f=>f.id==='counter'),cb=cellsBox(cashier.cells),cp=P(cb.x,cb.y);
-  pieces.push({depth:layout.id==='entrance'?14.5:SPOTS.yeoniHome.y+1,paint:()=>{ctx.save();ctx.beginPath();if(layout.id==='entrance'){const p=P(6.4,12.2);ctx.rect(p.x,P(0,13.1).y,T*3.2,T*1.5);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',p.x,p.y,T*3.2,T*2.4);}else{ctx.rect(cp.x-T*.25,cp.y+T*1.05,cb.w*T+T*.5,T*.85);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',cp.x-T*.25,cp.y,cb.w*T+T*.5,T*1.9);}ctx.restore();}});
+  pieces.push({depth:layout.counterArt?.depth??SPOTS.yeoniHome.y+1,paint:()=>{ctx.save();ctx.beginPath();if(layout.counterArt){const a=layout.counterArt,p=P(a.x,a.y);ctx.rect(p.x,P(0,a.frontY).y,T*a.w,T*(a.y+a.h-a.frontY));ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',p.x,p.y,T*a.w,T*a.h);}else{ctx.rect(cp.x-T*.25,cp.y+T*1.05,cb.w*T+T*.5,T*.85);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',cp.x-T*.25,cp.y,cb.w*T+T*.5,T*1.9);}ctx.restore();}});
   const tablesByUid = new Map((state.tables || []).map(tb => [tb.uid, tb]));
   for(const f of list){
     const def=FURNITURE[f.defId];if(isFloorDef(def))continue;
@@ -183,17 +183,18 @@ export function drawCafe(ctx, state, v, opts = {}) {
       actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, walkDistance:s.walkDistance, servicePose:s.servicePose?{...s.servicePose,progress:Math.max(0,Math.min(1,(state.shift.elapsedMs-s.servicePose.at)/(s.servicePose.until-s.servicePose.at)))}:null, cooking:staffCookingPose(state,s,opts.reducedMotion), gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, ...outfitLook(state, s.id) } });
     }
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
-    actors.push({ key: 'yeoni', x: SPOTS.yeoniHome.x + 0.5, y: SPOTS.yeoniHome.y + 0.5, o: { state: 'idle', facing: layout.yeoniFacing, name: '연이', ...outfitLook(state, 'yeoni') } });
+    const personalJob=state.foodGifts?.job?.maker==='yeoni'?state.foodGifts.job:null;
+    actors.push({ key: 'yeoni', x: (personalJob?SPOTS.drinkFront.x:SPOTS.yeoniHome.x) + 0.5, y: (personalJob?SPOTS.drinkFront.y:SPOTS.yeoniHome.y) + 0.5, o: { cooking:personalJob?cookingPose(personalJob,MENUS[personalJob.menuId].station,opts.reducedMotion):null,state:personalJob?'cook':'idle', facing: layout.yeoniFacing, name: '연이', ...outfitLook(state, 'yeoni') } });
     for (const id of STAFF_CREW) {
       const home = id === 'luna' ? SPOTS.lunaHome : SPOTS.sisHome;
-      actors.push({ key: id, x: home.x + 0.5, y: home.y + 0.5, o: { state: id==='luna_sis'&&state.foodGifts?.job?'cook':'idle',cooking:id==='luna_sis'?cookingPose(state.foodGifts?.job,MENUS[state.foodGifts?.job?.menuId]?.station,opts.reducedMotion):null, facing: id==='luna_sis'&&state.foodGifts?.job?'up':'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
+      actors.push({ key: id, x: home.x + 0.5, y: home.y + 0.5, o: { state: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'cook':'idle',cooking:id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?cookingPose(state.foodGifts?.job,MENUS[state.foodGifts?.job?.menuId]?.station,opts.reducedMotion):null, facing: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'up':'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
     }
     if (assignedHosts(state).includes('neo') && state.people.neo?.activity === 'idle') actors.push({ key: 'neo', x: SPOTS.neoHome.x + 0.5, y: SPOTS.neoHome.y + 0.5, o: { state: 'idle', facing: 'down', name: '네오', ...outfitLook(state, 'neo') } });
     assignedHosts(state).filter(id=>id!=='neo'&&!STAFF_CREW.includes(id)).forEach((id,i)=>actors.push({key:id,x:2.5+(i%4)*2,y:10.5+Math.floor(i/4)*2,o:{state:'idle',facing:'down',name:personName(state,id),...outfitLook(state,id)}}));
   }
   actors.sort((a, b) => a.y - b.y);
   const tags = [];
-  for(const a of actors){const p=P(a.x,a.y),blend=a.seatBlend,actorSize=blend==null?(a.seated?2.2:1.8):1.8+.4*blend,foot=p.y+T*(blend==null?(a.seated?.04:.32):.32+(.04+17/128*2.2-.32)*blend);pieces.push({depth:a.cashierFront?SPOTS.yeoniHome.y+1.1:a.y+(a.seated?.28:.32),paint:()=>drawActor(ctx,a.key,{...a.o,name:null,x:p.x,y:foot,size:T*actorSize,idleMotion:!a.seated&&!editing&&!state.paused,reducedMotion:opts.reducedMotion,t})});if(a.o.name)tags.push({text:a.o.name,x:p.x,y:['serve','clean'].includes(a.o.state)?foot-T*1.65-24:foot+4+(a.o.state==='host'?Math.max(20,T*.65):0),color:a.o.tagColor});}
+  for(const a of actors){const p=P(a.x,a.y),blend=a.seatBlend,actorSize=blend==null?(a.seated?2.2:1.8):1.8+.4*blend,foot=p.y+T*(blend==null?(a.seated?-.10:.32):.32+(-.10+17/128*2.2-.32)*blend);pieces.push({depth:a.cashierFront?SPOTS.yeoniHome.y+1.1:a.y+(a.seated?.28:.32),paint:()=>drawActor(ctx,a.key,{...a.o,name:null,x:p.x,y:foot,size:T*actorSize,idleMotion:!a.seated&&!editing&&!state.paused,reducedMotion:opts.reducedMotion,t})});if(a.o.name)tags.push({text:a.o.name,x:p.x,y:['serve','clean'].includes(a.o.state)?foot-T*1.65-24:foot+4+(a.o.state==='host'?Math.max(20,T*.65):0),color:a.o.tagColor});}
   pieces.sort((a,b)=>a.depth-b.depth);for(const piece of pieces)piece.paint();
   if(state.mode==='shift')drawStations(ctx,state,v);
   drawNameTags(ctx, tags, T * 1.8);
@@ -290,7 +291,7 @@ function drawStations(ctx, state, v) {
     const b = cellsBox(fixtures[sid].cells), p = cellToPx(v, b.x, b.y);
     const w = b.w * T;
     const allSlots=activeSlotNames(st).map(k=>[k,heldKey(k)]).filter(([job,held])=>st[job]||st[held]),slots=allSlots.slice(0,2);
-    if(allSlots.length>2)label(ctx,'동시 '+allSlots.length+'건',p.x+w/2,p.y+T*1.25,T*.25);
+
     slots.forEach(([slot,held],i)=>{
       const job=st[slot],item=st[held],menu=job?.menuId||item?.menuId;
       const cx=p.x+w*(slots.length===1?.5:.25+i*.5),cy=p.y+T*.22,r=T*(slots.length===1?.42:.32);
@@ -298,9 +299,9 @@ function drawStations(ctx, state, v) {
       ctx.strokeStyle=item?'#ad5265':'#58734e';ctx.lineWidth=Math.max(2,T*.07);
       ctx.beginPath();ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*(job?Math.min(1,job.progressMs/job.durationMs):1));ctx.stroke();
       drawFood(ctx,menu,cx,cy+T*.15,T*.48);
-      label(ctx,item?'보관':Math.max(0,Math.ceil((job.durationMs-job.progressMs)/1000))+'초',cx,cy+r+T*.18,T*.26,'#48382e');
+
     });
-    if(st.next)label(ctx,'다음 '+MENUS[st.next.menuId].short,p.x+w/2,p.y+T*.75,T*.28,'#48382e');
+
   }
   // 서빙대 위 완성 음식(트레이 3칸)
   const pb = cellsBox(fixtures.pass.cells), pp = cellToPx(v, pb.x, pb.y);
@@ -323,6 +324,6 @@ function drawChair(ctx,p,T,rot,lux){
 // 등받이 앞부분만 마지막에 겹친다. 의자 전체로 손님을 가리지 않는다.
 function drawChairBack(ctx,p,T,rot){
  const direction=['up','right','down','left'][rot&3],img=imageFor('objects/chair_'+direction);if(!img||direction==='down')return;
- const box=direction==='up'?[.18,.10,.64,.45]:direction==='left'?[.60,.13,.27,.43]:[.13,.13,.27,.43];
+ const box=direction==='up'?[.18,.35,.64,.20]:direction==='left'?[.60,.13,.27,.43]:[.13,.13,.27,.43];
  const [x,y,w,h]=box;ctx.drawImage(img,x*img.width,y*img.height,w*img.width,h*img.height,p.x-T*.18+x*T*1.36,p.y-T*.3+y*T*1.36,w*T*1.36,h*T*1.36);
 }
