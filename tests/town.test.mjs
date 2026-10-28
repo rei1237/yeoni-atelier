@@ -75,7 +75,7 @@ test('모카 식재료점: 준비 중엔 재료값만, 영업 중엔 긴급 배�
 });
 
 test('가게 확장: 테이블 값은 들일수록 오르고, 6·7번 테이블에도 다음 영업에서 손님이 앉는다', () => {
-  const s = createGame();
+  const s = createGame();s.day=7;
   s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   s.gold = 20000;
   const p4 = tablePrice(5), p5 = tablePrice(6);
@@ -98,7 +98,7 @@ test('가게 확장: 테이블 값은 들일수록 오르고, 6·7번 테이블�
 });
 
 test('공방 증축: 잠긴 구역에는 가구를 못 놓고, 열 때마다 다음 구역이 비싸진다', () => {
-  const s = createGame();
+  const s = createGame();s.day=7;
   s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   const [a] = AREAS;
   const [x, y] = a.rect;
@@ -120,7 +120,7 @@ test('공방 증축: 잠긴 구역에는 가구를 못 놓고, 열 때마다 다
 });
 
 test('장식 들이기는 보관함으로 오고, 월정석·장비는 저장 후에도 그대로', () => {
-  const s = createGame();
+  const s = createGame();s.day=7;
   s.hostbar.open = true; s.huntUnlocked = true; s.stats.huntsCompleted = 1; // 테스트 준비: 기능 개시·첫 사냥 후 동작
   s.gold = 2000;
   s.moonstone = GEAR.crescent_wand.cost.moonstone;
@@ -137,7 +137,7 @@ test('장식 들이기는 보관함으로 오고, 월정석·장비는 저장 �
   assert.equal(r.state.interior.furniture.length, n0 + 1);
 });
 test('네 테마의 새 장식 16종은 정해진 가격으로 보관함에 오고 저장 후 유지된다', () => {
-  const s=createGame();s.ap.left=20;s.gold=50000;const before=s.gold;
+  const s=createGame();s.day=7;s.ap.left=20;s.gold=50000;const before=s.gold;
   for(const d of DECOR_CATALOG)assert.ok(dispatch(s,{type:'expand.decor',defId:d.id}).ok);
   assert.equal(s.gold,before-DECOR_CATALOG.reduce((sum,d)=>sum+d.price,0));
   const back=deserialize(serialize(s)).state;
@@ -146,7 +146,7 @@ test('네 테마의 새 장식 16종은 정해진 가격으로 보관함에 오�
 });
 
 test('가게 첫 방문 이야기는 준비 중에 한 번만 기록되고, 행동력·골드를 쓰지 않는다', () => {
-  const s = createGame(); const ap = s.ap.left, gold = s.gold;
+  const s = createGame();s.day=7; const ap = s.ap.left, gold = s.gold;
   assert.deepEqual(Object.keys(VISIT_STORIES).sort(), [...VISIT_PLACES].sort());
   for (const beats of Object.values(VISIT_STORIES)) assert.ok(beats.some(b => b.s === 'sys'), '가게가 하는 일을 알린다');
   assert.equal(dispatch(s, { type: 'town.visit', place: 'hunt' }).ok, false);
@@ -160,7 +160,7 @@ test('가게 첫 방문 이야기는 준비 중에 한 번만 기록되고, 행�
 });
 
 test('마을 구매·강화·환전은 행동력을 쓰지 않고, 강화는 윤달의 공방 소관이다', () => {
-  const s = createGame(); s.gold = 100000; s.moonstone = 500; s.stats.huntsCompleted = 1; // 테스트 준비: 공방 개방
+  const s = createGame();s.day=7; s.gold = 100000; s.moonstone = 500; s.stats.huntsCompleted = 1; // 테스트 준비: 공방 개방
   const ap = s.ap.left;
   assert.ok(dispatch(s, { type: 'gear.buy', id: Object.keys(GEAR).find(id => GEAR[id].cost.gold) }).ok);
   assert.ok(dispatch(s, { type: 'expand.decor', defId: 'lotus_pot' }).ok);

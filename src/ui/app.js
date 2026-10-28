@@ -6,6 +6,10 @@ import {SUPPLY_ORDER} from '../data/hunt-supplies.js';
 import {completeStory} from './story-completion.js';
 import {runningJobs,queuedJobs,stationJobs,stationItems,activeSlotNames,heldKey} from '../game/station-slots.js';
 import {branchStory} from '../story/branches.js';
+import {createWorldTrip,worldRoute,advanceTrip} from './world-travel.js';
+import {WORLD_NAV} from './world-navigation-data.js';
+import {townCheck} from '../game/town.js';
+import {drawActor} from '../render/sprite-renderer.js';
 import { worldScreenHtml, WORLD_PLACES } from './world-screen.js';
 import { tableBadgesHtml, tablePopHtml } from './table-ui.js';
 import { bondQuestion } from '../data/bond-dialogues.js';
@@ -106,11 +110,39 @@ function save(quiet = true) {
 
 // 독립 화면의 주소 이력은 UI만 바꾸며 게임 저장과 분리한다.
 function navigateScreen(screen, replace=false) {
-  ui.screen=screen; ui.sheet=null; ui.tablePop=null;
+  ui.worldTrip=null; ui.worldMarker=null; ui.worldCardOpen=false; ui.screen=screen; ui.sheet=null; ui.tablePop=null; ui.cafeDrawer=null;
   history[replace?'replaceState':'pushState']({yeoniScreen:screen},'',screen?'#'+screen:location.pathname+location.search);
 }
-window.addEventListener('popstate',e=>{if(state?.interior.draft)run({type:'interior.cancel'});ui.screen=state?(e.state?.yeoniScreen||null):null;ui.sheet=null;ui.tablePop=null;ui.cafeDrawer=null;render(true);});
-document.addEventListener('keydown',e=>{if(e.key!=='Escape'||novelActive())return;if(state?.interior.draft&&!ui.sheet){run({type:'interior.cancel'});render(true);return;}if(ui.cafeDrawer){ui.cafeDrawer=null;render(true);}else if(ui.tablePop){ui.tablePop=null;render(true);}else if(ui.screen&&!ui.sheet){navigateScreen(null,true);render(true);}});
+window.addEventListener('popstate',e=>{ui.worldTrip=null;ui.worldMarker=null;ui.worldCardOpen=false;if(state?.interior.draft)run({type:'interior.cancel'});ui.screen=state?(e.state?.yeoniScreen||null):null;ui.sheet=null;ui.tablePop=null;ui.cafeDrawer=null;render(true);});
+document.addEventListener('keydown',e=>{if(e.defaultPrevented||e.key!=='Escape'||novelActive())return;if(ui.worldTrip){ui.worldTrip=null;ui.worldMarker=null;render(true);return;}if(ui.worldCardOpen){ui.worldCardOpen=false;render(true);return;}if(state?.interior.draft&&!ui.sheet){run({type:'interior.cancel'});render(true);return;}if(ui.cafeDrawer){ui.cafeDrawer=null;render(true);}else if(ui.tablePop){ui.tablePop=null;render(true);}else if(ui.screen&&!ui.sheet){navigateScreen(null,true);render(true);}});
+function enterWorldPlace(id){
+ const p=WORLD_PLACES.find(p=>p.id===id);if(!p)return;
+ const lock=placeLock(state,id)||(id!=='atelier'&&!townCheck(state).ok?townCheck(state).reason:'');
+ if(lock){toast(lock);return;}
+ const recorded=run({type:"world.arrive",place:id},{keepQuiet:true});if(!recorded.ok)return;
+ ui.worldAt=id;
+ if(id==='atelier'){navigateScreen(null);return;}
+ ui.sheet={kind:id==='farm'?'farm':id==='hunt'?'hunt':'town',tab:id};
+ if(id==='hunt')ui.huntMenu='title';else maybeVisit(id);
+}
+function stepWorldTravel(ms){
+ if(ui.screen!=='world'||!ui.worldTrip)return;
+ const trip=ui.worldTrip,id=trip.id,instant=trip.skip||motionPreference.matches;
+ if(trip.complete){trip.idleMs=(trip.idleMs||0)+ms;if(trip.idleMs>=240){ui.worldTrip=null;enterWorldPlace(id);render(true);}return;}
+ const pose=advanceTrip(trip,ms,instant);if(pose)ui.worldMarker=pose;
+ if(pose?.arrived){if(instant){ui.worldTrip=null;enterWorldPlace(id);}render(true);}
+}
+function drawWorldMarker(t){
+ if(ui.screen!=='world')return;
+ const el=document.querySelector('.world-traveler'),root=document.querySelector('.world-landmarks');if(!el||!root)return;
+ let p=ui.worldMarker;
+ if(!p){const pt=WORLD_NAV.waypoints[ui.worldAt||state?.worldLocation]||WORLD_NAV.waypoints.atelier;p={x:pt[0]*100,y:pt[1]*100,facing:'down',frame:0};}
+ el.style.left=p.x+'%';el.style.top=p.y+'%';
+ const viewport=el.closest('.world-map-viewport');
+ if(ui.worldTrip&&viewport&&(ui.worldZoom||1)>1){const v=viewport.getBoundingClientRect(),m=el.getBoundingClientRect(),pad=48;let dx=0,dy=0;if(m.left<v.left+pad)dx=m.left-v.left-pad;else if(m.right>v.right-pad)dx=m.right-v.right+pad;if(m.top<v.top+pad)dy=m.top-v.top-pad;else if(m.bottom>v.bottom-pad)dy=m.bottom-v.bottom+pad;viewport.scrollLeft+=dx;viewport.scrollTop+=dy;}
+ const ctx=el.getContext('2d');ctx.clearRect(0,0,128,128);ctx.imageSmoothingEnabled=true;
+ drawActor(ctx,'yeoni',{x:64,y:122,size:128,state:ui.worldTrip&&!ui.worldTrip.complete?'walk':'idle',facing:p.facing,animationFrame:p.frame,t,reducedMotion:motionPreference.matches});
+}
 // ── 명령
 let repaySeq = 0;
 function run(cmd, { keepQuiet = false } = {}) {
@@ -133,6 +165,7 @@ function run(cmd, { keepQuiet = false } = {}) {
 function startNew() {
   if(state || novelActive())return;
   state = createGame({ dev: DEV, seed: (Date.now() % 2147483647) | 0 });
+  ui.worldAt='atelier';
   recordWallClock(state, Date.now());
   ui.sheet = null; ui.selectedSlot = null; ui.recruitEvent = null; ui.ending = null;
   save();
@@ -193,18 +226,26 @@ const n = v => Number(v);
 const ACTIONS = {
   'world.close': () => navigateScreen(null),
   'world.back': () => navigateScreen(ui.questReturn==='world'?'world':null),
-  'world.select': d => {ui.worldPlace=d.id;},
+  'world.select': d => {if(ui.worldTrip||!WORLD_PLACES.some(p=>p.id===d.id))return;ui.worldPlace=d.id;ui.worldCardOpen=true;requestAnimationFrame(()=>document.querySelector('.world-card-close')?.focus());},
+  'world.card.close':()=>{ui.worldCardOpen=false;requestAnimationFrame(()=>document.querySelector('.world-node[data-id="'+ui.worldPlace+'"]')?.focus());},
+  'world.zoom': d => {ui.worldZoom=Math.max(1,Math.min(2.5,(ui.worldZoom||1)+Number(d.delta)));},
+  'world.travel.cancel':()=>{ui.worldTrip=null;ui.worldMarker=null;},
+  'world.travel.skip':()=>{if(ui.worldTrip)ui.worldTrip.skip=true;},
   'world.quests': () => {ui.questReturn='world';ui.questDetail=false;navigateScreen('quests');},
   'quest.host': d => {ui.questHost=d.id;ui.questId=null;ui.questDetail=false;},
   'quest.select': d => {ui.questId=d.id;ui.questDetail=true;},
   'quest.list': () => {ui.questDetail=false;},
   'world.enter': d => {
+    if(ui.worldTrip)return;
     const p=WORLD_PLACES.find(p=>p.id===d.id);if(!p)return;
-    const lock=placeLock(state,p.id);if(lock){toast(lock);return;}
-    if(p.id==='atelier'){navigateScreen(null);return;}
-    ui.sheet={kind:p.id==='farm'?'farm':p.id==='hunt'?'hunt':'town',tab:p.id};
-    if(p.id==='hunt')ui.huntMenu='title';else maybeVisit(p.id);
+    const lock=placeLock(state,p.id)||(p.id!=='atelier'&&!townCheck(state).ok?townCheck(state).reason:'');if(lock){toast(lock);return;}
+    ui.worldCardOpen=false;
+    const at=WORLD_PLACES.some(x=>x.id===(ui.worldAt||state.worldLocation))?(ui.worldAt||state.worldLocation):'atelier';
+    if(at===p.id){enterWorldPlace(p.id);return;}
+    const path=worldRoute(WORLD_NAV,at,p.id);if(!path){toast('이동 경로를 찾지 못했어요.');return;}
+    ui.worldTrip=createWorldTrip(p.id,path);ui.worldMarker={...path[0],facing:'down',frame:0};
   },
+  'cafe.areaInfo':()=>{if(state.mode!=='prep'){toast('영업을 마친 뒤 꾸미기에서 새 구역을 열 수 있어요.');return;}ui.sheet={kind:'town',tab:'expand'};},
   'cafe.drawer':d=>{ui.cafeDrawer=ui.cafeDrawer===d.tab?null:d.tab;ui.tablePop=null;},
   'cafe.drawer.close':()=>{ui.cafeDrawer=null;},
   'table.close': () => {ui.tablePop=null;},
@@ -287,6 +328,7 @@ const ACTIONS = {
     const r = loadGame(storage, SAVE_KEY);
     if (!r.ok) { toast(r.reason, 'bad'); return; }
     state = r.state;
+    ui.worldAt=WORLD_PLACES.some(x=>x.id===state.worldLocation)?state.worldLocation:'atelier';
     ui.sheet = null; ui.selectedSlot = null;
     save(); // 프롤로그 생략 마이그레이션을 다음 새로고침에도 유지한다.
     if (state.paused) toast('저장한 지점에서 일시정지 상태로 이어집니다', 'good');
@@ -618,7 +660,7 @@ function draw(t) {
   drawNumbers(t);
   if(ui.craft?.step===1){const marker=document.querySelector('.heat-track i');if(marker)marker.style.left=craftHeat(ui.craft,t)+'%';}
   if (state && ui.sheet?.kind === 'farm') drawFarm(state, t, ui);
-  if(ui.screen){drawInlinePortraits(t);return;}
+  if(ui.screen){drawInlinePortraits(t);drawWorldMarker(t);return;}
   if (state && ui.sheet?.kind === 'outfits') drawDressroom(state, ui, t);
   drawInlinePortraits(t);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -659,6 +701,7 @@ const loop = createFrameLoop({
         if (autosaveAcc >= TEMP.AUTOSAVE_MS) { autosaveAcc = 0; recordWallClock(state, Date.now()); save(); }
       }
     }
+    stepWorldTravel(raw);
     draw(now);
     render();
   },

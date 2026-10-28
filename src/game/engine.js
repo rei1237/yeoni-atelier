@@ -1,4 +1,5 @@
 import {chooseTrail} from './hunt-trails.js';
+import {placeLock} from './unlocks.js';
 import {beginGiftCook,stepGiftCook,cancelGiftCook,giftFood} from './food-gifts.js';
 import {workshopQuestAction} from './workshop-quests.js';
 import {groundCommand,buyRemodel,applyRemodel} from './grounds.js';
@@ -108,6 +109,10 @@ function execute(state, cmd) {
     case 'finance.borrow': return finance.borrow(state,cmd.amount,cmd.requestId);
     case 'finance.repay': return finance.repayFinance(state,cmd.target,cmd.amount,cmd.currency);
     case 'moonstone.exchange': return town.exchange(state, cmd.qty);
+    case 'world.arrive':
+      if (!['atelier','moka','expand','luna','finance','gear','hunt','farm'].includes(cmd.place)) return {ok:false,reason:'장소를 찾을 수 없어요'};
+      if (cmd.place!=='atelier') { const chk=town.townCheck(state); if(!chk.ok)return chk; const lock=placeLock(state,cmd.place); if(lock)return {ok:false,reason:lock}; }
+      state.worldLocation=cmd.place; return {ok:true};
     case 'town.visit': return town.markVisit(state, cmd.place);
     case 'gear.buy': return town.buyGear(state, cmd.id);
     case 'gear.equip': return town.equipGear(state, cmd.slot, cmd.id ?? null);

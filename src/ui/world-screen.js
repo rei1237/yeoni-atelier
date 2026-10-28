@@ -1,3 +1,5 @@
+import {uiIcon} from './moonlight-ui.js';
+import {WORLD_NAV} from './world-navigation-data.js';
 import {huntVisitReason} from '../game/hunt-visits.js';
 import { QUEST_STORIES } from '../data/quest-stories.js';
 import { calendarOf, dateLabel, maxActionPoints } from '../game/calendar.js';
@@ -17,7 +19,7 @@ export const WORLD_PLACES = [
   {id:'finance',name:'청토끼 금융 센터',x:82,y:49,who:'cheongtokki',desc:'월정석 환전과 장부 정리'},
   {id:'gear',name:'윤달의 무기 공방',x:22,y:25,who:'yun',desc:'다음 원정을 위한 강화와 회복'},
   {id:'hunt',name:'영냥이의 사냥터',x:80,y:21,who:'neo_cat',desc:'영냥이와 떠나는 월정석 원정'},
-  {id:'farm',name:'꽃돼지 연이의 농장',x:18,y:83,who:'yeoni_pig',desc:'씨앗을 심고 계절을 가꾸는 시간'},
+  {id:'farm',name:'농장',x:18,y:83,who:'yeoni',desc:'씨앗을 심고 계절을 가꾸는 시간'},
 ];
 export const QUEST_HOSTS = {
   q_first_serve:['luna','루나'], q_first_shift:['yeoni','연이'], q_first_repay:['cheongtokki','청토끼'],
@@ -33,17 +35,27 @@ export function worldScreenHtml(state, ui) {
   return ui.screen==='quests'?questScreenHtml(state,ui):mapScreenHtml(state,ui);
 }
 export function mapScreenHtml(state,ui) {
-  const chosen=WORLD_PLACES.find(p=>p.id===ui.worldPlace)||WORLD_PLACES[0];
-  const lock=chosen.id==='atelier'?'':placeLock(state,chosen.id)||(!townCheck(state).ok?townCheck(state).reason:'');
+  const chosen=WORLD_PLACES.find(p=>p.id===ui.worldPlace);
+  const lock=chosen?(placeLock(state,chosen.id)||(chosen.id!=='atelier'&&!townCheck(state).ok?townCheck(state).reason:'')):'';
+  const mapStyle=assetStyle('ui/town-map-'+season(calendarOf(state.day).month));
   const nodes=WORLD_PLACES.map(p=>{
-    const why=placeLock(state,p.id);
-    return `<button class="world-node ${p.id===chosen.id?'selected':''} ${why?'locked':''}" data-key="place-${p.id}" data-action="world.select" data-id="${p.id}" style="--x:${p.x}%;--y:${p.y}%" aria-pressed="${p.id===chosen.id}" title="${esc(why||p.desc)}">${assetIcon('badges/'+p.who)}<span>${esc(p.name)}${why?'<small>잠김</small>':p.id==='hunt'&&huntVisitReason(state)?'<small>오늘 다녀옴</small>':''}</span></button>`;
+    const pin=WORLD_NAV.destinations.find(d=>d.id===p.id).pin, why=placeLock(state,p.id);
+    const name=why?(p.id==='expand'?'가구와 꽃 상점':'잠긴 장소'):p.name;
+    return `<button type="button" class="world-node ${why?'locked':''}" data-key="place-${p.id}" data-action="world.select" data-id="${p.id}" style="--x:${pin[0]*100}%;--y:${pin[1]*100}%" aria-label="${esc(name)}${why?' · 잠김':''}"><span class="world-pin">${why?uiIcon('lock'):'<span aria-hidden="true">✿</span>'}</span></button>`;
   }).join('');
-  return `<section class="world-map-screen" aria-labelledby="world-title" style="${assetStyle('ui/town-map-'+season(calendarOf(state.day).month))}">
-    <header class="world-header"><div><h1 id="world-title">재성의 섬</h1><p>${esc(dateLabel(state))} · 행동력 ${state.ap.left}/${maxActionPoints(state)}</p></div><div class="world-tools">${btn({action:'world.quests',label:'부탁 노트'})}${btn({action:'world.close',label:'카페로',title:'카페로 돌아가기'})}</div></header>
-    <div class="world-landmarks" aria-label="마을 목적지">${nodes}</div>
-    <section class="destination" aria-live="polite">${assetIcon('badges/'+chosen.who)}<div><h2>${esc(chosen.name)}</h2><p>${esc(lock||(chosen.id==='hunt'&&huntVisitReason(state))||chosen.desc)}</p></div>${btn({action:'world.enter',args:{id:chosen.id},cls:'primary',disabled:!!lock,title:lock||chosen.name+' 방문하기',label:lock?'아직 닫혀 있어요':chosen.id==='atelier'?'카페로':'방문하기'})}</section>
-  </section>`;
+  let card='';
+  if(chosen&&ui.worldCardOpen){
+    const pin=WORLD_NAV.destinations.find(d=>d.id===chosen.id).pin;
+    const name=lock?(chosen.id==='expand'?'가구와 꽃 상점':'아직 닫힌 장소'):chosen.name;
+    const actor=chosen.id==='expand'?'museong@museong_garden':chosen.who;
+    const portrait=lock?'':`<span class="world-card-character" style="${assetStyle('actors/'+actor)}" aria-hidden="true"></span>`;
+    const back=`<div class="world-card-back" aria-hidden="true"><span>☾</span><small>✿</small></div>`;
+    const face=`<div class="world-card-front"><div class="world-card-heading"><span>${['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ','Ⅶ','Ⅷ'][WORLD_PLACES.indexOf(chosen)]}</span><small>DESTINY ISLAND</small></div><div class="world-card-art ${lock?'concealed':''}" style="${lock?'':mapStyle+';background-position:'+(pin[0]*100)+'% '+(pin[1]*100)+'%'}">${portrait}${lock?uiIcon('lock'):''}</div><div class="world-card-copy"><small>✧ &nbsp; 재성의 섬 &nbsp; ✧</small><h2 id="world-card-name">${esc(name)}</h2><p>${esc(lock||(chosen.id==='hunt'&&huntVisitReason(state))||chosen.desc)}</p></div></div>`;
+    const at=ui.worldAt||state.worldLocation||'atelier',here=chosen.id===at;
+    card=`<div class="world-card-overlay"><button class="world-card-shade" data-action="world.card.close" aria-label="장소 카드 닫기"></button><section class="world-card-dialog" role="dialog" aria-modal="true" aria-labelledby="world-card-name"><button class="world-card-close" data-action="world.card.close" aria-label="장소 카드 닫기">×</button><div class="world-card-flip"><div class="world-card-inner">${back}${face}</div></div>${btn({action:'world.enter',args:{id:chosen.id},cls:'primary world-card-action',disabled:!!lock||here,title:lock||(here?'현재 머무는 곳':'이곳으로 가기'),label:lock?'아직 갈 수 없어요':here?'현재 머무는 곳':'이곳으로 가기'})}${btn({action:'world.card.close',cls:'world-card-again',label:'지도로 돌아가기'})}</section></div>`;
+  }
+  return `<section class="world-map-screen" aria-labelledby="world-title"><header class="world-header"><span class="world-brand-seal" aria-hidden="true">✿</span><div class="world-header-title"><small>THE ISLAND OF DESTINY</small><h1 id="world-title">재성의 섬</h1><p>꽃길을 따라 떠나는 작은 여행</p></div><div class="world-tools">${btn({action:'world.quests',label:uiIcon('book')+'<span>부탁 노트</span>'})}${btn({action:'world.enter',args:{id:'atelier'},label:uiIcon('cup')+'<span>카페로</span>'})}</div></header>
+  <div class="world-map-stage"><div class="world-map-title"><span aria-hidden="true">✧</span><div><b>마음이 머무는 곳</b><small>섬의 장소를 눌러 카드를 펼쳐 보세요</small></div><div class="world-map-controls">${btn({action:'world.zoom',args:{delta:-0.5},title:'지도 축소',label:'−'})}${btn({action:'world.zoom',args:{delta:0.5},title:'지도 확대',label:'＋'})}</div></div><div class="world-map-viewport" tabindex="0" aria-label="재성의 섬 지도, 확대 후 스크롤하여 이동"><div class="world-landmarks" style="--zoom:${ui.worldZoom||1};${mapStyle}" aria-label="섬의 목적지"><canvas class="world-traveler" width="128" height="128" role="img" aria-label="${ui.worldTrip?'목적지로 걷는 연이':'지도에서 기다리는 연이'}"></canvas>${nodes}</div></div><div class="world-map-hint"><span aria-hidden="true">✿</span><div><b>꽃길을 따라, 섬 한 바퀴</b><p>카드를 열어 장소를 확인하고 여행을 시작해요.</p></div></div>${ui.worldTrip?`<div class="world-travel-tools" role="status"><span>${esc(WORLD_PLACES.find(p=>p.id===ui.worldTrip.id)?.name)}까지 걸어가요</span>${btn({action:'world.travel.skip',label:'바로 도착'})}${btn({action:'world.travel.cancel',label:'이동 취소'})}</div>`:''}</div><footer class="world-map-footer"><span aria-hidden="true">✿</span><b>재성의 섬</b><small>꽃과 달빛이 머무는 곳</small><span aria-hidden="true">✦</span></footer>${card}</section>`;
 }
 export function questScreenHtml(state,ui) {
   const quests=questView(state), host=ui.questHost||'all';

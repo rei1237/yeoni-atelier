@@ -104,3 +104,6 @@ Code Destiny 로컬 원본의 공개 프로필·라이트노벨 이미지·운�
 
 ### 동일 원본의 전체 무기 어댑터 추가
 `src/data/weapons.js`, `src/data/fusions.js`를 kfp 접두 데이터로, `src/game/cannon-targeting.js`를 순수 조준 모듈로 옮겼다. `src/game/weapons.js`의 능력치 계산을 `kfp-stats.js`로 분리하고 공격·충돌은 현재 엔진용 `kfp-combat.js`로 작성했다. 정확한 9기본/9진화/12패시브/14조합 대조와 미이식 직업 테크·전설 장비 범위는 KFP-PORT.md. 기존 첫 산탄만 이식했다는 기록은 초기 단계 기록이다.
+
+## 2026-10-28 달빛 타로 카드 뒷면
+사용자가 Code Destiny 타로 UI의 활용을 요청했다. 읽기 전용 Code Destiny 저장소의 public/images/fortune-tea-house/moonlight-tarot-card-back.webp를 원본으로 삼아 assets/ui/island-card-back.webp를 480×720 WebP로 축소해 카드 뒤집기 뒷면에만 사용한다. 새 섬 원화의 참고 이미지로는 사용하지 않았다.

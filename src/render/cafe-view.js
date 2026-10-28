@@ -96,21 +96,17 @@ export function drawCafe(ctx, state, v, opts = {}) {
     ctx.fillStyle = y === 0 ? '#e9dccb' : (x + y) % 2 ? '#f6ead9' : '#f1e2cd';
     ctx.fillRect(p.x, p.y, T + 0.5, T + 0.5);
   }
-  // 아직 열지 않은 구역(공방 증축 전): 빗금과 자물쇠
+  // 잠긴 면적은 얇은 경계와 작은 안내판으로 구별한다.
   const open = state.interior.areas || [];
   for (const a of AREAS) {
     if (open.includes(a.id) || a.rect[0]>=v.cols || a.rect[1]>=v.rows) continue;
-    ctx.fillStyle = 'rgba(92,60,82,0.28)';
-    for (const [x, y] of areaCells(a)) {
-      const p = P(x, y);
-      ctx.fillRect(p.x, p.y, T + 0.5, T + 0.5);
-      ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(p.x, p.y + T); ctx.lineTo(p.x + T, p.y); ctx.stroke();
-    }
-    const [x0, y0, x1, y1] = a.rect;
-    const c = P((x0 + x1 + 1) / 2, (y0 + y1 + 1) / 2);
-    label(ctx, '🔒', c.x, c.y - T * 0.2, T * 0.5);
-    label(ctx, a.name, c.x, c.y + T * 0.4, T * 0.28, '#fff');
+    const [x0,y0,x1,y1]=a.rect, p=P(x0,y0), aw=(x1-x0+1)*T, ah=(y1-y0+1)*T;
+    ctx.save();ctx.fillStyle='#63536416';ctx.fillRect(p.x,p.y,aw,ah);
+    ctx.strokeStyle='#8e775b99';ctx.lineWidth=1;ctx.setLineDash([3,5]);ctx.strokeRect(p.x+2,p.y+2,aw-4,ah-4);ctx.setLineDash([]);
+    const w=Math.max(56,Math.min(aw-8,112)),cx=p.x+aw/2,cy=p.y+ah/2,fs=Math.max(11,Math.min(13,T*.4));
+    ctx.fillStyle='#fff9eff2';ctx.strokeStyle='#b8a385';roundRect(ctx,cx-w/2,cy-25,w,50,5);ctx.fill();ctx.stroke();
+    ctx.font=`600 ${fs}px "Yeoni UI",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#584052';ctx.fillText(a.name,cx,cy-9,w-8);
+    ctx.font='11px "Yeoni UI",sans-serif';ctx.fillStyle='#78634e';ctx.fillText('꾸미기 · 증축',cx,cy+10,w-8);ctx.restore();
   }
   // 입구 매트
   const ent = P(SPOTS.entrance.x, SPOTS.entrance.y);

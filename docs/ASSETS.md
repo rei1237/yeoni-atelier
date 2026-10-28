@@ -208,10 +208,10 @@
 | backgrounds/river_night | assets/backgrounds/river_night.webp | 720×600 | 완료 |
 | backgrounds/dressroom | assets/illustrated/backgrounds/dressroom.webp | 960×640 | 완료 |
 | backgrounds/farm | assets/illustrated/backgrounds/farm.webp | 960×640 | 완료 |
-| ui/town-map-spring | assets/ui/town-map-spring.webp | 1536×1024 | 완료 |
-| ui/town-map-summer | assets/ui/town-map-summer.webp | 1536×1024 | 완료 |
-| ui/town-map-autumn | assets/ui/town-map-autumn.webp | 1536×1024 | 완료 |
-| ui/town-map-winter | assets/ui/town-map-winter.webp | 1536×1024 | 완료 |
+| ui/town-map-spring | assets/ui/town-map-spring.webp | 1152×768 | 완료 |
+| ui/town-map-summer | assets/ui/town-map-summer.webp | 1152×768 | 완료 |
+| ui/town-map-autumn | assets/ui/town-map-autumn.webp | 1152×768 | 완료 |
+| ui/town-map-winter | assets/ui/town-map-winter.webp | 1152×768 | 완료 |
 | ui/town-node-atelier | assets/ui/town-node-atelier.webp | 128×128 | 완료 |
 | ui/town-node-expand | assets/ui/town-node-expand.webp | 128×128 | 완료 |
 | ui/town-node-moka | assets/ui/town-node-moka.webp | 128×128 | 완료 |
@@ -664,3 +664,12 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 
 ## 모션 v2 게시 전 여백 보정
 원본 크롭에서 12시트를 다시 정규화했다. 인물별 공통 스케일/발64,122를 유지하고 실제 알파 끝은121로 두어6px 이상 여백을 확보했다. 루나 홀3시트는 모두0.282051배, 네오는0.36배이며 프레임마다 몸을 확대하지 않는다. 조리 마지막 프레임의 몸에서 분리된12px 원본 잔점만 제거했다. 기존 런타임 및 정본 PNG는 D:/yeoni-qa/art/cafe-ux/motion-v2/margin-refinement에 보존한다. 손·쟁반·조리 음식 소켓도 같은 변환을 적용했다. 배포 assets 전체14,865,494B, 등록484개. 원화의 약한 뒤쪽 닦기 숙임/일부 반대발 교대는 그림을 왜곡해 만들지 않고 한계로 남긴다.
+
+
+2026-10-28: 타이틀 세로·가로 및 재성 지도는 D:/yeoni-qa/art/cafe-ux/ui-handoff/yeoni-ui-codex-handoff/references 의 제공 원화에서 비율을 유지해 WebP로 변환했다. 가로 타이틀은 CSS 전용이며 지도 좌표는 원본의 정규화 좌표를 쓴다.
+
+
+### 2026-10-28 새 재성의 섬 원화
+사용자 승인한 신규 원화는 외부 참조 이미지 없이 생성했으며 원본은 D:/yeoni-qa/art/cafe-ux/new-island-20261028/original-worldmap.png에 보존한다. assets/ui/jaeseong-island.webp는 1152×768 경량 파생본이다. 새 원화의 위치·길은 src/ui/world-navigation-data.js를 따른다.
+
+카드 뒤집기 뒷면 assets/ui/island-card-back.webp는 Code Destiny의 달빛 타로 뒷면을 480×720 WebP로 축소한 CSS 전용 파생본이다. 출처는 docs/REUSE.md를 따른다.

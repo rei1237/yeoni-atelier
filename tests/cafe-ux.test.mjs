@@ -15,7 +15,7 @@ test('지도·의뢰를 그리는 것만으로 행동력·보상·난수는 바�
  const s=createGame(),before=serialize(s);
  for(const screen of ['world','quests'])assert.ok(worldScreenHtml(s,{screen}).length>100);
  assert.equal(serialize(s),before);
- assert.match(worldScreenHtml(s,{screen:'world',worldPlace:'hunt'}),/첫 영업을 마치면/);
+ assert.match(worldScreenHtml(s,{screen:'world',worldPlace:'hunt',worldCardOpen:true}),/첫 영업을 마치면/);
  assert.match(worldScreenHtml(s,{screen:'quests'}),/data-static-portrait="luna"/);
 });
 test('의뢰 보상 버튼은 엔진의 1회 수령과 저장 복원을 따른다',()=>{

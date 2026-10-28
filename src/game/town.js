@@ -103,6 +103,7 @@ export function areaPrice(state) {
 function expandCheck(state) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;
+  const lock = placeLock(state, 'expand'); if (lock) return { ok:false, reason:lock };
   if (state.interior.draft) return { ok: false, reason: '인테리어 편집을 먼저 마쳐 주세요' };
   return { ok: true };
 }
@@ -148,6 +149,7 @@ export function decorPrice(state,defId){const d=FURNITURE[defId],base=TEMP.DECOR
 export function buyDecor(state, defId) {
   const chk = townCheck(state);
   if (!chk.ok) return chk;
+  const lock = placeLock(state, 'expand'); if (lock) return { ok:false, reason:lock };
   const price = decorPrice(state,defId);
   if (!price || !FURNITURE[defId]) return { ok: false, reason: '팔지 않는 장식입니다' };
   if (state.gold < price) return { ok: false, reason: `골드가 부족합니다 (${price}G 필요)` };

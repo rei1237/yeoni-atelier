@@ -23,7 +23,7 @@ export function drawActor(ctx, key, o) {
   if(o.state==='walk'&&Number.isFinite(o.walkDistance))o={...o,animationFrame:o.reducedMotion?0:Math.floor(o.walkDistance*4)%4};
   const work=staffMotion(key,o);
   if(work&&imageFor(work.key)){key=work.key;o={...o,animationFrame:work.frame,idleMotion:false,outfitId:null};}
-  if(key==='yeoni'&&o.facing==='left'&&imageFor('yeoni_idle_left')){key='yeoni_idle_left';o={...o,state:o.gesture?.kind||'idle',animationFrame:o.reducedMotion?0:o.gesture?Math.min(3,Math.floor(o.gesture.age/260)):0,idleMotion:false,outfitId:null};}
+  if(key==='yeoni'&&o.facing==='left'&&(o.state||'idle')!=='walk'&&imageFor('yeoni_idle_left')){key='yeoni_idle_left';o={...o,state:o.gesture?.kind||'idle',animationFrame:o.reducedMotion?0:o.gesture?Math.min(3,Math.floor(o.gesture.age/260)):0,idleMotion:false,outfitId:null};}
   if(key==='luna_sis'&&o.cooking&&o.facing==='up'&&imageFor('actors/luna_sis_cook')){key='luna_sis_cook';const frame=o.cooking.frame;o={...o,cooking:{...o.cooking,frame},state:o.cooking.phase,animationFrame:frame,idleMotion:false,outfitId:null};}
   if(key==='yeoni'&&o.facing==='right'&&!o.carry&&!o.cleaning&&(['idle','react'].includes(o.state||'idle')||o.gesture)&&imageFor('actors/yeoni_idle_right')){key='yeoni_idle_right';o={...o,state:o.gesture?.kind||'idle',animationFrame:o.reducedMotion?0:o.gesture?Math.min(3,Math.floor(o.gesture.age/260)):undefined,idleMotion:false,outfitId:null};}
   const gesture=key==='yeoni'&&o.gesture;
@@ -126,10 +126,10 @@ export function nameTag(ctx, text, x, y, size, color = '#3b2f2f') {
   const fs = Math.max(12, Math.min(14, Math.round(size * 0.2)));
   ctx.font = `600 ${fs}px "Yeoni UI", sans-serif`;
   const w = ctx.measureText(text).width + 16;
-  ctx.fillStyle = '#fff9eef2'; ctx.strokeStyle='#b6a181'; ctx.lineWidth=1;
-  roundRect(ctx, x - w / 2, y, w, fs + 8, 6);
+  ctx.fillStyle = '#fffaf3f5'; ctx.strokeStyle='#aa9273'; ctx.lineWidth=.75;
+  roundRect(ctx, x - w / 2, y, w, fs + 8, 3);
   ctx.fill(); ctx.stroke();
-  ctx.fillStyle = color;
+  ctx.fillStyle = '#52394d';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
   ctx.fillText(text, x, y + 4);

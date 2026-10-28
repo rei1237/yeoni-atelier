@@ -8,11 +8,12 @@ export function esc(v) {
 }
 
 // data-* 인자를 붙인 버튼. a: {action, label, cls, args:{}, disabled, title}
-export function btn({ action, label, cls = '', args = {}, disabled = false, title = '' }) {
+export function btn({ action, label, cls = '', args = {}, disabled = false, title = '', pressed = null }) {
   const data = Object.entries(args).map(([k, v]) => ` data-${k}="${esc(v)}"`).join('');
+  const pr = pressed == null ? '' : ` aria-pressed="${!!pressed}"`;
   const dis = disabled ? ' aria-disabled="true"' : '';
   const tt = title ? ` title="${esc(title)}" aria-label="${esc(title)}"` : '';
-  return `<button type="button" class="${cls}" data-action="${action}"${data}${dis}${tt}>${label}</button>`;
+  return `<button type="button" class="${cls}" data-action="${action}"${data}${dis}${tt}${pr}>${label}</button>`;
 }
 
 const lastHtml = new WeakMap();
