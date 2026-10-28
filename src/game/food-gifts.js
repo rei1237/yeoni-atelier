@@ -1,4 +1,4 @@
-import {gainYeoni,canYeoniCook} from './yeoni-growth.js';
+import {gainYeoni,canYeoniCook,yeoniEffects} from './yeoni-growth.js';
 import {TEMP} from '../config/balance.temp.js';
 import {apCheck,spendAp,maxActionPoints} from './calendar.js';
 import {MENUS} from '../data/menus.js';
@@ -23,7 +23,7 @@ export function beginGiftCook(s,menuId,timing,requestId){
  const ap=apCheck(s,1);if(!ap.ok)return ap;
  const id=nextId(s,'giftCook');spendAp(s,1);for(const [key,n] of Object.entries(m.ingredients))s.stock[key]-=n;
  s.ledger.consumes[id]=true;(s.ledger.foodGiftRequests||={})[requestId]=id;
- s.foodGifts||={items:[],job:null};s.foodGifts.job={id,menuId,quality:qualityForTiming(timing,menuId),progressMs:0,durationMs:TEMP.GIFT_COOK_MS,owner:'gift',maker:'yeoni',apCost:1,startedDay:s.day};
+ s.foodGifts||={items:[],job:null};s.foodGifts.job={id,menuId,quality:qualityForTiming(timing,menuId),progressMs:0,durationMs:Math.round(TEMP.GIFT_COOK_MS*(1-yeoniEffects(s).cookSpeed)),owner:'gift',maker:'yeoni',apCost:1,startedDay:s.day};
  return {ok:true,jobId:id};
 }
 export function stepGiftCook(s,dt){const g=s.foodGifts,j=g?.job;if(!j||s.mode!=='prep')return;j.progressMs=Math.min(j.durationMs,j.progressMs+dt);if(j.progressMs<j.durationMs)return;

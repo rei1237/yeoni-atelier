@@ -38,7 +38,7 @@ test('레벨별 효과·칭호 잠금·선택·행동력은 상한과 저장을 
  let s=createGame();const base=maxActionPoints(s);assert.equal(run(s,'yeoni.title',{id:'master'}).ok,false);
  s.yeoniGrowth={xp:yeoniThreshold(25),counts:{cook:10,farm:20,bond:15},title:'beginner'};
  assert.equal(yeoniTitles(s).length,6);assert.ok(run(s,'yeoni.title',{id:'master'}).ok);assert.equal(maxActionPoints(s),base+2);assert.equal(s.ap.left,3);
- const slow=createGame();cook(slow,'slow');cook(s,'fast');assert.equal(s.foodGifts.job.durationMs,slow.foodGifts.job.durationMs,'선물 요리는 레벨과 상관없이 같은 시간');
+ const slow=createGame();cook(slow,'slow');cook(s,'fast');assert.equal(s.foodGifts.job.durationMs,Math.round(slow.foodGifts.job.durationMs*.8),'선물 요리 시간은 레벨마다 줄고 −20%에서 멈춘다');
  s=deserialize(serialize(s)).state;assert.equal(s.yeoniGrowth.title,'master');s.yeoniGrowth.xp=1e9;assert.equal(yeoniProgress(s).level,50);assert.deepEqual(yeoniEffects(s),{revenue:.25,cookSpeed:.2,ap:2});
 });
 test('성장 매출은 실제 주문 서빙 원장에 한 번만 반영한다',()=>{
