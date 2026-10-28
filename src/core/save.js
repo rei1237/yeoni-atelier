@@ -69,7 +69,7 @@ function migrate(data) {
   if (!data.farm) data.farm = { ...newFarm(data.rng?.seed), lastAdvancedDay: data.day };
   data.farm.energy = Number.isFinite(data.farm.energy) ? Math.max(0,Math.min(data.farm.energy,maxFarmEnergy(data.farm))) : maxFarmEnergy(data.farm);
   // 인연 랭크 이전 저장: 점수로 열려 있던 능력이 그대로 남도록 점수만큼의 랭크로 시작한다
-  if (data.bondRank === undefined) data.bondRank = Object.fromEntries(Object.entries(data.affinity || {}).map(([id, v]) => [id, pointsRank(v || 0)]));
+  if (data.bondRank === undefined) data.bondRank = Object.fromEntries(Object.entries(data.affinity || {}).map(([id, v]) => [id, pointsRank(v || 0, TEMP.BONDS.LEGACY_RANKS)]));
   // 10-28 2년 운영: 첫 6개월 안의 옛 저장만 72순으로 옮기고, 그 뒤 저장은 옛 180순을 유지한다(결말·벌칙 소급 없음)
   data.calendar ||= {};
   if (data.calendar.totalTurns == null) data.calendar.totalTurns = !data.calendar.ended && data.day <= TEMP.CALENDAR.LEGACY_CUTOFF_DAY ? TEMP.CALENDAR.TOTAL_TURNS : TEMP.CALENDAR.LEGACY_TOTAL_TURNS;

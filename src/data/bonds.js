@@ -97,10 +97,13 @@ export const MAX_RANK = TEMP.BONDS.RANKS.length;
 export const withWa = n => { const c = n.charCodeAt(n.length - 1) - 0xAC00; return n + (c >= 0 && c < 11172 && c % 28 ? '과' : '와'); };
 
 // 점수로 닿을 수 있는 랭크(옛 저장 이전·테스트 준비용)
-export const pointsRank = v => TEMP.BONDS.RANKS.filter(x => v >= x).length;
+export const pointsRank = (v, ranks = TEMP.BONDS.RANKS) => ranks.filter(x => v >= x).length;
 export const bondRank = (state, id) => Math.min(MAX_RANK, state.bondRank?.[id] || 0);
 // 다음 랭크 문턱을 채웠다: 다음 대화에서 랭크 업(인연이 깊어질 것 같다)
 export const bondReady = (state, id) => bondRank(state, id) < MAX_RANK && (state.affinity?.[id] || 0) >= TEMP.BONDS.RANKS[bondRank(state, id)];
+// 한 사람당 한 달(3순)에 랭크는 하나만: 이번 달에 이미 올랐으면 문턱을 채워도 다음 달 대화까지 기다린다
+export const bondMonth = state => Math.floor(((state.day || 1) - 1) / TEMP.CALENDAR.TURNS_PER_MONTH);
+export const rankWaits = (state, id) => bondReady(state, id) && state.bondRankAt?.[id] === bondMonth(state);
 // 해방된 능력 수(0~4)
 export const perkTier = (state, id) => TEMP.BONDS.PERK_RANKS.filter(r => r <= bondRank(state, id)).length;
 

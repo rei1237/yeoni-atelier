@@ -82,7 +82,7 @@ test('결말: 마지막 순 결산을 닫으면 한 번 정해지고, 이후는 
   t.hostbar.open = true; t.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
   t.debt = 0;
   assert.equal(decideEnding(t), 'clear');
-  t.affinity = { neo: 200, luna: 160, luna_sis: 100, moka: 60 };
+  t.affinity = { neo: 420, luna: 400, luna_sis: 380, moka: 300 }; // 합계 1500(ENDING_BOND_BEST)
   assert.equal(decideEnding(t), 'grand');
 });
 

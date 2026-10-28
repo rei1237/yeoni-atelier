@@ -70,7 +70,7 @@ import { PROLOGUE } from '../story/prologue.js';
 import { MONTH_STORIES, ENDINGS } from '../story/months.js';
 import { careerMonthStory, castBondStory } from '../story/career.js';
 import { BOND_STORIES } from '../story/bonds.js';
-import { BONDS, COMMON_GIFT, bondReady, withWa } from '../data/bonds.js';
+import { BONDS, COMMON_GIFT, bondReady, rankWaits, withWa } from '../data/bonds.js';
 import { SPEAKERS } from '../story/prologue.js';
 import { pendingStory, calendarOf, isEnded, dateLabel } from '../game/calendar.js';
 import { placeLock, bondName, bondMasked } from '../game/unlocks.js';
@@ -541,6 +541,7 @@ ACTIONS['bond.talk'] = d => {
     onChoose:choiceId=>{const r=run({type:'bond.talk',id:d.id,choiceId,token:q.token},{keepQuiet:true});if(!r.ok)return r;
       up=r.rankUp;const beats=[{bg:'atelier_lit',l:'yeoni:smile',c:face||d.id+':smile',s:who,t:r.line},{s:'sys',t:'인연 +'+r.gain+' · 오늘의 대화가 마음에 남았습니다.'}];
       if(up)beats.push({s:'sys',t:'✦ RANK UP · '+withWa(name)+'의 인연이 깊어졌다 · Rank '+up.rank+(up.perk?' · 능력 해방: '+up.perk:'')});
+      else if(rankWaits(state,d.id))beats.push({s:'sys',t:'✦ 이번 달에는 이미 인연이 깊어졌어요 · 다음 달 대화에서 랭크가 오릅니다.'});
       else if(bondReady(state,d.id))beats.push({s:'sys',t:'✦ 인연이 깊어질 것 같다 · 다음 대화에서 랭크가 오릅니다.'});
       return {ok:true,beats};},
     onEnd:reopen,
@@ -708,7 +709,7 @@ function handleEvents(events) {
       case 'shelterRest': toast(`🐰 루나의 쉼터 · ${ev.name} 스트레스 −${Math.round(ev.recovered)}`, 'good'); break;
       case 'farmDelegated': toast(`🐾 네오가 밭일을 마쳤어요 · 수확 ${ev.harvested} · 다시 심기 ${ev.planted} · 돌봄 ${ev.cared}${ev.stopped ? ' · ' + ev.stopped : ''}`, 'good', 3600); break;
       case 'farmDelegateSkipped': toast(`농장 맡기기는 이번엔 쉬어요 · ${ev.reason}`, '', 3000); break;
-      case 'bondReady': if (!novelActive()) toast(`✦ ${withWa(bondName(state,ev.id))}의 인연이 깊어질 것 같다 · 대화하면 Rank ${ev.rank}`, 'good', 4000); break;
+      case 'bondReady': if (!novelActive()) toast(`✦ ${withWa(bondName(state,ev.id))}의 인연이 깊어질 것 같다 · ${ev.wait ? '다음 달 ' : ''}대화하면 Rank ${ev.rank}`, 'good', 4000); break;
       case 'gameEnded': toast('📜 마지막 결산 완료 · 결말이 열립니다', 'good', 3200); break;
       case 'shiftClosed': ui.sheet = null; ui.selectedSlot = null; ui.chatter = null; save(); break; // 마감 화면을 가리는 영업 중 대사는 내린다
       default: break;

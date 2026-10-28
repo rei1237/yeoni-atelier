@@ -4,11 +4,10 @@ import {dispatch} from './engine.js';
 import {pendingStory} from './calendar.js';
 import {ABILITIES} from './permissions.js';
 import {TEMP} from '../config/balance.temp.js';
-import {pointsRank} from '../data/bonds.js';
 export const HOST_DEMO_SAVE_KEY='yeoni-atelier.host-demo.v1';
 export function createHostDemo(){
  const s=createGame({seed:20261028});
- s.meta.hostDemo=true;s.day=7;s.gold=5000;s.affinity.neo=180;s.bondRank.neo=pointsRank(180);
+ s.meta.hostDemo=true;s.day=7;s.gold=5000;s.affinity.neo=TEMP.BONDS.TIERS[2];s.bondRank.neo=TEMP.BONDS.PERK_RANKS[2];
  s.ledger.story.prologue=true;s.ledger.story.m0=true;s.ledger.story.m1=true;
  for(let i=0;i<20&&pendingStory(s);i++){
   const r=dispatch(s,{type:'story.seen',id:pendingStory(s)});if(!r.ok)throw Error(r.reason);

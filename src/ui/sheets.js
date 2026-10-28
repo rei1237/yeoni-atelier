@@ -55,7 +55,7 @@ import { describeOption, huntCheck, CHEST_WHEEL, CHEST_FALLBACK } from '../game/
 import { HANBI_STAGES } from '../data/hunt-stages.js';
 import { hiddenGuestQuest } from '../game/hidden-guest.js';
 import { survivalReward } from '../game/hunt-rewards.js';
-import { BONDS, BOND_IDS, COMMON_GIFT, ARCANA, MAX_RANK, bondRank, bondReady, perkTier, withWa } from '../data/bonds.js';
+import { BONDS, BOND_IDS, COMMON_GIFT, ARCANA, MAX_RANK, bondRank, bondReady, rankWaits, perkTier, withWa } from '../data/bonds.js';
 import { SPEAKERS } from '../story/prologue.js';
 import { townCheck, nextExpansion, areaPrice, decorPrice } from '../game/town.js';
 import { placeLock, PLACE_NAMES, bondOpen, bondMasked, bondName } from '../game/unlocks.js';
@@ -308,9 +308,10 @@ function placeBody(state, id, ui = {}) {
 // 인연 카드(페르소나식): 아르카나·랭크 10칸·다음 랭크까지 남은 점수·능력 해방 목록·대화(행동력 1)·선물
 function bondCard(state, id) {
   const b = BONDS[id], v = state.affinity[id] || 0, r = bondRank(state, id), R = TEMP.BONDS.RANKS, P = TEMP.BONDS.PERK_RANKS;
-  const ready = bondReady(state, id), lo = r ? R[r - 1] : 0, hi = R[r], [num, arc] = ARCANA[id] || ['?', ''];
+  const wait = rankWaits(state, id), ready = bondReady(state, id) && !wait, lo = r ? R[r - 1] : 0, hi = R[r], [num, arc] = ARCANA[id] || ['?', ''];
   const n = P.findIndex(x => x > r);
   const status = r >= MAX_RANK ? '인연 MAX · 모든 능력이 해방됐어요'
+    : wait ? '✦ 이번 달에는 이미 인연이 깊어졌어요 · 다음 달 대화에서 랭크 업'
     : ready ? '✦ 인연이 깊어질 것 같다 · 다음 대화에서 랭크 업'
     : `다음 랭크까지 ${hi - v}점 · 대화·선물·함께 일하기로 쌓여요`;
   const pips = Array.from({ length: MAX_RANK }, (_, i) => `<i class="${i < r ? 'on' : ''}${P.includes(i + 1) ? ' perk' : ''}"></i>`).join('');

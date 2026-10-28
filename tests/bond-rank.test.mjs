@@ -10,7 +10,7 @@ import { bondRank, bondReady, perkTier, bondFx, withWa } from '../src/data/bonds
 import { sheetHtml } from '../src/ui/sheets.js';
 
 const R = TEMP.BONDS.RANKS;
-const talkTo = (s, id) => { s.ap.left = 4; s.ap.talked = {}; const q = bondQuestion(s, id); return dispatch(s, { type: 'bond.talk', id, choiceId: q.answers[0].id, token: q.token }); }; // 테스트 준비: 순마다 한 번 제한을 풀어 연달아 대화
+const talkTo = (s, id) => { s.ap.left = 4; s.ap.talked = {}; s.bondRankAt = {}; const q = bondQuestion(s, id); return dispatch(s, { type: 'bond.talk', id, choiceId: q.answers[0].id, token: q.token }); }; // 테스트 준비: 순마다 한 번 제한을 풀어 연달아 대화
 
 test('점수만으로는 랭크가 오르지 않고, 문턱을 넘는 순간 한 번만 알린다', () => {
   const s = createGame(); s.gold = 10000;
@@ -38,7 +38,7 @@ test('문턱을 채운 동료와 대화하면 랭크가 하나 오르고, 랭크
 });
 
 test('랭크 이전 저장은 점수만큼의 랭크로 이어져 열려 있던 능력을 잃지 않는다', () => {
-  const s = createGame(); s.affinity.luna_sis = TEMP.BONDS.TIERS[2]; // 옛 ♥3
+  const s = createGame(); s.affinity.luna_sis = TEMP.BONDS.LEGACY_RANKS[7]; // 옛 ♥3(180점)
   const data = JSON.parse(serialize(s)); delete data.bondRank;
   const back = deserialize(JSON.stringify(data)).state;
   assert.equal(bondRank(back, 'luna_sis'), 8); assert.equal(perkTier(back, 'luna_sis'), 3);
@@ -53,4 +53,21 @@ test('인연 카드는 아르카나·랭크·다음 랭크까지 남은 점수·
   html = sheetHtml(s, { sheet: { kind: 'rankup', up: { id: 'neo', rank: 3, arcana: ['VIII', '힘'], perk: '사냥 시작 HP +40', next: { rank: 6, label: '다음' }, story: true } } });
   assert.match(html, /RANK UP/); assert.match(html, /능력 해방/); assert.match(html, /네오와의 인연 · Rank 3/);
   assert.equal(withWa('윤달'), '윤달과'); assert.equal(withWa('루나'), '루나와');
+});
+
+test('랭크는 한 사람당 한 달(3순)에 하나만 오르고, 저장해도 그 달 기록이 남으며 이미 오른 랭크는 내리지 않는다', () => {
+  let s = createGame();
+  const talkOnce = (st, id) => { st.ap.left = 4; st.ap.talked = {}; const q = bondQuestion(st, id); return dispatch(st, { type: 'bond.talk', id, choiceId: q.answers[0].id, token: q.token }); }; // 테스트 준비: 순마다 한 번 제한만 푼다
+  s.affinity.neo = R[5]; // 테스트 준비: 랭크 6까지 채울 점수
+  assert.equal(talkOnce(s, 'neo').rankUp.rank, 1);
+  s = deserialize(serialize(s)).state;
+  const same = talkOnce(s, 'neo');
+  assert.equal(same.rankUp, null, '같은 달 두 번째 대화는 점수만'); assert.equal(bondRank(s, 'neo'), 1);
+  assert.match(sheetHtml(s, { sheet: { kind: 'companions' }, companionId: 'neo' }), /다음 달 대화에서 랭크 업/);
+  s.affinity.luna = R[0]; assert.equal(talkOnce(s, 'luna').rankUp.rank, 1, '다른 동료의 랭크는 따로 센다'); // 테스트 준비: 문턱 점수
+  s.day += TEMP.CALENDAR.TURNS_PER_MONTH; // 테스트 준비: 다음 달
+  assert.equal(talkOnce(s, 'neo').rankUp.rank, 2);
+  const old = createGame(); old.affinity.neo = 300; old.bondRank.neo = 10; // 옛 상한 300에서 이미 랭크 10
+  const back = deserialize(serialize(old)).state;
+  assert.equal(bondRank(back, 'neo'), 10); assert.equal(perkTier(back, 'neo'), 4);
 });

@@ -4,7 +4,7 @@ import {gainYeoni} from './yeoni-growth.js';
 // 랭크 3·6·8·10에서 능력(data/bonds.js)이 해방되고 인연 이야기가 한 번 나온다. 수치는 모두 임시값(TEMP.BONDS).
 
 import { TEMP } from '../config/balance.temp.js';
-import { BONDS, COMMON_GIFT, ARCANA, MAX_RANK, bondRank, bondReady } from '../data/bonds.js';
+import { BONDS, COMMON_GIFT, ARCANA, MAX_RANK, bondRank, bondReady, bondMonth, rankWaits } from '../data/bonds.js';
 import { bondQuestion } from '../data/bond-dialogues.js';
 import { emit } from './state.js';
 import { apCheck, spendAp } from './calendar.js';
@@ -19,15 +19,16 @@ export function gainBond(state, id, v) {
   const after = Math.min(B.MAX, before + v);
   state.affinity[id] = after;
   const r = bondRank(state, id);
-  if (r < MAX_RANK && before < B.RANKS[r] && after >= B.RANKS[r]) emit('bondReady', { id, rank: r + 1 });
+  if (r < MAX_RANK && before < B.RANKS[r] && after >= B.RANKS[r]) emit('bondReady', { id, rank: r + 1, wait: rankWaits(state, id) });
   return after - before;
 }
 
-// 랭크 업: 문턱을 채운 동료와 시간을 보냈을 때 하나만 오른다. 능력이 해방되면 그 이름을 돌려준다.
+// 랭크 업: 문턱을 채운 동료와 시간을 보냈을 때 하나만 오른다(한 사람당 한 달에 한 번). 능력이 해방되면 그 이름을 돌려준다.
 export function rankUp(state, id) {
-  if (!bondReady(state, id)) return null;
+  if (!bondReady(state, id) || rankWaits(state, id)) return null;
   const rank = bondRank(state, id) + 1, b = BONDS[id];
   state.bondRank = { ...state.bondRank, [id]: rank };
+  state.bondRankAt = { ...state.bondRankAt, [id]: bondMonth(state) };
   const k = B.PERK_RANKS.indexOf(rank), perk = k >= 0 ? b.perks[k].label : null;
   const n = B.PERK_RANKS.findIndex(x => x > rank), next = n >= 0 ? { rank: B.PERK_RANKS[n], label: b.perks[n].label } : null;
   const up = { id, rank, arcana: ARCANA[id], perk, next, story: k >= 0 };

@@ -65,6 +65,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     ap: { left: TEMP.CALENDAR.AP_PER_TURN, talked: {}, gifted: {}, shopped: false, delegated: {}, sheltered: {}, neoTask: null }, // 이번 순 행동력
     affinity: { neo: 0, luna: 0, luna_sis: 0, moka: 0 }, // 친밀도(game/bonds.js)
     bondRank: {}, // 인연 랭크 0~10(대화로 오른다)
+    bondRankAt: {}, // 마지막으로 랭크가 오른 달(monthIdx): 한 사람당 한 달에 한 랭크
     hunt: null,
     lastHunt: null,
     seq: { order: 0, visit: 0, customer: 0, job: 0, item: 0, hunt: 0, task: 0 },
