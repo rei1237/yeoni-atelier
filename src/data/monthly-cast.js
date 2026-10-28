@@ -10,14 +10,14 @@ export const MONTHLY_CAST = Object.freeze([
     specialty: '재미 중심 손님',
     meetEvent: { title: '6월 · 메뉴판 뒤의 비트', lines: ['모카: 접시 소리가 박자를 다 망치잖아. 별 하나.', '연이: 그럼 네가 박자를 잡아 주면 되겠네?', '모카: 내가 왜 접대까지… 야, 마이크는 어디 있어?', '연이: (거절 대사 별 하나. 출근 의지 별 다섯.)'] },
     followup: { title: '마감 뒤 앙코르', lines: ['모카: 오늘 손님이 웃은 건 랩 때문이 아니라 네 계산 실수 때문이야.', '연이: 합계는 맞았거든. 앙코르 해 달라는 쪽지나 읽어 봐.', '모카: …내일 한 곡 더 준비한다. 별점은 그때 받아.'] }, reward: { items: { sugar: 8 } } },
-  { id: 'seohanbi', name: '서한비', gender:'female', hidden:true, color: '#962c40', month: 7, stats: { empathy: 18, talk: 20, fun: 14, looks: 24 },
+  { id: 'seohanbi', name: '서한비', gender:'female', hidden:true, color: '#962c40', month: 9, stats: { empathy: 18, talk: 20, fun: 14, looks: 24 },
     profile: '검은 머리와 붉은 눈, 차분한 말 속에 강한 존재감을 지닌 여성. 가게에서는 마음의 빈틈을 읽고, 사냥터에서는 검은 호랑이로 변신한다.',
     specialty: '공감·외모 중심 손님',
     meetEvent: { title: '히든 인연 · 붉은 봉인의 손님', lines: ['서한비: 우산을 접을 자리가 있겠습니까. 차 한 잔이면 충분합니다.', '연이: 자리는 있는데, 오늘은 손님들이 유난히 조용하네.', '서한비: 조용한 손님에게도 대화가 필요할 때가 있지요. 잠시 함께해도 되겠습니까?', '연이: (침묵도 서비스가 되네. 분위기 별 다섯.)'] },
     followup: { title: '말하지 않은 주문', lines: ['서한비: 오늘은 먼저 묻지 않았습니다. 말씀하실 때까지 차를 따뜻하게 두었지요.', '연이: 결국 손님이 먼저 웃으시더라.', '서한비: 기다림도 이 가게가 드릴 수 있는 작은 친절일 겁니다.'] }, reward: { items: { milk: 6 } } },
-  { id: 'museong', name: '무성', color: '#666e82', month: 9, stats: { empathy: 5, talk: 10, fun: 6, looks: 8 },
+  { id: 'museong', name: '무성', color: '#666e82', month: 3, stats: { empathy: 5, talk: 10, fun: 6, looks: 8 },
     profile: '원칙과 약속을 또렷하게 말하는 인물. 엄격한 첫인상과 달리 노래가 시작되면 공간의 분위기를 바꾼다.',
     specialty: '대화 중심 손님',
     meetEvent: { title: '달그늘의 노래 · 무성의 약속', lines: ['무성: 깊은 사냥터에서 네 발소리를 들었다. 끝까지 무너지지 않는 박자더군.', '연이: 맞는 말인데 입구에서 판결하는 건 조금… 노래 한 곡은 어때?', '무성: 끝나는 시각을 정해 둬라. 그 안에서 제대로 부르겠다.', '연이: (발성 별 다섯. 안내 방송으로 쓰면 안 되겠지.)'] },
     followup: { title: '한 곡의 여백', lines: ['무성: 오늘 앙코르는 없다. 마지막 손님도 돌아갈 차편이 있다.', '연이: 아쉬워하시던데?', '무성: 다음에 올 이유를 남겨 두는 것도 약속이다. 다음 곡은 연습해 두겠다.'] }, reward: { items: { bean: 6 } } },
-].map(c => ({ ...c, role: 'host', canServe: false, canHost: true, temp: true, condition: { shiftsCompleted: 0, repaidAtLeast: 0, month: c.month, year: ({yun:1,moka:1,seohanbi:2,museong:3})[c.id] } })));
+].map(c => ({ ...c, role: 'host', canServe: false, canHost: true, temp: true, condition: { shiftsCompleted: 0, repaidAtLeast: 0, month: c.month, year: ({yun:1,moka:1,seohanbi:1,museong:2})[c.id] } })));

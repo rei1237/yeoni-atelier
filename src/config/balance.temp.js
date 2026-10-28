@@ -133,6 +133,7 @@ export const TEMP = Object.freeze({
     TOTAL_TURNS: 72,
     LEGACY_TOTAL_TURNS: 180,
     LEGACY_CUTOFF_DAY: 18,    // 이 순까지 진행한 옛 저장만 2년 규칙으로 옮긴다
+    RECRUIT_RETRY_MONTHS: 3,  // 놓친 영입 초대는 이 개월 수마다 다시 온다(2년 안에 전원 합류)
     INTEREST_RATE: 0.02,      // 하순 마감 때 남은 빚 × 2% (올림)
     AP_PER_TURN: 3,           // 사냥 1 · 대화 1
     ENDING_BOND_BEST: 520,    // 빚을 다 갚고 친밀도 합이 이 이상이면 최고 결말(일만으로는 ~320, 대화·선물이 더 필요)

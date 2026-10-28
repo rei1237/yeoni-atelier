@@ -6,5 +6,5 @@ export function worldMeetingAccess(s){
  const ids=DEST1NOVA_MEMBERS.filter(x=>x.id!=='neo').map(x=>x.id),rows=recruitView(s).filter(x=>ids.includes(x.id));
  const available=rows.filter(x=>x.status==='available'),joined=ids.some(id=>!!s.roster[id]);
  const next=rows.find(x=>x.status!=='recruited'),c=next?.condition;
- return {unlocked:joined||available.length>0,available,joined,hint:c?`${c.year}년차 ${c.month}월 · 네오 인연 ${c.neoAffinity}에서 초대장이 열려요`:'새로운 초대장을 기다려요'};
+ return {unlocked:joined||available.length>0,available,joined,hint:c?`${c.year}년차 ${c.month}월 · 네오 인연 ${c.neoAffinity}에서 초대장이 열려요(놓치면 3개월 뒤)`:'새로운 초대장을 기다려요'};
 }

@@ -509,7 +509,7 @@ function companionSheet(state,ui) {
       sub = '만남 조건 충족';
       right = btn({ action: 'recruit.event', args: { id: r.id }, cls: 'primary', disabled: state.mode !== 'prep', title: state.mode === 'prep' ? '만남 이벤트 보기' : '영업 준비 중에만 진행할 수 있습니다', label: '만남 이벤트 보기' });
     } else {
-      sub = r.id==='yun'?'윤달의 공방 거래 → 영냥이의 보스 토벌 부탁':r.id==='museong'?'영냥이 성장 Lv.8 이상, 사냥에서 90초 생존하면 만남':r.condition.debtFree ? `빚 완납 + 보유금 ${won(r.condition.wealth)} · 담당 접대 수입 +35%` : r.condition.month ? `운영 ${r.condition.year || 1}년차 ${r.condition.month}월부터 만남 · 놓치면 다음 해에 다시 찾아와요${r.condition.neoAffinity ? ` · 네오 인연 ${r.condition.neoAffinity} 필요` : ''}` : `조건: 정규 영업 ${Math.min(state.stats.shiftsCompleted, r.condition.shiftsCompleted)}/${r.condition.shiftsCompleted}회 · 상환 ${Math.min(state.stats.repayCount, r.condition.repaidAtLeast)}/${r.condition.repaidAtLeast}회`;
+      sub = r.id==='yun'?'윤달의 공방 거래 → 영냥이의 보스 토벌 부탁':r.id==='museong'?'영냥이 성장 Lv.8 이상, 사냥에서 90초 생존하면 만남':r.condition.debtFree ? `빚 완납 + 보유금 ${won(r.condition.wealth)} · 담당 접대 수입 +35%` : r.condition.month ? `운영 ${r.condition.year || 1}년차 ${r.condition.month}월부터 만남 · 놓치면 3개월 뒤 다시 찾아와요${r.condition.neoAffinity ? ` · 네오 인연 ${r.condition.neoAffinity} 필요` : ''}` : `조건: 정규 영업 ${Math.min(state.stats.shiftsCompleted, r.condition.shiftsCompleted)}/${r.condition.shiftsCompleted}회 · 상환 ${Math.min(state.stats.repayCount, r.condition.repaidAtLeast)}/${r.condition.repaidAtLeast}회`;
       right = '<span class="small muted">🔒 잠김</span>';
     }
     const stats = def?.stats ? STAT_KEYS.map(k => `${STAT_LABELS[k]} ${def.stats[k]}`).join(' · ') : '';

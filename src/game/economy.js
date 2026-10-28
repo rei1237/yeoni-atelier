@@ -102,13 +102,16 @@ export function claimQuest(state, questId) {
 }
 
 // ── 영입: 잠김 → 조건 충족(이벤트 가능) → 이벤트 완료 → 보상 1회 → 명단 추가 → 다음 영업부터 사용
+// 첫 초대 달 = 운영 year년차 month월. 놓치면 RECRUIT_RETRY_MONTHS개월마다 다시 찾아온다.
+export const inviteStartIdx = cond => ((cond.year || 1) - 1) * 12 + (cond.month - TEMP.CALENDAR.START_MONTH + 12) % 12;
+const inviteOpen = (cond, monthIdx) => !cond.month || (monthIdx >= inviteStartIdx(cond) && (monthIdx - inviteStartIdx(cond)) % TEMP.CALENDAR.RECRUIT_RETRY_MONTHS === 0);
 export function recruitView(state) {
   return recruitables(state).map(c => {
     const r = state.recruitment[c.id] || { status: 'locked' };
     const cond = c.condition;
-    const month = calendarOf(state.day).month;
-    // 해당 월에 등장, 놓친 경우 다음 해 같은 달에 다시 만난다. 영입 후에는 계속 함께한다.
-    const met = c.id === 'yun' ? yunQuestView(state).ready : c.id === 'museong' ? !!state.museongEncounter : (!cond.hostOpen || state.hostbar?.open) && (!cond.debtFree || state.debt <= 0) && state.gold >= (cond.wealth || 0) && (state.affinity?.neo || 0) >= (cond.neoAffinity || 0) && (c.id !== 'seohanbi' || hiddenGuestQuest(state).ready) && state.stats.shiftsCompleted >= cond.shiftsCompleted && state.stats.repayCount >= cond.repaidAtLeast && (c.id === 'seohanbi' || !cond.month || cond.month === month) && (c.id === 'seohanbi' || 1 + Math.floor(calendarOf(state.day).monthIdx / 12) >= (cond.year || 1));
+    const monthIdx = calendarOf(state.day).monthIdx;
+    // 첫 초대 달에 등장, 놓친 경우 3개월 뒤 다시 만난다. 영입 후에는 계속 함께한다.
+    const met = c.id === 'yun' ? yunQuestView(state).ready : c.id === 'museong' ? !!state.museongEncounter : (!cond.hostOpen || state.hostbar?.open) && (!cond.debtFree || state.debt <= 0) && state.gold >= (cond.wealth || 0) && (state.affinity?.neo || 0) >= (cond.neoAffinity || 0) && (c.id !== 'seohanbi' || hiddenGuestQuest(state).ready) && state.stats.shiftsCompleted >= cond.shiftsCompleted && state.stats.repayCount >= cond.repaidAtLeast && (c.id === 'seohanbi' || inviteOpen(cond, monthIdx));
     const status = r.status === 'recruited' ? 'recruited' : met ? 'available' : 'locked';
     return { id: c.id, name: c.name, devOnly: !!c.devOnly, status, condition: cond, meetEvent: c.meetEvent, reward: c.reward, usableFrom: state.roster[c.id]?.usableFrom ?? null };
   });
@@ -118,7 +121,7 @@ export function completeRecruit(state, id) {
   const v = recruitView(state).find(x => x.id === id);
   if (!v) return { ok: false, reason: '영입 대상이 아닙니다' };
   if (v.status === 'recruited') return { ok: false, reason: '이미 함께하는 동료입니다' };
-  if (v.status !== 'available') return { ok: false, reason: v.condition.month ? `${v.condition.month}월에 만날 수 있어요. 놓쳤다면 다음 해에 다시 찾아와요` : `조건 미충족: 정규 영업 ${v.condition.shiftsCompleted}회 + 상환 ${v.condition.repaidAtLeast}회` };
+  if (v.status !== 'available') return { ok: false, reason: v.condition.month ? `${v.condition.month}월에 만날 수 있어요. 놓쳤다면 ${TEMP.CALENDAR.RECRUIT_RETRY_MONTHS}개월 뒤 다시 찾아와요` : `조건 미충족: 정규 영업 ${v.condition.shiftsCompleted}회 + 상환 ${v.condition.repaidAtLeast}회` };
   if (state.mode !== 'prep') return { ok: false, reason: '만남 이벤트는 영업 준비 중에만 진행할 수 있습니다' };
   state.recruitment[id] = { status: 'recruited', at: state.day };
   // 영업 준비 중의 day 는 "다음 영업 번호"이므로 다음 영업부터 접대에 쓸 수 있다
