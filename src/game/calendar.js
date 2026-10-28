@@ -14,6 +14,7 @@ import { cafeProgress } from './cafe-growth.js';
 import { grantEventOutfits } from './outfits.js';
 import { HANBI_STAGES } from '../data/hunt-stages.js';
 import { placeLock, PLACE_NAMES, bondOpen, bondMasked } from './unlocks.js';
+import { interestDue, pendingRateStory, grantHikeGrowth } from './creditor.js';
 
 const C = TEMP.CALENDAR;
 export const PARTS = Object.freeze(['상순', '중순', '하순']);
@@ -63,8 +64,8 @@ export function chargeInterest(state, sh) {
   if (c.part !== C.TURNS_PER_MONTH - 1) return null;
   const key = `m${c.monthIdx}`;
   if (state.ledger.interest[key]) return state.ledger.interest[key];
-  // 루나의 검산(친밀도 능력)만큼 이자가 줄어든다
-  const due = state.debt > 0 ? Math.ceil(state.debt * C.INTEREST_RATE * (1 - bondFx(state).interestCut)) : 0;
+  // 이자율은 청토끼 인상 일정(creditor.js)을 따르고, 루나의 검산(친밀도 능력)만큼 줄어든다
+  const due = interestDue(state, c.monthIdx);
   const paid = Math.min(due, Math.max(0, state.gold));
   const added = due - paid;
   state.gold -= paid;
@@ -111,6 +112,8 @@ export function pendingStory(state) {
   const c = calendarOf(state.day);
   const id = `m${c.monthIdx}`;
   if (!state.ledger.story[id]) return id;
+  const rate = pendingRateStory(state); // 청토끼 이자율 인상은 그달 이야기 바로 다음
+  if (rate) return rate;
   // 첫 영업을 마친 뒤에야 「돈 벌어 와, 네오!」가 나온다
   if (!state.huntUnlocked && !state.ledger.story['ev:hunt'] && state.stats.shiftsCompleted >= 1) return 'ev:hunt';
   // 첫 원정에서 돌아오면 네오의 투정 → 청토끼 환전, 그다음 윤달 공방의 첫 강화로 이어진다
@@ -142,7 +145,7 @@ export function pendingBondStory(state) {
 export function markStory(state, id) {
   // 프롤로그는 새 게임의 도입부이며 달 이야기·보상과 별도로 기록한다.
   if(id==='prologue'){if(state.ledger.story.prologue)return {ok:true,duplicate:true};if(state.mode!=='prep')return {ok:false,reason:'영업 준비 중에만 볼 수 있어요'};state.ledger.story.prologue=true;return {ok:true};}
-  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+|hanbi:\d+|branch:[2-5])$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
+  if (typeof id !== 'string' || !/^(m\d+|ending:\w+|ev:[a-z]+|bond:\w+:\d+|hanbi:\d+|rate:\d+|branch:[2-5])$/.test(id)) return { ok: false, reason: '없는 이야기입니다' };
   if (state.ledger.story[id]) return { ok: true, duplicate: true };
   if (state.mode !== 'prep' || pendingStory(state) !== id) return { ok: false, reason: '지금 볼 수 있는 이야기가 아닙니다' };
   const farmLocked = id === 'm1' && !!placeLock(state, 'farm');
@@ -162,6 +165,7 @@ export function markStory(state, id) {
     if (!state.ledger.rewards['supply:first_lunch']) { state.ledger.rewards['supply:first_lunch'] = true; giftSupply(state, 'tonic', 1); emit('supplyGift', { id: 'tonic', label: '루나 언니의 도시락 · 회복 수프 1개를 챙겼어요' }); }
   }
   if (id === 'ev:forge' && !state.ledger.rewards['armory:first_free']) { state.ledger.rewards['armory:first_free'] = true; giftFreeEnhance(state); emit('supplyGift', { id: 'enhance', label: '윤달의 선물 · 첫 강화 1회 무료' }); }
+  if (id.startsWith('rate:')) grantHikeGrowth(state, Number(id.slice(5)));
   grantEventOutfits(state, id);
   const destination = id === 'ev:hunt' ? (placeLock(state, 'hunt') ? null : 'hunt') : id === 'ev:return' ? 'finance' : id === 'ev:forge' ? 'gear' : null;
   return { ok: true, ...(destination ? { destination } : {}) };

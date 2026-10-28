@@ -65,6 +65,7 @@ import { playNovel, novelActive } from './novel.js';
 import { EVENT_STORIES } from '../story/events.js';
 import {hunterUnlocked,hunterName} from '../game/hunt-cast.js';
 import { HANBI_STORIES } from '../story/hanbi.js';
+import { RATE_STORIES } from '../story/creditor.js';
 import { VISIT_STORIES } from '../story/visits.js';
 import { PROLOGUE } from '../story/prologue.js';
 import { MONTH_STORIES, ENDINGS } from '../story/months.js';
@@ -221,6 +222,7 @@ function storyBeats(id) {
   if (id.startsWith('branch:')) return branchStory(Number(id.slice(7)));
   if (id.startsWith('ev:')) return EVENT_STORIES[id] || null;
   if (id.startsWith('hanbi:')) return HANBI_STORIES[id.slice(6)] || null;
+  if (id.startsWith('rate:')) return RATE_STORIES[id.slice(5)] || null;
   return careerMonthStory(Number(id.slice(1)), state);
 }
 
@@ -653,6 +655,7 @@ function handleEvents(events) {
       case 'huntObjectBroken': sound('gem');floater(cssW/2,cssH*.34,ev.treasure?`✦ 보물 상자! 월정석 ×${ev.reward}${ev.heal?' · 구운 생선':''}`:`✦ 월정석 ×${ev.reward} 발견!`,'#6f63c9');if(ev.treasure)break;ui.lootLine=(ui.lootLine||0)+1;if(state.hunt?.hunterId==='neo'&&ui.lootLine%2===1)showCafeLine(CAFE_LINES.moonloot[(ui.lootLine>>1)%CAFE_LINES.moonloot.length],'영냥이','neo_cat');break;
       case 'huntEliteDown': if(state.hunt?.hunterId==='neo'){ui.eliteLine=(ui.eliteLine||0)+1;showCafeLine(CAFE_LINES.elitedown[ui.eliteLine%CAFE_LINES.elitedown.length],'영냥이','neo_cat');}break;
       case 'supplyGift': toast(ev.label,'good',3600);break;
+      case 'neoGrowth': toast(`🌙 네오 성장 · 공감·대화·재미·외모가 오르고 사냥 체력 +${TEMP.CALENDAR.HIKE_NEO.huntHp}`,'good',3600);break;
       case 'guestChatter': if(state.mode==='shift'&&ev.customerId){guestTalk(ui.talk??=newTalk(),state,ev,performance.now(),Math.random());break;}showCafeLine(ev.line,ev.kind==='takeaway'?'포장 손님':ev.tableNo?`${ev.tableNo}번 손님`:'손님','customer'); break;
       case 'paidAtCounter': sound('coin'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;
       case 'cafeLevelUp': sound('bond'); toast(`카페 Lv.${ev.level}! ${ev.apGain>0?`다음 순부터 마을 행동력 +${ev.apGain}`:'더 많은 손님과 새로운 취향이 찾아와요'}`,'good');break;

@@ -7,7 +7,7 @@ export const MONTH_STORIES = Object.freeze([
   [
     { chapter: ['1년차 3월', '개업 첫 달, 작은 글씨'], bg: 'atelier_lit', l: 'yeoni:normal', c: 'cheongtokki:smile', r: null },
     { s: 'rab', t: '어머~ 개업 축하드려요! 축하 화환 대신 이자 안내문을 가져왔답니다~' },
-    { s: 'sys', t: '[ 매달 하순 영업을 마치면 남은 빚의 2%(임시)가 이자로 나갑니다. 골드가 모자라면 빚에 붙습니다 ]' },
+    { s: 'sys', t: '[ 매달 하순 영업을 마치면 남은 빚에 월 이자(시작 2%, 임시)가 붙습니다. 지금 이자율은 청토끼 금융 센터에서 보고, 골드가 모자라면 빚에 붙습니다 ]' },
     { s: 'rab', t: '만기는 두 해를 운영한 뒤 2월 하순 결산일이에요~ 그날 남은 빚을 보고 계약서를 다시 쓰죠.', c: 'cheongtokki:smug' },
     { s: 'yeoni', t: '두 해 안에 일억 골드? 작은 카페에서 시작해도, 언젠가 온 동네가 찾아오는 가게로 만들어야겠어!', l: 'yeoni:surprised' },
     { s: 'luna', t: '연이 언니 계산 진짜 빠르다! 근데 그게 좋은 소식이야?', c: 'luna:surprised' },

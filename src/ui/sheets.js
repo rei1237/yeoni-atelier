@@ -61,7 +61,8 @@ import { SPEAKERS } from '../story/prologue.js';
 import { townCheck, nextExpansion, areaPrice, decorPrice } from '../game/town.js';
 import { placeLock, PLACE_NAMES, bondOpen, bondMasked, bondName } from '../game/unlocks.js';
 import { COMBO_MAX } from '../game/recipe.js';
-import { dateLabel, isEnded, calendarOf } from '../game/calendar.js';
+import { dateLabel, isEnded, calendarOf, monthName } from '../game/calendar.js';
+import { interestRate, nextHike, interestDue, monthOfDay } from '../game/creditor.js';
 import { ENDINGS } from '../story/months.js';
 import { btn, esc } from './dom.js';
 import { won } from './hud.js';
@@ -362,6 +363,14 @@ function gearStall(state) {
   return `<p class="small muted">윤달이 손질하는 장비 좌판 · 장비는 사냥 능력치만 바꿔요.</p>${btn({action:'sheet.open',args:{sheet:'armory'},cls:'primary',label:'윤달의 무기 공방 · 강화와 회복'})}<div class="kv">${slots}</div><div class="list">${rows}</div>`;
 }
 
+// 인수 빚 이자율: 지금 이율·이번 달 예상 이자·다음 인상(청토끼 일정, creditor.js)
+function interestCard(state) {
+  const m = monthOfDay(state.day), next = isEnded(state) ? null : nextHike(state, m);
+  const pct = r => `${Math.round(r * 100)}%`;
+  const when = next ? `${1 + Math.floor(next.monthIdx / 12)}년차 ${monthName(next.monthIdx)} → ${pct(next.rate)}` : '더 오르지 않아요';
+  return `<section class="card kv interest-card" aria-label="인수 빚 이자율"><span>인수 빚 월 이자</span><b>${pct(interestRate(state, m))}</b><span>이번 달 하순 예상</span><b>${won(interestDue(state, m))}</b><span>다음 인상</span><b>${esc(when)}</b></section>`;
+}
+
 // 환전: 개수 고르기(10·100·1000·전부, ±1, 직접 입력) → 받을 골드 미리보기 → 한 버튼으로 실행
 function financeCenter(state, ui = {}) {
   const m = state.moonstone || 0, rate = exchangeRate(state);
@@ -379,7 +388,7 @@ function financeCenter(state, ui = {}) {
     ${btn({ action: 'moonstone.exchange', args: { qty: q }, cls: 'primary exchange-go', disabled: q < 1, label: m < 1 ? '바꿀 월정석이 없어요' : `${q.toLocaleString()}개 환전하기` })}
     <p class="small muted">윤달 공방 강화와 기술 상한 해방은 월정석으로 해요. 강화에 쓸 몫은 남겨 두세요.</p>
   </section>`;
-  const debt = `<section class="exchange-debt"><span>남은 빚 <b>${won(state.debt)}</b></span>${btn({action:'sheet.open',args:{sheet:'debt'},label:'빚 상환하기'})}</section>`;
+  const debt = `<section class="exchange-debt"><span>남은 빚 <b>${won(state.debt)}</b></span>${btn({action:'sheet.open',args:{sheet:'debt'},label:'빚 상환하기'})}</section>${interestCard(state)}`;
   return `<div class="finance-host">${assetIcon('badges/cheongtokki')}<div><h3>청토끼 금융 센터</h3><p>환전 · 운영 대출 · 골드와 월정석 상환</p></div></div><p class="small">청토끼: "어머~ 월정석 하나에 ${won(rate)}이에요. 강화에 쓸 몫은 꼭 남겨 두시고요~"</p>
     ${exchange}${debt}${financeLoanHtml(state,credit)}`;
 }
@@ -452,6 +461,7 @@ function debtSheet(state) {
     <div class="card kv"><span>남은 빚</span><b>${won(state.debt)}</b><span>갚은 총액</span><b>${won(state.repaidTotal)}</b><span>보유 골드</span><b>${won(state.gold)}</b>
       <span>상환 단계</span><b>${esc(ds.label)}${ds.need ? ` ${won(ds.paid)} / ${won(ds.need)}` : ''}</b></div>
     ${ds.need ? bar(ds.paid / ds.need * 100) : ''}
+    ${interestCard(state)}
     <p class="small muted">💡 다음 영업 재료비로 ${won(TEMP.KEEP_FOR_INGREDIENTS_HINT)} 정도는 남겨 두는 것을 권장합니다.</p>
     ${can ? '' : '<p class="small warn">상환은 영업 전이나 마감 후에 할 수 있습니다.</p>'}
     <div class="btns">${amounts.map(([a, l]) => btn({ action: 'debt.repay', args: { amount: a }, disabled: !can || a <= 0 || state.gold < a || state.debt <= 0, label: l })).join('')}</div>`;
@@ -487,7 +497,7 @@ function stressLine(state, id) {
 }
 
 function companionSheet(state,ui) {
-  const neoStats = STAT_KEYS.map(k => `${STAT_LABELS[k]} ${PEOPLE.neo.stats[k]}`).join(' · ');
+  const neoStats = STAT_KEYS.map(k => `${STAT_LABELS[k]} ${hostStats(state, 'neo')[k]}`).join(' · ');
   const neoStatus = personBusyReason(state, 'neo') || (state.mode === 'shift' ? staffStatusText(state, 'neo') : state.people.neo.activity === 'hunting' ? '영냥이 모습으로 월정석 사냥 중' : '대기');
   const rows = [
     `<div class="item">${companionPortrait('yeoni')}<div class="meta grow"><b>연이 · 사장</b><span>계산·농장 담당 · 동료들과 함께 가게를 꾸려요${state.mode === 'shift' ? ` · ${esc(staffStatusText(state, 'yeoni'))}` : ''}</span></div></div>`,
@@ -660,7 +670,7 @@ function recruitDialog(state, id) {
 }
 
 function financeLoanHtml(state,c){
- return `<h3>확장을 앞당기는 운영 대출</h3><p class="small">청토끼: “기회는 빌려줄게. 이자까지 챙기는 건 네 몫이지!”</p><div class="kv"><span>대출 한도 / 사용 중</span><b>${won(c.limit)} / ${won(c.balance)}</b><span>월 이율</span><b>${c.rate*100}% · 복리</b><span>다음 하순 예상 이자</span><b>${won(c.nextInterest)}</b></div><p class="small muted">월말 하순에 이자를 내며, 못 낸 이자는 대출 잔액에 더해져요. 마감 직전 빌려도 한 달 이자가 발생해요. 본래 인수 빚은 별도이며 월 ${TEMP.CALENDAR.INTEREST_RATE*100}%입니다. 시설 확장 후 늘어날 수익과 비교하세요.</p><div class="btns">${[10000,50000,200000,1000000].map(amount=>btn({action:'finance.borrow',args:{amount},disabled:c.available<amount,label:`${won(amount)} 빌리기`})).join('')}</div><h3>골드 · 월정석으로 상환</h3>${[['inheritance','인수 빚',state.debt],['loan','운영 대출',c.balance]].map(([target,name,debt])=>`<div class="card"><b>${name} ${won(debt)}</b><div class="btns">${btn({action:'finance.repay',args:{target,currency:'gold',amount:Math.min(debt,state.gold)},disabled:!debt||!state.gold,label:'가진 골드로 갚기'})}${btn({action:'finance.repay',args:{target,currency:'moonstone',amount:Math.min(state.moonstone,Math.ceil(debt/exchangeRate(state)))},disabled:!debt||!state.moonstone,label:'월정석으로 갚기'})}</div></div>`).join('')}<p class="small muted">월정석은 우대 환율까지 동일하게 적용해요. 빚보다 많이 환산된 잔액은 골드로 돌려드려요.</p>`;
+ return `<h3>확장을 앞당기는 운영 대출</h3><p class="small">청토끼: “기회는 빌려줄게. 이자까지 챙기는 건 네 몫이지!”</p><div class="kv"><span>대출 한도 / 사용 중</span><b>${won(c.limit)} / ${won(c.balance)}</b><span>월 이율</span><b>${c.rate*100}% · 복리</b><span>다음 하순 예상 이자</span><b>${won(c.nextInterest)}</b></div><p class="small muted">월말 하순에 이자를 내며, 못 낸 이자는 대출 잔액에 더해져요. 마감 직전 빌려도 한 달 이자가 발생해요. 본래 인수 빚은 별도이며 지금 월 ${Math.round(interestRate(state)*100)}%입니다. 시설 확장 후 늘어날 수익과 비교하세요.</p><div class="btns">${[10000,50000,200000,1000000].map(amount=>btn({action:'finance.borrow',args:{amount},disabled:c.available<amount,label:`${won(amount)} 빌리기`})).join('')}</div><h3>골드 · 월정석으로 상환</h3>${[['inheritance','인수 빚',state.debt],['loan','운영 대출',c.balance]].map(([target,name,debt])=>`<div class="card"><b>${name} ${won(debt)}</b><div class="btns">${btn({action:'finance.repay',args:{target,currency:'gold',amount:Math.min(debt,state.gold)},disabled:!debt||!state.gold,label:'가진 골드로 갚기'})}${btn({action:'finance.repay',args:{target,currency:'moonstone',amount:Math.min(state.moonstone,Math.ceil(debt/exchangeRate(state)))},disabled:!debt||!state.moonstone,label:'월정석으로 갚기'})}</div></div>`).join('')}<p class="small muted">월정석은 우대 환율까지 동일하게 적용해요. 빚보다 많이 환산된 잔액은 골드로 돌려드려요.</p>`;
 }
 
 function manageSheet(state){return `${head('카페 수첩')}<div class="notebook-menu">${[['gameroom','연이와 네오의 게임방','함께 즐기는 두 가지 미니게임','skills/bell'],['staffing','직원 배치','넓어진 공간에 영입 동료 배치','skills/bell'],['branches','지점 관리','본점에서 5호점까지','objects/basic_table'],['quests','퀘스트','연이와 오늘의 목표','farm/seeds'],['companions','동료와 인연','함께할 친구들의 이야기','skills/bell'],['outfits','드레스룸','오늘은 어떤 모습으로 만날까','icons/vest_night'],['debt','장부와 상환','빚과 이번 달의 계획','ui/ledger'],['audio','달빛 음악실','음악과 효과음','skills/bell'],['tutorial','튜토리얼','기능별 안내 다시 보기','farm/seeds'],['more','기타','저장·음악·튜토리얼','skills/hat']].map(([id,title,line,icon])=>btn({action:'sheet.open',args:{sheet:id},cls:'notebook-link',label:`${assetIcon(icon)}<span><b>${title}</b><small>${line}</small></span><span aria-hidden="true">›</span>`})).join('')}</div><div class="title-secondary">${btn({action:'game.title',label:'메인 화면으로'})}${btn({action:'game.exit',label:'저장하고 종료'})}</div><div class="manage-auto">${automationRow(state, 'hall')}${automationRow(state, 'hall_neo')}${automationRow(state, 'kitchen')}</div>`;}

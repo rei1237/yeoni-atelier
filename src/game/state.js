@@ -9,6 +9,7 @@ import { PEOPLE, RECRUITABLE } from '../data/companions.js';
 import { DEV_RECRUITABLE } from '../data/dev-companions.js';
 import { START_OUTFITS, OUTFIT_WEARERS } from '../data/outfits.js';
 import { newFarm } from '../data/farm.js';
+import { withHikeStats } from './creditor.js';
 
 export const SAVE_VERSION = 3;
 
@@ -96,7 +97,8 @@ export function personDef(state, id) {
 }
 
 export function hostStats(state, id) {
-  return personDef(state, id)?.stats ?? null;
+  const stats = personDef(state, id)?.stats ?? null;
+  return id === 'neo' && stats ? withHikeStats(state, stats) : stats; // 청토끼 이자율 인상 때마다 네오가 자란다
 }
 
 export function personName(state, id) {

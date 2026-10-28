@@ -134,7 +134,14 @@ export const TEMP = Object.freeze({
     LEGACY_TOTAL_TURNS: 180,
     LEGACY_CUTOFF_DAY: 18,    // 이 순까지 진행한 옛 저장만 2년 규칙으로 옮긴다
     RECRUIT_RETRY_MONTHS: 3,  // 놓친 영입 초대는 이 개월 수마다 다시 온다(2년 안에 전원 합류)
-    INTEREST_RATE: 0.02,      // 하순 마감 때 남은 빚 × 2% (올림)
+    INTEREST_RATE: 0.02,      // 하순 마감 때 남은 빚 × 2% (올림). 옛 180순 저장은 끝까지 이 값
+    // 10-28 청토끼 이자율 인상(위기): 솔브·밤비·루네·레이븐이 합류하는 달 상순에 올린다(game/creditor.js)
+    RATE_HIKES: Object.freeze([
+      Object.freeze({ monthIdx: 5, rate: 0.03 }), Object.freeze({ monthIdx: 8, rate: 0.04 }),
+      Object.freeze({ monthIdx: 14, rate: 0.05 }), Object.freeze({ monthIdx: 18, rate: 0.06 }),
+    ]),
+    // 인상 장면을 볼 때마다 네오가 버티며 자란다(원장 hike:<달>:neo 1회). 호스트 능력치는 10이 상한
+    HIKE_NEO: Object.freeze({ empathy: 1, talk: 1, fun: 2, looks: 1, huntHp: 30, huntDmg: 0.08 }),
     AP_PER_TURN: 3,           // 사냥 1 · 대화 1
     ENDING_BOND_BEST: 1500,   // 빚을 다 갚고 친밀도 합이 이 이상이면 최고 결말(72순 봇: 일+네오 대화만으로는 ~1270, 여러 동료와의 대화·선물이 더 필요)
   }),

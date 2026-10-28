@@ -18,6 +18,7 @@ import {cafeCapacity,assignedHosts} from '../game/capacity.js';
 import {qualityOf} from '../data/cooking-quality.js';
 import { automationStatus } from '../game/auto.js';
 import {maxActionPoints} from '../game/calendar.js';
+import {interestDue,interestRate} from '../game/creditor.js';
 import {CUSTOMER_WEALTH} from '../data/customer-wealth.js';
 import {waitingSatisfaction} from '../game/reputation.js';
 import {popularity} from '../game/reputation.js';
@@ -110,9 +111,9 @@ function calendarStrip(state) {
   const pips = `<span class="pips" role="img" aria-label="행동력 ${left}/${apMax}">${'●'.repeat(left)}${'○'.repeat(Math.max(0, apMax - left))}</span>`;
   if (isEnded(state)) return `<div class="calstrip"><span>📅 ${esc(dateLabel(state))} · 자유 영업</span><span>행동력 ${pips}</span></div>`;
   const c = calendarOf(state.day);
-  const due = Math.ceil(Math.max(0, state.debt) * TEMP.CALENDAR.INTEREST_RATE);
+  const due = interestDue(state, c.monthIdx);
   const when = c.part === 2 ? '이번 영업 뒤' : `${PARTS[2]} 영업 뒤`;
-  return `<div class="calstrip"><span>📅 ${esc(dateLabel(state))} · 남은 ${turnsLeft(state)}순</span><span title="하순 영업을 마치면 이자가 나갑니다">💸 ${when} 이자 약 ${won(due)}</span><span>행동력 ${pips}</span></div>`;
+  return `<div class="calstrip"><span>📅 ${esc(dateLabel(state))} · 남은 ${turnsLeft(state)}순</span><span title="하순 영업을 마치면 이자가 나갑니다">💸 ${when} 이자(월 ${Math.round(interestRate(state, c.monthIdx)*100)}%) 약 ${won(due)}</span><span>행동력 ${pips}</span></div>`;
 }
 
 // ── 하단 패널

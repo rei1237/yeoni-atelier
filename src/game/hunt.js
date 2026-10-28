@@ -35,6 +35,7 @@ import { emit, nextId } from './state.js';
 import { personBusyReason } from './nomination.js';
 import { apCheck, spendAp, calendarOf, totalMonths } from './calendar.js';
 import { bondFx } from '../data/bonds.js';
+import { neoHikeBonus } from './creditor.js';
 import { placeLock, PLACE_NAMES } from './unlocks.js';
 import { workHunt } from './bonds.js';
 import { recordHunt, checkAchievements } from './hunt-codex.js';
@@ -85,6 +86,7 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
   gear.hp += fx.huntHp;
   gear.dmg += fx.huntDmg;
   gear.bossMoon = fx.bossMoon;
+  if (hunterId === 'neo') { const hike = neoHikeBonus(state); gear.hp += hike.huntHp; gear.dmg += hike.huntDmg; } // 이자율 인상을 버틴 만큼
   // TEMP: 정규 100단계 뒤 보상 동료. 원본 산탄과 꽃잎포를 쓰고 카페의 영입·능력은 바꾸지 않는다.
   if(hunterId === 'yeoni_pig'){gear.hp+=400;gear.dmg+=3;gear.speed+=.15;gear.magnet+=.5;}
   if(hunterId === 'seohanbi') { gear.hp += 120; gear.dmg += .8; gear.speed += .12; gear.magnet += .3; }
