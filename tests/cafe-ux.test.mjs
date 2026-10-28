@@ -60,3 +60,12 @@ test('부탁 노트 사연은 기존 완료 원장을 따르고 전용 정지 �
  assert.equal(dispatch(s,{type:'quest.claim',questId:'q_first_serve'}).ok,false);assert.equal(s.gold,gold);
  assert.match(worldScreenHtml(deserialize(serialize(s)).state,{screen:'quests',questId:'q_first_serve'}),/빈 접시/);
 });
+
+test('지금 머무는 장소를 다시 눌러도 그 장소 창으로 들어갈 수 있다',()=>{
+ const s=createGame();s.worldLocation='moka';
+ const html=worldScreenHtml(s,{screen:'world',worldPlace:'moka',worldAt:'moka',worldCardOpen:true});
+ const enter=html.match(/<button[^>]*data-action="world\.enter"[^>]*data-id="moka"[^>]*>/)?.[0]||html.match(/<button[^>]*data-id="moka"[^>]*data-action="world\.enter"[^>]*>/)?.[0];
+ assert.ok(enter,'입장 버튼이 있다');
+ assert.doesNotMatch(enter,/disabled/);
+ assert.match(html,/다시 들어가기/);
+});
