@@ -14,9 +14,10 @@
 6. e8afd40 인연 능력 강화: 루나 언니 동시 조리·랭크마다 조리 단축, 모카 고랭크 배달비 0 — "대기가 점점 줄도록"
 7. 5cd224c 데스크톱(≥1024px) 메인 화면 HD 일러스트, 에셋 예산 20MB
 8. 66a0f3d 카페 대화창: 꽃(손님)·달(직원) 말풍선, 캐릭터 색 이름 리본, 직원 초상, 겹침 회피(`placeBubbles`), 마감 한마디를 말풍선으로(`sayTalk`)
+9. f734e5f 배포 직후 CI 스프라이트 검사 실패 수정: `check-sprites.py`가 `*_hd` 시트를 원본 격자 배율로 검사, 마감 정리·연이 요리 시트를 발 기준점 중심 균일 축소(0.90~0.996)해 칸 여백 확보, 본체에서 떨어진 작은 먼지·거품 조각 제거
 
 ## 검증
-- `npm test` 362/362, `node tools/check-assets.mjs` 500/500 · 런타임 15.33MB(예산 20MB), `git diff --check` 통과
+- `npm test` 362/362, `node tools/check-assets.mjs` 500/500 · 런타임 15.28MB(예산 20MB), `py tools/check-sprites.py` 124시트 오류 0, GitHub Game checks·Pages 성공(f734e5f), `git diff --check` 통과
 - Playwright(390×844, 844×390, 1280×800, 1920×1080): 대화 말풍선 겹침 0·페이지 오류 0, 1024px 이상에서만 HD 타이틀 로드
 - 실제 휴대폰·실제 600초 사람 플레이: 미검증
 
