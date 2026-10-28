@@ -1,6 +1,7 @@
 import {runningJobs,queuedJobs,stationJobs,stationItems,activeSlotNames,heldKey} from './station-slots.js';
 import {chargeLoanInterest} from './finance.js';
 import {accruePayroll} from './payroll.js';
+import {ensureRecordPlayer} from './music-furniture.js';
 // 정규 영업: 시작 → 활성 시간 1,800초 동안 진행 → 30:00 마지막 접대 정산 → 마감 → 결산.
 // 한 시뮬레이션 단계 안의 처리 순서(동시 사건 순서)는 stepShift 에 고정되어 있다.
 
@@ -41,12 +42,14 @@ export function startShift(state) {
     const d = delegateCheck(state);
     if (d.ok) delegateFarm(state); else emit('farmDelegateSkipped', { reason: d.reason });
   }
+  const firstHostShift=state.hostbar.open&&!state.hostbar.introShiftStarted;
+  if(firstHostShift)state.hostbar.introShiftStarted=true;
   state.mode = 'shift';
   state.paused = false;
   state.fever = { gauge: 0, activeUntil: null };
   state.shift = {
     id: `shift-${state.day}`, day: state.day, elapsedMs: 0, durationMs: RULES.SHIFT_MS, nominationMs: RULES.NOMINATION_MS,
-    nextSpawnAt: TEMP.SPAWN_FIRST_MS, scriptIndex: state.stats.shiftsCompleted === 0 ? 0 : FIRST_SHIFT_SCRIPT.length,
+    nextSpawnAt: TEMP.SPAWN_FIRST_MS, scriptIndex: firstHostShift || state.stats.shiftsCompleted === 0 ? 0 : FIRST_SHIFT_SCRIPT.length,
     sales: 0, ingredientCost: 0, baseTips: 0, feverTips: 0, servedCount: 0, lostOrders: 0, wasted: 0,
     spawnCount: 0, regularVisits: 0, nominationVisits: 0, hostings: [], autoAt: 0,
     stressStart: stressOf(state, 'neo'),
@@ -148,6 +151,7 @@ export function closeSettlement(state) {
   state.shift = null;
   state.day += 1;
   advanceTurn(state);
+  ensureRecordPlayer(state);
   return { ok: true };
 }
 

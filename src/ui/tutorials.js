@@ -23,7 +23,10 @@ export const GUIDES = Object.freeze({
  shop:{title:'모카의 식재료점',image:'shop',steps:['식재료와 회복 물품을 골라요. 구매에는 행동력이 들지 않아요.','무기 강화는 윤달의 공방에서 해요. 모카와 친해지면 도움 물품이 늘어나요.']},
  cook:{title:'주문을 눌러 만들기',image:'cook',steps:['손님 테이블의 주문을 눌러요. 음료는 머신, 빵은 오븐에서 만들어요.','같은 손님의 두 메뉴도 각각 눌러 함께 만들 수 있어요. 부족한 재료는 모카에게 살 수 있어요.']},
  serve:{title:'완성된 음식은 한 번 탭',image:'serve',steps:['카페의 픽업 선반이나 주방 버튼에서 완성된 음식을 눌러요. 기다리는 테이블로 연결돼요.','직원이 음식을 나르면 손님은 식사 후 연이의 계산대로 가요. 빈자리의 정리 버튼을 누르면 다음 손님을 맞을 수 있어요.']},
- host:{title:'호스트 카페의 도움 요청',image:'host',steps:['첫해 5월 이야기를 마치면 지명이 열려요. 손님에 맞는 동료를 골라요.','SOS가 뜨면 상황을 읽고 답을 골라요. 알맞은 도움은 만족도를 높이고 담당 직원의 스트레스를 줄여요.']},
+ catcafe:{title:'영냥이의 카페 근무',image:'host',steps:['호스트 개업 후 네오 인연 3단계(180)부터 영냥이 모습으로 바꿀 수 있어요. 직원 메뉴에서 영냥이로 돕기를 눌러요.','스트레스가 높아도 카페에서 네발로 이동하며 서빙·정리와 지명을 도와요. 자동 서빙은 네오 홀 자동을 켜 주세요. 능력치와 스트레스는 네오와 공유해요.','네오와 영냥이는 한 명이에요. 접대·운반·사냥 중에는 바꿀 수 없고, 휴무는 그대로 지켜요. 네오로 돌아오면 원래 스트레스에 따른 휴식 조건이 적용돼요.']},
+ music:{title:'LP 플레이어와 달빛 음악실',image:'host',steps:['카페의 LP 가구나 하단 음악 버튼을 누르면 음악실이 열려요. 재생·일시정지, 이전 곡·다음 곡으로 음악을 조절해요.','곡 목록에서 원하는 음악을 고를 수 있어요. 카페 순서 재생을 선택하면 Moonlight Tea부터 카페 목록을 이어 들어요. 음량과 효과음은 따로 설정해요.']},
+ worldcast:{title:'데스티노바의 초대장',image:'bonds',steps:['멤버 얼굴 옆에서 만남 시기와 네오 인연 조건을 확인해요. 초대장이 열리면 만남 이야기를 끝까지 읽어 주세요.','함께하는 멤버는 대화·선물로 바로 만나요. 새로 영입한 호스트는 다음 영업부터 직원 배치에서 선택할 수 있어요.']},
+ host:{title:'호스트 카페 운영',image:'host',steps:['5월 개업 이야기 이후 지명 손님이 찾아와요. 영업 시작 → 하단 지명 알림 → 요청 확인 순서로 진행해요.','손님의 선호와 예상 만족도를 보고 지명을 수락하거나 다른 동료를 추천해요. 수락한 호스트는 60초 동안 한 테이블을 전담해요.','접대 중 SOS가 뜨면 상황에 맞는 답을 골라요. 도움 요청은 제한 시간이 있어요. 안내를 읽는 동안에는 영업 시간이 멈춰요.','만족도가 높은 접대는 팁과 피버로 이어져요. 직원에서 스트레스와 피버를 확인하고, 마감 정산에서 접대 결과를 살펴보세요.']},
  farm:{title:'꽃돼지 연이의 농장',image:'farm',steps:['씨앗을 고르고 빈 밭을 눌러 심어요. 심기·물 주기·돌보기·수확에는 각각 별도의 농장 행동력 1을 써요. 마을 행동력은 그대로예요. 돌본 밭은 더 빨리 자라고 수확량도 늘어요.','영업을 마치면 작물이 자라요. 익은 작물을 수확하면 주방 재료가 돼요. 비 오는 날은 물 주기를 쉬어요.']},
  hunt:{title:'피하고, 고르고, 살아남기',image:'hunt',steps:['화면을 드래그해 이동해요. 공격은 자동이에요. 별조각을 모으면 멈춘 화면에서 기술을 골라요.','게임 속 하루에 한 번 갈 수 있어요. 준비 시간이 지나 나온 우두머리를 물리치면 단계를 마치고, 지치면 보상을 정산해 돌아와요.']},
  armory:{title:'윤달의 무기 공방',image:'armory',steps:['윤달에게 월정석으로 사냥꾼별 무기·체력·줍기 범위를 강화해요. 강화에는 레벨 상한이 없어요.','모카에게 산 회복 물품은 사냥 화면의 간편 슬롯에서 써요. 모카와 인연을 쌓으면 수집 향과 방패 등 물품이 늘어나요.']},
@@ -32,10 +35,11 @@ export const GUIDES = Object.freeze({
  interior:{title:'가구를 놓고 길을 남기기',image:'interior',steps:['카페의 꾸미기를 눌러 가구를 사고 보유 가구를 배치해요. 테이블과 의자는 따로 놓아요.','가구를 고르고 위치와 방향을 확인해 배치해요. 입구와 통로를 남기고 의자를 테이블 쪽으로 향하게 한 뒤 저장해요.']},
 });
 // 새 조작 화면은 반드시 이 표와 GUIDES에 함께 등록한다.
-export const FEATURE_GUIDES=Object.freeze({delivery:'delivery',kitchen:'recipe',craft:'cook',foodgift:'personal',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop',staffing:'staffing',grounds:'grounds',branches:'branches',debt:'finance',quests:'quests',kfp:'kfp',trail:'trail'});
+export const FEATURE_GUIDES=Object.freeze({worldcast:'worldcast',audio:'music',delivery:'delivery',kitchen:'recipe',craft:'cook',foodgift:'personal',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop',staffing:'staffing',grounds:'grounds',branches:'branches',debt:'finance',quests:'quests',kfp:'kfp',trail:'trail'});
 export function guideForContext(s,ui){
  if(!s)return null;
  if(ui.sheet?.kind==='tutorial')return null;
+ if(s.hostbar.open&&s.mode==='shift'&&!s.tutorials?.host&&Object.values(s.customers).some(c=>c.state==='requesting'))return 'host';
  if(ui.sheet?.kind==='foodgift'&&s.tutorials?.personal&&!s.tutorials?.signatures&&(s.yeoniGrowth?.xp||0)>=72)return 'signatures';
  if(ui.sheet?.kind==='craft'&&ui.craft?.tableNo)return 'batch';
  if(ui.sheet?.kind==='craft'&&ui.craft?.purpose==='gift')return 'personal';

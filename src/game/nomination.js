@@ -56,7 +56,7 @@ export function acceptCheck(state, tableNo) {
   if (c.state === 'entering') reasons.push('손님이 아직 자리에 앉는 중입니다');
   else if (c.state !== 'requesting') reasons.push(visit.acceptAt != null ? '이미 수락된 지명입니다' : '지명 요청 상태가 아닙니다');
   const pid = visit.nominee;
-  if (isResting(state, pid) || stressOf(state, pid) >= 100) reasons.push(`${personName(state, pid)}이(가) 한계에 닿아 이번 영업의 새 지명을 쉬고 있습니다`);
+  if (isResting(state, pid) || (stressOf(state, pid) >= 100 && !(pid==='neo'&&catCafeActive(state)))) reasons.push(`${personName(state, pid)}이(가) 한계에 닿아 이번 영업의 새 지명을 쉬고 있습니다`);
   if (!isUsableHost(state, pid)) reasons.push(`${personName(state, pid)}은(는) 아직 접대할 수 없는 동료입니다`);
   else if (!state.staff[pid]) reasons.push(`${personName(state, pid)}은(는) 이번 영업에 출근하지 않았습니다`);
   const busy = personBusyReason(state, pid);
@@ -273,3 +273,4 @@ export function onRequesting(state, c, visit, now) {
 
 
 
+import {catCafeActive} from './cat-cafe-rules.js';

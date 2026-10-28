@@ -10098,3 +10098,10 @@ ASSET_UPDATES.objects.plant={...ASSET_UPDATES.objects.plant,...{"path": "assets/
 ASSET_UPDATES.objects.bookshelf={...ASSET_UPDATES.objects.bookshelf,...{"path": "assets/illustrated/objects/bookshelf.webp", "dimensions": [114, 224], "contentRect": [6, 6, 102, 212]}};
 ASSET_UPDATES.objects.lamp={...ASSET_UPDATES.objects.lamp,...{"path": "assets/illustrated/objects/lamp.webp", "dimensions": [54, 160], "contentRect": [6, 6, 42, 148]}};
 ASSET_UPDATES.objects.rug={...ASSET_UPDATES.objects.rug,...{"path": "assets/illustrated/objects/rug.webp", "dimensions": [224, 115], "contentRect": [6, 6, 212, 103]}};
+
+ASSET_UPDATES.objects.record_player={"kind": "object", "label": "\ub2ec\ube5b LP \ud50c\ub808\uc774\uc5b4", "path": "assets/illustrated/objects/record_player.webp", "dimensions": [224, 193], "contentRect": [6, 6, 212, 181]};
+
+ASSET_UPDATES.actors.neo_cat_cafe={...ASSET_UPDATES.actors.neo_cat,path:"assets/illustrated/actors/neo_cat_cafe.webp",dimensions:[512,512]};
+
+// 모바일 배포 용량: 구도와 비율을 보존한 타이틀 이미지.
+ASSET_UPDATES.backgrounds.title.dimensions=[600,900];

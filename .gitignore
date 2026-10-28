@@ -401,3 +401,8 @@ __pycache__/
 /assets/ui/town-map-spring.webp
 /assets/ui/town-map-summer.webp
 /assets/ui/town-map-winter.webp
+
+# Replaced by current cafe table/chair aliases; keep local originals.
+/assets/illustrated/objects/chair.webp
+/assets/illustrated/objects/basic_table.webp
+/assets/illustrated/objects/basic_chair.webp

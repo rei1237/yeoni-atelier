@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.28.5",
-  "name": "연이의 아틀리에 · 카페 상태와 꾸미기",
+  "version": "2026.10.28.6",
+  "name": "연이의 아틀리에 · 호스트와 영냥이",
   "musicTracks": 103,
-  "assetBytes": 14986150,
+  "assetBytes": 14988512,
   "channel": "production",
-  "baseCommit": "d961b76e68605e7fa33df8a076c45e2d86062b92",
+  "baseCommit": "9854b6b665d57e0e0322348b65aa0eb9f9357982",
   "newTitleArt": true
 }

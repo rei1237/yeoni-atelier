@@ -1,3 +1,4 @@
+import {ensureRecordPlayer} from '../game/music-furniture.js';
 import {validateLayout} from '../game/space.js';
 import {cafeLayout} from '../data/layout.js';
 import {normalizeKfp} from '../game/kfp-loadout.js';
@@ -54,6 +55,7 @@ function migrate(data) {
     if(validateLayout(data.interior.furniture,data.interior.areas||[],cafeLayout(candidate)).ok)data.interior.checkoutLayout='entrance-left';
   }
   migrateCounter(data);
+  ensureRecordPlayer(data);
   data.startingDebt ??= 120000; // 이전 저장의 원금과 상환 진척은 보존
   if (data.armory && !data.armory.skills) data.armory.skills = legacySkillRanks(data); // 기술 단련 이전 저장
   data.huntCodex ??= legacyCodex(data); // 수집 도감 이전 저장: 깬 단계로 소급
@@ -86,7 +88,7 @@ function migrate(data) {
   }
   data.outfits.equipped = {...base.outfits.equipped,...data.outfits.equipped};
   for(const id of Object.keys(data.roster)) { const outfit=`${id}_formal`; if(['yun','museong','solv','bambi','lune','raven'].includes(id) && !data.outfits.owned.includes(outfit)){data.outfits.owned.push(outfit);data.ledger.rewards[`outfit:${outfit}`]=true;data.outfits.equipped[id].outfit=outfit;} }
-  for (const c of Object.values(data.customers || {})) c.look = customerLook(c);
+  for (const c of Object.values(data.customers || {})) {c.nominationGuest ||= data.visits?.[c.visitId]?.kind==='nomination';c.look = customerLook(c);}
   // 기존 저장에는 도입부 기록이 없다. 이어하기는 프롤로그를 생략하고 다른 이야기 기록은 보존한다.
   data.ledger.story = {...data.ledger.story, prologue:true};
   migrateHuntVisits(data);

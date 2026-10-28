@@ -1,3 +1,5 @@
+import {catCafeActive} from '../game/cat-cafe-rules.js';
+import {worldCastSheet} from './world-cast.js';
 import {WORLD_PLACES} from './world-screen.js';
 import {uiIcon} from './moonlight-ui.js';
 import {trailSheet} from './trail-ui.js';
@@ -71,6 +73,7 @@ function sheetBody(state, ui) {
   const s = ui.sheet;
   if (!state || !s) return '';
   switch (s.kind) {
+    case 'worldcast':return worldCastSheet(state);
     case 'trail': return trailSheet(state);
     case 'kfp':return kfpSheet(state);
     case 'staffing': return staffingSheet(state);
@@ -113,7 +116,7 @@ function tableSheet(state, no, ui) {
   }
   const visit = state.visits[c.visitId];
   const parts = [head(`${no}번 테이블 · ${esc(c.label)}`)];
-  parts.push(`<div class="card"><h3>🍽 주문</h3>${ordersHtml(state, visit, no)}</div>`);
+  const foodOrders=`<div class="card"><h3>🍽 주문</h3>${ordersHtml(state, visit, no)}</div>`;
   const foods = visit.foodScores;
   const foodText = foods.length ? `${Math.round(foods.reduce((a, b) => a + b, 0) / foods.length)}점 (${foods.length}회)` : '아직 없음';
   if (visit.kind === 'regular') {
@@ -122,6 +125,7 @@ function tableSheet(state, no, ui) {
   } else {
     parts.push(nominationCard(state, visit, c, now, foodText, ui));
   }
+  parts.push(foodOrders);
   return parts.join('');
 }
 
@@ -154,17 +158,17 @@ function predictionHtml(pv, label) {
   const capLine = pv.capped
     ? `<p class="small bad">⛔ 핵심 조건 미충족(${pv.failures.map(k => STAT_LABELS[k]).join('·')}: 선호 ${CORE_CAP.PREF_MIN}% 이상인데 능력치 ${CORE_CAP.STAT_BELOW} 미만) → 만족도는 최대 ${CORE_CAP.H_MAX}점</p>` : '';
   return `<div class="row"><span class="big-num">${pv.H.toFixed(1)}</span><span><b>${esc(pv.grade.label)}</b><br><span class="small muted">${label}</span></span></div>
-    <p class="small muted">기본 상성 M ${pv.M.toFixed(1)} · 대화 보정 ${pv.talkBonus >= 0 ? '+' : ''}${pv.talkBonus} · 대기 불만 −${pv.waitPenalty}${pv.capped ? ` · 상한 전 ${pv.H0.toFixed(1)}` : ''}</p>
-    ${capLine}<p class="small muted">음식·인테리어·의상·피버는 접대 만족도를 올리지 않습니다(피버는 팁만 2배).</p>`;
+    <details class="host-score-details"><summary>만족도 계산 기준</summary><p class="small muted">기본 상성 M ${pv.M.toFixed(1)} · 대화 보정 ${pv.talkBonus >= 0 ? '+' : ''}${pv.talkBonus} · 대기 불만 −${pv.waitPenalty}${pv.capped ? ` · 상한 전 ${pv.H0.toFixed(1)}` : ''}</p>
+    ${capLine}<p class="small muted">음식·인테리어·의상·피버는 접대 만족도를 올리지 않습니다(피버는 팁만 2배).</p></details>`;
 }
 
 function nominationCard(state, visit, c, now, foodText, ui) {
   const profile = PDF.PROFILES.find(p => p.id === visit.profileId);
   const pid = visit.nominee;
-  const out = [`<div class="card"><div class="kv"><span>손님 유형</span><b>💌 지명 손님 · ${esc(profile?.label || visit.profileId)}</b>
+  const out = [`<div class="card host-service-card"><div class="host-service-face">${companionPortrait(pid==='neo'&&catCafeActive(state)?'neo_cat':pid)}<b>${esc(personName(state,pid))}의 접대</b></div><div class="kv"><span>손님 유형</span><b>💌 지명 손님 · ${esc(profile?.label || visit.profileId)}</b>
     <span>지명</span><b>${esc(personName(state, pid))}${visit.requestedNominee && visit.requestedNominee !== pid ? ` (원래 ${esc(personName(state, visit.requestedNominee))})` : ''}</b>
     <span>음식 점수(별도)</span><b>${foodText}</b></div>
-    <h3>선호 가중치 · ${esc(personName(state, pid))} 능력치</h3>${prefsGrid(state, visit, pid)}`];
+    <details class="host-score-details"><summary>손님 선호 · 호스트 능력치</summary>${prefsGrid(state, visit, pid)}</details>`];
 
   if (visit.settled) {
     const g = gradeOf(visit.finalH);
@@ -178,7 +182,7 @@ function nominationCard(state, visit, c, now, foodText, ui) {
     const left = TEMP.NOMINATION_PATIENCE_MS - (now - visit.requestAt);
     out.push(`<p class="small">⏳ 지명 요청 대기 ${fmtTime(left)} 남음 · 아직 60초 타이머는 시작하지 않았습니다</p>`);
     out.push(chk.ok
-      ? `<ul class="reasons okay"><li>수락하면 지금부터 60초 동안 ${esc(personName(state, pid))}이(가) 이 테이블 전담</li></ul>`
+      ? `<ul class="reasons okay"><li>수락하면 지금부터 60초 동안 ${esc(personName(state, pid))} 전담</li></ul>`
       : `<ul class="reasons">${chk.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>`);
     const others = usableHosts(state).filter(id => id !== pid && state.staff[id]);
     out.push(`<div class="btns">${btn({ action: 'nomination.accept', args: { no: visit.tableNo }, cls: 'primary', disabled: !chk.ok, title: chk.ok ? '지명 수락 (60초 전담 시작)' : chk.reasons.join(' / '), label: '💌 지명 수락' })}
@@ -194,8 +198,8 @@ function nominationCard(state, visit, c, now, foodText, ui) {
   const pct = (now - visit.acceptAt) / (visit.endAt - visit.acceptAt) * 100;
   out.push(`<h3>🫖 접대 중 · ${fmtTime(left)} 남음</h3>${bar(pct)}
     <p class="small muted">수락 ${fmtTime(visit.acceptAt)} → 종료 ${fmtTime(visit.endAt)} (영업 경과 기준) · 60초를 채우면 정산</p>
-    <h3>현재 접대 만족도</h3>${predictionHtml(pv, '대화 도움으로 −5~+5 보정')}`);
-  out.push(`<h3>도움 요청</h3><div class="list">${visit.help.map(h => helpHtml(state, visit, h, now)).join('')}</div>`);
+    <details class="host-score-details"><summary>현재 접대 만족도 ${pv.H.toFixed(1)} · ${esc(pv.grade.label)}</summary>${predictionHtml(pv, '대화 도움으로 −5~+5 보정')}</details>`);
+  out.push(`<h3>도움 요청</h3><div class="list">${[...visit.help].sort((a,b)=>Number(b.status==='open')-Number(a.status==='open')||a.index-b.index).map(h => helpHtml(state, visit, h, now)).join('')}</div>`);
   if (visit.fevered) out.push('<p class="small">🔥 피버 대상 테이블 — 정산 시 팁 2배</p>');
   out.push('</div>');
   return out.join('');
@@ -209,7 +213,7 @@ function helpHtml(state, visit, h, now) {
   const args = c => ({ visit: visit.id, index: h.index, choice: c });
   const scene = HELP_SCENES[h.kind];
   const choices = `<div class="choice-grid">${scene.choices.map(([id, label]) => btn({ action: 'help.respond', args: args(id), label: esc(label) })).join('')}</div>`;
-  return `<div class="sos-card"><b>SOS · ${label}</b><div class="sos-speech"><canvas data-talking-portrait="${esc(visit.nominee)}" width="96" height="96" aria-hidden="true"></canvas><p>${esc(scene.prompt)}</p></div><span class="small">${fmtTime(h.until - now)} 안에 응답</span>${bar((h.until - now) / (h.until - h.at) * 100)}${choices}</div>`;
+  return `<div class="sos-card"><b>SOS · ${label}</b><div class="sos-speech">${visit.nominee==='neo'&&catCafeActive(state)?assetIcon('portraits/neo_cat'):`<canvas data-talking-portrait="${esc(visit.nominee)}" width="96" height="96" aria-hidden="true"></canvas>`}<p>${esc(scene.prompt)}</p></div><span class="small">${fmtTime(h.until - now)} 안에 응답</span>${bar((h.until - now) / (h.until - h.at) * 100)}${choices}</div>`;
 
 }
 
@@ -526,7 +530,7 @@ function confirmDialog(cf) {
 }
 
 function titleDialog(ui) {
- return `<section class="title-screen" role="dialog" aria-modal="true" aria-labelledby="game-title" style="${assetStyle('backgrounds/title')}"><div class="title-wordmark"><div class="title-emblem" aria-hidden="true">${uiIcon("cup")}</div><h1 id="game-title"><span>연이의</span><strong>아틀리에</strong></h1><p>차 한 잔에서 시작되는 우리의 이야기</p></div><div class="title-cast" role="img" aria-label="인간형 연이와 네오, 루나 자매와 모카"><div class="title-friends">${['luna_sis','moka','luna'].map(id=>`<span class="title-friend ${id}">${assetIcon('portraits/'+id)}</span>`).join('')}</div><span class="title-lead neo">${assetIcon('portraits/neo')}</span><span class="title-lead yeoni">${assetIcon('portraits/yeoni')}</span><span class="title-flower left">${assetIcon('ui/botanical_left')}</span><span class="title-flower right">${assetIcon('ui/botanical_right')}</span></div><div class="title-menu">${ui.hasSave?btn({action:'game.continue',cls:'primary title-main-action',label:'<span>카페 이어하기</span>'+uiIcon('arrow')}):btn({action:'game.new',cls:'primary title-main-action',label:'<span>나의 카페 열기</span>'+uiIcon('arrow')})}<div class="title-secondary">${ui.hasSave?btn({action:'game.new',label:'새로운 이야기'}):''}${btn({action:'game.prologue',label:'처음 만나는 이야기'})}</div><details class="title-options"><summary>음악 · 저장 설정</summary>${audioQuickButton()}${btn({action:'game.reset',disabled:!ui.hasSave,label:'저장 초기화'})}</details>${!ui.storageOk?'<p role="status">브라우저 저장이 제한되어 새로고침하면 진행이 사라져요.</p>':''}${ui.dev?'<small>개발 모드 · 일반 저장과 분리</small>':''}</div></section>`;
+ return `<section class="title-screen" role="dialog" aria-modal="true" aria-labelledby="game-title" style="${assetStyle('backgrounds/title')}"><div class="title-wordmark"><div class="title-emblem" aria-hidden="true">${uiIcon("cup")}</div><h1 id="game-title"><span>연이의</span><strong>아틀리에</strong></h1><p>차 한 잔에서 시작되는 우리의 이야기</p></div><div class="title-cast" role="img" aria-label="인간형 연이와 네오, 루나 자매와 모카"><div class="title-friends">${['luna_sis','moka','luna'].map(id=>`<span class="title-friend ${id}">${assetIcon('portraits/'+id)}</span>`).join('')}</div><span class="title-lead neo">${assetIcon('portraits/neo')}</span><span class="title-lead yeoni">${assetIcon('portraits/yeoni')}</span><span class="title-flower left">${assetIcon('ui/botanical_left')}</span><span class="title-flower right">${assetIcon('ui/botanical_right')}</span></div><div class="title-menu">${ui.hasSave?btn({action:'game.continue',cls:'primary title-main-action',label:'<span>'+(ui.hostDemo?'호스트 체험 이어하기':'카페 이어하기')+'</span>'+uiIcon('arrow')}):btn({action:'game.new',cls:'primary title-main-action',label:'<span>'+(ui.hostDemo?'호스트 체험 시작':'나의 카페 열기')+'</span>'+uiIcon('arrow')})}<div class="title-secondary">${ui.hasSave?btn({action:'game.new',label:'새로운 이야기'}):''}${btn({action:'game.prologue',label:'처음 만나는 이야기'})}</div><details class="title-options"><summary>음악 · 저장 설정</summary>${audioQuickButton()}${btn({action:'game.reset',disabled:!ui.hasSave,label:'저장 초기화'})}</details>${!ui.storageOk?'<p role="status">브라우저 저장이 제한되어 새로고침하면 진행이 사라져요.</p>':''}${ui.hostDemo?'<small>호스트 체험 · 5월 개업 완료 · 본편/개발 저장과 별도</small>':ui.dev?'<small>개발 모드 · 일반 저장과 분리</small>':''}</div></section>`;
 }
 
 function pausedDialog(state) {
@@ -609,7 +613,7 @@ function chestDialog(state) {
 }
 
 // 한 번 출발에 3단계를 마친 사냥꾼의 한마디
-export const tiredLine = id => id === 'seohanbi' ? '오늘 사냥은 여기까지. 무리하면 내일이 무뎌져' : id === 'yeoni_pig' ? '꿀악! 오늘 운동은 별 다섯… 이제 간식 먹으러 가자!' : '영냥이가 피곤하군… 오늘은 여기까지만 할까?';
+export const tiredLine = id => id === 'seohanbi' ? '오늘 사냥은 여기까지. 무리하면 내일이 무뎌져' : id === 'yeoni_pig' ? '꿀악! 오늘 운동은 별 다섯… 이제 간식 먹으러 가자!' : '또 나만 뛰었네. 연이 얼굴 보고 쉬어야겠다.';
 
 // 단계 클리어: 다음 단계로 이어 가거나 귀환해 정산한다. 고르는 동안 시간이 멈춘다
 function stageClearDialog(state) {

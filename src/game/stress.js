@@ -6,12 +6,13 @@ import { bondFx } from '../data/bonds.js';
 import { STAFF_CREW } from '../data/companions.js';
 import { emit, personName } from './state.js';
 import { townCheck } from './town.js';
+import {catCafeActive} from './cat-cafe-rules.js';
 
 export const STRESS_MAX = 100;
 export const stressOf = (state, id = 'neo') => state.stress?.[id] || 0;
-export const isResting = (state, id = 'neo') => !!state.resting?.[id];
+export const isResting = (state, id = 'neo') => !!state.dayOff?.[id] || (!!state.resting?.[id] && !(id==='neo'&&catCafeActive(state)));
 export const stressStage = (state, id = 'neo') => stressOf(state, id) >= STRESS_MAX || isResting(state, id) ? 'limit' : stressOf(state, id) >= 60 ? 'tired' : 'calm';
-export const stressLabel = (state, id = 'neo') => ({ calm: '평온', tired: '지침', limit: '한계 · 이번 영업은 쉬어요' })[stressStage(state, id)];
+export const stressLabel = (state, id = 'neo') => id==='neo'&&catCafeActive(state)?'영냥이로 돕는 중':({ calm: '평온', tired: '지침', limit: '한계 · 이번 영업은 쉬어요' })[stressStage(state, id)];
 // 스트레스를 받는 사람: 연이(사장·플레이어)를 뺀 가게 직원과 함께하는 동료
 export const stressCrew = state => [...new Set(['neo', ...STAFF_CREW, ...Object.keys(state.roster || {})])];
 
@@ -22,7 +23,7 @@ export function changeStress(state, key, id = 'neo') {
   const before = stressOf(state, id);
   const value = Math.max(0, Math.min(STRESS_MAX, Math.round((before + delta) * 10) / 10));
   state.stress = { ...state.stress, [id]: value };
-  if (state.mode === 'shift' && value >= STRESS_MAX && !isResting(state, id)) {
+  if (state.mode === 'shift' && value >= STRESS_MAX && !isResting(state, id) && !(id==='neo'&&catCafeActive(state))) {
     state.resting = { ...state.resting, [id]: true };
     emit('staffResting', { id, name: personName(state, id) });
   }

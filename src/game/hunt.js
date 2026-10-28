@@ -1,3 +1,4 @@
+import {catCafeUnlocked} from './cat-cafe-rules.js';
 import {stepTrail,claimTrailReward,trailDef} from './hunt-trails.js';
 import {normalizeKfp,kfpOptions,kfpEvolutions,kfpDescribe,applyKfpOption,kfpPlayerStats,fuseKfp} from './kfp-loadout.js';
 import {stepKfp} from './kfp-combat.js';
@@ -796,7 +797,7 @@ export function finishHunt(state) {
   state.hunt = null;
   state.mode = 'prep';
   state.paused = false;
-  Object.assign(state.people[hunterPerson(hs.hunterId || 'neo')], { activity: 'idle', form: 'human' });
+  Object.assign(state.people[hunterPerson(hs.hunterId || 'neo')], { activity: 'idle', form: (hs.hunterId||'neo')==='neo'&&state.cafeCat&&catCafeUnlocked(state)?'cat':'human' });
   emit('huntFinished', { bag: state.lastHunt.bag });
   return { ok: true };
 }

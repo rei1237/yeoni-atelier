@@ -575,6 +575,7 @@ export function spawnCustomer(state, spec) {
     state: 'entering', action: 'walk', actionUntil: 0, orderAt: null, eatEndAt: null,
     hue: Math.floor(nextRandom(state.rng) * 360),
   };
+  c.nominationGuest=spec.kind==='nomination';
   c.look = customerLook(c);
   const visit = {
     id: vid, customerId: cid, tableNo: t.no, kind: spec.kind, motive:spec.motive || (spec.kind==='regular' && nextRandom(state.rng)<Math.min(.55,.1+atmosphere(state)/140)?'atmosphere':'menu'), wealthId, profileId: profile.id, prefs: { ...profile.prefs },

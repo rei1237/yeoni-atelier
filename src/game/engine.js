@@ -70,6 +70,7 @@ function execute(state, cmd) {
       state.tutorials??={};state.tutorials[cmd.id]=true;return {ok:true};
     case 'branch.buy': return buyBranch(state,Number(cmd.id),cmd.confirmed===true);
     case 'branch.switch': return switchBranch(state,Number(cmd.id));
+    case 'neo.cafeForm':return setCafeCat(state,cmd.on);
     case 'shift.start': return shift.startShift(state);
     case 'settlement.close': return shift.closeSettlement(state);
     case 'pause':
@@ -201,3 +202,4 @@ export function tick(state, dtMs, { input } = {}) {
     }
   }).events;
 }
+import {setCafeCat} from './cat-cafe-rules.js';

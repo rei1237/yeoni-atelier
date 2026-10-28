@@ -262,7 +262,7 @@
 | enemies/blue_rabbit | assets/illustrated/enemies/blue_rabbit.webp | 512×384 | 완료 |
 | enemies/heukwol_fragment | assets/illustrated/enemies/heukwol_fragment.webp | 512×384 | 완료 |
 | enemies/blue_brute | assets/illustrated/enemies/blue_rabbit.webp | 512×384 | 완료 |
-| backgrounds/title | assets/illustrated/backgrounds/title.webp | 768×1152 | 완료 |
+| backgrounds/title | assets/illustrated/backgrounds/title.webp | 600×900 | 완료 |
 | portraits/yun@yun_formal | assets/illustrated/portraits/yun@yun_formal.webp | 384×576 | 완료 |
 | portraits/yun@yun_moon | assets/illustrated/portraits/yun@yun_moon.webp | 384×576 | 완료 |
 | portraits/yun@yun_garden | assets/illustrated/portraits/yun@yun_garden.webp | 384×576 | 완료 |
@@ -684,3 +684,9 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 
 ### 장식 가구 개별 재생성
 22종을 한 이미지당 한 가구로 새로 생성했다. 기존 시트 분할 이미지를 교체하고 원본 비율, 전체 윤곽, 투명 여백을 유지했다. 큰 가구는 바닥 점유 영역과 별개인 renderSize로 표시한다.
+
+| objects/record_player | assets/illustrated/objects/record_player.webp | 224×193 | 완료 | 독립 생성 LP 플레이어 |
+
+| actors/neo_cat_cafe | assets/illustrated/actors/neo_cat_cafe.webp | 512×512 | 완료 | 카페 전용 네발 걷기 4방향 4프레임 |
+
+2026-10-28 호스트 업데이트: 타이틀 세로/가로 그림은 구도를 유지해 600×900 / 900×600 WebP로 정규화했다. 기존 원본은 작업 산출물에 보존했다. 최종 레지스트리에서 교체된 chair/basic_table/basic_chair 원본은 로컬 보존하고 배포에서 제외한다.

@@ -3923,5 +3923,26 @@
     "sourceFile": "exec-8a625cfe-1480-4bfc-86ae-45b0f7ed954b.png",
     "prompt": "Create ONE BRAND NEW standalone game furniture sprite, not an edit or collage. Soft hand-painted premium Korean moonlight botanical fantasy cafe style, elegant carved wood, warm ivory, blush rose, sage green and antique gold, readable detailed silhouette. Camera elevated orthographic three-quarter front view consistent with a cozy 2D cafe game; all vertical furniture stands upright. SUBJECT: one flat oval cream woven cafe rug with a blush pink botanical border and tiny rose motifs, elevated three-quarter game camera, no other objects. CRITICAL: only this ONE complete object, centered and occupying about 75 percent of canvas, fully contained with at least 10 percent transparent margin on ALL sides; no cut-off tips, no cropped legs, no stray fragments or neighboring objects, no room, no floor plane, no text, no labels, no grid, no border, no extra accessories outside this single object's silhouette. True transparent background, only a tiny contact shadow beneath its own base. Crisp clean contours, polished illustration, not pixel art, not photorealistic. BACKGROUND MUST BE EMPTY TRANSPARENT ALPHA, NOT A BLACK BACKGROUND. NO COLORED GLOW, NO BROWN VIGNETTE, NO AMBIENT HALO, NO DROP SHADOW. Transparency must begin directly at the object's crisp outline.",
     "normalization": "Individual transparent original; alpha bounding box, proportional Lanczos resize, six-pixel transparent margin; WebP quality76. No sprite-sheet slicing."
+  },
+  {
+    "id": "objects/record_player",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-a8621c5d-c86f-48ed-a93a-ae9e4daf9ea4.png",
+    "prompt": "Create ONE complete standalone furniture sprite for a premium Korean moonlight botanical cafe game. An elegant low walnut and ivory record cabinet with two short carved legs on each side, antique gold trim, pink rose vine detail, a modern vintage vinyl LP turntable on its top: clearly visible black round vinyl disc with small blush label, brass tonearm resting onto record, no gramophone horn. Lower open shelves contain several vinyl album sleeves. Elevated orthographic three-quarter front view, warm hand-painted storybook illustration, cream blush sage and walnut colors, matching cozy fantasy furniture. Single full object occupying 75% of canvas, at least 10% true transparent margin on every side. No floor, room, text, characters, neighboring objects, no clipped edges. Crisp clean alpha silhouette, minimal contact shadow. Transparent background.",
+    "normalization": "Alpha bounds, proportional Lanczos resize, transparent 6px margin, WebP quality72."
+  },
+  {
+    "id": "actors/neo_cat_cafe",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-80d024b2-af43-42aa-be9a-6e05f8bdf9c6.png",
+    "prompt": "GAME SPRITE SHEET with a strict 4 columns by 4 rows grid of equal square cells. Transparent background. Each of the sixteen sprites must be SMALL, occupying only 60% of its cell, surrounded by 20% empty transparent padding ON EACH SIDE. Large transparent gaps between every sprite. Nothing touches image borders. The same fluffy white cat with purple eyes, navy crescent-star hat with gold tassel, tiny navy cape, purple gem collar, matching the reference. NATURAL QUADRUPED walking cat, horizontal torso, four short animal legs with paws under body, tail up, never standing upright. Row1 front/down view; row2 left side; row3 right side; row4 rear/up view. In each row four different consecutive walking frames, alternate front/back diagonal paws. All paws share fixed baseline in each cell. The tail and hat must remain INSIDE its cell, no crossing into neighboring cell. Clean painterly chibi fantasy cafe game art, small full body sprites with clearly visible space around them. No room, floor, text, outlines of cells, extras.",
+    "normalization": "16 separate cell crops, common proportional scale, fixed paw baseline122; 128px cells; WebP quality74."
+  },
+  {
+    "id": "reactions/missed",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-3d79fd53-5c85-489e-ad40-25b780f9b1f3.png",
+    "prompt": "Create ONE standalone reaction illustration of the EXACT white wizard cat in reference: fluffy white fur, purple eyes, navy gold crescent-star hat, gold tassel, small dark cape and purple collar gem. The cat sits with a gently apologetic embarrassed expression, holds ONE small antique pocket watch beside its face. Entire character including hat tip, both ears, paws, cape, tail and watch fully visible and entirely inside canvas with at least 12% transparent margin on all sides. SINGLE isolated character only. No other pictures, no stray fragments, no cut-off head above, no grid, no text, no room. Elegant soft painterly cute fantasy cafe game illustration. True transparent background.",
+    "normalization": "Independent whole character, alpha bounds, proportionally fit within176px,192px canvas transparent margin."
   }
 ]

@@ -53,6 +53,7 @@ export function areaCells(a) {
 // 가구 정의. cells는 회전 0 기준의 상대 좌표. kind: table / chair / block / floor(통과 가능 장식)
 export const FURNITURE = Object.freeze({
   ...Object.fromEntries([...DECOR_CATALOG,...LARGE_CATALOG].map(d => [d.id, {...d}])),
+  record_player:{id:'record_player',name:'달빛 LP 플레이어',renderSize:{w:2.5,h:2.7},cells:[{dx:0,dy:0,kind:'block'},{dx:1,dy:0,kind:'block'}],color:'#9a6f4e',ambience:0,baseAmbience:0},
   table: {id:'table',name:'카페 테이블',cells:[{dx:0,dy:0,kind:'table'}],color:'#c79a6b',ambience:0,table:true,storable:true},
   chair: {id:'chair',name:'카페 의자',cells:[{dx:0,dy:0,kind:'chair'}],color:'#c79a6b',ambience:0,chair:true,storable:true},
   table_set: { id: 'table_set', name: '2인 테이블 세트', cells: [{ dx: 0, dy: 0, kind: 'table' }, { dx: 0, dy: 1, kind: 'chair' }], color: '#c79a6b', ambience: 0, table: true, storable: false },
@@ -70,6 +71,7 @@ export const START_FURNITURE = Object.freeze([
   { uid: 'table3', defId: 'table_set', x: 6, y: 8, rot: 0, tableNo: 3 },
   { uid: 'table4', defId: 'table_set', x: 2, y: 8, rot: 0, tableNo: 4 },
   { uid: 'table5', defId: 'table_set', x: 6, y: 11, rot: 0, tableNo: 5 },
+  {uid:'cafe-record-player',defId:'record_player',x:0,y:7,rot:0},
   { uid: 'plant1', defId: 'plant', x: 0, y: 10, rot: 0 },
   { uid: 'plant2', defId: 'plant', x: 8, y: 15, rot: 0 },
   { uid: 'rug1', defId: 'rug', x: 3, y: 4, rot: 0 },

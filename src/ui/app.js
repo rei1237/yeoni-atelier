@@ -1,3 +1,4 @@
+import {createHostDemo,HOST_DEMO_SAVE_KEY} from '../game/host-demo.js';
 import {kfpFusionPreview,KFP_WEAPONS} from '../game/kfp-loadout.js';
 import {MENUS} from '../data/menus.js';
 import {BONDS as GIFT_BONDS} from '../data/bonds.js';
@@ -70,13 +71,14 @@ import { GAG_SHIFT_START, GAG_KITCHEN, GAG_MOKA_BUY, GAG_MOKA_DELIVERY, GAG_LUNA
 
 // ── 부팅
 const DEV = new URLSearchParams(location.search).get('dev') === '1';
-const SAVE_KEY = DEV ? SAVE_KEYS.dev : SAVE_KEYS.normal;
+const HOST_DEMO=DEV&&new URLSearchParams(location.search).get('demo')==='host';
+const SAVE_KEY = HOST_DEMO?HOST_DEMO_SAVE_KEY:DEV ? SAVE_KEYS.dev : SAVE_KEYS.normal;
 let storage = browserStorage();
 const storageOk = !!storage;
 if (!storage) storage = memoryStorage();
 
 let state = null;
-const ui = { playSpeed:1, camera:{zoom:1,x:0,y:0}, dev: DEV, speed: 1, sheet: null, confirm: null, selectedSlot: null, recruitEvent: null, combo: [], discovery: null, ending: null, storageOk, hasSave: hasSave(storage, SAVE_KEY) };
+const ui = { playSpeed:1, camera:{zoom:1,x:0,y:0}, dev: DEV, hostDemo:HOST_DEMO, speed: 1, sheet: null, confirm: null, selectedSlot: null, recruitEvent: null, combo: [], discovery: null, ending: null, storageOk, hasSave: hasSave(storage, SAVE_KEY) };
 if (DEV) document.documentElement.classList.add('dev');
 
 const el = { topbar: $('#topbar'), panel: $('#panel'), stage: $('#stage'), canvas: $('#view'), hits: $('#hits'), bubbles: $('#bubbles'),
@@ -166,11 +168,12 @@ function run(cmd, { keepQuiet = false } = {}) {
 
 function startNew() {
   if(state || novelActive())return;
-  state = createGame({ dev: DEV, seed: (Date.now() % 2147483647) | 0 });
+  state = HOST_DEMO?createHostDemo():createGame({ dev: DEV, seed: (Date.now() % 2147483647) | 0 });
   ui.worldAt='atelier';
   recordWallClock(state, Date.now());
   ui.sheet = null; ui.selectedSlot = null; ui.recruitEvent = null; ui.ending = null;
   save();
+  if(HOST_DEMO){ui.guideId='host';ui.guideStep=0;ui.guideReturn={kind:null};ui.sheet={kind:'tutorial'};return;}
   // 새 게임은 프롤로그부터. 영업 준비 화면이라 그동안 시간은 흐르지 않는다.
   const started=state;
   const finishPrologue=()=>{if(state!==started)return;run({type:'story.seen',id:'prologue'},{keepQuiet:true});toast('새 게임 · 토끼 자매와 첫 영업을 준비해요','good',3200);};
@@ -378,6 +381,7 @@ const ACTIONS = {
   // 엔진 명령(인자 변환)
   'serve': d => run({ type: 'serve', itemId: d.item, tableNo: n(d.no) }),
   'clean': d => run({ type: 'clean', tableNo: n(d.no) }),
+  'neo.cafeForm':()=>{if(!state.tutorials?.catcafe){ui.guideReturn=ui.sheet||{kind:null};ui.guideId='catcafe';ui.guideStep=0;ui.guideAction='neo.cafeForm';ui.sheet={kind:'tutorial'};return;}run({type:'neo.cafeForm'});},
   'nomination.accept': d => run({ type: 'nomination.accept', tableNo: n(d.no) }),
   'nomination.decline': d => run({ type: 'nomination.decline', tableNo: n(d.no) }),
   'nomination.propose': d => run({ type: 'nomination.propose', tableNo: n(d.no), personId: d.person }),
@@ -481,6 +485,7 @@ ACTIONS['yeoni.kitchen']=()=>{ui.giftRecipient=null;ui.foodFilter='all';ui.sheet
 ACTIONS['yeoni.title']=d=>run({type:'yeoni.title',id:d.id});
 ACTIONS['yeoni.register']=d=>{if(run({type:'yeoni.menu.register',menuId:d.menu}).ok)toast('카페 메뉴에 등록했어요. 다음 손님부터 주문할 수 있어요.','good');};
 ACTIONS['bond.read']=d=>{const key='bond:'+d.id+':'+d.tier;if(state.mode!=='prep'||!state.ledger.story[key])return;const story=storyBeats(key);if(!story)return;const back=ui.sheet;ui.sheet=null;playNovel(story,{onEnd:()=>{ui.sheet=back;render(true);},onCancel:()=>{ui.sheet=back;render(true);}});};
+ACTIONS['world.companion']=d=>{if(state.roster[d.id]&&BONDS[d.id]){ui.companionId=d.id;ui.sheet={kind:'companions'};}};
 ACTIONS['companion.select']=d=>{if(BONDS[d.id])ui.companionId=d.id;};
 ACTIONS['gift.back']=()=>{ui.companionId=ui.giftRecipient;ui.sheet={kind:'companions'};};
 ACTIONS['gift.open']=d=>{ui.giftRecipient=d.id;ui.foodFilter='all';ui.sheet={kind:'foodgift'};};

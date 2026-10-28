@@ -1,3 +1,4 @@
+import {catCafeActive} from '../game/cat-cafe-rules.js';
 import {customerPose} from './customer-pose.js';
 import {cookingPose,staffCookingPose} from './cooking-pose.js';
 import {runningJobs,queuedJobs,stationJobs,stationItems,activeSlotNames,heldKey} from '../game/station-slots.js';
@@ -64,6 +65,7 @@ function label(ctx, text, x, y, size, color = '#3b2f2f', align = 'center') {
 }
 
 function outfitLook(state, who) {
+  if(who==='neo'&&catCafeActive(state))return {};
   const eq = state.outfits?.equipped?.[who];
   if (!eq) return {};
   return {
@@ -180,7 +182,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
       const map = { walk: 'walk', serve: 'serve', clean: 'clean', host: 'host', react: 'react' };
       let st = map[s.action] || 'idle';
       if (s.action === 'cook') st = 'cook'; // 루나 언니가 굽는 중
-      actors.push({ key: ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, walkDistance:s.walkDistance, servicePose:s.servicePose?{...s.servicePose,progress:Math.max(0,Math.min(1,(state.shift.elapsedMs-s.servicePose.at)/(s.servicePose.until-s.servicePose.at)))}:null, cooking:staffCookingPose(state,s,opts.reducedMotion), gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, ...outfitLook(state, s.id) } });
+      actors.push({ key: s.id==='neo'&&catCafeActive(state)?'neo_cat_cafe':ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, walkDistance:s.walkDistance, servicePose:s.id==='neo'&&catCafeActive(state)?null:s.servicePose?{...s.servicePose,progress:Math.max(0,Math.min(1,(state.shift.elapsedMs-s.servicePose.at)/(s.servicePose.until-s.servicePose.at)))}:null, cooking:staffCookingPose(state,s,opts.reducedMotion), gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, ...outfitLook(state, s.id) } });
     }
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
     const personalJob=state.foodGifts?.job?.maker==='yeoni'?state.foodGifts.job:null;
@@ -189,7 +191,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
       const home = id === 'luna' ? SPOTS.lunaHome : SPOTS.sisHome;
       actors.push({ key: id, x: home.x + 0.5, y: home.y + 0.5, o: { state: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'cook':'idle',cooking:id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?cookingPose(state.foodGifts?.job,MENUS[state.foodGifts?.job?.menuId]?.station,opts.reducedMotion):null, facing: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'up':'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
     }
-    if (assignedHosts(state).includes('neo') && state.people.neo?.activity === 'idle') actors.push({ key: 'neo', x: SPOTS.neoHome.x + 0.5, y: SPOTS.neoHome.y + 0.5, o: { state: 'idle', facing: 'down', name: '네오', ...outfitLook(state, 'neo') } });
+    if (assignedHosts(state).includes('neo') && state.people.neo?.activity === 'idle') actors.push({ key: catCafeActive(state)?'neo_cat_cafe':'neo', x: SPOTS.neoHome.x + 0.5, y: SPOTS.neoHome.y + 0.5, o: { state: 'idle', facing: 'down', name: personName(state,'neo'), ...outfitLook(state, 'neo') } });
     assignedHosts(state).filter(id=>id!=='neo'&&!STAFF_CREW.includes(id)).forEach((id,i)=>actors.push({key:id,x:2.5+(i%4)*2,y:10.5+Math.floor(i/4)*2,o:{state:'idle',facing:'down',name:personName(state,id),...outfitLook(state,id)}}));
   }
   actors.sort((a, b) => a.y - b.y);
@@ -217,6 +219,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
 
 function staffName(state, id) {
   if (id === 'yeoni') return '연이';
+  if(id==='neo')return personName(state,id);
   if (PEOPLE[id]) return PEOPLE[id].name;
   return id.startsWith('dev_') ? 'DEV' : personName(state,id);
 }
