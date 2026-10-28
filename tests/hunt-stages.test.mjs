@@ -208,11 +208,11 @@ test('기술 단련: 새 게임은 기본 4종만, 단련 상한까지만 오르
   assert.ok(fish && fish.chance < TEMP.HUNT.MOON_DROP.chance, '회복 생선은 월정석보다 드물다');
 });
 
-test('기술 단련: armory.learn은 잠김·부족·끝까지 단련을 거절하고, 값만큼 빼고 다음 사냥 상한을 올린다', () => {
+test('상한 해방: armory.learn은 잠김·부족·끝까지 해방을 거절하고, 값만큼 빼고 다음 사냥 상한을 올린다', () => {
   const s = createGame({ seed: 5 }); s.huntUnlocked = true;
   s.moonstone = 99999;
   assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).reason, placeLock(s, 'gear'));
-  s.stats.huntsCompleted = 1; s.moonstone = skillCost('crescent', 1) - 1;
+  s.hunter.maxStage = 7; s.moonstone = skillCost('crescent', 1) - 1; // 테스트 준비: 6단계를 클리어해 공방이 열렸다
   assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).ok, false);
   assert.equal(s.moonstone, skillCost('crescent', 1) - 1, '실패 시 차감 없음');
   s.moonstone += 1;
@@ -221,7 +221,7 @@ test('기술 단련: armory.learn은 잠김·부족·끝까지 단련을 거절�
   assert.ok(r.events.some(e => e.type === 'skillLearned'));
   s.moonstone = 1e6;
   while (skillRank(s, 'bell') < skillMaxRank('bell')) assert.ok(dispatch(s, { type: 'armory.learn', id: 'bell' }).ok);
-  assert.equal(dispatch(s, { type: 'armory.learn', id: 'bell' }).ok, false, '끝까지 단련');
+  assert.equal(dispatch(s, { type: 'armory.learn', id: 'bell' }).ok, false, '끝까지 해방');
   assert.ok(dispatch(s, { type: 'hunt.start', depth: 1 }).ok);
   assert.equal(s.hunt.caps.crescent, 2); assert.equal(s.hunt.caps.bell, 3); assert.equal(s.hunt.caps.tarot, 0);
   assert.ok(optionsFor(s.hunt).some(o => o.id === 'crescent') && !optionsFor(s.hunt).some(o => o.id === 'tarot'));

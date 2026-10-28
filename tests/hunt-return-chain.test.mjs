@@ -11,7 +11,7 @@ import { serialize, deserialize } from '../src/core/save.js';
 import { sheetHtml } from '../src/ui/sheets.js';
 import { TEMP } from '../src/config/balance.temp.js';
 
-test('첫 원정은 도시락(회복 수프 1개)을 들고, 돌아오면 귀환 → 금융 센터 → 공방 첫 무료 강화로 이어진다', () => {
+test('첫 원정은 도시락(회복 수프 1개)을 들고, 돌아오면 귀환 → 금융 센터, 6단계 클리어 뒤 공방 첫 무료 강화로 이어진다', () => {
   const s = createGame(); s.ledger.story.m0 = true; s.stats.shiftsCompleted = 1; // 테스트 준비: 첫 영업을 마쳤다
   const lunch = dispatch(s, { type: 'story.seen', id: 'ev:hunt' });
   assert.equal(s.armory.supplies.tonic, 1);
@@ -20,6 +20,8 @@ test('첫 원정은 도시락(회복 수프 1개)을 들고, 돌아오면 귀환
   s.stats.huntsCompleted = 1; // 테스트 준비: 첫 사냥을 마치고 돌아왔다
   assert.equal(pendingStory(s), 'ev:return');
   assert.equal(dispatch(s, { type: 'story.seen', id: 'ev:return' }).destination, 'finance');
+  assert.notEqual(pendingStory(s), 'ev:forge', '공방은 6단계 클리어 뒤');
+  s.hunter.maxStage = 7; // 테스트 준비: 6단계 보스를 쓰러뜨렸다
   assert.equal(pendingStory(s), 'ev:forge');
   assert.equal(dispatch(s, { type: 'story.seen', id: 'ev:forge' }).destination, 'gear');
   assert.equal(s.armory.supplies.tonic, 1, '도시락은 한 번만');
@@ -33,8 +35,11 @@ test('첫 원정은 도시락(회복 수프 1개)을 들고, 돌아오면 귀환
   assert.ok(again.ledger.story['ev:forge']); assert.equal(again.armory.freeEnhance, 0);
 });
 
-test('여러 번 사냥한 기존 저장은 첫 귀환 장면을 건너뛴다', () => {
+test('여러 번 사냥한 기존 저장은 첫 귀환 장면을, 6단계를 넘긴 저장은 공방 이야기도 건너뛴다', () => {
   const s = createGame(); s.ledger.story.m0 = true; s.ledger.story['ev:hunt'] = true; s.huntUnlocked = true; s.stats.huntsCompleted = 5;
+  const low = deserialize(serialize(s)).state;
+  assert.ok(low.ledger.story['ev:return'] && !low.ledger.story['ev:forge'], '6단계 전이면 공방 이야기는 나중에');
+  s.hunter.maxStage = 12;
   const r = deserialize(serialize(s)).state;
   assert.ok(r.ledger.story['ev:return'] && r.ledger.story['ev:forge']);
   assert.ok(!['ev:return', 'ev:forge'].includes(pendingStory(r)));

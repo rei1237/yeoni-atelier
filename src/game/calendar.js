@@ -13,7 +13,7 @@ import { advanceFarm } from './farm.js';
 import { cafeProgress } from './cafe-growth.js';
 import { grantEventOutfits } from './outfits.js';
 import { HANBI_STAGES } from '../data/hunt-stages.js';
-import { placeLock, PLACE_NAMES } from './unlocks.js';
+import { placeLock, PLACE_NAMES, bondOpen, bondMasked } from './unlocks.js';
 
 const C = TEMP.CALENDAR;
 export const PARTS = Object.freeze(['상순', '중순', '하순']);
@@ -130,7 +130,7 @@ export function pendingHanbiStory(state) {
 // 아직 안 본 인연 이야기 id(낮은 단계부터). 달 이야기를 본 뒤에 나온다.
 export function pendingBondStory(state) {
   for (const id of BOND_IDS) {
-    if (BONDS[id].requiresRecruit && !state.roster[id]) continue;
+    if (!bondOpen(state, id) || bondMasked(state, id)) continue; // 정체를 밝히기 전 서한비의 인연 이야기는 영입 뒤에
     const t = bondTier(state.affinity?.[id] || 0);
     for (let k = 1; k <= t; k++) if (!state.ledger.story[`bond:${id}:${k}`]) return `bond:${id}:${k}`;
   }

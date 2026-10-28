@@ -9,6 +9,7 @@ import { emit } from './state.js';
 import { apCheck, spendAp } from './calendar.js';
 import { townCheck } from './town.js';
 import { changeStress } from './stress.js';
+import { bondOpen, bondMasked, bondName } from './unlocks.js';
 
 const B = TEMP.BONDS;
 
@@ -27,8 +28,8 @@ export function talkCheck(state, id) {
   if (!chk.ok) return chk;
   const b = BONDS[id];
   if (!b) return { ok: false, reason: '없는 동료입니다' };
-  if (b.requiresRecruit && !state.roster[id]) return { ok: false, reason: '먼저 만남 이벤트로 영입해 주세요' };
-  if (state.ap.talked[id]) return { ok: false, reason: `${b.name}와(과)는 이번 순에 이미 이야기했어요` };
+  if (!bondOpen(state, id)) return { ok: false, reason: '아직 만나지 못한 사람이에요' };
+  if (state.ap.talked[id]) return { ok: false, reason: `${bondName(state, id)}와(과)는 이번 순에 이미 이야기했어요` };
   return apCheck(state, 1);
 }
 
@@ -41,7 +42,7 @@ export function talk(state, id, choiceId, token) {
   changeStress(state, 'talk', id);
   state.ap.talked = { ...state.ap.talked, [id]: true };
   const v = gainBond(state, id, answer.gain);
-  const speaker=id, line=answer.response;
+  const speaker=bondMasked(state,id)?'shadow_tiger':id, line=answer.response;
   gainYeoni(state,'talk');emit('bondTalk', { id, speaker, line, gain: v });
   return { ok: true, gain: v, speaker, line };
 }
@@ -51,10 +52,10 @@ export function gift(state, id, giftId) {
   if (!chk.ok) return chk;
   const b = BONDS[id];
   if (!b) return { ok: false, reason: '없는 동료입니다' };
-  if (b.requiresRecruit && !state.roster[id]) return { ok: false, reason: '먼저 만남 이벤트로 영입해 주세요' };
+  if (!bondOpen(state, id)) return { ok: false, reason: '아직 만나지 못한 사람이에요' };
   const g = giftId === b.gift.id ? b.gift : giftId === COMMON_GIFT.id ? COMMON_GIFT : null;
   if (!g) return { ok: false, reason: '없는 선물입니다' };
-  if (state.ap.gifted[id]) return { ok: false, reason: `${b.name}에게는 이번 순에 이미 선물했어요` };
+  if (state.ap.gifted[id]) return { ok: false, reason: `${bondName(state, id)}에게는 이번 순에 이미 선물했어요` };
   if (state.gold < g.cost) return { ok: false, reason: `골드가 부족합니다 (${g.cost} 필요, 보유 ${state.gold})` };
   state.gold -= g.cost;
   state.ap.gifted = { ...state.ap.gifted, [id]: true };

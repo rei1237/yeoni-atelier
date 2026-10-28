@@ -22,7 +22,7 @@ export const SUPPLIES = Object.freeze({
   nova:{name:'모카의 비밀 향신료', cost:130, tier:3, icon:'tarot', detail:'주변 적에게 현재 공격력 기준 큰 피해'},
 });
 export function armory(state) { return state.armory || { upgrades:{}, supplies:{}, skills:{} }; }
-// ── 기술 단련: 0 = 못 배움. 무기 r단계 → Lv r+1까지(4단계면 Lv5·진화), 보조 r단계 → Lv r까지
+// ── 기술 상한 해방(옛 이름 단련): 0 = 못 배움. 무기 r단계 → Lv r+1까지(4단계면 Lv5·진화), 보조 r단계 → Lv r까지
 export const SKILL_IDS = [...Object.keys(WEAPONS), ...Object.keys(PASSIVES)];
 export const skillKind = id => WEAPONS[id] ? 'weapon' : PASSIVES[id] ? 'passive' : null;
 export const skillMaxRank = id => skillKind(id) === 'weapon' ? WEAPON_MAX_LV - 1 : skillKind(id) ? 3 : 0;
@@ -57,16 +57,16 @@ export function enhance(state,who,id) {
   state.moonstone-=cost; (a.upgrades[who] ||= {})[id]=n+1;
   state.stats.workshopEnhances=(state.stats.workshopEnhances||0)+1;recordYunTrade(state,0,cost); emit('armoryUpgrade',{who,id,level:n+1,cost}); return {ok:true,cost,level:n+1};
 }
-// 배우기와 단련은 같은 명령(armory.learn). 사냥꾼 둘이 함께 쓴다
+// 배우기와 상한 해방은 같은 명령(armory.learn). 사냥꾼 둘이 함께 쓴다
 export function learnSkill(state,id) {
   const chk=check(state,'윤달의 무기 공방'); if(!chk.ok)return chk;
   const lock=placeLock(state,'gear'); if(lock)return {ok:false,reason:lock};
   if(!skillKind(id))return {ok:false,reason:'없는 기술입니다'};
   const a=ensure(state), rank=skillRank(state,id);
-  if(rank>=skillMaxRank(id))return {ok:false,reason:'이미 끝까지 단련한 기술이에요'};
+  if(rank>=skillMaxRank(id))return {ok:false,reason:'상한을 끝까지 해방한 기술이에요'};
   const cost=skillCost(id,rank+1); if(state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
   state.moonstone-=cost; a.skills[id]=rank+1;
-  recordYunTrade(state,0,cost); emit('skillLearned',{id,name:(WEAPONS[id]||PASSIVES[id]).name,rank:rank+1,cost}); return {ok:true,cost,rank:rank+1};
+  recordYunTrade(state,0,cost); emit('skillLearned',{id,name:(WEAPONS[id]||PASSIVES[id]).name,rank:rank+1,cost,cap:skillCap(id,rank+1)}); return {ok:true,cost,rank:rank+1};
 }
 export function buySupply(state,id) {
   const item=SUPPLIES[id],chk=check(state,item?.shop==='gear'?'윤달의 무기 공방':'모카 식재료점');if(!chk.ok)return chk;

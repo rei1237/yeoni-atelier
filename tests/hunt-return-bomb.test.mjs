@@ -9,7 +9,7 @@ import {TEMP} from '../src/config/balance.temp.js';
 import {SUPPLIES} from '../src/game/moka-armory.js';
 import {EVENT_STORIES} from '../src/story/events.js';
 import {getHuntWorld} from '../src/game/hunt.js';
-function ready(){const s=createGame();s.huntUnlocked=true;s.ledger.story.m0=true;s.stats.huntsCompleted=1;s.moonstone=1000;return s;}
+function ready(){const s=createGame();s.huntUnlocked=true;s.ledger.story.m0=true;s.stats.huntsCompleted=1;s.hunter.maxStage=7;s.moonstone=1000;return s;}
 test('첫 사냥 이야기만 준비 화면으로 안내하고 재완료·저장·재생은 재이동하지 않는다',()=>{
  let s=createGame();s.ledger.story.m0=true;s.stats.shiftsCompleted=1;assert.equal(dispatch(s,{type:'story.seen',id:'ev:hunt'}).destination,'hunt');assert.equal(s.mode,'prep');assert.equal(s.hunt,null);assert.equal(s.huntUnlocked,true);assert.equal(dispatch(s,{type:'story.seen',id:'ev:hunt'}).destination,undefined);s=deserialize(serialize(s)).state;assert.equal(dispatch(s,{type:'story.seen',id:'ev:hunt'}).destination,undefined);assert.ok(EVENT_STORIES['ev:hunt'].some(b=>b.t?.includes('월드맵의 영냥이의 사냥터에서 다음 날 다시 도전')));
  const locked=createGame();assert.equal(dispatch(locked,{type:'story.seen',id:'ev:hunt'}).ok,false);

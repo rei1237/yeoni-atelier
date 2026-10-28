@@ -73,7 +73,7 @@ import { BOND_STORIES } from '../story/bonds.js';
 import { BONDS, COMMON_GIFT } from '../data/bonds.js';
 import { SPEAKERS } from '../story/prologue.js';
 import { pendingStory, calendarOf, isEnded, dateLabel } from '../game/calendar.js';
-import { placeLock } from '../game/unlocks.js';
+import { placeLock, bondName, bondMasked } from '../game/unlocks.js';
 import { GAG_SHIFT_START, GAG_KITCHEN, GAG_MOKA_BUY, GAG_MOKA_DELIVERY, GAG_LUNA_EXCHANGE, GAG_GEAR_STALL, GAG_CHEONGTOKKI_REPAY, GAG_HUNT_RETURN, pickLine } from '../data/lines.js';
 
 // ── 부팅
@@ -532,13 +532,13 @@ ACTIONS['farm.delegate']=()=>run({type:'farm.delegate'});
 ACTIONS['bond.talk'] = d => {
   const chk=talkCheck(state,d.id);if(!chk.ok){toast(chk.reason,'bad');return;}
   const q=bondQuestion(state,d.id);if(!q)return;
-  const back=ui.sheet,name=BONDS[d.id].name;ui.sheet=null;render(true);
+  const back=ui.sheet,name=bondName(state,d.id),masked=bondMasked(state,d.id),face=masked?'seohanbi_tiger:shadow':null,who=masked?'shadow_tiger':d.id;ui.sheet=null;render(true);
   const reopen=()=>{ui.sheet=back||{kind:'companions'};render(true);};
-  playNovel([{chapter:[name+' · '+q.phase,q.title],bg:'atelier_dark',l:'yeoni:normal',c:d.id+':normal',r:null},{s:'nar',t:q.intro},
+  playNovel([{chapter:[name+' · '+q.phase,q.title],bg:'atelier_dark',l:'yeoni:normal',c:face||d.id+':normal',r:null},{s:'nar',t:q.intro},
     {s:d.id,t:q.question,choices:q.answers.map(x=>({id:x.id,text:x.text})),guide:!state.tutorials?.bondtalk}],{
     onGuideSeen:()=>run({type:'tutorial.seen',id:'bondtalk'},{keepQuiet:true}),
     onChoose:choiceId=>{const r=run({type:'bond.talk',id:d.id,choiceId,token:q.token},{keepQuiet:true});if(!r.ok)return r;
-      return {ok:true,beats:[{bg:'atelier_lit',l:'yeoni:smile',c:d.id+':smile',s:d.id,t:r.line},{s:'sys',t:'인연 +'+r.gain+' · 오늘의 대화가 마음에 남았습니다.'}]};},
+      return {ok:true,beats:[{bg:'atelier_lit',l:'yeoni:smile',c:face||d.id+':smile',s:who,t:r.line},{s:'sys',t:'인연 +'+r.gain+' · 오늘의 대화가 마음에 남았습니다.'}]};},
     onEnd:reopen,
     onCancel:()=>{reopen();toast('대화를 다음으로 미뤘어요 · 행동력은 쓰지 않았어요');}});
 };
@@ -685,20 +685,20 @@ function handleEvents(events) {
       case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast(`${hunterName(state.hunt.hunterId)}가 ${state.hunt.depth}단계로 출발했어요 · 보스를 쓰러뜨리면 클리어`, 'good'); break;
       case 'huntPickup': floater(cssW / 2, cssH * 0.4, `+${ev.name}`, '#7d86e8'); break;
       case 'huntHurt': if(!matchMedia('(prefers-reduced-motion: reduce)').matches)shake(el.stage); break;
-      case 'skillLearned': toast(ev.rank===1?`📜 ${ev.name}을 배웠어요 · 다음 사냥부터 나와요`:`📜 ${ev.name} 단련 ${ev.rank}단계`, 'good', 3200); break;
+      case 'skillLearned': toast(ev.rank===1?`📜 ${ev.name}을 배웠어요 · 다음 사냥부터 나와요`:`🔓 ${ev.name} 상한 해방 ${ev.rank}단계 · 사냥 중 최대 Lv ${ev.cap}`, 'good', 3200); break;
       case 'huntEvolve': toast(`🌟 진화! ${ev.name}`, 'good', 3200); break;
       case 'achievement': toast(`🏅 업적 「${ev.name}」 · 월정석 +${ev.moon}`, 'good', 3600); break;
       case 'huntPower': toast(ev.label, 'good', 1800); break;
       case 'payrollPaid': toast(`동료 급여 ${ev.paid.toLocaleString('ko-KR')}G 지급${ev.arrears?` · 미지급 ${ev.arrears.toLocaleString('ko-KR')}G`:''}`);break;
       case 'interestCharged': toast(`💸 ${ev.month}월 이자 ${ev.due.toLocaleString('ko-KR')}G${ev.added ? ` · 골드가 모자라 ${ev.added.toLocaleString('ko-KR')}G는 빚에 붙었어요` : ' 납부'}`, ev.added ? 'bad' : '', 3600); break;
       case 'bondTalk': if (!novelActive()) toast(`${SPEAKERS[ev.speaker]?.name || ''}: ${ev.line} (친밀도 +${ev.gain})`, 'gag', 3600); break;
-      case 'bondGift': toast(`🎁 ${BONDS[ev.id].name} 친밀도 +${ev.gain}${ev.liked ? ' · 좋아하는 선물이에요!' : ''}`, 'good'); break;
+      case 'bondGift': toast(`🎁 ${bondName(state,ev.id)} 친밀도 +${ev.gain}${ev.liked ? ' · 좋아하는 선물이에요!' : ''}`, 'good'); break;
       case 'staffResting': toast(`😮‍💨 ${ev.name}이(가) 한계예요 · 이번 영업은 쉬고, 하던 일은 다른 사람에게 넘겨요`, 'bad', 3600); break;
       case 'handOver': toast(`${personName(state, ev.id)}이(가) 하던 ${ev.kind === 'deliver' ? '서빙' : '정리'}을 다른 사람에게 넘겼어요`, '', 2400); break;
       case 'shelterRest': toast(`🐰 루나의 쉼터 · ${ev.name} 스트레스 −${Math.round(ev.recovered)}`, 'good'); break;
       case 'farmDelegated': toast(`🐾 네오가 밭일을 마쳤어요 · 수확 ${ev.harvested} · 다시 심기 ${ev.planted} · 돌봄 ${ev.cared}${ev.stopped ? ' · ' + ev.stopped : ''}`, 'good', 3600); break;
       case 'farmDelegateSkipped': toast(`농장 맡기기는 이번엔 쉬어요 · ${ev.reason}`, '', 3000); break;
-      case 'bondUp': toast(`💗 ${BONDS[ev.id].name} ♥${ev.tier} · ${ev.label}`, 'good', 4000); break;
+      case 'bondUp': toast(`💗 ${bondName(state,ev.id)} ♥${ev.tier} · ${ev.label}`, 'good', 4000); break;
       case 'gameEnded': toast('📜 마지막 결산 완료 · 결말이 열립니다', 'good', 3200); break;
       case 'shiftClosed': ui.sheet = null; ui.selectedSlot = null; ui.chatter = null; save(); break; // 마감 화면을 가리는 영업 중 대사는 내린다
       default: break;

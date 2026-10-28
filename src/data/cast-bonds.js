@@ -5,6 +5,7 @@ export const CAST_BONDS = {
   yun: make('윤달', '별자리 책갈피', [
     ['yun','시간을 맞히는 것보다 약속 시간을 지키는 게 먼저지. 오늘은 내가 먼저 왔어.'],
     ['yun','늘 마시던 차도 오늘은 다르게 느껴질 수 있어. 먼저 물어보자.'],
+    ['yun','네오 녀석, 힘을 봉인하고 있군. 그 봉인을 한 칸씩 풀어 주는 게 내 일이지.'],
   ], [['기억한 취향 · 음식 기다림 +5%',{patience:.05}],['꼼꼼한 주문서 · 재료값 −3%',{discount:.03}],['한 칸의 여유 · 행동력 +1',{ap:1}],['단골의 리듬 · 조리 시간 −4%',{cookSpeed:.04}]]),
   seohanbi: make('서한비', '푸른 찻잔', [
     ['seohanbi','오늘은 대답을 서두르지 않아도 됩니다. 차가 식기 전에 천천히 말씀하세요.'],
@@ -32,3 +33,6 @@ export const CAST_BONDS = {
   ], [['남겨 둔 문장 · 사냥 피해 +5%',{huntDmg:.05}],['쉼표의 자리 · 음식 기다림 +5%',{patience:.05}],['같이 쓰는 결산 · 월 이자 −5%',{interestCut:.05}],['새벽의 앵콜 · 보스 월정석 +15%',{bossMoon:.15}]]),
 };
 for (const [id, bond] of Object.entries(CAST_BONDS)) bond.speaker = id;
+// 가게 주인은 자기 가게에서 만나 이야기한다(영입 전에도)
+CAST_BONDS.yun.place = 'gear';
+CAST_BONDS.museong.place = 'expand';

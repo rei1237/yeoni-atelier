@@ -48,8 +48,8 @@ function migrate(data) {
     if (data.huntUnlocked) (data.ledger.story ||= {})['ev:hunt'] = true;
     if (data.shift) { data.shift.durationMs ??= 1800000; data.shift.nominationMs ??= 300000; }
   }
-  // 10-28 첫 귀환 이야기(ev:return·ev:forge) 추가: 이미 여러 번 사냥한 저장은 첫 귀환 장면을 건너뛴다
-  if (data.ledger?.story?.['ev:hunt'] && (data.stats?.huntsCompleted || 0) >= 3) { data.ledger.story['ev:return'] ??= true; data.ledger.story['ev:forge'] ??= true; }
+  // 10-28 첫 귀환 이야기(ev:return·ev:forge) 추가: 이미 여러 번 사냥한 저장은 첫 귀환 장면을, 6단계를 넘긴 저장은 공방 첫 이야기도 건너뛴다
+  if (data.ledger?.story?.['ev:hunt'] && (data.stats?.huntsCompleted || 0) >= 3) { data.ledger.story['ev:return'] ??= true; if ((data.hunter?.maxStage || 1) > 6) data.ledger.story['ev:forge'] ??= true; }
   ensureBranches(data);
   migrateFurniture(data);
   if(data.mode==='prep'&&(!data.interior.checkoutLayout||data.interior.checkoutLayout==='entrance')){

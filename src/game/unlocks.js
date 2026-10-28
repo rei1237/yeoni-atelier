@@ -1,14 +1,28 @@
-// 장소 개방 순서(게임 오리지널): 3월 첫 영업 → 「돈 벌어 와, 네오!」 → 사냥 1회 뒤 윤달의 무기 공방, 4월 이야기(m1) 뒤 농장.
+// 장소 개방 순서(게임 오리지널): 3월 첫 영업 → 「돈 벌어 와, 네오!」 → 네오가 사냥터 6단계를 처음 클리어하면 윤달의 무기 공방, 4월 이야기(m1) 뒤 농장.
 // 잠겨 있으면 이유 문자열, 열려 있으면 ''. UI 잠금 표시와 엔진 거절이 같은 판정을 쓴다.
 import { TEMP } from '../config/balance.temp.js';
+import { BONDS } from '../data/bonds.js';
+
+export const GEAR_OPEN_STAGE = 6;
 
 export const PLACE_NAMES = Object.freeze({ hunt:'영냥이의 사냥터', gear:'윤달의 무기 공방', farm:'꽃돼지 연이의 농장' });
 export function placeLock(state, id) {
   if (id === 'expand' && state.day < 1 + 2 * TEMP.CALENDAR.TURNS_PER_MONTH) return '5월부터 가구와 꽃을 만나볼 수 있어요';
   if (id === 'hunt') return state.huntUnlocked ? '' : state.stats.shiftsCompleted >= 1 ? '「돈 벌어 와, 네오!」 이야기를 보면 열려요' : '첫 영업을 마치면 사냥터 이야기가 열려요';
-  // 기존 저장: 장비·강화 기록이 있으면 열린 것으로 본다
-  if (id === 'gear') return state.stats.huntsCompleted >= 1 || state.gear?.owned?.length || Object.keys(state.armory?.upgrades || {}).length ? '' : '네오가 영냥이의 사냥터에 한 번 다녀오면 열려요';
+  // 기존 저장: 공방 이야기·장비·강화 기록이 있으면 열린 것으로 본다
+  if (id === 'gear') return (state.hunter?.maxStage || 1) > GEAR_OPEN_STAGE || state.ledger?.story?.['ev:forge'] || state.gear?.owned?.length || Object.keys(state.armory?.upgrades || {}).length ? '' : `네오가 영냥이의 사냥터 ${GEAR_OPEN_STAGE}단계를 클리어하면 열려요`;
   // 기존 저장: 농사 경험이나 심은 밭이 있으면 열린 것으로 본다
   if (id === 'farm') return state.ledger.story.m1 || state.farm?.xp > 0 || state.farm?.plots?.some(Boolean) ? '' : '4월에 강가에 꽃이 피면 밭을 일궈요';
   return '';
 }
+
+// 영입 전이라도 만난 사람과는 인연을 쌓는다: 윤달(공방), 무성(가구·꽃 상점), 서한비(첫 검은 호랑이 사건 뒤)
+export function bondOpen(state, id) {
+  const b = BONDS[id];
+  if (!b) return false;
+  if (!b.requiresRecruit || state.roster[id]) return true;
+  return id === 'yun' ? !placeLock(state, 'gear') : id === 'museong' ? !placeLock(state, 'expand') : id === 'seohanbi' ? !!state.ledger.story['hanbi:30'] : false;
+}
+// 영입 전 서한비는 정체를 숨긴다(??? · 검은 호랑이 모습)
+export const bondMasked = (state, id) => id === 'seohanbi' && !state.roster.seohanbi;
+export const bondName = (state, id) => bondMasked(state, id) ? '???' : BONDS[id].name;

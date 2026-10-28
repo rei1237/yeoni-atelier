@@ -220,7 +220,7 @@ function rollOffer(state, n = 3) {
 export function describeOption(hs, o) {
   if(o.kind?.startsWith('kfp'))return kfpDescribe(hs,o);
   if (o.kind === 'heal') return { icon: '🐟', name: '간식 시간', text: `HP ${H.HEAL_FISH} 회복`, tag: '회복' }; // 옛 저장의 남은 카드
-  if (o.kind === 'pouch') return { icon: '☾', name: '월정석 주머니', text: `모든 기술이 단련 상한이에요 · 월정석 +${huntMoonReward(TEMP.HUNT_SKILLS.POUCH, hs.scale)}`, tag: '보너스' };
+  if (o.kind === 'pouch') return { icon: '☾', name: '월정석 주머니', text: `모든 기술이 상한이에요 · 윤달 공방에서 해방 · 월정석 +${huntMoonReward(TEMP.HUNT_SKILLS.POUCH, hs.scale)}`, tag: '보너스' };
   const cap = hs.caps?.[o.id];
   if (o.kind === 'passive') {
     const d = PASSIVES[o.id], lv = hs.passives[o.id] || 0;
@@ -673,6 +673,7 @@ function clearStage(state, w, def) {
     bonus = huntMoonReward(firstClearMoon(n), hs.scale);
     hs.bag.moonstone = (hs.bag.moonstone || 0) + bonus;
   }
+  if (placeLock(state, 'gear')) hs.gearWasLocked = true;
   state.hunter.maxStage = Math.min(100, Math.max(state.hunter.maxStage || 1, n + 1));
   // 한 번 출발에 STAGES_PER_RUN 단계까지. 그 뒤로는 귀환만 남는다
   const tired = n < 100 && hs.cleared >= H.STAGES_PER_RUN;
@@ -779,9 +780,8 @@ export function finishHunt(state) {
     }
     for(const menu of Object.values(MENUS))if(menu.nominationOnly && Object.keys(menu.ingredients).some(id=>INGREDIENTS[id].huntOnly && totalBag[id]>0))state.learned[menu.id]=true;
     state.stats.nightDewObtained += totalBag.night_dew || 0;
-    const gearLocked = !!placeLock(state, 'gear');
     state.stats.huntsCompleted += 1;
-    if (gearLocked) emit('placeUnlocked', { id: 'gear', name: PLACE_NAMES.gear });
+    if (hs.gearWasLocked && !placeLock(state, 'gear')) emit('placeUnlocked', { id: 'gear', name: PLACE_NAMES.gear }); // 6단계 클리어로 열린 공방은 귀환 때 알린다
     state.hunter.xp += hs.careerXP || 0;
     state.hunter.kills += hs.kills;
     state.hunter.lastStage=hs.depth;

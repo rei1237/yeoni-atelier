@@ -1,6 +1,7 @@
 import {gainYeoni,yeoniEffects,canYeoniCook} from './yeoni-growth.js';
 import {apCheck,spendAp,maxActionPoints} from './calendar.js';
 import {MENUS} from '../data/menus.js';
+import {bondOpen} from './unlocks.js';
 import {BONDS} from '../data/bonds.js';
 import {qualityForTiming} from '../data/cooking-quality.js';
 import {foodPreference} from '../data/food-preferences.js';
@@ -9,7 +10,7 @@ import {emit,nextId} from './state.js';
 import {changeStress} from './stress.js';
 const fail=reason=>({ok:false,reason});
 const ready=s=>s.mode==='prep'&&!s.paused&&!s.interior.draft&&!s.outdoor?.draft;
-export function foodGiftRecipient(s,id){const b=BONDS[id];return !!b&&(!b.requiresRecruit||!!s.roster[id]);}
+export function foodGiftRecipient(s,id){return bondOpen(s,id);}
 export function beginGiftCook(s,menuId,timing,requestId){
  if(!ready(s))return fail('영업 준비 중 주방에서 선물용 음식을 만들어요');
  if(typeof requestId!=='string'||!requestId||requestId.length>120)return fail('조리 요청을 다시 열어 주세요');
