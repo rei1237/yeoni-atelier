@@ -96,10 +96,15 @@ export const TEMP = Object.freeze({
     HEAL_FISH: 24,
     BOMB_RADIUS: 280,
     BOMB_DAMAGE: 200,
-    POWER_DROP: Object.freeze([ // 일반 적 처치 시 확률
+    POWER_DROP: Object.freeze([ // 일반 적 처치 시 확률. 10-28: 회복 생선을 일반 드롭에 추가
+      { id: 'fish', chance: 0.02 },
       { id: 'magnet', chance: 0.005 },
     ]),
-    MOON_DROP: Object.freeze({ chance: 0.16, elite: 6, boss: 20 }), // 일반 적 확률 1개, 정예·보스는 고정 개수(임시). 단계마다 보스가 나와 보스 75→20·정예 14→6으로 낮춤
+    // 일반 적 확률 1개, 정예·보스는 고정 개수(임시). 10-28: 일반 0.16→0.22, 보스 20→45(보스 퇴치 보상이 적다는 피드백)
+    MOON_DROP: Object.freeze({ chance: 0.22, elite: 6, boss: 45 }),
+    ELITE_CHEST: 0.12,        // 정예가 별 상자를 떨굴 확률(10-28: 항상 → 드물게). 안 떨구면 구운 생선
+    FIELD_PROP_SKIP: 3,       // 필드 기물: 청크 10칸 중 이만큼은 비운다(10-28: 2→3, 약 80%→70%)
+    FIELD_PROP_REWARD: 0.8,   // 필드 기물 월정석 배율(10-28: 조금 줄임)
     FIELD_W: 1400,
     FIELD_H: 1800,
   }),
@@ -145,7 +150,7 @@ export const TEMP = Object.freeze({
     LEARN: Object.freeze({ hat: 800, whisker: 800, crescent: 1500, bell: 1500, aura: 2500, luck: 2500, tarot: 4000 }), // 배우기(1단계) 값
     TRAIN_BASE: 600,                                  // 기본 4종의 단련 기준값
     TRAIN_MULT: Object.freeze([1, 1.6, 2.6, 4.2]),    // 1·2·3·4단계 값 = 기준값 × 배율
-    POUCH: 3,                                         // 상한에 다 닿았을 때 레벨업 카드 「월정석 주머니」
+    POUCH: 12,                                        // 상한에 다 닿았을 때 레벨업 카드 「월정석 주머니」(10-28: 3→12, 단계 보상 배율 적용)
   }),
   // 사냥터 업적 보상 월정석(1회, ledger.achievements). 모두 임시
   HUNT_ACHIEVE_MOON: Object.freeze({ first_boss: 30, triple: 60, no_tonic: 60, stage10: 60, stage30: 120, stage50: 200, stage100: 400, kills1000: 50, kills10000: 150, evolve: 80, evolve_all: 300, bestiary10: 50, hanbi: 100 }),

@@ -7,6 +7,7 @@ import {pendingBranchStory} from './branches.js';
 import { TEMP } from '../config/balance.temp.js';
 import { PDF } from '../config/balance.pdf.js';
 import { emit } from './state.js';
+import { giftSupply, giftFreeEnhance } from './moka-armory.js';
 import { BONDS, BOND_IDS, bondTier, bondFx } from '../data/bonds.js';
 import { advanceFarm } from './farm.js';
 import { cafeProgress } from './cafe-growth.js';
@@ -110,6 +111,9 @@ export function pendingStory(state) {
   if (!state.ledger.story[id]) return id;
   // 첫 영업을 마친 뒤에야 「돈 벌어 와, 네오!」가 나온다
   if (!state.huntUnlocked && !state.ledger.story['ev:hunt'] && state.stats.shiftsCompleted >= 1) return 'ev:hunt';
+  // 첫 원정에서 돌아오면 네오의 투정 → 청토끼 환전, 그다음 윤달 공방의 첫 강화로 이어진다
+  if (state.ledger.story['ev:hunt'] && !state.ledger.story['ev:return'] && state.stats.huntsCompleted >= 1) return 'ev:return';
+  if (state.ledger.story['ev:return'] && !state.ledger.story['ev:forge'] && !placeLock(state, 'gear')) return 'ev:forge';
   return pendingHanbiStory(state) || pendingBloomStory(state) || pendingBondStory(state) || pendingBranchStory(state);
 }
 
@@ -150,7 +154,13 @@ export function markStory(state, id) {
       emit('outfitUnlocked', { id: 'host_first', name: '달빛 첫인사' });
     }
   }
-  if (id === 'ev:hunt') state.huntUnlocked = true;
+  if (id === 'ev:hunt') {
+    state.huntUnlocked = true;
+    // 루나 언니의 도시락: 첫 원정은 회복 수프 1개를 들고 출발한다(원장 1회)
+    if (!state.ledger.rewards['supply:first_lunch']) { state.ledger.rewards['supply:first_lunch'] = true; giftSupply(state, 'tonic', 1); emit('supplyGift', { id: 'tonic', label: '루나 언니의 도시락 · 회복 수프 1개를 챙겼어요' }); }
+  }
+  if (id === 'ev:forge' && !state.ledger.rewards['armory:first_free']) { state.ledger.rewards['armory:first_free'] = true; giftFreeEnhance(state); emit('supplyGift', { id: 'enhance', label: '윤달의 선물 · 첫 강화 1회 무료' }); }
   grantEventOutfits(state, id);
-  return { ok: true, ...(id==='ev:hunt'&&!placeLock(state,'hunt')?{destination:'hunt'}:{}) };
+  const destination = id === 'ev:hunt' ? (placeLock(state, 'hunt') ? null : 'hunt') : id === 'ev:return' ? 'finance' : id === 'ev:forge' ? 'gear' : null;
+  return { ok: true, ...(destination ? { destination } : {}) };
 }

@@ -88,7 +88,7 @@ function sheetBody(state, ui) {
     case 'kitchen': return kitchenSheet(state, ui);
     case 'delivery':return deliverySheet(state,ui);
     case 'shop': return state.mode==='shift'?deliverySheet(state,ui):shopSheet(state);
-    case 'town': return townSheet(state, s.tab);
+    case 'town': return townSheet(state, s.tab, ui);
     case 'quests': return questSheet(state);
     case 'more': return moreSheet(state, ui);
     case 'debt': return debtSheet(state);
@@ -273,24 +273,24 @@ const placeOf = id => WORLD_PLACES.find(p => p.id === id) || WORLD_PLACES[0];
 const bondAt = place => BOND_IDS.find(id => BONDS[id].place === place);
 const hearts = t => `<span aria-label="인연 ${t}단계">${Array.from({length:TEMP.BONDS.TIERS.length},(_,i)=>assetIcon(`ui/heart-${i<t?'full':'empty'}`,i<t?'♥':'♡')).join('')}</span>`;
 
-function townSheet(state, tab = 'atelier') {
+function townSheet(state, tab = 'atelier', ui = {}) {
   const here = placeOf(tab);
   const chk = townCheck(state);
   const bid = bondAt(here.id);
   const lock = placeLock(state, here.id);
   const body = !chk.ok ? `<p class="warn">${esc(chk.reason)}</p>` : lock ? lockedRoom(lock)
-    : (bid ? bondCard(state, bid) : '') + placeBody(state, here.id);
+    : (bid ? bondCard(state, bid) : '') + placeBody(state, here.id, ui);
   return `${head(here.name)}<p class="small">보유 ${won(state.gold)} · 🌙 월정석 ${state.moonstone || 0}개 · 마을 행동력 ${state.ap.left}</p><p class="small muted">대화와 사냥 출발에만 행동력 1을 써요. 구매·강화·환전은 자유롭게 이용해요.</p>${body}`;
 }
 
 // 열리기 전 장소 안내(잠금 이유만 보이고 조작은 없다)
 const lockedRoom = reason => `<div class="locked-room"><b>🔒 아직 닫혀 있어요</b><p>${esc(reason)}</p></div>`;
 
-function placeBody(state, id) {
+function placeBody(state, id, ui = {}) {
   switch (id) {
     case 'moka': return mokaShop(state);
     case 'luna': return lunaShelter(state);
-    case 'finance': return financeCenter(state);
+    case 'finance': return financeCenter(state, ui);
     case 'gear': return gearStall(state);
     case 'expand': return expandShop(state);
     case 'hunt': {
@@ -338,12 +338,26 @@ function gearStall(state) {
   return `<p class="small muted">윤달이 손질하는 장비 좌판 · 장비는 사냥 능력치만 바꿔요.</p>${btn({action:'sheet.open',args:{sheet:'armory'},cls:'primary',label:'윤달의 무기 공방 · 강화와 회복'})}<div class="kv">${slots}</div><div class="list">${rows}</div>`;
 }
 
-function financeCenter(state) {
+// 환전: 개수 고르기(10·100·1000·전부, ±1, 직접 입력) → 받을 골드 미리보기 → 한 버튼으로 실행
+function financeCenter(state, ui = {}) {
   const m = state.moonstone || 0, rate = exchangeRate(state);
   const credit=creditView(state);
-  return `<div class="finance-host">${assetIcon('badges/cheongtokki')}<div><h3>청토끼 금융 센터</h3><p>환전 · 운영 대출 · 골드와 월정석 상환</p></div></div><p class="small">청토끼: "월정석 하나에 ${rate}G. 사냥 실력도 자산이지! 강화에 쓸 몫은 남겨 두라고."</p>
-    <div class="kv"><span>보유 월정석</span><b>🌙 ${m}</b><span>환율(임시)</span><b>1개 = ${won(rate)}</b><span>전부 바꾸면</span><b>${won(m * rate)}</b><span>남은 빚</span><b>${won(state.debt)}</b></div>
-    <div class="row">${btn({ action: 'moonstone.exchange', args: { qty: 1 }, disabled: m < 1, label: '1개' })}${btn({ action: 'moonstone.exchange', args: { qty: 10 }, disabled: m < 10, label: '10개' })}${btn({ action: 'moonstone.exchange', args: { qty: 'all' }, cls: 'primary', disabled: m < 1, label: '전부 환전' })}${btn({action:'sheet.open',args:{sheet:'debt'},label:'빚 상환하기'})}</div>${financeLoanHtml(state,credit)}`;
+  const want = Math.max(0, Math.floor(Number(ui.exchangeQty ?? 100)) || 0), q = Math.min(want, m), gold = Math.floor(q * rate);
+  const chips = [10, 100, 1000].map(n => btn({ action: 'exchange.pick', args: { qty: n }, cls: q === n ? 'on' : '', disabled: m < n, label: `${n.toLocaleString()}개` })).join('')
+    + btn({ action: 'exchange.pick', args: { qty: 'all' }, cls: m > 0 && q === m ? 'on' : '', disabled: m < 1, label: '전부' });
+  const exchange = `<section class="exchange-card" aria-labelledby="exchange-title">
+    <header><h3 id="exchange-title">월정석 → 골드 환전</h3><span class="exchange-rate">1개 = ${won(rate)}</span></header>
+    <p class="exchange-own">보유 월정석 <b>🌙 ${m.toLocaleString()}개</b></p>
+    <div class="exchange-chips" role="group" aria-label="환전 개수 빠르게 고르기">${chips}</div>
+    <div class="exchange-input">${btn({ action: 'exchange.step', args: { d: -1 }, disabled: q <= 1, label: '−', title: '1개 줄이기' })}<input id="exchange-qty" type="number" inputmode="numeric" min="1" max="${m}" step="1" value="${q || ''}" placeholder="개수" aria-label="환전할 월정석 개수 직접 입력"><span>개</span>${btn({ action: 'exchange.step', args: { d: 1 }, disabled: q >= m, label: '+', title: '1개 늘리기' })}</div>
+    ${want > m && m > 0 ? `<p class="small warn">보유한 ${m.toLocaleString()}개까지만 바꿀 수 있어요.</p>` : ''}
+    <div class="exchange-preview"><span>🌙 ${q.toLocaleString()}개</span><i aria-hidden="true">→</i><b>+${won(gold)}</b><small>환전 뒤 월정석 ${(m - q).toLocaleString()}개 · 골드 ${won(state.gold + gold)}</small></div>
+    ${btn({ action: 'moonstone.exchange', args: { qty: q }, cls: 'primary exchange-go', disabled: q < 1, label: m < 1 ? '바꿀 월정석이 없어요' : `${q.toLocaleString()}개 환전하기` })}
+    <p class="small muted">윤달 공방 강화와 기술 단련은 월정석으로 해요. 강화에 쓸 몫은 남겨 두세요.</p>
+  </section>`;
+  const debt = `<section class="exchange-debt"><span>남은 빚 <b>${won(state.debt)}</b></span>${btn({action:'sheet.open',args:{sheet:'debt'},label:'빚 상환하기'})}</section>`;
+  return `<div class="finance-host">${assetIcon('badges/cheongtokki')}<div><h3>청토끼 금융 센터</h3><p>환전 · 운영 대출 · 골드와 월정석 상환</p></div></div><p class="small">청토끼: "어머~ 월정석 하나에 ${won(rate)}이에요. 강화에 쓸 몫은 꼭 남겨 두시고요~"</p>
+    ${exchange}${debt}${financeLoanHtml(state,credit)}`;
 }
 
 function expandShop(state) {

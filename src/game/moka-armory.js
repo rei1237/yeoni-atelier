@@ -16,7 +16,7 @@ export const UPGRADES = Object.freeze({
 });
 export const SUPPLIES = Object.freeze({
   bomb:{name:'달빛 폭탄',cost:130,tier:0,shop:'gear',icon:'tarot',limit:1,detail:'주변 적에게 피해 200 · 최대 보유 1개 · 사용 후 재구매 가능 (TEMP)'},
-  tonic:{name:'모카의 회복 수프', cost:36, tier:0, icon:'heal', detail:'최대 체력의 35% 회복 · 사냥터에는 회복 아이템이 없어요', limit:3},
+  tonic:{name:'모카의 회복 수프', cost:36, tier:0, icon:'heal', detail:'최대 체력의 35% 회복 · 사냥터의 구운 생선은 드물어요', limit:3},
   magnet:{name:'달빛 수집 향', cost:60, tier:1, icon:'whisker', detail:'필드에 떨어진 모든 보상을 끌어오기'},
   shield:{name:'검은 밤의 방패', cost:90, tier:2, icon:'hat', detail:'8초 동안 접촉 피해 방지'},
   nova:{name:'모카의 비밀 향신료', cost:130, tier:3, icon:'tarot', detail:'주변 적에게 현재 공격력 기준 큰 피해'},
@@ -45,12 +45,15 @@ export function enhancementBonus(state,who) { return { dmg:upgradeLevel(state,wh
 // 강화는 윤달의 무기 공방, 소모품은 모카 식재료점 소관이다(저장 키 armory는 호환을 위해 유지).
 function check(state,where) { return state.mode==='prep' && !state.interior.draft ? {ok:true} : {ok:false,reason:`영업 준비 중에 ${where}을 이용해 주세요`}; }
 function ensure(state) { state.armory ||= {upgrades:{},supplies:{}}; state.armory.upgrades ||= {}; state.armory.supplies ||= {}; state.armory.skills ||= startSkills(); return state.armory; }
+// 이야기 보상: 물품 n개(보유 한도까지), 윤달의 첫 강화 무료 1회. 지급 여부는 호출하는 쪽이 원장으로 한 번만 정한다.
+export function giftSupply(state,id,n=1){const a=ensure(state),lim=SUPPLIES[id]?.limit||Infinity;a.supplies[id]=Math.min(lim,(a.supplies[id]||0)+n);return a.supplies[id];}
+export function giftFreeEnhance(state){const a=ensure(state);a.freeEnhance=(a.freeEnhance||0)+1;}
 export function enhance(state,who,id) {
   const chk=check(state,'윤달의 무기 공방'); if(!chk.ok)return chk;
   const lock=placeLock(state,'gear'); if(lock)return {ok:false,reason:lock};
   if(!HUNTERS.includes(who) || !state.roster[who] || !UPGRADES[id])return {ok:false,reason:'함께하는 사냥꾼과 강화 항목을 골라 주세요'};
-  const cost=upgradeCost(state,who,id); if(!Number.isSafeInteger(cost)||state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
-  const a=ensure(state), n=upgradeLevel(state,who,id); if(!Number.isSafeInteger(n+1))return {ok:false,reason:'저장할 수 있는 수치 범위를 넘었습니다'};
+  const free=(armory(state).freeEnhance||0)>0,cost=free?0:upgradeCost(state,who,id); if(!Number.isSafeInteger(cost)||state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
+  const a=ensure(state), n=upgradeLevel(state,who,id); if(free)a.freeEnhance-=1; if(!Number.isSafeInteger(n+1))return {ok:false,reason:'저장할 수 있는 수치 범위를 넘었습니다'};
   state.moonstone-=cost; (a.upgrades[who] ||= {})[id]=n+1;
   state.stats.workshopEnhances=(state.stats.workshopEnhances||0)+1;recordYunTrade(state,0,cost); emit('armoryUpgrade',{who,id,level:n+1,cost}); return {ok:true,cost,level:n+1};
 }

@@ -229,14 +229,23 @@ function maybeStory() {
   if (!state || novelActive() || ui.confirm || ui.discovery || ui.recruitEvent || ui.ending || state.interior.draft) return;
   const id = pendingStory(state);
   if (!id) return;
+  if (id === 'ev:forge' && (ui.sheet || ui.worldTrip)) return; // 금융 센터 볼일을 마치고 창을 닫으면 공방 이야기로 잇는다
   const beats = storyBeats(id);
   if (!beats) { run({ type: 'story.seen', id }, { keepQuiet: true }); return; }
   ui.sheet = null;
   const started=state;let ended=false;
-  const done = (skip=false) => {if(ended||state!==started)return;ended=true;const result=completeStory(id,cmd=>run(cmd),{skip});if(result.ok&&!result.duplicate&&result.destination==='hunt'){navigateScreen(result.entry?.ok?null:'world');ui.sheet=result.entry?.ok?null:{kind:'hunt'};ui.huntMenu='title';} if (result.ok&&id.startsWith('ending:')) ui.ending = id.slice(7); render(true); };
+  const done = (skip=false) => {if(ended||state!==started)return;ended=true;const result=completeStory(id,cmd=>run(cmd),{skip});if(result.ok&&!result.duplicate&&result.destination==='hunt'){navigateScreen(result.entry?.ok?null:'world');ui.sheet=result.entry?.ok?null:{kind:'hunt'};ui.huntMenu='title';} if(result.ok&&!result.duplicate&&(result.destination==='finance'||result.destination==='gear'))goStoryPlace(result.destination); if (result.ok&&id.startsWith('ending:')) ui.ending = id.slice(7); render(true); };
   // 이야기 속 선택지는 분위기용: 상태를 바꾸지 않고 고른 답의 박자만 잇는다. 건너뛰어도 본 것으로 친다.
   const onChoose = (cid, beat) => ({ ok: true, beats: beat?.choices?.find(c => c.id === cid)?.beats || [] });
   playNovel(beats, { onEnd:()=>done(false), onCancel:()=>done(true), onChoose });
+}
+
+// 이야기가 가리킨 마을 장소로 바로 데려간다(도착 처리는 world.arrive). 공방은 강화 탭을 연다.
+function goStoryPlace(id){
+  navigateScreen('world');
+  if(id==='gear')run({type:'town.visit',place:'gear'},{keepQuiet:true}); // 첫 강화 이야기가 공방 소개를 대신한다
+  enterWorldPlace(id);
+  if(id==='gear'&&ui.worldAt==='gear'){ui.sheet={kind:'armory'};ui.armoryTab='upgrade';}
 }
 
 // 마을 가게를 처음 찾으면 그 가게 이야기를 한 번 튼다. 끝내든 건너뛰든 town.visit 으로만 기록한다.
@@ -494,7 +503,10 @@ const ACTIONS = {
   'interior.rotate': d => run({ type: 'interior.rotate', uid: d.uid }),
   'interior.store': d => run({ type: 'interior.store', uid: d.uid }),
   'interior.place': d => run({ type: 'interior.place', uid: d.uid }),
-  'moonstone.exchange': d => run({ type: 'moonstone.exchange', qty: d.qty === 'all' ? state.moonstone : n(d.qty) }),
+  'moonstone.exchange': d => {const r=run({ type: 'moonstone.exchange', qty: d.qty === 'all' ? state.moonstone : n(d.qty) });if(r.ok)setExchangeQty(Math.min(ui.exchangeQty??0,state.moonstone||0));},
+  // 환전 개수: 10·100·1000·전부 빠른 선택, ±1, 직접 입력(입력칸은 렌더가 값을 덮지 않아 직접 맞춘다)
+  'exchange.pick': d => setExchangeQty(d.qty === 'all' ? state.moonstone || 0 : Math.min(n(d.qty), state.moonstone || 0)),
+  'exchange.step': d => setExchangeQty(Math.max(1, Math.min(state.moonstone || 0, exchangeQty() + n(d.d)))),
   'gear.buy': d => run({ type: 'gear.buy', id: d.id }),
   'gear.equip': d => run({ type: 'gear.equip', slot: d.slot, id: d.id || null }),
   'expand.decor': d => run({ type: 'expand.decor', defId: d.def }),
@@ -629,7 +641,9 @@ function handleEvents(events) {
       case 'giftFoodReady':toast('선물 보관함에 완성된 음식을 담았어요.','good');break;
       case 'huntCritical': ui.critLine=(ui.critLine||0)+1;showCafeLine(CAFE_LINES.critical[ui.critLine%CAFE_LINES.critical.length],'영냥이','neo_cat');sound('level');break;
       case 'huntStageClear': if(ev.tired)showCafeLine(tiredLine(ev.hunterId),ev.hunterId==='seohanbi'?'서한비':'영냥이',ev.hunterId==='seohanbi'?'seohanbi':'neo_cat');break;
-      case 'huntObjectBroken': sound('gem');break;
+      case 'huntObjectBroken': sound('gem');floater(cssW/2,cssH*.34,`✦ 월정석 ×${ev.reward} 발견!`,'#6f63c9');ui.lootLine=(ui.lootLine||0)+1;if(state.hunt?.hunterId==='neo'&&ui.lootLine%2===1)showCafeLine(CAFE_LINES.moonloot[(ui.lootLine>>1)%CAFE_LINES.moonloot.length],'영냥이','neo_cat');break;
+      case 'huntEliteDown': if(state.hunt?.hunterId==='neo'){ui.eliteLine=(ui.eliteLine||0)+1;showCafeLine(CAFE_LINES.elitedown[ui.eliteLine%CAFE_LINES.elitedown.length],'영냥이','neo_cat');}break;
+      case 'supplyGift': toast(ev.label,'good',3600);break;
       case 'guestChatter': if(state.mode==='shift'&&ev.customerId){guestTalk(ui.talk??=newTalk(),state,ev,performance.now(),Math.random());break;}showCafeLine(ev.line,ev.kind==='takeaway'?'포장 손님':ev.tableNo?`${ev.tableNo}번 손님`:'손님','customer'); break;
       case 'paidAtCounter': sound('moon'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;
       case 'cafeLevelUp': sound('bond'); toast(`카페 Lv.${ev.level}! ${ev.apGain>0?`다음 순부터 마을 행동력 +${ev.apGain}`:'더 많은 손님과 새로운 취향이 찾아와요'}`,'good');break;
@@ -813,6 +827,10 @@ function beginCraft(menuId,orderId=null){
 }
 
 function finishGuide(proceed=false){const back=ui.guideReturn,action=ui.guideAction;ui.guideReturn=null;ui.guideAction=null;run({type:'tutorial.seen',id:ui.guideId==='firstday'?'firstdayintro':ui.guideId||'cook'});ui.sheet=back?.kind?back:null;if(proceed&&action)ACTIONS[action]();}
+function exchangeQty(){return Math.min(ui.exchangeQty??100,state?.moonstone||0);}
+function setExchangeQty(q){ui.exchangeQty=Math.max(0,Math.floor(q)||0);const i=document.getElementById('exchange-qty');if(i)i.value=String(exchangeQty()||'');}
+document.addEventListener('input',e=>{if(e.target.id==='exchange-qty'){ui.exchangeQty=Math.max(0,Math.floor(Number(e.target.value))||0);render(true);}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='exchange-qty'){e.preventDefault();document.querySelector('[data-action="moonstone.exchange"]')?.click();}});
 function showCafeLine(line,speaker,portrait='customer'){
  const now=performance.now();if(ui.chatter&&now<ui.chatter.until-1800)return;
  const hunting=state?.mode==='hunt';if(hunting&&now-(ui.lastHuntChatter||0)<8000)return;if(hunting)ui.lastHuntChatter=now;ui.chatter={line,speaker,portrait,hunting,until:now+(hunting?1800:4500)};

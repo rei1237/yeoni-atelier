@@ -8,7 +8,7 @@ import { dispatch, tick } from '../src/game/engine.js';
 import { getHuntWorld, spawnEnemy, findBoss, optionsFor } from '../src/game/hunt.js';
 import { skillCost, skillRank, skillMaxRank } from '../src/game/moka-armory.js';
 import { placeLock } from '../src/game/unlocks.js';
-import { hunterProgress } from '../src/game/hunt-growth.js';
+import { hunterProgress, huntMoonReward } from '../src/game/hunt-growth.js';
 import { TEMP } from '../src/config/balance.temp.js';
 import { stepBoss, initBoss, BOSS_TASKS, warnMs, bossPhaseOf, isEnraged, zoneHits } from '../src/game/hunt-boss.js';
 import { serialize, deserialize } from '../src/core/save.js';
@@ -202,9 +202,10 @@ test('기술 단련: 새 게임은 기본 4종만, 단련 상한까지만 오르
   assert.deepEqual(s.hunt.picks[0], [{ kind: 'pouch' }]);
   const m = s.hunt.bag.moonstone, hp = s.hunt.hp;
   assert.ok(dispatch(s, { type: 'hunt.pick', index: 0 }).ok);
-  assert.equal(s.hunt.bag.moonstone, m + TEMP.HUNT_SKILLS.POUCH);
+  assert.equal(s.hunt.bag.moonstone, m + huntMoonReward(TEMP.HUNT_SKILLS.POUCH, s.hunt.scale));
   assert.ok(s.hunt.hp <= hp, '회복하지 않는다');
-  assert.ok(!TEMP.HUNT.POWER_DROP.some(d => d.id === 'fish'), '필드에 회복 생선 없음');
+  const fish = TEMP.HUNT.POWER_DROP.find(d => d.id === 'fish'); // 10-28: 회복 생선은 드물게 나온다
+  assert.ok(fish && fish.chance < TEMP.HUNT.MOON_DROP.chance, '회복 생선은 월정석보다 드물다');
 });
 
 test('기술 단련: armory.learn은 잠김·부족·끝까지 단련을 거절하고, 값만큼 빼고 다음 사냥 상한을 올린다', () => {

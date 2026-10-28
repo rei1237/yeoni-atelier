@@ -67,3 +67,22 @@ button[aria-disabled="true"]{opacity:.55;cursor:default}
 /* 인연 자동화 줄·직원 스트레스(Phase 3) */
 .automation-row{gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed rgba(120,90,60,.25)}.automation-row.locked{opacity:.78}.automation-row .small b{color:#5a3b2a}
 .stress-line{display:flex;align-items:center;gap:6px;font-size:12px;color:#5b4a3f;flex-wrap:wrap}.stress-line meter{width:84px;height:8px}.stress-line.tired{color:#74450b}.stress-line.limit{color:#9b263c}
+
+/* 청토끼 환전: 개수 고르기 → 미리보기 → 실행 */
+.exchange-card{display:grid;gap:10px;margin:12px 0;padding:14px;border:1.5px solid #d9c6a6;border-radius:16px;background:#fffaf1}
+.exchange-card header{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.exchange-card h3{margin:0}
+.exchange-rate{font-size:13px;font-weight:700;color:#6f63c9;background:#efedfb;border-radius:999px;padding:3px 10px}
+.exchange-own{margin:0;font-size:14px}
+.exchange-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.exchange-chips button{min-height:44px;font-weight:700}
+.exchange-chips button.on{background:#8a4f6b;color:#fff;border-color:#8a4f6b}
+.exchange-input{display:grid;grid-template-columns:44px 1fr auto 44px;align-items:center;gap:6px}
+.exchange-input button{min-height:44px;font-size:20px;padding:0}
+.exchange-input input{min-height:44px;width:100%;box-sizing:border-box;text-align:center;font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;border:1.5px solid #d9c6a6;border-radius:12px;background:#fff}
+.exchange-input input:focus{outline:2px solid #8a4f6b;outline-offset:1px}
+.exchange-preview{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:4px 10px;padding:10px 12px;border-radius:12px;background:#f3ecdf;font-variant-numeric:tabular-nums}
+.exchange-preview b{font-size:20px;color:#8a5a12;justify-self:end}
+.exchange-preview small{grid-column:1/-1;color:#7b6a58}
+.exchange-go{min-height:48px;font-size:16px}
+.exchange-debt{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;border-radius:14px;background:#f2eadc}

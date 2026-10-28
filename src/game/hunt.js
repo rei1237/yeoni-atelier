@@ -220,7 +220,7 @@ function rollOffer(state, n = 3) {
 export function describeOption(hs, o) {
   if(o.kind?.startsWith('kfp'))return kfpDescribe(hs,o);
   if (o.kind === 'heal') return { icon: '🐟', name: '간식 시간', text: `HP ${H.HEAL_FISH} 회복`, tag: '회복' }; // 옛 저장의 남은 카드
-  if (o.kind === 'pouch') return { icon: '☾', name: '월정석 주머니', text: `모든 기술이 단련 상한이에요 · 월정석 +${TEMP.HUNT_SKILLS.POUCH}`, tag: '보너스' };
+  if (o.kind === 'pouch') return { icon: '☾', name: '월정석 주머니', text: `모든 기술이 단련 상한이에요 · 월정석 +${huntMoonReward(TEMP.HUNT_SKILLS.POUCH, hs.scale)}`, tag: '보너스' };
   const cap = hs.caps?.[o.id];
   if (o.kind === 'passive') {
     const d = PASSIVES[o.id], lv = hs.passives[o.id] || 0;
@@ -236,7 +236,7 @@ function applyOption(state, o) {
   if(o.kind?.startsWith('kfp'))return applyKfpOption(state.hunt,o);
   const hs = state.hunt;
   if (o.kind === 'heal') hs.hp = Math.min(hs.maxHp, hs.hp + H.HEAL_FISH);
-  else if (o.kind === 'pouch') hs.bag.moonstone = (hs.bag.moonstone || 0) + TEMP.HUNT_SKILLS.POUCH;
+  else if (o.kind === 'pouch') hs.bag.moonstone = (hs.bag.moonstone || 0) + huntMoonReward(TEMP.HUNT_SKILLS.POUCH, hs.scale);
   else if (o.kind === 'passive') {
     hs.passives[o.id] = Math.min(PASSIVE_MAX_LV, (hs.passives[o.id] || 0) + 1);
     if (o.id === 'fish_stock') { hs.maxHp += 20; hs.hp += 20; }
@@ -393,7 +393,10 @@ function dropFrom(state, w, e) {
   if (def.chest) {
     const base = def.boss ? Math.round(H.MOON_DROP.boss * (1 + (state.hunt?.gear?.bossMoon || 0))) : H.MOON_DROP.elite;
     addDrop(w, 'moon', 'moonstone', huntMoonReward(base, state.hunt.scale), e.x - 14, e.y);
-    addDrop(w, 'chest', 'chest', 0, e.x + 14, e.y);
+    // 별 상자는 보스는 항상, 정예는 드물게. 상자가 없으면 회복 생선을 남긴다
+    if (def.boss || nextRandom(state.rng) < H.ELITE_CHEST) addDrop(w, 'chest', 'chest', 0, e.x + 14, e.y);
+    else addDrop(w, 'fish', 'fish', 0, e.x + 14, e.y);
+    if (!def.boss) emit('huntEliteDown', {});
     return;
   }
   let r = nextRandom(state.rng);
@@ -550,7 +553,7 @@ function stepShots(state, w, t, m, dt) {
 export function resolveMelee(state,w,t,m){
  const a=w.player.swing;if(!a||a.hit||t<a.hitAt)return;a.hit=true;emit('huntAttack',{weapon:'bolt'});
  for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(withinMeleeArc(a.x,a.y,a.angle,a.radius,a.halfArc,e,ENEMIES[e.type].r))hurt(state,w,i,a.damage,m,e.x-a.x,e.y-a.y,true);}
- for(const prop of w.props||[]){if(!withinMeleeArc(a.x,a.y,a.angle,a.radius,a.halfArc,prop,prop.r))continue;const reward=hitFieldProp(state.hunt,prop,a.damage);addBattleFx(w,{kind:'hit',x:prop.x,y:prop.y,r:30,at:t,until:t+250});if(reward){addDrop(w,'moon','moonstone',reward,prop.x,prop.y);emit('huntObjectBroken',{reward});}}
+ for(const prop of w.props||[]){if(!withinMeleeArc(a.x,a.y,a.angle,a.radius,a.halfArc,prop,prop.r))continue;const reward=hitFieldProp(state.hunt,prop,a.damage);addBattleFx(w,{kind:'hit',x:prop.x,y:prop.y,r:30,at:t,until:t+250});if(reward){addDrop(w,'moon','moonstone',reward,prop.x,prop.y);emit('huntObjectBroken',{reward,kind:prop.kind});}}
 }
 
 function collect(state, w, t, m, dt) {
