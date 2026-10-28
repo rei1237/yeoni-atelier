@@ -68,8 +68,8 @@ for (const seed of seeds) {
   if(s.gold>RESERVE&&!(P.loan&&s.finance?.balance>0))dispatch(s,{type:'debt.repay',amount:s.gold-RESERVE,requestId:`bot:${seed}:${turn}`});
   if(s.debt<=0&&clearedDay==null)clearedDay=turn;
   dispatch(s,{type:'settlement.close'});
-  if(process.env.SIM_TRACE&&turn%6===0)console.error(bot,seed,turn,'debt',s.debt,'gold',Math.round(s.gold),'repaid',s.repaidTotal,'fans',totalFans(s));
+  if(process.env.SIM_TRACE&&turn%6===0)console.error(bot,seed,turn,'debt',s.debt,'gold',Math.round(s.gold),'repaid',s.repaidTotal,'warn',s.creditor?.warnings,'ult',s.creditor?.ultimatum?.dueMonth??'-','fans',totalFans(s));
  }
- rows.push({seed,turns:s.stats.shiftsCompleted,clearedDay,debt:s.debt,gold:s.gold,ending:s.calendar.endingId,fans:s.fans,tables:tableCount(s),...sum,repaid:s.repaidTotal,loanLeft:s.finance?.balance||0});
+ rows.push({seed,turns:s.stats.shiftsCompleted,clearedDay,debt:s.debt,gold:s.gold,ending:s.calendar.endingId,fans:s.fans,tables:tableCount(s),...sum,repaid:s.repaidTotal,loanLeft:s.finance?.balance||0,dun:Object.values(s.ledger.creditor||{}).map(r=>r.scene).filter(Boolean)});
 }
 console.log(JSON.stringify({method:`72순 자동 시계 봇(${bot}) / 인간 플레이테스트 아님`,bot,rows},null,2));

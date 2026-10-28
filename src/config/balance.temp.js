@@ -3,7 +3,7 @@
 
 import { DECOR_CATALOG,LARGE_CATALOG } from '../data/decor-catalog.js';
 export const TEMP = Object.freeze({
-  HOST_FEE_BASE: 5000, // 60초 전담의 고수익 지명료. 음식·팁과 별도, 임시 밸런스
+  HOST_FEE_BASE: 1500, // 60초 전담의 고수익 지명료. 음식·팁과 별도, 임시 밸런스(10-28 3봇 튜닝 5000→1500, TUNING.md)
   HOST_FEE_WEALTH: Object.freeze({frugal:1,ordinary:1.5,generous:3,tycoon:6}),
   INITIAL_DEBT: 100_000_000, // 사용자 결정 2026-10-26: 1억 골드, 외전 속 현실 약 10억 원 규모
   CAFE_PRICE_GROWTH: 1.45, // 레벨별 메뉴 가격 배율(임시). 2년 운영에서도 올리지 않는다(빚은 공연·피버·인기로 갚는다)
@@ -145,7 +145,7 @@ export const TEMP = Object.freeze({
     // 10-28 6-1 청토끼 독촉(game/creditor.js). 하순 마감 때 한 번 본다. 첫 약속 달 전에는 보지 않는다(초반 이자 미납은 모두에게 흔하다)
     // 약속: 인수 원금(startingDebt) 대비 누적 상환 비율. 지키면 다음 달 이자 감면 1회
     MILESTONES: Object.freeze([
-      Object.freeze({ monthIdx: 5, share: 0.10 }), Object.freeze({ monthIdx: 11, share: 0.35 }),
+      Object.freeze({ monthIdx: 5, share: 0.03 }), /* 10-28 10%→3%: 첫해엔 누구나 빚이 는다 */ Object.freeze({ monthIdx: 11, share: 0.35 }),
       Object.freeze({ monthIdx: 17, share: 0.65 }), Object.freeze({ monthIdx: 23, share: 1 }),
     ]),
     MILESTONE_INTEREST_CUT: 0.5,
@@ -189,7 +189,7 @@ export const TEMP = Object.freeze({
   }),
   STAGE: Object.freeze({
     DURATION_MS: 30 * 1000,                      // 영업 600초 안의 공연 구간
-    THROW_EVERY_MS: 3000, THROW_BASE: 60,        // 자리 손님이 3초마다 던지는 꽃잎 지폐·금화(× 가격 성장 × 공연 세기 × 부유도)
+    THROW_EVERY_MS: 3000, THROW_BASE: 140,       // 10-28 60→140 · 자리 손님이 3초마다 던지는 꽃잎 지폐·금화(× 가격 성장 × 공연 세기 × 부유도)
     PER_MEMBER: 0.25, PER_TIER: 0.15, PER_OUTFIT: 0.1, DECOR_PER: 100, DECOR_CAP: 0.5, RECORD_PLAYER: 0.1,
     ARRIVAL_MULT: 1.8, FIRST_GUEST_MS: 1500,     // 공연 중 손님 입장 배율
     HOST_TIP_RATE: 1,                            // 접대 팁 추가 = 기본 팁 × (세기 - 1)
@@ -197,7 +197,7 @@ export const TEMP = Object.freeze({
     GAUGE_PER_SERVE: 2,                          // 멤버 합류 뒤 서빙 1회당 피버 게이지(손님 응원)
   }),
   CONCERT: Object.freeze({
-    AP: 1, TICKET: 300, TIER_BONUS: 0.1, SEATS_BASE: 40, SEATS_PER_TABLE: 8, // 티켓 수입 = 좌석 × 티켓값(× 가격 성장 × 멤버 단계)
+    AP: 1, TICKET: 600, TIER_BONUS: 0.1, SEATS_BASE: 40, SEATS_PER_TABLE: 8, // 10-28 티켓 300→600 · 티켓 수입 = 좌석 × 티켓값(× 가격 성장 × 멤버 단계)
     FANS: 25, POPULARITY: 2,
   }),
   // ── 자동 운영
