@@ -1,0 +1,68 @@
+/* 메인 화면 도트 버튼(10-28 사용자 요청: 겹침 없이 2D 도트 감성, 고급스럽게).
+   다른 테마 파일의 타이틀 규칙보다 늦게 읽고, .px-menu 안만 다시 그린다.
+   계단형 모서리 = 네 방향 단색 그림자, 그림자 = 흐림 없는 도트 그림자. 글꼴은 갈무리11 Bold 서브셋(assets/fonts/OFL-Galmuri.txt). */
+@font-face{font-family:"Yeoni Pixel";src:url("assets/fonts/YeoniPixel-Subset.woff2") format("woff2");font-weight:400 800;font-style:normal;font-display:swap}
+.title-screen{--px:3px;--px-ink:#4a2638;--px-rose:#9c4560;--px-rose-hi:#c46f86;--px-rose-lo:#6f2c43;--px-gold:#e2bd6c;--px-gold-lo:#a87c3a;--px-ivory:#fff7ea;--px-ivory-hi:#fffdf8;--px-ivory-lo:#e9d6b9;--px-sage:#e4eddb;--px-sage-lo:#b5c7a9;--px-sage-ink:#3c5743;--px-blush:#fbe6e8;--px-blush-lo:#e6b9c2}
+.title-screen .title-emblem .px-icon{width:30px;height:30px;image-rendering:pixelated}
+
+.title-screen .title-menu.px-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px;width:100%;max-width:390px;max-height:none;overflow:visible;margin:0;padding:4px 4px 8px;border:0;border-radius:0;background:none;box-shadow:none}
+/* 메뉴 위 금빛 점선 구분선(가운데 마름모) */
+.title-screen .px-menu::before{content:'';grid-column:1/-1;height:9px;margin:0 2px 2px;background:linear-gradient(var(--px-gold),var(--px-gold)) center/9px 9px no-repeat,repeating-linear-gradient(90deg,var(--px-gold-lo) 0 3px,transparent 3px 9px) center/100% 3px no-repeat;clip-path:polygon(0 33%,calc(50% - 4.5px) 33%,50% 0,calc(50% + 4.5px) 33%,100% 33%,100% 67%,calc(50% + 4.5px) 67%,50% 100%,calc(50% - 4.5px) 67%,0 67%)}
+
+.title-screen .px-menu .px-btn{position:relative;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:auto;min-width:0;min-height:52px;margin:var(--px);padding:10px 14px;border:0;border-radius:0;background:var(--px-ivory);color:var(--px-ink);font:700 15px/1.25 "Yeoni Pixel","Yeoni UI",system-ui,sans-serif;letter-spacing:0;text-align:left;text-shadow:none;white-space:normal;word-break:keep-all;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  box-shadow:inset 0 var(--px) 0 var(--px-ivory-hi),inset 0 calc(var(--px) * -1) 0 var(--px-ivory-lo),0 calc(var(--px) * -1) 0 var(--px-ink),0 var(--px) 0 var(--px-ink),calc(var(--px) * -1) 0 0 var(--px-ink),var(--px) 0 0 var(--px-ink),0 calc(var(--px) * 2) 0 #4a26384d,var(--px) calc(var(--px) * 2) 0 #4a26384d,calc(var(--px) * -1) calc(var(--px) * 2) 0 #4a26384d;
+  transition:transform .1s steps(2),filter .1s steps(2)}
+.title-screen .px-menu .px-btn::before,.title-screen .px-menu .px-btn::after{content:none}
+.title-screen .px-menu .px-btn:hover{filter:brightness(1.04) saturate(1.05)}
+.title-screen .px-menu .px-btn:active{transform:translateY(var(--px))}
+/* 키보드 선택: 버튼 바깥 유령 테두리 대신 안쪽 금빛 테 */
+.title-screen .px-menu .px-btn:focus-visible{outline:2px solid var(--px-gold);outline-offset:calc(var(--px) * -2)}
+.title-screen .px-menu .px-icon{flex:none;width:24px;height:24px}
+.title-screen .px-menu .px-label{min-width:0}
+.title-screen .px-menu .px-tail{margin-left:auto;width:20px;height:20px}
+.title-screen .px-menu .px-wide{grid-column:1/-1}
+
+/* 첫 버튼: 장미 바탕 · 금빛 바느질 선 · 아이보리 글자 */
+.title-screen .px-menu .px-main{grid-column:1/-1;min-height:62px;padding:12px 18px;gap:12px;background:var(--px-rose);color:var(--px-ivory);font-size:18px;
+  box-shadow:inset 0 var(--px) 0 var(--px-rose-hi),inset 0 calc(var(--px) * -1) 0 var(--px-rose-lo),0 calc(var(--px) * -1) 0 var(--px-ink),0 var(--px) 0 var(--px-ink),calc(var(--px) * -1) 0 0 var(--px-ink),var(--px) 0 0 var(--px-ink),0 calc(var(--px) * 2) 0 #4a263866,var(--px) calc(var(--px) * 2) 0 #4a263866,calc(var(--px) * -1) calc(var(--px) * 2) 0 #4a263866}
+.title-screen .px-menu .px-main::before{content:'';position:absolute;left:calc(var(--px) * 3);right:calc(var(--px) * 3);top:calc(var(--px) * 2);bottom:calc(var(--px) * 2);pointer-events:none;background:repeating-linear-gradient(90deg,var(--px-gold) 0 3px,transparent 3px 7px) top/100% 2px no-repeat,repeating-linear-gradient(90deg,var(--px-gold) 0 3px,transparent 3px 7px) bottom/100% 2px no-repeat;opacity:.75}
+.title-screen .px-menu .px-main .px-icon{width:28px;height:28px}
+.title-screen .px-menu .px-main .px-tail{color:var(--px-gold)}
+
+/* 게임방: 분홍 바탕 · 장미 윤곽 */
+.title-screen .px-menu .px-room{background:var(--px-blush);color:#6c3248;box-shadow:inset 0 var(--px) 0 #fff4f5,inset 0 calc(var(--px) * -1) 0 var(--px-blush-lo),0 calc(var(--px) * -1) 0 var(--px-ink),0 var(--px) 0 var(--px-ink),calc(var(--px) * -1) 0 0 var(--px-ink),var(--px) 0 0 var(--px-ink),0 calc(var(--px) * 2) 0 #4a26384d,var(--px) calc(var(--px) * 2) 0 #4a26384d,calc(var(--px) * -1) calc(var(--px) * 2) 0 #4a26384d}
+.title-screen .px-menu .px-room .px-tail{color:var(--px-rose)}
+
+/* 보조 버튼: 두 칸 나눔일 때 아이콘 위·글자 아래 타일 */
+.title-screen .px-menu .px-sub:not(.px-wide){flex-direction:column;justify-content:center;gap:6px;min-height:68px;padding:8px 6px;text-align:center;font-size:14px}
+.title-screen .px-menu .px-sage{background:var(--px-sage);color:var(--px-sage-ink);box-shadow:inset 0 var(--px) 0 #f6faf1,inset 0 calc(var(--px) * -1) 0 var(--px-sage-lo),0 calc(var(--px) * -1) 0 var(--px-ink),0 var(--px) 0 var(--px-ink),calc(var(--px) * -1) 0 0 var(--px-ink),var(--px) 0 0 var(--px-ink),0 calc(var(--px) * 2) 0 #4a26384d,var(--px) calc(var(--px) * 2) 0 #4a26384d,calc(var(--px) * -1) calc(var(--px) * 2) 0 #4a26384d}
+
+/* 음악·저장 설정 */
+.title-screen .px-menu .px-options{grid-column:1/-1;margin:0;padding:0;border:0;border-radius:0;background:none;text-align:center}
+.title-screen .px-menu .px-options summary{display:flex;align-items:center;justify-content:center;gap:8px;width:fit-content;min-height:44px;margin:0 auto;padding:0 16px;background:#fff7eae0;box-shadow:0 -2px 0 #4a26382e,0 2px 0 #4a26382e,-2px 0 0 #4a26382e,2px 0 0 #4a26382e;list-style:none;color:#6d5560;font:700 13px/1 "Yeoni Pixel","Yeoni UI",system-ui,sans-serif;cursor:pointer}
+.title-screen .px-menu .px-options summary::-webkit-details-marker{display:none}
+.title-screen .px-menu .px-options summary .px-icon{width:18px;height:18px}
+.title-screen .px-menu .px-options-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 4px 6px}
+.title-screen .px-menu .px-options button{width:100%;min-height:44px;margin:0;padding:6px 8px;border:0;border-radius:0;background:var(--px-ivory);color:var(--px-ink);font:700 13px/1.2 "Yeoni Pixel","Yeoni UI",system-ui,sans-serif;box-shadow:0 calc(var(--px) * -1) 0 #4a263899,0 var(--px) 0 #4a263899,calc(var(--px) * -1) 0 0 #4a263899,var(--px) 0 0 #4a263899}
+.title-screen .px-menu .px-options button[aria-disabled=true]{opacity:.5}
+.title-screen .px-menu>small,.title-screen .px-menu>p{grid-column:1/-1;margin:0;text-align:center}
+
+/* 좁은 세로 화면: 간격만 줄인다 */
+@media(max-width:380px){.title-screen .title-menu.px-menu{gap:12px 10px}.title-screen .px-menu .px-btn{font-size:14px}.title-screen .px-menu .px-main{font-size:16px;min-height:58px}.title-screen .px-menu .px-sub:not(.px-wide){font-size:13px;min-height:64px}}
+@media(max-height:680px) and (max-width:700px){.title-screen .px-menu::before{display:none}.title-screen .px-menu .px-sub:not(.px-wide){flex-direction:row;min-height:50px;gap:6px}.title-screen .px-menu .px-sub:not(.px-wide) .px-icon{width:20px;height:20px}}
+
+/* 가로 휴대폰: 제목 왼쪽, 메뉴 오른쪽(세로로 넘치면 메뉴만 스크롤) */
+@media(orientation:landscape) and (max-height:540px){
+  .title-screen{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);grid-template-rows:minmax(0,1fr);gap:0 24px;padding:12px max(16px,env(safe-area-inset-right)) 12px max(20px,env(safe-area-inset-left));height:100dvh;min-height:0;overflow:hidden}
+  .title-screen .title-wordmark{grid-column:1;grid-row:1;align-self:center;padding:0}
+  .title-screen .title-wordmark h1{font-size:clamp(30px,6vh + 8px,44px);margin:6px 0}
+  .title-screen .title-emblem{margin-bottom:8px}
+  .title-screen .title-cast{display:none}
+  .title-screen .title-menu.px-menu{grid-column:2;grid-row:1;align-self:center;max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;gap:10px;padding:6px 8px 10px;scrollbar-width:thin}
+  .title-screen .px-menu::before{display:none}
+  .title-screen .px-menu .px-main{min-height:52px;font-size:16px}
+  .title-screen .px-menu .px-btn{min-height:46px;padding-top:6px;padding-bottom:6px}
+  .title-screen .px-menu .px-sub:not(.px-wide){flex-direction:row;min-height:46px;gap:6px}
+  .title-screen .px-menu .px-sub:not(.px-wide) .px-icon{width:20px;height:20px}
+}
+@media(prefers-reduced-motion:reduce){.title-screen .px-menu .px-btn{transition:none}}

@@ -109,3 +109,8 @@ Code Destiny 로컬 원본의 공개 프로필·라이트노벨 이미지·운�
 
 ## 2026-10-28 달빛 타로 카드 뒷면
 사용자가 Code Destiny 타로 UI의 활용을 요청했다. 읽기 전용 Code Destiny 저장소의 public/images/fortune-tea-house/moonlight-tarot-card-back.webp를 원본으로 삼아 assets/ui/island-card-back.webp를 480×720 WebP로 축소해 카드 뒤집기 뒷면에만 사용한다. 새 섬 원화의 참고 이미지로는 사용하지 않았다.
+
+## 2026-10-28 메인 화면 도트 글꼴·아이콘
+- 글꼴 원본: [Galmuri](https://github.com/quiple/galmuri) 2.40.3 Galmuri11-Bold, SIL Open Font License 1.1(© Lee Minseo). KS X 1001 완성형 한글·ASCII·기호 2,481자로 서브셋했고 파일은 `assets/fonts/YeoniPixel-Subset.woff2`(40,968바이트)다.
+- 수정 글꼴의 내부 family/PostScript 이름은 `Yeoni Pixel` / `YeoniPixel-Bold`로 바꿨다. 원본 저작권·OFL 전문은 `assets/fonts/OFL-Galmuri.txt`에 함께 배포한다. 메인 화면 버튼(`title-pixel.css`)에서만 쓴다.
+- 버튼 도트 아이콘(`src/ui/pixel-icons.js`, 12×12 SVG)은 이 프로젝트에서 새로 그린 게임 오리지널이다.
