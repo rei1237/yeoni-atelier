@@ -110,32 +110,32 @@
 | enemies/shade_wisp | assets/illustrated/enemies/shade_wisp.webp | 512×384 | 완료 |
 | enemies/elite_hand | assets/illustrated/enemies/elite_hand.webp | 512×384 | 완료 |
 | enemies/boss_hand | assets/illustrated/enemies/boss_hand.webp | 512×384 | 완료 |
-| objects/lotus_pot | assets/illustrated/objects/lotus_pot.webp | 128×128 | 완료 |
-| objects/bamboo | assets/illustrated/objects/bamboo.webp | 128×128 | 완료 |
-| objects/garden_bench | assets/illustrated/objects/garden_bench.webp | 256×128 | 완료 |
-| objects/lotus_rug | assets/illustrated/objects/lotus_rug.webp | 256×256 | 완료 |
-| objects/moon_lamp | assets/illustrated/objects/moon_lamp.webp | 128×128 | 완료 |
-| objects/velvet_sofa | assets/illustrated/objects/velvet_sofa.webp | 256×128 | 완료 |
-| objects/star_carpet | assets/illustrated/objects/star_carpet.webp | 256×256 | 완료 |
-| objects/record_shelf | assets/illustrated/objects/record_shelf.webp | 256×128 | 완료 |
-| objects/tea_cabinet | assets/illustrated/objects/tea_cabinet.webp | 256×128 | 완료 |
-| objects/water_bowl | assets/illustrated/objects/water_bowl.webp | 128×128 | 완료 |
-| objects/fire_lantern | assets/illustrated/objects/fire_lantern.webp | 128×128 | 완료 |
-| objects/earth_vase | assets/illustrated/objects/earth_vase.webp | 128×128 | 완료 |
-| objects/silver_bell | assets/illustrated/objects/silver_bell.webp | 128×128 | 완료 |
-| objects/harvest_basket | assets/illustrated/objects/harvest_basket.webp | 128×128 | 완료 |
-| objects/herb_shelf | assets/illustrated/objects/herb_shelf.webp | 256×128 | 완료 |
-| objects/greenhouse_rug | assets/illustrated/objects/greenhouse_rug.webp | 256×256 | 완료 |
+| objects/lotus_pot | assets/illustrated/objects/lotus_pot.webp | 160×126 | 완료 | 개별 생성 |
+| objects/bamboo | assets/illustrated/objects/bamboo.webp | 115×160 | 완료 | 개별 생성 |
+| objects/garden_bench | assets/illustrated/objects/garden_bench.webp | 224×193 | 완료 | 개별 생성 |
+| objects/lotus_rug | assets/illustrated/objects/lotus_rug.webp | 224×133 | 완료 | 개별 생성 |
+| objects/moon_lamp | assets/illustrated/objects/moon_lamp.webp | 95×160 | 완료 | 개별 생성 |
+| objects/velvet_sofa | assets/illustrated/objects/velvet_sofa.webp | 224×169 | 완료 | 개별 생성 |
+| objects/star_carpet | assets/illustrated/objects/star_carpet.webp | 224×141 | 완료 | 개별 생성 |
+| objects/record_shelf | assets/illustrated/objects/record_shelf.webp | 108×224 | 완료 | 개별 생성 |
+| objects/tea_cabinet | assets/illustrated/objects/tea_cabinet.webp | 108×224 | 완료 | 개별 생성 |
+| objects/water_bowl | assets/illustrated/objects/water_bowl.webp | 160×147 | 완료 | 개별 생성 |
+| objects/fire_lantern | assets/illustrated/objects/fire_lantern.webp | 74×160 | 완료 | 개별 생성 |
+| objects/earth_vase | assets/illustrated/objects/earth_vase.webp | 124×160 | 완료 | 개별 생성 |
+| objects/silver_bell | assets/illustrated/objects/silver_bell.webp | 113×160 | 완료 | 개별 생성 |
+| objects/harvest_basket | assets/illustrated/objects/harvest_basket.webp | 160×133 | 완료 | 개별 생성 |
+| objects/herb_shelf | assets/illustrated/objects/herb_shelf.webp | 175×224 | 완료 | 개별 생성 |
+| objects/greenhouse_rug | assets/illustrated/objects/greenhouse_rug.webp | 224×124 | 완료 | 개별 생성 |
 | objects/table | 256×256 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | objects/chair | 128×128 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | objects/drink | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | objects/oven | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | objects/pass | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
 | objects/counter | 256×192 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
-| objects/plant | 128×160 | 완료 | 새 식물 원본 · botanical_pot 공유 |
-| objects/bookshelf | assets/illustrated/objects/bookshelf.webp | 256×128 | 완료 |
-| objects/lamp | assets/illustrated/objects/lamp.webp | 128×128 | 완료 |
-| objects/rug | 256×160 | 완료 | 사용자 전달 원본 · 비율 유지/프레임 정규화 |
+| objects/plant | assets/illustrated/objects/plant.webp | 153×160 | 완료 | 개별 생성 |
+| objects/bookshelf | assets/illustrated/objects/bookshelf.webp | 114×224 | 완료 | 개별 생성 |
+| objects/lamp | assets/illustrated/objects/lamp.webp | 54×160 | 완료 | 개별 생성 |
+| objects/rug | assets/illustrated/objects/rug.webp | 224×115 | 완료 | 개별 생성 |
 | objects/pot | assets/illustrated/objects/pot.webp | 128×128 | 완료 |
 | icons/berry | assets/sprites/icons/berry.webp | 96×96 | 완료 |
 | icons/rice | assets/sprites/icons/rice.webp | 96×96 | 완료 |
@@ -596,8 +596,8 @@ comparison-00~19.jpg를 직접 열어 변경 전후를 비교했다. 마을 4계
 신규 원본 25개는 D:/yeoni-qa/art/cafe-ux/generated-source-v1에 보존한다. normalized-runtime/normalization.json에 셀별 visible bounds를 기록했다. 이전 계절 지도 사본은 현재 재성의 섬 정본 경로로 대체되어 128px 보관용으로 축소했고 이전 원본은 preserved-runtime-new-art에 해시와 함께 보존했다. 신규 손님은 4종×걷기/방향별 착석이며 추가 4종은 옷 마스크만 변색한다.
 
 | objects/grand_table | 256×256 | 완료 | 기존 테이블 아트 비율 유지 재사용 |
-| objects/grand_planter | 128×160 | 완료 | 식물 아트 재사용 |
-| objects/long_cabinet | 256×192 | 완료 | 픽업 선반 그림을 장식 수납용으로 재사용 |
+| objects/grand_planter | assets/illustrated/objects/grand_planter.webp | 170×224 | 완료 | 개별 생성 |
+| objects/long_cabinet | assets/illustrated/objects/long_cabinet.webp | 224×144 | 완료 | 개별 생성 |
 
 
 최종 알파 검수: 신규 런타임의 떨어진 조각 제거·안전 여백 보정 후103시트/1,204프레임오류0. 원본은 수정하지 않았으며 cleaned-runtime/alpha-cleanup.json 및 seated-margin-cleanup.json, runtime-before-alpha-clean에 가공 기록과 이전 결과를 보존한다. 현재 배포assets 전체14,875,442B,단일1.5MB이하.
@@ -678,3 +678,9 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 | icons/yeoni_moon_latte | moon-latte | 128×128 | 완료 |
 | icons/yeoni_rose_mille | rose-mille | 128×128 | 완료 |
 | icons/yeoni_garden_quiche | garden-quiche | 128×128 | 완료 |
+| objects/counter_right | 입구 왼쪽 측면 계산대 · 손님 오른쪽 | 192×256 | 완료 |
+
+2026-10-28: 장식 가구 22종은 asset-updates의 contentRect로 투명 여백을 제외하고, FURNITURE.renderSize로 입면 크기를 지정한다. 충돌 칸·구매 가격·기존 가구 위치는 보존한다.
+
+### 장식 가구 개별 재생성
+22종을 한 이미지당 한 가구로 새로 생성했다. 기존 시트 분할 이미지를 교체하고 원본 비율, 전체 윤곽, 투명 여백을 유지했다. 큰 가구는 바닥 점유 영역과 별개인 renderSize로 표시한다.

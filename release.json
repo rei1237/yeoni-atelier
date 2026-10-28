@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.28.3",
-  "name": "연이의 아틀리에 · 첫날 안내와 연이의 주방",
+  "version": "2026.10.28.4",
+  "name": "연이의 아틀리에 · 꽃길과 동료의 이야기",
   "musicTracks": 103,
-  "assetBytes": 14987002,
+  "assetBytes": 14986150,
   "channel": "production",
-  "baseCommit": "a789ccd69984214a2d1a94db7354d4a8923e257b",
+  "baseCommit": "9c217d473e3e63a161443408dca16e198177416c",
   "newTitleArt": true
 }

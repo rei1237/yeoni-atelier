@@ -33,13 +33,4 @@ export function careerMonthStory(index, state) {
     {s:'sys',t:last?'[ 180번째 영업을 마치면 운영 엔딩을 봅니다. 이후에도 자유 영업과 인연은 이어집니다 ]':`[ ${YEARS[year-1]} · 동료와 대화하고 함께 일하면 인연 스킬이 열립니다 ]`},
   ];
 }
-export function castBondStory(id,tier) {
-  const b = BONDS[id], perk = b?.perks[tier-1];
-  if(!b || !perk) return null;
-  const lines = [
-    ['처음 같이 문을 열던 날보다 손이 덜 바빠졌어. 네가 있어 주니까.','이제 네가 좋아하는 자리도 알겠어. 오늘은 그쪽에 차를 뒀어.','실수해도 먼저 말해 줘서 고마워. 같이 고치면 되잖아.','가게가 얼마나 커졌는지보다, 우리가 얼마나 가까워졌는지 적어 둘래.'],
-  ][0];
-  return [{chapter:[`인연 · ${b.name} ${tier}단계`,perk.label.split(' · ')[0]],bg:'atelier_lit',l:'yeoni:smile',c:`${b.speaker}:normal`,r:null},
-    {s:'yeoni',t:lines[tier-1]}, {s:b.speaker,t:b.talk[(tier-1)%b.talk.length][1]},
-    {s:'sys',t:`[ 인연 스킬 해금 · ${perk.label} ]`}];
-}
+export {authoredCastBondStory as castBondStory} from './cast-bond-scenes.js';

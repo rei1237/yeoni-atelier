@@ -10072,3 +10072,29 @@ ASSET_UPDATES.actors.yeoni_cook={"kind": "actor", "label": "연이 직접 조리
 ASSET_UPDATES.icons.yeoni_moon_latte={"kind": "icon", "label": "moon-latte", "path": "assets/illustrated/icons/yeoni_moon_latte.webp", "px": 128, "dimensions": [128, 128]};
 ASSET_UPDATES.icons.yeoni_rose_mille={"kind": "icon", "label": "rose-mille", "path": "assets/illustrated/icons/yeoni_rose_mille.webp", "px": 128, "dimensions": [128, 128]};
 ASSET_UPDATES.icons.yeoni_garden_quiche={"kind": "icon", "label": "garden-quiche", "path": "assets/illustrated/icons/yeoni_garden_quiche.webp", "px": 128, "dimensions": [128, 128]};
+
+ASSET_UPDATES.objects.counter_right={kind:"object",label:"오른쪽 손님용 측면 계산대",path:"assets/illustrated/objects/counter_right.webp",dimensions:[192,256]};
+
+// 2026-10-28: 22개 가구를 각각 독립 생성. 전체 윤곽과 투명 여백 보존.
+ASSET_UPDATES.objects.lotus_pot={...ASSET_UPDATES.objects.lotus_pot,...{"path": "assets/illustrated/objects/lotus_pot.webp", "dimensions": [160, 126], "contentRect": [6, 6, 148, 114]}};
+ASSET_UPDATES.objects.bamboo={...ASSET_UPDATES.objects.bamboo,...{"path": "assets/illustrated/objects/bamboo.webp", "dimensions": [115, 160], "contentRect": [6, 6, 103, 148]}};
+ASSET_UPDATES.objects.garden_bench={...ASSET_UPDATES.objects.garden_bench,...{"path": "assets/illustrated/objects/garden_bench.webp", "dimensions": [224, 193], "contentRect": [6, 6, 212, 181]}};
+ASSET_UPDATES.objects.lotus_rug={...ASSET_UPDATES.objects.lotus_rug,...{"path": "assets/illustrated/objects/lotus_rug.webp", "dimensions": [224, 133], "contentRect": [6, 6, 212, 121]}};
+ASSET_UPDATES.objects.moon_lamp={...ASSET_UPDATES.objects.moon_lamp,...{"path": "assets/illustrated/objects/moon_lamp.webp", "dimensions": [95, 160], "contentRect": [6, 6, 83, 148]}};
+ASSET_UPDATES.objects.velvet_sofa={...ASSET_UPDATES.objects.velvet_sofa,...{"path": "assets/illustrated/objects/velvet_sofa.webp", "dimensions": [224, 169], "contentRect": [6, 6, 212, 157]}};
+ASSET_UPDATES.objects.star_carpet={...ASSET_UPDATES.objects.star_carpet,...{"path": "assets/illustrated/objects/star_carpet.webp", "dimensions": [224, 141], "contentRect": [6, 6, 212, 129]}};
+ASSET_UPDATES.objects.record_shelf={...ASSET_UPDATES.objects.record_shelf,...{"path": "assets/illustrated/objects/record_shelf.webp", "dimensions": [108, 224], "contentRect": [6, 6, 96, 212]}};
+ASSET_UPDATES.objects.tea_cabinet={...ASSET_UPDATES.objects.tea_cabinet,...{"path": "assets/illustrated/objects/tea_cabinet.webp", "dimensions": [108, 224], "contentRect": [6, 6, 96, 212]}};
+ASSET_UPDATES.objects.water_bowl={...ASSET_UPDATES.objects.water_bowl,...{"path": "assets/illustrated/objects/water_bowl.webp", "dimensions": [160, 147], "contentRect": [6, 6, 148, 135]}};
+ASSET_UPDATES.objects.fire_lantern={...ASSET_UPDATES.objects.fire_lantern,...{"path": "assets/illustrated/objects/fire_lantern.webp", "dimensions": [74, 160], "contentRect": [6, 6, 62, 148]}};
+ASSET_UPDATES.objects.earth_vase={...ASSET_UPDATES.objects.earth_vase,...{"path": "assets/illustrated/objects/earth_vase.webp", "dimensions": [124, 160], "contentRect": [6, 6, 112, 148]}};
+ASSET_UPDATES.objects.silver_bell={...ASSET_UPDATES.objects.silver_bell,...{"path": "assets/illustrated/objects/silver_bell.webp", "dimensions": [113, 160], "contentRect": [6, 6, 101, 148]}};
+ASSET_UPDATES.objects.harvest_basket={...ASSET_UPDATES.objects.harvest_basket,...{"path": "assets/illustrated/objects/harvest_basket.webp", "dimensions": [160, 133], "contentRect": [6, 6, 148, 121]}};
+ASSET_UPDATES.objects.herb_shelf={...ASSET_UPDATES.objects.herb_shelf,...{"path": "assets/illustrated/objects/herb_shelf.webp", "dimensions": [175, 224], "contentRect": [6, 6, 163, 212]}};
+ASSET_UPDATES.objects.greenhouse_rug={...ASSET_UPDATES.objects.greenhouse_rug,...{"path": "assets/illustrated/objects/greenhouse_rug.webp", "dimensions": [224, 124], "contentRect": [6, 6, 212, 112]}};
+ASSET_UPDATES.objects.grand_planter={...ASSET_UPDATES.objects.grand_planter,...{"path": "assets/illustrated/objects/grand_planter.webp", "dimensions": [170, 224], "contentRect": [6, 6, 158, 212]}};
+ASSET_UPDATES.objects.long_cabinet={...ASSET_UPDATES.objects.long_cabinet,...{"path": "assets/illustrated/objects/long_cabinet.webp", "dimensions": [224, 144], "contentRect": [6, 6, 212, 132]}};
+ASSET_UPDATES.objects.plant={...ASSET_UPDATES.objects.plant,...{"path": "assets/illustrated/objects/plant.webp", "dimensions": [153, 160], "contentRect": [6, 6, 141, 148]}};
+ASSET_UPDATES.objects.bookshelf={...ASSET_UPDATES.objects.bookshelf,...{"path": "assets/illustrated/objects/bookshelf.webp", "dimensions": [114, 224], "contentRect": [6, 6, 102, 212]}};
+ASSET_UPDATES.objects.lamp={...ASSET_UPDATES.objects.lamp,...{"path": "assets/illustrated/objects/lamp.webp", "dimensions": [54, 160], "contentRect": [6, 6, 42, 148]}};
+ASSET_UPDATES.objects.rug={...ASSET_UPDATES.objects.rug,...{"path": "assets/illustrated/objects/rug.webp", "dimensions": [224, 115], "contentRect": [6, 6, 212, 103]}};

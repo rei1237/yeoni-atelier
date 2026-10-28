@@ -25,3 +25,14 @@
 
 
 .world-card-back{background:#24172d url('assets/ui/island-card-back.webp') center/contain no-repeat;border:0}.world-card-back>span,.world-card-back>small{display:none}
+
+/* 꽃잎빛 헤더와 빈 공간 없는 원화 지도. 안내와 이동 상태는 같은 행을 교대로 쓴다. */
+.world-map-screen .world-header{min-height:84px;background:linear-gradient(115deg,#723a58,#994969 65%,#5b6551);border-bottom:2px solid #cfad78;overflow:hidden}
+.world-botanical{position:absolute;right:120px;top:-70px;width:230px;height:230px;opacity:.24;pointer-events:none}.world-botanical .pixel-icon{width:100%;height:100%}
+.world-header-title,.world-map-screen .world-tools,.world-brand-seal{position:relative}.world-map-screen .world-header h1{color:#fff5df;font-size:24px}.world-map-screen .world-header p{color:#ffeddc;line-height:1.6}.world-map-screen .world-tools button{background:#fff3de;color:#66374e;border-color:#d9b680}.world-map-screen .world-tools button:first-child{background:#f8d9df;border-color:#e7b6bf}
+.world-map-stage{display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:#a0b599}.world-map-title{position:relative;inset:auto;margin:0;border:0;border-radius:0;box-shadow:none;padding:5px 10px;background:#e7efdc}.world-map-title b{color:#345846}.world-map-title small{color:#4d6255}
+.world-map-screen .world-map-viewport{position:relative;inset:auto;display:block;min-height:0;container-type:size;scrollbar-color:#7a9a7a #e2edd9;touch-action:pan-x pan-y;background:#8eaf95}
+.world-map-screen .world-landmarks{width:calc(max(100cqw,150cqh) * var(--zoom));height:auto;min-height:100%;margin:0;border:0;box-shadow:none}
+.world-map-hint,.world-map-screen .world-travel-tools{position:relative;inset:auto;margin:0;min-height:64px;border:0;border-top:1px solid #c4ac78;border-radius:0;padding:8px 12px;background:#fff1df;box-shadow:none;z-index:1}
+.world-map-screen .world-travel-tools{background:#f5dce4;color:#63394e;align-items:center}.world-map-screen .world-travel-tools button{background:#fff7e8;color:#63394e;border-color:#bc8d9f}.world-map-screen .world-travel-tools button:first-of-type{background:#85455f;color:#fff8eb}.world-map-footer{height:28px;background:#395748;color:#fff0d8;border-color:#bda77a}.world-map-footer small{color:#e1ebd8}.world-map-footer span{color:#f4bfcb}
+@media(max-width:360px){.world-map-screen .world-header h1{font-size:20px}.world-map-screen .world-header p{font-size:9px}.world-map-screen .world-tools button{min-width:44px}.world-map-title small{font-size:10px}}

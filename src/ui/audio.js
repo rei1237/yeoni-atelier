@@ -4,6 +4,9 @@ import {MUSIC_CATALOG} from '../data/music-catalog.js';
 const aliases={cafe:'DestinyCafe/Kindness.mp3',dream:'DestinyWar/Dream.mp3',strategy:'DestinyWar/Moonlit Strategy Map.mp3',battle:'DestinyWar/The war.mp3',lion:'DestinyWar/White Lion.mp3',boss:'DestinyWar/The Moonlit War Room.mp3',tea:'DestinyCafe/Moonlit Tea House.mp3',opening:'DEST1NOVA/달빛 운명여행 main title.mp3'};
 export const TRACKS=Object.fromEntries([...MUSIC_CATALOG.map(t=>[t.id,t]),...Object.entries(aliases).map(([id,key])=>[id,MUSIC_CATALOG.find(t=>t.source===key)])]);
 const GROUPS={all:'전체',dest1nova:'DEST1NOVA',yeoni:'연이',lunabloom:'Luna bloom',destinycafe:'운명의 찻집',meditation:'명상'};
+export const CAFE_PLAYLIST=Object.freeze(['destinycafe-06','destinycafe-05','destinycafe-03','destinycafe-02','destinycafe-04','meditation-04','meditation-01','meditation-09']);
+let cafeIndex=0;
+const cafeScene=()=>trackForScene(scene)==='cafe';
 let category='all',query='',bag=[],history=[],forward=[],shuffleReady=false,lastFailed='',playGeneration=0;
 const KEY='yeoni-atelier.audio.v1';
 let settings={music:false,sfx:true,volume:.35,sfxVolume:.75,track:'auto',repeat:'all',shuffle:false};
@@ -14,22 +17,23 @@ let context, master, noise, unlocked=false, scene='title', current='', error='',
 const lastSounds=new Map(), voices=new Set();
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(settings));}catch{}}
 export function trackForScene(scene){return ({title:'tea',hunt:'battle',huntDeep:'lion',huntBoss:'boss',huntResult:'dream',huntPrep:'strategy',farm:'dream',story:'dream',outfits:'opening',fever:'opening'}[scene]||'cafe');}
-function selected(){return settings.track==='auto'?(scene==='story'&&storyTrack?storyTrack:trackForScene(scene)):settings.track;}
+function selected(){return settings.track==='auto'?(cafeScene()?CAFE_PLAYLIST[cafeIndex]:scene==='story'&&storyTrack?storyTrack:trackForScene(scene)):settings.track;}
 export function setStoryAudio(track){const next=TRACKS[track]?track:null;if(storyTrack!==next){storyTrack=next;sync();}}
 function sync(){
  if(!settings.music||!unlocked||document.hidden){player.pause();pending=false;playGeneration++;return;}
  const id=TRACKS[selected()]?selected():'cafe';
  if(current!==id){player.pause();player.src=TRACKS[id].url;current=id;error='';pending=false;lastFailed='';playGeneration++;}
- player.loop=settings.track==='auto'||settings.repeat==='one';
+ player.loop=settings.track==='auto'?!cafeScene():settings.repeat==='one';
  if(lastFailed===current)return;
  player.volume=settings.volume*(scene==='story'?.6:1);
  if(player.paused&&!pending){pending=true;const request=++playGeneration;player.play().then(()=>{if(request===playGeneration)pending=false;}).catch(e=>{if(request===playGeneration){pending=false;if(e.name!=='AbortError'){error='음악 연결을 확인하고 다시 재생해 주세요.';lastFailed=current;}}});}
 }
 player.addEventListener('error',()=>{pending=false;lastFailed=current;error='음악 연결을 확인해 주세요. 게임은 계속할 수 있어요.';});
-player.addEventListener('ended',()=>{if(settings.track==='auto'||settings.repeat==='one')return;if(settings.repeat==='off'&&(settings.shuffle?(shuffleReady&&!bag.length&&!forward.length):MUSIC_CATALOG.at(-1)?.id===TRACKS[current]?.id)){settings.music=false;persist();return;}nextTrack(1);});
+player.addEventListener('ended',()=>{if(settings.track==='auto'){if(cafeScene()){cafeIndex=(cafeIndex+1)%CAFE_PLAYLIST.length;sync();}return;}if(settings.repeat==='one')return;if(settings.repeat==='off'&&(settings.shuffle?(shuffleReady&&!bag.length&&!forward.length):MUSIC_CATALOG.at(-1)?.id===TRACKS[current]?.id)){settings.music=false;persist();return;}nextTrack(1);});
 globalThis.document?.addEventListener('visibilitychange',sync);
 function resetShuffle(){bag=MUSIC_CATALOG.filter(t=>t.id!==TRACKS[current]?.id).map(t=>t.id);shuffleReady=true;}
 function nextTrack(direction){
+ if(settings.track==='auto'&&cafeScene()){cafeIndex=(cafeIndex+direction+CAFE_PLAYLIST.length)%CAFE_PLAYLIST.length;settings.music=true;persist();sync();return;}
  const list=MUSIC_CATALOG,now=TRACKS[current]?.id,at=list.findIndex(t=>t.id===now);let id;
  if(settings.shuffle){
   if(direction<0){id=history.pop()||list[(at-1+list.length)%list.length].id;if(now)forward.push(now);}
@@ -72,13 +76,17 @@ export function sound(kind='tap'){
  case 'tarot':burst(.28,.16,800);tone(90,38,.24,.14,0,'triangle');break;
  case 'aura':tone(190,310,.24,.04);break;
  case 'hit':tone(250,100,.055,.10,0,'triangle');break;
- case 'hurt':tone(170,65,.22,.19,0,'sawtooth');burst(.15,.12,700);break;
+ case 'hurt':tone(170,85,.18,.10,0,'triangle');burst(.12,.065,700);break;
  case 'death':burst(.13,.08,1100);break;
  case 'gem':tone(1180,1550,.075,.06);break;
  case 'moon':tone(880,1320,.13,.13);tone(1760,1760,.14,.08,.08);break;
  case 'boss':tone(75,48,.8,.16,0,'triangle');tone(110,72,.6,.09,.18);break;
  case 'bad':tone(240,150,.18,.13);break;
- case 'tap':tone(580,740,.06,.08);break;
+ case 'tap':tone(420,280,.045,.045,0,'triangle');tone(840,700,.06,.018);break;
+ case 'cook':tone(1046,1040,.23,.06);tone(1568,1560,.19,.022,.025);burst(.08,.015,1200);break;
+ case 'bond':tone(523,523,.32,.07);tone(659,659,.34,.05,.08);tone(784,784,.38,.035,.16);break;
+ case 'good':tone(660,660,.16,.06);tone(880,880,.24,.04,.06);break;
+ case 'farm':burst(.13,.035,1800);tone(440,660,.18,.035,.05);break;
  default:{const notes=kind==='level'||kind==='chest'?[523,659,784,1047]:kind==='cook'?[480,610,880]:kind==='farm'?[440,660,880]:[659,784,988];notes.forEach((f,i)=>tone(f,f,.16,.11,i*.07,'triangle'));}
  }
 }
@@ -90,10 +98,10 @@ export function audioSheet(){
  const rows=MUSIC_CATALOG.filter(t=>(category==='all'||t.artist===category)&&(!query||(t.name+' '+t.artistName).toLowerCase().includes(query.toLowerCase())));
  const button=(key,label,value,cls='')=>btn({action:'audio.change',args:{key,...(value==null?{}:{value})},label,cls});
  return `<section class="music-room"><h2>달빛 음악실${btn({action:'sheet.close',cls:'close ghost',label:'✕',title:'닫기'})}</h2><p class="music-tagline">꽃향기와 함께 듣는 Code Destiny · ${MUSIC_CATALOG.length}곡</p>
- <section class="music-now" aria-label="현재 곡"><div class="music-cover">${track.cover?`<img src="${esc(track.cover)}" alt="${esc(track.artistName)} 앨범 표지" loading="lazy" referrerpolicy="no-referrer">`:'<span aria-label="표지 없는 명상 앨범">☾</span>'}</div><div><small>${esc(track.artistName)}</small><h3>${esc(track.name)}</h3><p role="status">${error||(!unlocked?'재생 버튼을 눌러 음악을 시작하세요':pending?'연결 중…':!settings.music?'일시정지':player.paused?'재생 준비 중':'재생 중')}${settings.track==='auto'?' · 장면 자동 선곡':''}</p></div></section>
+ <section class="music-now" aria-label="현재 곡"><div class="music-cover">${track.cover?`<img src="${esc(track.cover)}" alt="${esc(track.artistName)} 앨범 표지" loading="lazy" referrerpolicy="no-referrer">`:'<span aria-label="표지 없는 명상 앨범">☾</span>'}</div><div><small>${esc(track.artistName)}</small><h3>${esc(track.name)}</h3><p role="status">${error||(!unlocked?'재생 버튼을 눌러 음악을 시작하세요':pending?'연결 중…':!settings.music?'일시정지':player.paused?'재생 준비 중':'재생 중')}${settings.track==='auto'?' · '+(cafeScene()?'카페 순서 재생 '+(cafeIndex+1)+'/'+CAFE_PLAYLIST.length:'장면 자동 선곡'):''}</p></div></section>
  <div class="music-transport">${button('previous','이전 곡')}${button('music',settings.music&&unlocked?'일시정지':'재생',null,'primary')}${button('next','다음 곡')}</div>
  <label class="music-seek">곡 탐색 <input type="range" data-audio-input="seek" min="0" max="${duration||1}" step="1" value="${Math.floor(time)}" ${duration?'':'disabled'} aria-label="현재 곡 재생 위치"><span>${stamp(time)} / ${stamp(duration)}</span></label>
- <div class="music-options">${button('repeat',settings.repeat==='one'?'한 곡 반복':settings.repeat==='off'?'반복 끔':'전체 반복')}${button('shuffle',settings.shuffle?'셔플 켜짐':'셔플 꺼짐')}${button('track','장면 자동','auto',settings.track==='auto'?'on':'')}</div>
+ <div class="music-options">${button('repeat',settings.repeat==='one'?'한 곡 반복':settings.repeat==='off'?'반복 끔':'전체 반복')}${button('shuffle',settings.shuffle?'셔플 켜짐':'셔플 꺼짐')}${button('track','카페 순서 재생 · 장면 자동','auto',settings.track==='auto'?'on':'')}</div>
  <label class="music-volume">음악 음량 <input type="range" data-audio-input="volume" min="0" max="1" step=".05" value="${settings.volume}" aria-label="음악 음량"><span>${Math.round(settings.volume*100)}%</span></label>
  ${error?button('retry','다시 연결'):''}<div class="music-library"><label>곡 찾기 <input type="search" data-audio-input="search" value="${esc(query)}" placeholder="제목 또는 아티스트"></label><nav class="music-filters" aria-label="앨범 분류">${Object.entries(GROUPS).map(([id,name])=>button('filter',name,id,category===id?'on':'')).join('')}</nav><p class="small">${rows.length}곡 · 네오 솔로곡 제외</p><ol class="music-tracks">${rows.map(t=>`<li data-key="${t.id}"><button data-action="audio.change" data-key="track" data-value="${t.id}" aria-pressed="${track.id===t.id}"><span class="music-row-mark" aria-hidden="true">${track.id===t.id&&settings.music?'♫':'♪'}</span><span><b>${esc(t.name)}</b><small>${esc(t.artistName)}</small></span>${track.id===t.id?'<em>선택</em>':''}</button></li>`).join('')}</ol></div>
  <details class="music-sfx"><summary>효과음 설정</summary>${button('sfx',settings.sfx?'효과음 켜짐':'효과음 꺼짐')}<label>효과음 음량<input type="range" data-audio-input="sfxVolume" min="0" max="1" step=".05" value="${settings.sfxVolume}" aria-label="효과음 음량"></label></details><p class="small music-note">공식 공개 스트리밍 · 선택한 음악은 창을 닫아도 한 플레이어에서 이어집니다. 네트워크 오류는 게임 진행에 영향을 주지 않아요.</p></section>`;

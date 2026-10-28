@@ -2,7 +2,8 @@
 // 게임 오리지널 외전(원작 사실 아님). 네오의 정체·과거는 다루지 않는다. 형식은 prologue.js 박자와 같다.
 // choices 는 분위기용 대답이다. 게임 상태를 바꾸지 않고 고른 답의 beats 만 이어 붙인다(능력은 단계에서 이미 정해짐).
 
-export const BOND_STORIES = Object.freeze({
+import {extendBondScenes} from './bond-expansions.js';
+export const BOND_STORIES = Object.freeze(extendBondScenes({
   neo: [
     [
       { chapter: ['인연 · 네오 ♥1', '달그늘 사냥터의 발자국'], bg: 'river_night', l: 'yeoni:normal', c: 'neo_cat:normal', r: null },
@@ -271,4 +272,4 @@ export const BOND_STORIES = Object.freeze({
       { s: 'sys', t: '[ 모카 ♥4 · 재료값 추가 −10% ]' },
     ],
   ],
-});
+}));

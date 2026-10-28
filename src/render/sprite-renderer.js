@@ -422,7 +422,7 @@ export function drawObjectImage(ctx, group, key, x, y, w, h) {
   const prev = ctx.imageSmoothingEnabled;
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   if (group === 'tiles') ctx.drawImage(img,2,2,img.width-4,img.height-4,x,y,w+.5,h+.5);
-  else {const k=Math.min(w/img.width,h/img.height);ctx.drawImage(img,x+(w-img.width*k)/2,y+h-img.height*k,img.width*k,img.height*k);}
+  else {const [sx,sy,sw,sh]=ASSETS[group]?.[key]?.contentRect||[0,0,img.width,img.height];const k=Math.min(w/sw,h/sh);ctx.drawImage(img,sx,sy,sw,sh,x+(w-sw*k)/2,y+h-sh*k,sw*k,sh*k);}
   ctx.imageSmoothingEnabled = prev;
   return true;
 }

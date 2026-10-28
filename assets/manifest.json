@@ -487,6 +487,7 @@
     "actors/yeoni_cook",
     "icons/yeoni_moon_latte",
     "icons/yeoni_rose_mille",
-    "icons/yeoni_garden_quiche"
+    "icons/yeoni_garden_quiche",
+    "objects/counter_right"
   ]
 }

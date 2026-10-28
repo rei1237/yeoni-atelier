@@ -141,7 +141,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   for (const fx of FIXTURES) {
     if (fx.wall) continue;
     const b = cellsBox(fx.cells), p = P(b.x, b.y);
-    if(fx.id==='counter'&&layout.counterArt){const a=layout.counterArt;drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',P(a.x,a.y).x,P(a.x,a.y).y,T*a.w,T*a.h);continue;}
+    if(fx.id==='counter'&&layout.counterArt){const a=layout.counterArt;drawObjectImage(ctx,'objects',a.key||(!luxurious?'basic_counter':'counter'),P(a.x,a.y).x,P(a.x,a.y).y,T*a.w,T*a.h);continue;}
     if (!drawObjectImage(ctx, 'objects', !luxurious && ASSETS.objects[`basic_${fx.id}`] ? `basic_${fx.id}` : fx.id, p.x-T*.25, p.y, b.w*T+T*.5, T*1.9)) {
       ctx.fillStyle = fx.color;
       roundRect(ctx, p.x + 2, p.y + 2, b.w * T - 4, b.h * T - 4, T * 0.15); ctx.fill();
@@ -154,7 +154,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   const pieces=[];
   // 계산대 앞판은 직원의 다리 앞, 손님의 몸 뒤다. 상판 위 손과 얼굴은 가리지 않는다.
   const cashier=FIXTURES.find(f=>f.id==='counter'),cb=cellsBox(cashier.cells),cp=P(cb.x,cb.y);
-  pieces.push({depth:layout.counterArt?.depth??SPOTS.yeoniHome.y+1,paint:()=>{ctx.save();ctx.beginPath();if(layout.counterArt){const a=layout.counterArt,p=P(a.x,a.y);ctx.rect(p.x,P(0,a.frontY).y,T*a.w,T*(a.y+a.h-a.frontY));ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',p.x,p.y,T*a.w,T*a.h);}else{ctx.rect(cp.x-T*.25,cp.y+T*1.05,cb.w*T+T*.5,T*.85);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',cp.x-T*.25,cp.y,cb.w*T+T*.5,T*1.9);}ctx.restore();}});
+  pieces.push({depth:layout.counterArt?.depth??SPOTS.yeoniHome.y+1,paint:()=>{ctx.save();ctx.beginPath();if(layout.counterArt){const a=layout.counterArt,p=P(a.x,a.y);ctx.rect(p.x,P(0,a.frontY).y,T*a.w,T*(a.y+a.h-a.frontY));ctx.clip();drawObjectImage(ctx,'objects',a.key||(!luxurious?'basic_counter':'counter'),p.x,p.y,T*a.w,T*a.h);}else{ctx.rect(cp.x-T*.25,cp.y+T*1.05,cb.w*T+T*.5,T*.85);ctx.clip();drawObjectImage(ctx,'objects',!luxurious?'basic_counter':'counter',cp.x-T*.25,cp.y,cb.w*T+T*.5,T*1.9);}ctx.restore();}});
   const tablesByUid = new Map((state.tables || []).map(tb => [tb.uid, tb]));
   for(const f of list){
     const def=FURNITURE[f.defId];if(isFloorDef(def))continue;
@@ -264,7 +264,9 @@ function drawTable(ctx, state, p, T, f, tb, t) {
 function drawWhole(ctx, f, P, T) {
   const cells = furnitureCells(f).map(c => [c.x, c.y]);
   const b = cellsBox(cells), p = P(b.x, b.y);
-  return drawObjectImage(ctx, 'objects', f.defId, p.x, p.y, b.w * T, b.h * T);
+  // 바닥 점유 칸과 입면 높이를 분리한다. 발은 점유 영역 아래쪽에 고정한다.
+  const def=FURNITURE[f.defId],art=def.renderSize||{},w=Math.max(b.w,art.w||0),h=Math.max(b.h,art.h||0);
+  return drawObjectImage(ctx, 'objects', f.defId, p.x+(b.w-w)*T/2, p.y+(b.h-h)*T, w*T, h*T);
 }
 
 function drawDecor(ctx, defId, def, p, T) {

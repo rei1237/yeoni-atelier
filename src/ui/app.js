@@ -62,7 +62,7 @@ import { PROLOGUE } from '../story/prologue.js';
 import { MONTH_STORIES, ENDINGS } from '../story/months.js';
 import { careerMonthStory, castBondStory } from '../story/career.js';
 import { BOND_STORIES } from '../story/bonds.js';
-import { BONDS } from '../data/bonds.js';
+import { BONDS, COMMON_GIFT } from '../data/bonds.js';
 import { SPEAKERS } from '../story/prologue.js';
 import { pendingStory, calendarOf, isEnded, dateLabel } from '../game/calendar.js';
 import { placeLock } from '../game/unlocks.js';
@@ -141,7 +141,7 @@ function drawWorldMarker(t){
  if(!p){const pt=WORLD_NAV.waypoints[ui.worldAt||state?.worldLocation]||WORLD_NAV.waypoints.atelier;p={x:pt[0]*100,y:pt[1]*100,facing:'down',frame:0};}
  el.style.left=p.x+'%';el.style.top=p.y+'%';
  const viewport=el.closest('.world-map-viewport');
- if(ui.worldTrip&&viewport&&(ui.worldZoom||1)>1){const v=viewport.getBoundingClientRect(),m=el.getBoundingClientRect(),pad=48;let dx=0,dy=0;if(m.left<v.left+pad)dx=m.left-v.left-pad;else if(m.right>v.right-pad)dx=m.right-v.right+pad;if(m.top<v.top+pad)dy=m.top-v.top-pad;else if(m.bottom>v.bottom-pad)dy=m.bottom-v.bottom+pad;viewport.scrollLeft+=dx;viewport.scrollTop+=dy;}
+ if(viewport&&(ui.worldTrip||!viewport.dataset.centered||viewport.dataset.zoom!==String(ui.worldZoom||1)||viewport.dataset.size!==viewport.clientWidth+':'+viewport.clientHeight)){viewport.dataset.centered='true';viewport.dataset.size=viewport.clientWidth+':'+viewport.clientHeight;viewport.dataset.zoom=String(ui.worldZoom||1);const v=viewport.getBoundingClientRect(),m=el.getBoundingClientRect(),pad=64;let dx=0,dy=0;if(m.left<v.left+pad)dx=m.left-v.left-pad;else if(m.right>v.right-pad)dx=m.right-v.right+pad;if(m.top<v.top+pad)dy=m.top-v.top-pad;else if(m.bottom>v.bottom-pad)dy=m.bottom-v.bottom+pad;viewport.scrollLeft+=dx;viewport.scrollTop+=dy;}
  const ctx=el.getContext('2d');ctx.clearRect(0,0,128,128);ctx.imageSmoothingEnabled=true;
  drawActor(ctx,'yeoni',{x:64,y:122,size:128,state:ui.worldTrip&&!ui.worldTrip.complete?'walk':'idle',facing:p.facing,animationFrame:p.frame,t,reducedMotion:motionPreference.matches});
 }
@@ -480,13 +480,16 @@ ACTIONS['delivery.order']=()=>{ui.deliveryRequest??='delivery-'+crypto.randomUUI
 ACTIONS['yeoni.kitchen']=()=>{ui.giftRecipient=null;ui.foodFilter='all';ui.sheet={kind:'foodgift'};};
 ACTIONS['yeoni.title']=d=>run({type:'yeoni.title',id:d.id});
 ACTIONS['yeoni.register']=d=>{if(run({type:'yeoni.menu.register',menuId:d.menu}).ok)toast('카페 메뉴에 등록했어요. 다음 손님부터 주문할 수 있어요.','good');};
+ACTIONS['bond.read']=d=>{const key='bond:'+d.id+':'+d.tier;if(state.mode!=='prep'||!state.ledger.story[key])return;const story=storyBeats(key);if(!story)return;const back=ui.sheet;ui.sheet=null;playNovel(story,{onEnd:()=>{ui.sheet=back;render(true);},onCancel:()=>{ui.sheet=back;render(true);}});};
+ACTIONS['companion.select']=d=>{if(BONDS[d.id])ui.companionId=d.id;};
+ACTIONS['gift.back']=()=>{ui.companionId=ui.giftRecipient;ui.sheet={kind:'companions'};};
 ACTIONS['gift.open']=d=>{ui.giftRecipient=d.id;ui.foodFilter='all';ui.sheet={kind:'foodgift'};};
 ACTIONS['gift.filter']=d=>{ui.foodFilter=d.id;};
 ACTIONS['gift.prepare']=d=>{ui.craft={...newCraft(d.menu),purpose:'gift',requestId:'gift-'+Date.now()+'-'+(++giftRequestSeq)};ui.craft.assist=motionPreference.matches;ui.sheet={kind:'craft'};};
 ACTIONS['gift.watch']=()=>{const j=state.foodGifts?.job;if(j){ui.craft={...newCraft(j.menuId),purpose:'gift',step:2,jobId:j.id,quality:({normal:'보통',good:'좋음',perfect:'완벽'})[j.quality],timing:null};ui.sheet={kind:'craft'};}};
 ACTIONS['gift.confirm']=d=>{const it=state.foodGifts?.items.find(i=>i.id===d.item);if(!it)return;const taste=foodPreference(d.id,it.menuId);ui.confirm={title:GIFT_BONDS[d.id].name+'에게 선물할까요?',text:MENUS[it.menuId].name+' 1개 · '+taste.label+' · 인연 +'+taste.gain,yesLabel:'선물 전하기',noLabel:'고르던 음식 유지',onYes:()=>{const r=run({type:'gift.food',id:d.id,itemId:d.item});if(r.ok){toast(r.line,'good',4500);}}};};
 ACTIONS['gift.cancelConfirm']=d=>{ui.confirm={title:'선물 조리를 취소할까요?',text:'사용한 재료는 한 번 돌려받고 음식은 완성되지 않아요.',yesLabel:'조리 취소',onYes:()=>run({type:'gift.cancel',id:d.id})};};
-ACTIONS['bond.gift'] = d => run({ type: 'bond.gift', id: d.id, giftId: d.gift });
+ACTIONS['bond.gift'] = d => {const b=BONDS[d.id],g=d.gift===b?.gift.id?b.gift:d.gift===COMMON_GIFT.id?COMMON_GIFT:null;if(!g)return;ui.confirm={title:b.name+'에게 선물할까요?',text:g.name+' · '+g.cost+'G · 이번 순 선물 1회 사용',yesLabel:'구매해서 선물',onYes:()=>run({type:'bond.gift',id:d.id,giftId:d.gift})};};
 
 document.addEventListener('click', e => {
   const cam=e.target.closest('[data-action^="camera."]');

@@ -82,7 +82,7 @@ export const PROLOGUE = Object.freeze([
   },
   {
     "s": "luna",
-    "t": "빚도 같이 샀대."
+    "t": "카페를 인수하면서 이전 주인의 대출까지 우리가 갚기로 했대. 계약서에 그런 조항이 있었어."
   },
   {
     "s": "nar",

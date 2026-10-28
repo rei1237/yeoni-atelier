@@ -56,9 +56,9 @@ export const FURNITURE = Object.freeze({
   table: {id:'table',name:'카페 테이블',cells:[{dx:0,dy:0,kind:'table'}],color:'#c79a6b',ambience:0,table:true,storable:true},
   chair: {id:'chair',name:'카페 의자',cells:[{dx:0,dy:0,kind:'chair'}],color:'#c79a6b',ambience:0,chair:true,storable:true},
   table_set: { id: 'table_set', name: '2인 테이블 세트', cells: [{ dx: 0, dy: 0, kind: 'table' }, { dx: 0, dy: 1, kind: 'chair' }], color: '#c79a6b', ambience: 0, table: true, storable: false },
-  plant: { id: 'plant', name: '화분', cells: [{ dx: 0, dy: 0, kind: 'block' }], color: '#6aa36a', ambience: 2 },
-  bookshelf: { id: 'bookshelf', name: '책장', cells: [{ dx: 0, dy: 0, kind: 'block' }, { dx: 1, dy: 0, kind: 'block' }], color: '#9a6f4e', ambience: 3 },
-  lamp: { id: 'lamp', name: '별 조명', cells: [{ dx: 0, dy: 0, kind: 'block' }], color: '#f3d36b', ambience: 2 },
+  plant: { id: 'plant', name: '화분', renderSize:{w:1.15,h:1.6}, cells: [{ dx: 0, dy: 0, kind: 'block' }], color: '#6aa36a', ambience: 2 },
+  bookshelf: { id: 'bookshelf', name: '책장', renderSize:{w:2.5,h:3.5}, cells: [{ dx: 0, dy: 0, kind: 'block' }, { dx: 1, dy: 0, kind: 'block' }], color: '#9a6f4e', ambience: 3 },
+  lamp: { id: 'lamp', name: '별 조명', renderSize:{w:1.5,h:2.5}, cells: [{ dx: 0, dy: 0, kind: 'block' }], color: '#f3d36b', ambience: 2 },
   rug: { id: 'rug', name: '꽃무늬 러그', cells: [{ dx: 0, dy: 0, kind: 'floor' }, { dx: 1, dy: 0, kind: 'floor' }, { dx: 0, dy: 1, kind: 'floor' }, { dx: 1, dy: 1, kind: 'floor' }], color: '#e9a9b6', ambience: 2 },
 });
 
@@ -98,7 +98,7 @@ const ENTRANCE_CAFE_LAYOUT=Object.freeze({id:'entrance',counterArt:{x:6.4,y:12.2
  fixtures:FIXTURES.map(f=>f.id==='counter'?{...f,cells:[[7,14],[8,14]]}:f),
  reserved:[...RESERVED,[7,13],...ENTRANCE_QUEUE.map(p=>[p.x,p.y])],queue:ENTRANCE_QUEUE,yeoniFacing:'down',customerFacing:'up'});
 const LEFT_QUEUE=Object.freeze([{x:4,y:13},{x:4,y:12},{x:3,y:12}]);
-const LEFT_CAFE_LAYOUT=Object.freeze({id:'entrance-left',serviceCells:[[1,13],[1,12],[2,12]],counterArt:{x:1.8,y:12.2,w:2.5,h:2.4,frontY:13.2,depth:14.5},spots:{...SPOTS,yeoniHome:{x:1,y:13},checkout:LEFT_QUEUE[0]},fixtures:FIXTURES.map(f=>f.id==='counter'?{...f,cells:[[2,13],[3,13],[2,14],[3,14]]}:f),reserved:[...RESERVED,[1,13],[1,12],[2,12],...LEFT_QUEUE.map(p=>[p.x,p.y])],queue:LEFT_QUEUE,yeoniFacing:'right',customerFacing:'left'});
+const LEFT_CAFE_LAYOUT=Object.freeze({id:'entrance-left',serviceCells:[[1,13],[1,12],[2,12]],counterArt:{key:'counter_right',x:1.8,y:11.8,w:2.4,h:3.2,frontY:13.2,depth:14.5},spots:{...SPOTS,yeoniHome:{x:1,y:13},checkout:LEFT_QUEUE[0]},fixtures:FIXTURES.map(f=>f.id==='counter'?{...f,cells:[[2,13],[3,13],[2,14],[3,14]]}:f),reserved:[...RESERVED,[1,13],[1,12],[2,12],...LEFT_QUEUE.map(p=>[p.x,p.y])],queue:LEFT_QUEUE,yeoniFacing:'right',customerFacing:'left'});
 export function cafeLayout(state,preview=false){
  const id=preview&&state?.interior?.draft?state.interior.draft.checkoutLayout:state?.interior?.checkoutLayout;
  return id==='entrance-left'?LEFT_CAFE_LAYOUT:id==='entrance'?ENTRANCE_CAFE_LAYOUT:LEGACY_CAFE_LAYOUT;

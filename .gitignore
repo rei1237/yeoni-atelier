@@ -391,3 +391,13 @@ __pycache__/
 /assets/sprites/portraits/yeoni@garden_apron.webp
 /assets/sprites/portraits/yeoni_pig.webp
 /assets/sprites/portraits/yun.webp
+
+# Superseded fixtures and seasonal maps; originals retained locally.
+/assets/sprites/objects/counter.webp
+/assets/sprites/objects/drink.webp
+/assets/sprites/objects/oven.webp
+/assets/sprites/objects/pass.webp
+/assets/ui/town-map-autumn.webp
+/assets/ui/town-map-spring.webp
+/assets/ui/town-map-summer.webp
+/assets/ui/town-map-winter.webp

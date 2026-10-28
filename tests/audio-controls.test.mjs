@@ -33,3 +33,9 @@ test('취소된 재생의 늦은 실패가 새 재생이나 일시정지 상태�
 test('저장된 음악 켜짐도 사용자 입력 전에는 재생하지 않고 숨김 중에는 멈춘다',async()=>{
  const {audio:a,player:p,events}=await fixture({music:true,track:MUSIC_CATALOG[3].id,volume:.5});a.setAudioScene('cafe');assert.equal(p.paused,true);assert.equal(a.audioStatus().unlocked,false);a.unlockAudio();await new Promise(setImmediate);assert.equal(p.paused,false);assert.equal(p.volume,.5);document.hidden=true;events.get('visibilitychange')();assert.equal(p.paused,true);document.hidden=false;events.get('visibilitychange')();await new Promise(setImmediate);assert.equal(p.paused,false);
 });
+
+test('카페 자동 재생은 잔잔한 8곡을 순서대로 순환하고 수동 선곡은 유지한다',async()=>{
+ const {audio:a,player:p}=await fixture({music:true});a.setAudioScene('cafe');a.unlockAudio();await new Promise(setImmediate);
+ const order=[];for(let i=0;i<a.CAFE_PLAYLIST.length;i++){order.push(a.audioStatus().current);assert.equal(p.loop,false);p.ended();await new Promise(setImmediate);}
+ assert.deepEqual(order,a.CAFE_PLAYLIST);assert.equal(a.audioStatus().current,a.CAFE_PLAYLIST[0]);a.audioAction('next');assert.equal(a.audioStatus().current,a.CAFE_PLAYLIST[1]);assert.equal(a.audioStatus().track,'auto');a.setAudioScene('hunt');assert.equal(a.audioStatus().current,'battle');assert.equal(p.loop,true);a.setAudioScene('companions');assert.equal(a.audioStatus().current,a.CAFE_PLAYLIST[1]);a.audioAction('track',MUSIC_CATALOG[2].id);a.setAudioScene('cafe');assert.equal(a.audioStatus().current,MUSIC_CATALOG[2].id);
+});
