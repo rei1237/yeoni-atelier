@@ -51,7 +51,7 @@ import { debtStage, recruitView } from '../game/economy.js';
 import { preview as interiorPreview } from '../game/interior.js';
 import { cellToPx } from '../render/cafe-view.js';
 import { btn, esc } from './dom.js';
-import { guestMotion, orderChipsHtml } from './table-ui.js';
+import { guestMotion, orderChipsHtml, cafeTasks } from './table-ui.js';
 
 const won = n => n === 100_000_000 ? '1억 골드' : `${Math.floor(n).toLocaleString('ko-KR')}G`;
 
@@ -169,7 +169,7 @@ function cafePanel(state,ui){
   prepare:`<p>의자 ${capacity.seats}석 · 루나는 홀, 루나 언니는 주방을 맡아요.</p>${concertButton(state)}${btn({action:'decor.open',label:'카페 꾸미기'})}${state.interior.checkoutLayout!=='entrance-left'?btn({action:'interior.checkoutPreview',label:'입구 계산대 미리보기'}):''}${btn({action:'sheet.open',args:{sheet:'shop'},label:'모카에게 재료 사기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}`,
   menu:navRow([['town','재성의 섬'],['shop','재료'],['companions','동료'],['manage','수첩']]),
  };
- return `<div class="cafe-commandbar">${creditorAlert(state)}${journeyHtml(state)}${hostDeskHtml(state)}${demandDesk(state)}<div class="cafe-utility-line"><p class="cafe-live-line" role="status">${shift?(ready?`완성 ${ready}개 · 픽업 선반에서 전해 주세요`:`손님 ${count}명 · 테이블을 눌러 주문을 받아요`):'오늘은 어떤 손님이 찾아올까요?'}</p>${btn({action:'sheet.open',args:{sheet:'manage'},cls:'cafe-utility',label:uiIcon('book')+'<span>수첩</span>'})}${musicToggle(shift)}${btn({action:'sheet.open',args:{sheet:'audio'},cls:'cafe-utility',label:uiIcon('music')+'<span>음악</span>'})}${btn({action:'game.title',cls:'cafe-utility',label:uiIcon('home')+'<span>메인</span>',title:'저장하고 메인 화면으로'})}</div>${!shift?`<div class="cafe-opening"><span><b>오늘의 영업</b><small>${capacity.seats}석 · 10분</small></span>${btn({action:'shift.start',cls:'primary cafe-open',disabled:!sc.ok,title:sc.ok?'영업 시작하기':sc.reasons.join(' · '),label:uiIcon('cup')+'<span>영업 시작하기</span>'})}</div>${!sc.ok?`<p class="cafe-start-reason">${esc(sc.reasons.join(' · '))}</p>`:''}`:''}<nav class="cafe-actions" aria-label="카페 조작">${tabs.map(([tab,label])=>btn({action:'cafe.drawer',args:{tab},cls:'cafe-nav-item '+(selected===tab?'selected':''),pressed:selected===tab,label:uiIcon(({orders:'orders',kitchen:'kitchen',crew:'crew',prepare:'cup'})[tab])+`<span>${label}</span>`})).join('')}${btn({action:'delivery.open',cls:'cafe-nav-item',label:uiIcon('cup')+'<span>모카 배달</span>'})}${btn({action:'sheet.open',args:{sheet:'town'},cls:'cafe-nav-item',label:uiIcon('island')+'<span>재성의 섬</span>'})}</nav></div><section class="cafe-drawer" ${selected?'':'hidden'} aria-label="카페 상세 조작"><header><b>${({orders:'손님 주문',kitchen:'주방 · 픽업',crew:'카페와 동료',counter:'연이의 계산대',prepare:'영업 준비',menu:'수첩'})[selected]||''}</b>${btn({action:'cafe.drawer.close',label:'닫기'})}</header><div class="cafe-drawer-body">${Object.entries(panels).map(([id,content])=>`<div data-cafe-tab="${id}" ${selected===id?'':'hidden'}>${content}</div>`).join('')}</div></section>`;
+ return `<div class="cafe-commandbar">${creditorAlert(state)}${journeyHtml(state)}${hostDeskHtml(state)}${demandDesk(state)}${shift?cafeTodoHtml(state):''}<div class="cafe-utility-line"><p class="cafe-live-line" role="status">${shift?(ready?`완성 ${ready}개 · 전달하기를 눌러요`:`손님 ${count}명 · 테이블을 눌러 주문을 받아요`):'오늘은 어떤 손님이 찾아올까요?'}</p>${btn({action:'sheet.open',args:{sheet:'manage'},cls:'cafe-utility',label:uiIcon('book')+'<span>수첩</span>'})}${musicToggle(shift)}${btn({action:'sheet.open',args:{sheet:'audio'},cls:'cafe-utility',label:uiIcon('music')+'<span>음악</span>'})}${btn({action:'game.title',cls:'cafe-utility',label:uiIcon('home')+'<span>메인</span>',title:'저장하고 메인 화면으로'})}</div>${!shift?`<div class="cafe-opening"><span><b>오늘의 영업</b><small>${capacity.seats}석 · 10분</small></span>${btn({action:'shift.start',cls:'primary cafe-open',disabled:!sc.ok,title:sc.ok?'영업 시작하기':sc.reasons.join(' · '),label:uiIcon('cup')+'<span>영업 시작하기</span>'})}</div>${!sc.ok?`<p class="cafe-start-reason">${esc(sc.reasons.join(' · '))}</p>`:''}`:''}<nav class="cafe-actions" aria-label="카페 조작">${tabs.map(([tab,label])=>btn({action:'cafe.drawer',args:{tab},cls:'cafe-nav-item '+(selected===tab?'selected':''),pressed:selected===tab,label:uiIcon(({orders:'orders',kitchen:'kitchen',crew:'crew',prepare:'cup'})[tab])+`<span>${label}</span>`})).join('')}${btn({action:'delivery.open',cls:'cafe-nav-item',label:uiIcon('cup')+'<span>모카 배달</span>'})}${btn({action:'sheet.open',args:{sheet:'town'},cls:'cafe-nav-item',label:uiIcon('island')+'<span>재성의 섬</span>'})}</nav></div><section class="cafe-drawer" ${selected?'':'hidden'} aria-label="카페 상세 조작"><header><b>${({orders:'손님 주문',kitchen:'주방 · 픽업',crew:'카페와 동료',counter:'연이의 계산대',prepare:'영업 준비',menu:'수첩'})[selected]||''}</b>${btn({action:'cafe.drawer.close',label:'닫기'})}</header><div class="cafe-drawer-body">${Object.entries(panels).map(([id,content])=>`<div data-cafe-tab="${id}" ${selected===id?'':'hidden'}>${content}</div>`).join('')}</div></section>`;
 }
 
 function navRow(items) {
@@ -228,6 +228,14 @@ function huntPanel(state){const h=state.hunt;return `<div class="hunt-dock"><div
 
 // ── 무대 위 DOM 층. 동료 수다는 하단 패널 높이를 먹지 않도록 무대 왼쪽 아래에 띄운다(주문 카드가 밀려 잘리지 않게).
 // 10-29 계산대 한마디: 가장 먼저 부탁한 손님 하나만 띄운다. 게이지 절반 전에 응대하면 골드 팁
+// 10-29 지금 할 일: 한 번 누르면 처리되는 일을 급한 순서로 4개까지. 좁은 화면은 첫 일 하나와 남은 수만
+function cafeTodoHtml(state){
+ const tasks=cafeTasks(state);if(!tasks.length)return '';
+ const rows=tasks.slice(0,4).map((k,i)=>btn({action:k.action,args:k.args,cls:`todo-${k.kind}${i?' todo-rest':''}`,title:`${k.text} ${k.verb}`,label:`${k.menuId?assetIcon('icons/'+k.menuId):'<i class="todo-mark" aria-hidden="true"></i>'}<span>${esc(k.text)}</span><em>${k.verb}</em>`})).join('');
+ const more=tasks.length>1?btn({action:'cafe.drawer',args:{tab:'orders'},cls:`todo-more${tasks.length>4?'':' narrow-only'}`,title:'주문 현황 전체 보기',label:`<span class="m-narrow">+${tasks.length-1}</span><span class="m-wide">+${tasks.length-4} 더 보기</span>`}):'';
+ return `<section class="cafe-todo" aria-label="지금 할 일"><h3>지금 할 일 <small>${tasks.length}</small></h3>${rows}${more}</section>`;
+}
+
 function demandDesk(state){
  const v=state.mode==='shift'&&openDemands(state)[0];if(!v)return '';
  const d=DEMAND_KINDS[v.demand.kind],left=1-demandProgress(state,v),late=left<=1-TEMP.DEMAND.goodBefore,more=openDemands(state).length-1;

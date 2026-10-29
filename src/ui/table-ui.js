@@ -28,6 +28,22 @@ export function orderState(state,o){
   return {kind:'wait',label:'만들기'};
 }
 export const visitOrders=(state,visit)=>visit.orderIds.map(id=>state.orders[id]).filter(o=>o&&o.status!=='cancelled');
+// 10-29 지금 할 일: 전달 → 정리 → 만들기 순서. 누르면 바로 처리되는 일만, 만들기는 기다림이 긴 손님부터
+export function cafeTasks(state){
+ if(state?.mode!=='shift')return [];
+ const serve=[],make=[],used=new Set(),batched=new Set(),mood=o=>{const v=state.visits[o.visitId];return v?waitingSatisfaction(state,v):100;};
+ for(const o of Object.values(state.orders||{}).filter(o=>o.status==='waiting').sort((a,b)=>mood(a)-mood(b))){
+  const take=state.visits[o.visitId]?.kind==='takeaway',where=take?'포장':o.tableNo+'번',short=MENUS[o.menuId].short,st=orderState(state,o);
+  if(st.kind==='cook'||st.kind==='carry')continue;
+  const item=(state.tray||[]).find(it=>it&&!it.reservedFor&&!used.has(it.id)&&it.menuId===o.menuId&&(!it.orderId||it.orderId===o.id));
+  if(item){used.add(item.id);serve.push({kind:'serve',no:o.tableNo,menuId:o.menuId,item:item.id,action:take?'order.quick':'serve',args:take?{id:o.id}:{item:item.id,no:o.tableNo},text:`${where} ${short}`,verb:'전달하기'});continue;}
+  const group=take?[]:tableCookingOrders(state,o.tableNo);
+  if(group.length>1){if(!batched.has(o.tableNo)){batched.add(o.tableNo);make.push({kind:'make',no:o.tableNo,menuId:o.menuId,action:'order.table',args:{no:o.tableNo},text:`${where} 주문 ${group.length}개`,verb:'만들기'});}}
+  else make.push({kind:'make',no:o.tableNo,menuId:o.menuId,action:'order.quick',args:{id:o.id},text:`${where} ${short}`,verb:'만들기'});
+ }
+ const clean=state.tables.filter(t=>t.state==='dirty'&&!t.cleanQueued).map(t=>({kind:'clean',no:t.no,action:'clean',args:{no:t.no},text:`${t.no}번 테이블`,verb:'정리하기'}));
+ return [...serve,...clean,...make];
+}
 // 같은 메뉴·같은 상태는 칩 하나(×n)로 묶고, 주문 순서를 지킨다. 다 나간 메뉴는 체크로 흐리게
 export function orderChipsHtml(state,visit){
   const groups=[];
@@ -36,7 +52,7 @@ export function orderChipsHtml(state,visit){
 }
 export function tableBadgesHtml(state,v) {
   if(state?.mode!=='shift'||!v)return '';
-  const dense=state.tables.length>12,placed=[];
+  const dense=state.tables.length>12,placed=[],serves=cafeTasks(state).filter(k=>k.action==='serve');
   return [...state.tables].sort((a,b)=>Number(b.state==='dirty')-Number(a.state==='dirty')).map(t=>{
     const c=state.customers[t.customerId],visit=c&&state.visits[c.visitId];
     const order=visit?.orderIds.map(id=>state.orders[id]).find(o=>o?.status==='waiting');
@@ -50,13 +66,15 @@ export function tableBadgesHtml(state,v) {
     if(worker)p.x+=p.x<v.w/2?Math.max(62,v.tile*1.6):-Math.max(62,v.tile*1.6);
     placed.push(p);
     // 남은 주문이 둘 이상이면 메뉴 아이콘을 최대 3개까지 늘어놓고 개수를 붙인다(첫 메뉴만 보이지 않게)
+    // 완성 접시가 있는 자리는 말풍선 한 번으로 바로 전달한다
+    const ready=!dirty&&!cleaning&&serves.find(k=>k.no===t.no);
     const motion=guestMotion(c),multi=!dirty&&!cleaning&&!motion&&visit&&c.state!=='requesting'?visitOrders(state,visit).filter(o=>o.status!=='served'):[];
-    const text=multi.length>1?`${multi.length}개`:cleaning?'닦는 중':dirty?(t.cleanQueued?'정리하러 가는 중':'정리하기'):motion||(c.state==='eating'?'식사 중':c.state==='requesting'?'지명 요청':order?MENUS[order.menuId].short:'메뉴 고르는 중');
+    const text=ready?'전달하기':multi.length>1?`${multi.length}개`:cleaning?'닦는 중':dirty?(t.cleanQueued?'정리하러 가는 중':'정리하기'):motion||(c.state==='eating'?'식사 중':c.state==='requesting'?'지명 요청':order?MENUS[order.menuId].short:'메뉴 고르는 중');
     // 10-29 말풍선 문법: 버튼은 44px 터치 영역만, 보이는 것은 안쪽 pill(대화창과 같은 크림 바탕·색 테두리·꼬리)
-    const tone=cleaning?'cleaning':dirty?(t.cleanQueued?'queued':'dirty'):c?.state==='requesting'?'request':motion?'moving':order?'order':'calm';
+    const tone=ready?'ready':cleaning?'cleaning':dirty?(t.cleanQueued?'queued':'dirty'):c?.state==='requesting'?'request':motion?'moving':order?'order':'calm';
     const urgent=visit&&waitingSatisfaction(state,visit)<55;
     const progress=cleaning?Math.min(100,100*(1-Math.max(0,t.cleanEndAt-state.shift.elapsedMs)/(t.cleanMs||1))):0;
-    return `<button class="table-badge tone-${tone} ${dirty?'dirty':''} ${urgent?'urgent':''} ${c?.state==='eating'&&!dirty&&!cleaning&&multi.length<2?'enjoying':''} ${multi.length>1?'multi':''}" data-key="badge-${t.no}" data-action="${dirty&&!t.cleanQueued?'clean':'table.tap'}" data-no="${t.no}" style="left:${Math.max(42,Math.min(v.w-42,p.x))}px;top:${Math.max(0,p.y-44-v.tile*.35)}px" title="${t.no}번 테이블 ${multi.length>1?'남은 주문 '+text:text}" aria-label="${t.no}번 테이블 ${multi.length>1?'남은 주문 '+text:text}"><span class="badge-pill">${multi.length>1?`<i class="badge-icons">${[...new Set(multi.map(o=>o.menuId))].slice(0,3).map(id=>assetIcon('icons/'+id)).join('')}</i>`:order&&!motion?assetIcon('icons/'+order.menuId):''}<span>${esc(text)}</span>${cleaning?`<i class="badge-progress" style="--p:${Math.round(progress)}%" aria-hidden="true"></i>`:''}</span></button>`;
+    return `<button class="table-badge tone-${tone} ${dirty?'dirty':''} ${urgent?'urgent':''} ${c?.state==='eating'&&!dirty&&!cleaning&&multi.length<2?'enjoying':''} ${multi.length>1?'multi':''}" data-key="badge-${t.no}" data-action="${ready?'serve':dirty&&!t.cleanQueued?'clean':'table.tap'}" data-no="${t.no}"${ready?` data-item="${esc(ready.item)}"`:''} style="left:${Math.max(42,Math.min(v.w-42,p.x))}px;top:${Math.max(0,p.y-44-v.tile*.35)}px" title="${t.no}번 테이블 ${ready?MENUS[ready.menuId].short+' '+text:multi.length>1?'남은 주문 '+text:text}" aria-label="${t.no}번 테이블 ${ready?MENUS[ready.menuId].short+' '+text:multi.length>1?'남은 주문 '+text:text}"><span class="badge-pill">${ready?assetIcon('icons/'+ready.menuId):multi.length>1?`<i class="badge-icons">${[...new Set(multi.map(o=>o.menuId))].slice(0,3).map(id=>assetIcon('icons/'+id)).join('')}</i>`:order&&!motion?assetIcon('icons/'+order.menuId):''}<span>${esc(text)}</span>${cleaning?`<i class="badge-progress" style="--p:${Math.round(progress)}%" aria-hidden="true"></i>`:''}</span></button>`;
   }).join('');
 }
 // 10-29 주문 영수증: 메뉴마다 한 줄(아이콘·이름·상태·할 일), 무대 안에 다 들어오게 놓는다.

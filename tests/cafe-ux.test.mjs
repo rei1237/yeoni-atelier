@@ -7,7 +7,7 @@ import {quietShift,seat} from './helpers.mjs';
 import {spawnCustomer,placeOrder} from '../src/game/cafe.js';
 import {customerLook} from '../src/data/customer-looks.js';
 import {worldScreenHtml} from '../src/ui/world-screen.js';
-import {tableBadgesHtml,tablePopHtml,orderChipsHtml} from '../src/ui/table-ui.js';
+import {tableBadgesHtml,tablePopHtml,orderChipsHtml,cafeTasks} from '../src/ui/table-ui.js';
 import {panelHtml,automationChips} from '../src/ui/hud.js';
 import {computeView} from '../src/render/cafe-view.js';
 
@@ -81,4 +81,12 @@ test('지금 머무는 장소를 다시 눌러도 그 장소 창으로 들어갈
  assert.ok(enter,'입장 버튼이 있다');
  assert.doesNotMatch(enter,/disabled/);
  assert.match(html,/다시 들어가기/);
+});
+test('지금 할 일은 전달→정리→만들기 순이고 완성 접시는 말풍선 한 번으로 전달한다',()=>{
+ const s=quietShift(),v=computeView(1180,860),guest=seat(s,{kind:'regular'});for(let i=0;i<100&&!s.visits[guest.vid].orderIds.length;i++)tick(s,100);
+ const o=s.orders[s.visits[guest.vid].orderIds[0]];s.tables.find(t=>!t.customerId).state='dirty';
+ let kinds=cafeTasks(s).map(k=>k.kind);assert.equal(kinds[0],'clean');assert.ok(kinds.includes('make'));assert.match(panelHtml(s,{}),/지금 할 일/);
+ s.tray[0]={id:'qa-dish',menuId:o.menuId,quality:'good'};kinds=cafeTasks(s).map(k=>k.kind);assert.deepEqual(kinds.slice(0,2),['serve','clean']);
+ assert.match(tableBadgesHtml(s,v),new RegExp(`data-action="serve" data-no="${guest.tableNo}" data-item="qa-dish"`));
+ assert.ok(dispatch(s,{type:'serve',itemId:'qa-dish',tableNo:guest.tableNo}).ok);assert.ok(!cafeTasks(s).some(k=>k.kind==='serve'));
 });

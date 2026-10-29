@@ -78,3 +78,33 @@ body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details b{font-size:1
  body[data-mode][data-cafe-focus=true] #panel .cafe-opening>span{display:none}
  body[data-mode][data-cafe-focus=true] #camera-controls{flex-direction:column}
 }
+
+/* 10-29 지금 할 일: 전달(금)·정리(분홍)·만들기(크림). 오른쪽 글자는 동사, 한 번 누르면 바로 처리 */
+.cafe-todo{display:flex;flex-direction:column;gap:6px;margin:0}
+.cafe-todo h3{display:flex;align-items:center;gap:6px;margin:0;font-size:13px;color:#5b3a4b}
+.cafe-todo h3 small{min-width:20px;padding:1px 6px;border-radius:10px;background:#8b4a68;color:#fff;font-size:11px;text-align:center}
+.cafe-todo>button{display:flex;align-items:center;gap:8px;width:100%;min-height:46px;margin:0;padding:5px 6px 5px 10px;border:1.5px solid var(--td,#d9c3a2);border-radius:12px;background:var(--td-soft,#fffaf2);color:#4a3340;font-size:13px;font-weight:700;text-align:left;box-shadow:0 2px 0 var(--td,#d9c3a2)}
+.cafe-todo>button:active{transform:translateY(1px);box-shadow:none}
+.cafe-todo>button .pixel-icon{width:24px;height:24px;margin:0;flex:none}
+.cafe-todo>button>span{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cafe-todo>button>em{flex:none;padding:6px 10px;border-radius:9px;background:var(--td-cta,#8b4a68);color:#fff;font-style:normal;font-size:12px;font-weight:800}
+.cafe-todo .todo-serve{--td:#d8a640;--td-soft:#fff6dc;--td-cta:#8a5a00}
+.cafe-todo .todo-clean{--td:#e08aa3;--td-soft:#fdeef2;--td-cta:#a8445f}
+.cafe-todo .todo-make{--td:#d9c3a2;--td-soft:#fffaf2;--td-cta:#8b4a68}
+.cafe-todo .todo-mark{width:24px;height:24px;flex:none;border-radius:50%;background:radial-gradient(circle,#fff 28%,#f0a9bd 31%)}
+.cafe-todo .todo-more{justify-content:center;min-height:36px;border-style:dashed;box-shadow:none;color:#785568;font-weight:600}
+.cafe-todo .todo-more .m-narrow,.cafe-todo .todo-more.narrow-only{display:none}
+@media(max-width:899px) and (min-height:501px){
+ body[data-mode][data-cafe-focus=true] #panel .cafe-todo{flex-direction:row;align-items:stretch}
+ .cafe-todo h3,.cafe-todo .todo-rest,.cafe-todo .todo-more .m-wide{display:none}
+ .cafe-todo>button:first-of-type{flex:1;min-width:0}
+ .cafe-todo .todo-more,.cafe-todo .todo-more.narrow-only{display:flex;flex:none;width:auto;min-width:48px;min-height:46px;padding:0 10px}
+ .cafe-todo .todo-more .m-narrow{display:inline}
+}
+@media(min-width:900px),(max-height:500px) and (orientation:landscape){
+ body[data-mode][data-cafe-focus=true] #panel .cafe-todo{order:1}
+}
+@media(forced-colors:active){.cafe-todo>button>em{border:1px solid CanvasText}}
+/* 픽셀 테마 버튼 틀은 그대로 두고 일 종류만 바탕색·왼쪽 띠로 구분한다 */
+body[data-mode] #panel .cafe-todo>button:not(.todo-more){background-color:var(--td-soft);box-shadow:var(--dp-tile),inset 5px 0 0 var(--td)}
+body[data-mode] #panel .cafe-todo>button>em{background:var(--td-cta);color:#fff}
