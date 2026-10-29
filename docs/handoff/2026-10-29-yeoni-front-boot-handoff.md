@@ -1,7 +1,7 @@
 ---
-status: ready
+status: done
 updated: 2026-10-29
-next: "단계 1 — 대기 중 연이 정면(렌더만) 후 단계 2 로딩 화면 애니메이션"
+next: "완료 — push·배포는 사용자 요청 때 단계 4대로"
 ---
 # 인수인계 — 대기 중 연이는 정면, 로딩 화면은 부드러운 대기 동작 (2026-10-29)
 
@@ -126,3 +126,25 @@ C:\Users\user 에서 세션을 열고:
 - 산출물은 D 드라이브 `D:/yeoni-qa/cafe-ux/yeoni-front-20261029/`에 둔다.
 - 편집은 py 헤어독 `assert a in s; s=s.replace(a,b)` 방식이 안전하다. CRLF 파일은 줄바꿈을 맞춘다. Bash cwd가 `C:\Users\user`로 되돌아가니 매번 워크트리로 `cd`한다.
 - 한국어로 보고한다. 실기기 결과는 "미검증"으로 적는다.
+
+## 결과 (2026-10-29)
+- 단계 1 `e44ace5` — `yeoniIdleFacing(state,s,layout)`(src/render/cafe-view.js)
+  - 걷지 않고, 든 것 없고, 대기·반응 중이면 정면(`'down'`)이다.
+  - 계산 손님이 계산 자리(0.6칸 안)에 섰거나 계산(cashier)·인사(bow) 몸짓 중(1040ms)이면 상태 방향(오른쪽)을 쓴다. 손님이 떠나면 인사 몸짓이 끝난 뒤 정면으로 돌아온다(따로 지연을 두지 않았다).
+  - 환영(welcome) 몸짓은 정면 행으로 그린다.
+  - 준비 화면은 개인 요리 중이 아니면 정면이다. 게임 상태·`yeoniFacing`은 그대로다.
+  - 테스트 tests/yeoni-facing.test.mjs 3개.
+- 단계 2 `15e46a5` — 로딩 화면 `.boot-yeoni`(index.html, world-island.css)
+  - `yeoni_idle.webp` 한 장. 7.2초 주기로 행0 대기(0.2초 눈 깜빡임 2번)와 행1 손 흔들기 4프레임을 `step-end`로 넘긴다.
+  - 몸 떠오름 −4px·그림자·후광은 2.8초 `ease-in-out alternate`, 꽃잎 3개는 4.2초 ease로 떠오르며 흐려진다.
+  - 제목 "연이가 손님 맞을 채비를 하고 있어요", aria-label "연이가 손을 흔들며 기다리고 있어요".
+  - 동작 줄이기면 애니메이션을 끄고 행0 첫 프레임, 꽃잎은 숨긴다.
+  - 첫 그림까지 이미지 요청은 `yeoni_idle.webp` 1개(Playwright 측정).
+  - 테스트 tests/boot-screen.test.mjs 2개.
+- 검증: `npm test` 403/403, `check-assets` 518/518·런타임 16,718,528바이트, `check-sprites` 136시트 오류 0, `git diff --check` 통과.
+- QA: `D:/yeoni-qa/cafe-ux/yeoni-front-20261029/`
+  - front.py: after-{prep,empty,checkout,after}-{390x844,1180x860}.png, zoom-390.png, zoom-shift-390.png
+  - boot.py: boot-no-preference-0~6.png, boot-reduce-0.png, boot-sheet.png, boot-wave-sheet.png
+  - ffmpeg가 없어 영상은 남기지 못했다.
+- entrance-left 배치는 테스트로만 확인했다(화면 캡처 없음). 실기기는 미검증이다.
+- push·배포는 하지 않았다. 브랜치 `fix/yeoni-counter-cooking-20261028`가 origin/main보다 앞선다.
