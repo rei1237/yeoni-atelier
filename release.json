@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.29.10",
+  "version": "2026.10.29.11",
   "name": "연이의 아틀리에 · 달빛 수첩과 다섯 결말",
   "musicTracks": 103,
-  "assetBytes": 17740484,
+  "assetBytes": 17844086,
   "channel": "production",
-  "baseCommit": "252a37a",
+  "baseCommit": "874a5f0",
   "newTitleArt": true
 }
