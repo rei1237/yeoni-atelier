@@ -708,6 +708,8 @@ export function spawnCustomer(state, spec) {
 }
 
 // 계산은 도착 순서대로 한 명씩. 줄의 위치만 바꾸고 손님을 순간 이동시키지 않는다.
+// 음식 대기 한도: 루나 언니 인연과 연이 성장의 인내를 더한다.
+export const foodPatienceMs=state=>TEMP.FOOD_PATIENCE_MS*(1+bondFx(state).patience+yeoniEffects(state).patience);
 export function checkoutQueue(state){
  return Object.values(state.customers).filter(c=>c.state==='checkout').sort((a,b)=>(a.checkoutJoinedAt??0)-(b.checkoutJoinedAt??0)||a.id.localeCompare(b.id,undefined,{numeric:true}));
 }
@@ -768,7 +770,7 @@ export function stepCustomers(state, dt, hooks) {
         const satisfaction=waitingSatisfaction(state,visit);
         if(satisfaction<55 && !visit.lateSpoken){visit.lateSpoken=true;guestChatter(state,visit,(state.shift.spawnCount%4)/4,'late');}
         else if(satisfaction<80 && !visit.waitSpoken){visit.waitSpoken=true;guestChatter(state,visit,(state.shift.spawnCount%4)/4,'waiting');}
-        if (open.length && now - open[0].placedAt >= TEMP.FOOD_PATIENCE_MS * (1 + bondFx(state).patience)) customerLeave(state, c, '음식을 오래 기다려 떠남');
+        if (open.length && now - open[0].placedAt >= foodPatienceMs(state)) customerLeave(state, c, '음식을 오래 기다려 떠남');
         break;
       }
       case 'eating':
@@ -783,7 +785,7 @@ export function stepCustomers(state, dt, hooks) {
           if(c.id!==payingId)break;
           const atCounter=Math.hypot(c.x-cafeSpots(state).checkout.x-.5,c.y-cafeSpots(state).checkout.y-.5)<.08;
           if(!atCounter)break;
-          if(c.payAt==null){c.payAt=now+1040;state.cafeGesture={kind:'cashier',at:now,customerId:c.id};}
+          if(c.payAt==null){c.payAt=now+Math.round(1040*(1-yeoniEffects(state).checkout));state.cafeGesture={kind:'cashier',at:now,customerId:c.id};}
           if(now>=c.payAt){checkout(state,visit);c.state='leaving';c.action='walk';setPath(state,c,cafeSpots(state).entrance);}
         }
         break;

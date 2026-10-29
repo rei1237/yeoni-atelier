@@ -1,7 +1,7 @@
 import {emit} from './state.js';
 import {MENUS} from '../data/menus.js';
 // TEMP: 연이의 직접 활동 성장. 기존 플레이 기록은 소급하지 않는다.
-export const YEONI_GROWTH = Object.freeze({maxLevel:50, xp:{cook:12,farm:4,talk:10,gift:6}, revenuePerLevel:.01,revenueCap:.25,cookPerLevel:.01,cookCap:.2});
+export const YEONI_GROWTH = Object.freeze({maxLevel:50, xp:{cook:12,farm:4,talk:10,gift:6}, revenuePerLevel:.01,revenueCap:.25,cookPerLevel:.01,cookCap:.2,checkoutPerLevel:.02,checkoutCap:.4,patiencePerLevel:.01,patienceCap:.2,reviewPerLevel:.02,reviewCap:.4});
 export const YEONI_TITLES = Object.freeze([
  {id:'beginner',name:'첫 잔의 주인',kind:'level',need:1},
  {id:'cook',name:'향을 빚는 손',kind:'cook',need:10},
@@ -16,7 +16,8 @@ export function yeoniProgress(s){
  while(level<YEONI_GROWTH.maxLevel&&xp>=yeoniThreshold(level+1))level++;
  return {xp,level,floor:yeoniThreshold(level),next:level<YEONI_GROWTH.maxLevel?yeoniThreshold(level+1):null,counts:s.yeoniGrowth?.counts||{}};
 }
-export function yeoniEffects(s){const n=yeoniProgress(s).level-1;return {revenue:Math.min(YEONI_GROWTH.revenueCap,n*YEONI_GROWTH.revenuePerLevel),cookSpeed:Math.min(YEONI_GROWTH.cookCap,n*YEONI_GROWTH.cookPerLevel),ap:Math.min(2,Math.floor(n/10))};}
+// 연이는 영업 중 계산대만 맡으므로 카페 효과도 계산·기다림·후기로 낸다.
+export function yeoniEffects(s){const n=yeoniProgress(s).level-1,G=YEONI_GROWTH,f=(per,cap)=>Math.min(G[cap],Math.round(n*G[per]*100)/100);return {revenue:f('revenuePerLevel','revenueCap'),cookSpeed:f('cookPerLevel','cookCap'),checkout:f('checkoutPerLevel','checkoutCap'),patience:f('patiencePerLevel','patienceCap'),review:f('reviewPerLevel','reviewCap'),ap:Math.min(2,Math.floor(n/10))};}
 export function yeoniTitles(s){const p=yeoniProgress(s);return YEONI_TITLES.filter(t=>(t.kind==='level'?p.level:p.counts[t.kind]||0)>=t.need);}
 export function gainYeoni(s,kind){
  const amount=YEONI_GROWTH.xp[kind];if(!amount)return;

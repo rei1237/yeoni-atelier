@@ -38,7 +38,7 @@ import { GEAR } from '../data/gear.js';
 import { FURNITURE, AREAS, SPOTS, FIXTURES, cafeLayout } from '../data/layout.js';
 import { HELP_KINDS } from '../data/lines.js';
 import { fmtTime, personName, remainingShift, usableHosts, shiftDuration, lastAcceptAt } from '../game/state.js';
-import { STATION_NAMES, findServeTarget, openOrdersOfVisit, staffStatusText } from '../game/cafe.js';
+import { STATION_NAMES, findServeTarget, openOrdersOfVisit, staffStatusText, foodPatienceMs } from '../game/cafe.js';
 import { feverCheck, personBusyReason } from '../game/nomination.js';
 import { stageCheck, stageActive, concertCheck, concertQuote, DEST1NOVA_IDS, fansOf, fanTierName, nextTierAt } from '../game/fans.js';
 import { startCheck } from '../game/shift.js';
@@ -252,7 +252,7 @@ function bubbleOf(state, t, now) {
     case 'thinking': return { cls: '', text: '💭 고민 중' };
     case 'waiting_food': {
       if (!orders.length) return { cls: '', text: '🍽 대기' };
-      const left = TEMP.FOOD_PATIENCE_MS - (now - orders[0].placedAt);
+      const left = foodPatienceMs(state) - (now - orders[0].placedAt);
       const waiting = orders.find(o => o.status === 'waiting');
       const ready = waiting && state.tray.some(it => it && !it.reservedFor && it.menuId === waiting.menuId);
       return { cls: ready ? 'ready' : '', orderId: waiting?.id, text: `🍽 ${orderText} · ${ready ? '서빙' : waiting ? '만들기' : '운반 중'} ${fmtTime(left)}` };

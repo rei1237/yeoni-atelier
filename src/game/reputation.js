@@ -1,4 +1,5 @@
 import {personName,emit} from './state.js';
+import {yeoniEffects} from './yeoni-growth.js';
 import {CAFE_LINES,selectLine} from '../data/cafe-dialogue.js';
 export const popularity=state=>Math.max(0,Math.min(100,state.reputation??25));
 export function changePopularity(state,n){state.reputation=Math.max(0,Math.min(100,Math.round((popularity(state)+n)*10)/10));}
@@ -15,7 +16,7 @@ export function reviewVisit(state,visit,reason){
  const food=visit.foodScores.length?visit.foodScores.reduce((a,b)=>a+b,0)/visit.foodScores.length:null;
  const score=abandoned?20:food==null?null:Math.round(visit.finalH==null?food:food*.6+visit.finalH*.4);
  if(score==null)return;
- const delta=score>=85?1:score>=65?.4:score>=45?-.4:-1.5;
+ const delta=(score>=85?1:score>=65?.4:score>=45?-.4:-1.5)*(score>=65?1+yeoniEffects(state).review:1); // 좋은 후기만 연이 성장으로 커진다
  changePopularity(state,delta);visit.reviewScore=score;
  state.reviews??={count:0,total:0};state.reviews.count++;state.reviews.total+=score;
  emit('guestReview',{score,delta});
