@@ -54,6 +54,8 @@ export const ASSETS = Object.freeze({
     luna_sis: actor('luna_sis', '루나 언니', { shape: 'rabbit', body: '#f6f1e8', accent: '#f0b0c0', apron: '#f3b6c6' }, { serve: null, host: null, attack: null, hurt: null }), // 굽기 담당이라 cook 사용
     cheongtokki: actor('cheongtokki', '청토끼', { shape: 'rabbit', body: '#9db6ef', accent: '#f4b8c8', vest: '#3d6fd1' }, NPC_STATES),
     moka: actor('moka', '모카', { shape: 'otter', body: '#8a5a3c', muzzle: '#f3e2c4', hat: '#7b4fb8', apron: '#f3e9d2', phones: '#2b2b33' }, NPC_STATES),
+    hanbi: actor('hanbi', '서한비', { shape: 'person', body: '#242730', hair: '#181a20', skin: '#eae8e8', accent: '#5c6478' }, NPC_STATES),
+    yundal: actor('yundal', '윤달', { shape: 'person', body: '#3c5a72', hair: '#2a3b4c', skin: '#f7e3d2', accent: '#8dc4d8' }, NPC_STATES),
     dev_temp_01: actor('dev_temp_01', 'DEV 임시 동료 01', { shape: 'person', body: '#9a9a9a', hair: '#666', skin: '#eee' }),
   },
   // 사냥 적. "검은 손"만 원작 EP.01 에 나오는 존재이고, 나머지는 게임 임시 적이다(정식 설정 아님).
@@ -101,6 +103,8 @@ export const ASSETS = Object.freeze({
     luna_sis: portrait('luna_sis', '루나 언니', ['normal', 'smile', 'tired', 'serious']),
     cheongtokki: portrait('cheongtokki', '청토끼', ['normal', 'smile', 'smug']),
     moka: portrait('moka', '모카', ['normal', 'smug', 'angry']),
+    hanbi: portrait('hanbi', '서한비', ['normal', 'smile', 'serious']),
+    yundal: portrait('yundal', '윤달', ['normal', 'smile', 'smug']),
   },
   // 32×32 타일(카페 바닥·벽, 사냥 들판)
   tiles: {
