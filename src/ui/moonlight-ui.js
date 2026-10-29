@@ -1,4 +1,5 @@
-// 공통 선 아이콘. 게임 그림과 구별되는 20px 조작 기호다.
+// 공통 조작 기호. 도트 아이콘이 있으면 도트(10-29 메인 화면 도트 통일), 없으면 20px 선 아이콘.
+import {pixelIcon,PIXEL_ICON_NAMES} from './pixel-icons.js';
 const paths={
  music:'<path d="M9 18V5l11-2v13M9 8l11-2"/><ellipse cx="6" cy="18" rx="3" ry="2.5"/><ellipse cx="17" cy="16" rx="3" ry="2.5"/>',
  heart:'<path d="M12 21 3.8 13A5.5 5.5 0 0 1 12 5.7 5.5 5.5 0 0 1 20.2 13Z"/>',
@@ -14,4 +15,5 @@ const paths={
  arrow:'<path d="M4 12h15m-6-6 6 6-6 6"/>',
  book:'<path d="M12 5c-3-2-6-2-9-1v16c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1Zm0 0v16"/>',
 };
-export const uiIcon=key=>`<svg class="ml-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths[key]||paths.cup}</svg>`;
+const PIXEL_ALIAS={music:'note'};
+export const uiIcon=key=>PIXEL_ICON_NAMES.includes(PIXEL_ALIAS[key]||key)?pixelIcon(PIXEL_ALIAS[key]||key,'ml-icon'):`<svg class="ml-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths[key]||paths.cup}</svg>`;

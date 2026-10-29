@@ -1,7 +1,7 @@
 import { btn } from './dom.js';
 // 12×12 도트 아이콘(메인 화면 버튼). 글자 한 칸이 도트 한 칸이고, 같은 색이 이어지는 칸은 한 사각형으로 합친다.
 // c 는 버튼 글자색(currentColor)을 따른다. 꽃·달 팔레트: 자두 윤곽·장미·아이보리·금·세이지.
-const INK = Object.freeze({ k: '#4a2638', r: '#b85a6e', p: '#eaa6b4', i: '#fff6e6', g: '#e2bd6c', G: '#a87c3a', m: '#f6e7b8', S: '#5f7a5c', c: 'currentColor' });
+const INK = Object.freeze({ k: '#4a2638', r: '#b85a6e', p: '#eaa6b4', i: '#fff6e6', g: '#e2bd6c', G: '#a87c3a', m: '#f6e7b8', S: '#5f7a5c', l: '#a9c49a', b: '#8fb3cf', B: '#5e86a8', c: 'currentColor' });
 
 const ICONS = Object.freeze({
   cup: ['....g..g....', '...g..g.....', '....g..g....', '............', '.kkkkkkkk...', '.kiiiiiikkk.', '.kipppiik.k.', '.kiiiiiikkk.', '..kiiiik....', '...kkkk.....', 'GGGGGGGGGG..', '.GGGGGGGG...'],
@@ -13,6 +13,15 @@ const ICONS = Object.freeze({
   note: ['............', '......kk....', '......kgk...', '......k.gk..', '......k..gk.', '......k..k..', '......k.....', '......k.....', '...kkkk.....', '..kgggk.....', '..kgggk.....', '...kkk......'],
   arrow: ['............', '............', '.......c....', '.......cc...', '.......ccc..', '.cccccccccc.', '.cccccccccc.', '.......ccc..', '.......cc...', '.......c....', '............', '............'],
   out: ['............', '............', '.....ccccc..', '........cc..', '.......c.c..', '......c..c..', '.....c...c..', '....c.......', '...c........', '..c.........', '............', '............'],
+  heart: ['............', '..kkk..kkk..', '.krppkkrrrk.', 'krppprrrrrrk', 'krpprrrrrrrk', 'krrrrrrrrrrk', '.krrrrrrrrk.', '..krrrrrrk..', '...krrrrk...', '....krrk....', '.....kk.....', '............'],
+  leaf: ['............', '.......kkkk.', '.....kkllllk', '....klllllSk', '...kllllSSk.', '..klllSSllk.', '..kllSllllk.', '.kllSllllk..', '.klSllllk...', '.kSkkkkk....', 'kS..........', 'k...........'],
+  flower: ['....kkkk....', '...kppppk...', '.kkkpiipkkk.', 'kppkppppkppk', 'kpikkggkkipk', 'kppkgggGkppk', 'kppkggGGkppk', 'kpikkGGkkipk', 'kppkppppkppk', '.kkkpiipkkk.', '...kppppk...', '....kkkk....'],
+  energy: ['......kkkk..', '.....kmgk...', '....kmgk....', '...kmgkkkk..', '..kmggggk...', '...kkgGk....', '....kgGk....', '...kgGk.....', '..kgGk......', '..kGk.......', '..kk........', '............'],
+  orders: ['....kkkk....', '.kkkkggkkkk.', '.kiiiiiiiik.', '.kirrriiiik.', '.kiiiiiiiik.', '.kiGGGGGGik.', '.kiiiiiiiik.', '.kiGGGGiiik.', '.kiiiiiiiik.', '.kiGGGGGiik.', '.kiiiiiiiik.', '.kkkkkkkkkk.'],
+  kitchen: ['............', '...g..g..g..', '..g..g..g...', '.....kk.....', '..kkkkkkkk..', 'kkkrrrrrrkkk', 'k.krrrrrrk.k', '..krpprrrk..', '..krrrrrrk..', '..krrrrrrk..', '...kkkkkk...', '............'],
+  crew: ['............', '..kk....kk..', '.kmmk..kmmk.', '.kmmk..kmmk.', '..kk....kk..', '.kkkk..kkkk.', 'krrrrkkSSSSk', 'krprrkkSlSSk', 'krrrrkkSSSSk', 'krrrrkkSSSSk', 'kkkkkkkkkkkk', '............'],
+  island: ['............', '.........gg.', '.....kk...g.', '....kllk....', '...klSSlk...', '..klSSSSlk..', '.kmmmmmmmmk.', 'bkkkkkkkkkkb', 'bbBbbbbbBbbb', '.b..bbb..b..', '............', '............'],
+  lock: ['............', '....kkkk....', '...k....k...', '...k....k...', '..kkkkkkkk..', '..kggggggk..', '..kggkkggk..', '..kggkkggk..', '..kgggggGk..', '..kkkkkkkk..', '............', '............'],
 });
 
 const cache = new Map();

@@ -1,0 +1,72 @@
+/* 카페(메인) 화면 도트 테마(10-29 사용자 요청: 게임방·메인 화면도 2D 도트 느낌).
+   title-pixel.css와 같은 문법: 계단 모서리 = 네 방향 단색 그림자, 그림자 = 흐림 없는 도트 그림자, 글꼴 = Yeoni Pixel(갈무리11 서브셋).
+   배치는 다른 파일이 정하고 여기서는 색·테두리·글꼴만 다시 그린다. 카페 바닥 그림과 사냥 화면은 건드리지 않는다. */
+:root{--dp:2px;--dp-ink:#4a2638;--dp-rose:#9c4560;--dp-rose-hi:#c46f86;--dp-rose-lo:#6f2c43;--dp-gold:#e2bd6c;--dp-gold-lo:#a87c3a;--dp-ivory:#fff7ea;--dp-ivory-hi:#fffdf8;--dp-ivory-lo:#e9d6b9;--dp-blush:#f7dde2;--dp-sage:#e4eddb;--dp-sage-lo:#b5c7a9;--dp-drop:#4a263840;
+  --dp-edge:0 calc(var(--dp) * -1) 0 var(--dp-ink),0 var(--dp) 0 var(--dp-ink),calc(var(--dp) * -1) 0 0 var(--dp-ink),var(--dp) 0 0 var(--dp-ink);
+  --dp-tile:inset 0 var(--dp) 0 var(--dp-ivory-hi),inset 0 calc(var(--dp) * -1) 0 var(--dp-ivory-lo),var(--dp-edge),0 calc(var(--dp) * 2) 0 var(--dp-drop);
+  --dp-font:"Yeoni Pixel","Yeoni UI","Malgun Gothic",sans-serif}
+
+/* 상단 상태줄: 아이보리 판 + 금빛 점선 */
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) #topbar{border-bottom:0;box-shadow:0 var(--dp) 0 var(--dp-gold-lo),0 calc(var(--dp) * 2) 0 var(--dp-ivory-lo);background-color:var(--dp-ivory)}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) #topbar :is(b,small,.cafe-gold),body[data-mode]:is([data-mode=prep],[data-mode=shift]) #topbar button{font-family:var(--dp-font);letter-spacing:0}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) #topbar .cafe-clock b{color:var(--dp-ink)}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) #topbar .cafe-seal{border:0;border-radius:0;background:none;box-shadow:none}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) #topbar .cafe-gold{color:var(--dp-gold-lo)}
+
+/* 버튼 공통: 둥근 모서리 대신 계단 모서리 타일. 누르면 한 도트 내려간다 */
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) :is(#topbar,#camera-controls,.cafe-commandbar,.cafe-drawer) button{border:0;border-radius:0;background-color:var(--dp-ivory);color:var(--dp-ink);box-shadow:var(--dp-tile);font-family:var(--dp-font);letter-spacing:0;transition:transform .08s steps(2)}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) :is(#topbar,#camera-controls,.cafe-commandbar,.cafe-drawer) button:active:not(:disabled){transform:translateY(var(--dp))}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) :is(#topbar,#camera-controls,.cafe-commandbar,.cafe-drawer) button:focus-visible{outline:2px solid var(--dp-gold);outline-offset:calc(var(--dp) * -3)}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .px-icon{image-rendering:pixelated}
+
+/* 상태 칩: 아이보리 타일 · 도트 아이콘 · 큰 숫자 */
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .cafe-status-details button{margin:var(--dp);background:var(--dp-ivory)}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .cafe-status-details .status-symbol{border:0;border-radius:0;background:none;box-shadow:none}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .cafe-status-details small{color:#7a5a68}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .cafe-status-details b{color:var(--dp-ink);font-weight:700}
+
+/* 확대 조절: 세 칸을 한 판으로 */
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) #camera-controls{gap:0;border:0;border-radius:0;background:var(--dp-ivory);box-shadow:var(--dp-tile)}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) #camera-controls button{background:none;box-shadow:none}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) #camera-controls button+button{box-shadow:inset var(--dp) 0 0 var(--dp-ivory-lo)}
+
+/* 하단 명령줄. 아래 규칙은 위 버튼 공통 규칙(:is 안의 #id 때문에 특이도가 높다)과 같은 앞머리를 써서 이긴다 */
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .cafe-commandbar{font-family:var(--dp-font)}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .cafe-commandbar :is(b,small,p,span){letter-spacing:0}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) :is(#topbar,#camera-controls,.cafe-commandbar,.cafe-drawer) button.primary{background:var(--dp-rose);color:var(--dp-ivory);box-shadow:inset 0 var(--dp) 0 var(--dp-rose-hi),inset 0 calc(var(--dp) * -1) 0 var(--dp-rose-lo),var(--dp-edge),0 calc(var(--dp) * 2) 0 #4a263866}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) :is(#topbar,#camera-controls,.cafe-commandbar,.cafe-drawer) button.primary:hover:not(:disabled){background:#8c3c55}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) :is(#topbar,#camera-controls,.cafe-commandbar,.cafe-drawer) button:disabled{filter:grayscale(.6);opacity:.6}
+/* 영업 시작: 장미 판 안쪽 금빛 바느질 선(타이틀 첫 버튼과 같은 장식) */
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .cafe-opening .cafe-open{position:relative;border:0;border-radius:0}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .cafe-opening .cafe-open::before{content:'';position:absolute;inset:calc(var(--dp) * 2) calc(var(--dp) * 3);pointer-events:none;background:repeating-linear-gradient(90deg,var(--dp-gold) 0 4px,transparent 4px 8px) top/100% var(--dp) no-repeat,repeating-linear-gradient(90deg,var(--dp-gold) 0 4px,transparent 4px 8px) bottom/100% var(--dp) no-repeat;opacity:.85}
+/* 첫날 안내·통첩 같은 안내판: 세이지 판 */
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .first-day-guide{border:0;border-radius:0;background:var(--dp-sage);box-shadow:inset 0 var(--dp) 0 #f6faf1,inset 0 calc(var(--dp) * -1) 0 var(--dp-sage-lo),var(--dp-edge);margin-inline:var(--dp)}
+/* 보조 줄(수첩·음악·메인)과 아래 탭: 판 없이 글자·아이콘만, 고른 탭은 꽃분홍 판 */
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) :is(#topbar,#camera-controls,.cafe-commandbar,.cafe-drawer) :is(.cafe-utility,.cafe-nav-item){background:none;box-shadow:none}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) :is(#topbar,#camera-controls,.cafe-commandbar,.cafe-drawer) :is(.cafe-utility,.cafe-nav-item):hover{background:var(--dp-ivory-lo)}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) :is(#topbar,#camera-controls,.cafe-commandbar,.cafe-drawer) .cafe-nav-item.selected{background:var(--dp-blush);color:#6c3248;box-shadow:inset 0 calc(var(--dp) * -1) 0 #e9b9c4,var(--dp-edge)}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .cafe-actions{border-top:0;box-shadow:0 calc(var(--dp) * -1) 0 var(--dp-ivory-lo)}
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .cafe-actions .ml-icon{width:24px;height:24px}
+
+/* 카페 상세 서랍 머리 */
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .cafe-drawer>header b{font-family:var(--dp-font);letter-spacing:0}
+
+/* 알림 */
+body[data-mode]:is([data-mode=prep],[data-mode=shift]) .toast{border:0;border-radius:0;font-family:var(--dp-font);letter-spacing:0;box-shadow:var(--dp-edge),0 calc(var(--dp) * 3) 0 var(--dp-drop)}
+
+/* 창(시트·대화상자) 틀과 제목: 계단 모서리 3도트 + 안쪽 금선 */
+body[data-mode]:is([data-mode=prep],[data-mode=shift],[data-mode=title]) :is(.sheet,.dialog:not(.settle-screen)){--dp:3px;border:0;border-radius:0;box-shadow:inset 0 0 0 var(--dp) var(--dp-ivory),inset 0 0 0 calc(var(--dp) + 2px) #e2bd6c99,var(--dp-edge),0 calc(var(--dp) * 2) 0 var(--dp-drop)}
+body[data-mode]:is([data-mode=prep],[data-mode=shift],[data-mode=title]) :is(.sheet,.dialog) h2{font-family:var(--dp-font);letter-spacing:0}
+body[data-mode]:is([data-mode=prep],[data-mode=shift],[data-mode=title]) :is(.sheet,.dialog) h2 .close{border:0;border-radius:0;background:var(--dp-ivory);box-shadow:var(--dp-tile);font-family:var(--dp-font)}
+
+/* 게임방: 도트 그림과 계단 모서리 게임 카드 */
+.game-room-art{border-radius:0;image-rendering:pixelated;box-shadow:var(--dp-edge)}
+.game-room-dialog>p:not(.small),.sheet .game-room-art+p{font-family:var(--dp-font);letter-spacing:0;line-height:1.7}
+.game-room-links a{border:0!important;border-radius:0!important;background:var(--dp-ivory);box-shadow:var(--dp-tile);font-family:var(--dp-font);letter-spacing:0;transition:transform .08s steps(2)}
+.game-room-links a:hover{filter:brightness(1.04) saturate(1.05)}
+.game-room-links a:active{transform:translateY(var(--dp))}
+.game-room-links a:focus-visible{outline:2px solid var(--dp-gold);outline-offset:-6px}
+.game-room-links img{border-radius:0!important;image-rendering:pixelated}
+.game-room-links span{color:var(--dp-rose)}
+
+@media(prefers-reduced-motion:reduce){body :is(#topbar,#camera-controls,.cafe-commandbar,.cafe-drawer) button,.game-room-links a{transition:none}}
