@@ -17,7 +17,7 @@ C:\Users\user 에서 세션을 열고:
 ## 첫 행동
 1. 작업 폴더 `C:/Users/user/Documents/Codex/2026-10-28/set-location-c-users-user-documents/work/yeoni-counter-cooking`(워크트리, 브랜치 `fix/yeoni-counter-cooking-20261028`)에서 `git status`·`git fetch origin`·`git log --oneline -8`
 2. HEAD가 origin/main과 같은지 확인(다르면 `git log HEAD..origin/main`으로 남의 커밋을 먼저 본다)
-3. `npm test`가 385/385인지 확인(`npm test 2>&1 | grep -E "ℹ (pass|fail)"`)
+3. `npm test`가 386/386인지 확인(`npm test 2>&1 | grep -E "ℹ (pass|fail)"`)
 4. 아래 "단계" 1부터 진행. 사람 결정이 필요한 항목("손대지 말 것")은 묻지 말고 건너뛴다
 
 ## 지금 상태
@@ -25,6 +25,12 @@ C:\Users\user 에서 세션을 열고:
 |---|---|---|
 | 연이 `yeoniEffects.cookSpeed` 적용(선물 요리 5초 → 레벨마다 −1%, 상한 −20%, 성장 창 표시) | 완료 | 86d87c6 |
 | release 2026.10.29.2 · push | 완료 | (이 문서 커밋) |
+| 연이 레벨 카페 효과(계산 시간 −2%/Lv·손님 기다림 +1%/Lv·좋은 후기 인기도 +2%/Lv, 상한 있음) | 완료 | d94e7b5 |
+| 영업 배속 유지(도움말·요리 창이 1배로 되돌리지 않음, 요리 창 열린 동안만 1배, localStorage `yeoni-atelier.play-speed.v1`) | 완료 | 85c88f2 |
+| 메인 화면·창 틀 도트 테마(`main-pixel.css`, 도트 아이콘 9개 추가) | 완료 | 72443b8 |
+| 연이 "꿀악" → 운세 대사(22곳) + 운세 잡담 15문장 | 완료 | ed13439 |
+| 게임방 그림·카드 2장 도트 그림(원본 `D:/yeoni-qa/art/pixel-v1/`) | 완료 | 269f77d |
+| 위 다섯 건 push·release | 안 함(요청 대기). 단계 6에서 함께 올린다 | — |
 | 단계 1~6 | 미착수 | — |
 
 ## 작업 규칙(요약, 원문은 AGENTS.md·CLAUDE.md)
