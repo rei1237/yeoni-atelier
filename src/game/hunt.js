@@ -17,7 +17,7 @@ import {stepEnemyBehaviors,addBattleFx} from './enemy-behaviors.js';
 // killerflowerpig 에서 가져온 것: Pool(그대로), 조이스틱 입력(변형). 무기 레벨 누적·진화 배율·
 // 밀도 목표 생성기·별조각 등급/합치기는 개념만 참고해 이 파일에서 새로 썼다(전투 로직 이식 아님).
 
-import { enhancementBonus, SUPPLIES, SKILL_IDS, skillCap, skillRank, capTier } from './moka-armory.js';
+import { enhancementBonus, SUPPLIES, SKILL_IDS, skillCap, skillRank, capLevels, evoKnown } from './moka-armory.js';
 import { survivalReward } from './hunt-rewards.js';
 import { PDF } from '../config/balance.pdf.js';
 import { TEMP } from '../config/balance.temp.js';
@@ -100,7 +100,8 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
   state.hunt = normalizeHunt({
     id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: null, hunterId, hp, maxHp: hp, gear,
     bag: { moonstone: 0 }, kills: 0, status: 'running', depth, careerLevel, careerXP: 0,
-    caps: Object.fromEntries(SKILL_IDS.map(id => [id, skillCap(id, skillRank(state, id), capTier(state))])), // 출발 때 고정한 공용 상한
+    caps: Object.fromEntries(SKILL_IDS.map(id => [id, skillCap(id, skillRank(state, id), capLevels(state))])), // 출발 때 고정한 공용 상한
+    evoOk: Object.fromEntries(Object.keys(WEAPONS).map(id => [id, evoKnown(state, id)])), // 출발 때 고정한 진화 비전(옛 진행 중 사냥은 없음 = 허용)
     scale: depthScale(depth, monthScale(state.day), calendarOf(state.day).monthIdx),
     fieldSeed:Math.floor(nextRandom(state.rng)*2147483647),brokenProps:{},propDamage:{},foundTreasure:{},
     ...(saved?{kfp:saved.kfp?structuredClone(saved.kfp):undefined,level:saved.level,xp:saved.xp,weapons:structuredClone(saved.weapons),passives:{...saved.passives},picks:structuredClone(saved.picks||[])}:{}),
@@ -236,8 +237,8 @@ export function describeOption(hs, o) {
   }
   const d = WEAPONS[o.id], wp = hs.weapons.find(w => w.id === o.id);
   const tag = wp ? `Lv ${wp.level} → ${wp.level + 1}` : '새 무기';
-  const evoHint = wp && wp.level + 1 === WEAPON_MAX_LV ? ` · ${PASSIVES[d.evo.pair].name}와 함께면 진화` : '';
-  return { icon: d.icon, name: d.name, text: d.desc + evoHint, tag, cap, evo: !!evoHint };
+  const evoHint = wp && wp.level + 1 === WEAPON_MAX_LV ? (hs.evoOk?.[o.id] === false ? ' · 진화는 윤달 공방 진화 비전이 필요해요' : ` · ${PASSIVES[d.evo.pair].name}와 함께면 진화`) : '';
+  return { icon: d.icon, name: d.name, text: d.desc + evoHint, tag, cap, evo: !!evoHint && hs.evoOk?.[o.id] !== false };
 }
 
 function applyOption(state, o) {
@@ -255,7 +256,7 @@ function applyOption(state, o) {
   }
   for (const wp of hs.weapons) {
     const evo = WEAPONS[wp.id].evo;
-    if (!wp.evo && wp.level >= WEAPON_MAX_LV && hs.passives[evo.pair]) {
+    if (!wp.evo && wp.level >= WEAPON_MAX_LV && hs.passives[evo.pair] && hs.evoOk?.[wp.id] !== false) {
       wp.evo = true;
       emit('huntEvolve', { id: wp.id, name: evo.name });
     }

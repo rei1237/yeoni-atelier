@@ -196,9 +196,9 @@ test('탐색 레벨업: 카드를 고르기 전에는 시간이 멈추고, 고�
   assert.ok(r.hunt.elapsedMs > t0);
 });
 
-test('탐색 진화: 무기 5레벨 + 짝 보조 능력이면 진화한다', () => {
+test('탐색 진화: 진화 비전을 연 무기가 5레벨 + 짝 보조 능력이면 진화한다', () => {
   const s = createGame();
-  s.hostbar.open = true; s.huntUnlocked = true; // 테스트 준비: 기능 개시 후 동작
+  s.hostbar.open = true; s.huntUnlocked = true; s.armory.tech.evo.bolt = 1; // 테스트 준비: 기능 개시·진화 비전 연구 후 동작
   dispatch(s, { type: 'hunt.start' });
   s.hunt.weapons = [{ id: 'bolt', level: 4, evo: false }]; // 테스트 준비
   s.hunt.picks.push([{ kind: 'weapon', id: 'bolt' }]);

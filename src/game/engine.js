@@ -161,7 +161,7 @@ function execute(state, cmd) {
     case 'armory.enhance': return armory.enhance(state,cmd.who,cmd.id);
     case 'armory.buy': return armory.buySupply(state,cmd.id);
     case 'armory.learn': return armory.learnSkill(state,cmd.id);
-    case 'armory.cap': return armory.raiseSkillCap(state);
+    case 'armory.tech': return armory.researchTech(state,cmd.line,cmd.id);
     case 'hunt.supply': return hunt.useSupply(state,cmd.id);
     case 'gift.cook':return beginGiftCook(state,cmd.menuId,cmd.timing,cmd.requestId);
     case 'gift.cancel':return cancelGiftCook(state,cmd.id);

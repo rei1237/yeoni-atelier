@@ -5,8 +5,8 @@ import { ENEMIES } from '../src/data/hunt-kit.js';
 import { stageDef, stageAllows, bossFor } from '../src/data/hunt-stages.js';
 import { createGame } from '../src/game/state.js';
 import { dispatch, tick } from '../src/game/engine.js';
-import { getHuntWorld, spawnEnemy, findBoss, optionsFor, mods } from '../src/game/hunt.js';
-import { skillCost, skillRank, capCost, capTier } from '../src/game/moka-armory.js';
+import { getHuntWorld, spawnEnemy, findBoss, optionsFor, mods, describeOption } from '../src/game/hunt.js';
+import { skillCost, skillRank, techLevel, evoKnown } from '../src/game/moka-armory.js';
 import { placeLock } from '../src/game/unlocks.js';
 import { hunterProgress, huntMoonReward } from '../src/game/hunt-growth.js';
 import { TEMP } from '../src/config/balance.temp.js';
@@ -207,11 +207,11 @@ test('기술 단련: 새 게임은 기본 4종만, 단련 상한까지만 오르
   assert.ok(!TEMP.HUNT.POWER_DROP.some(d => d.id === 'fish'), '10-28: 회복 생선은 일반 적이 떨구지 않는다');
 });
 
-test('공용 상한 해방: armory.learn은 배우기만, armory.cap은 배운 기술 모두의 상한을 한 번에 올리고 잠김·부족·끝을 거절한다', () => {
+test('공방 연구: armory.learn은 배우기만, armory.tech는 무기·보조 상한을 공용으로 올리고 진화 비전은 무기마다 열며 잠김·부족·도달 단계·끝을 거절한다', () => {
   const s = createGame({ seed: 5 }); s.huntUnlocked = true;
   s.moonstone = 99999;
   assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).reason, placeLock(s, 'gear'));
-  assert.equal(dispatch(s, { type: 'armory.cap' }).reason, placeLock(s, 'gear'));
+  assert.equal(dispatch(s, { type: 'armory.tech', line: 'forge' }).reason, placeLock(s, 'gear'));
   s.hunter.maxStage = 7; s.moonstone = skillCost('crescent') - 1; // 테스트 준비: 6단계를 클리어해 공방이 열렸다
   assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).ok, false);
   assert.equal(s.moonstone, skillCost('crescent') - 1, '실패 시 차감 없음');
@@ -223,23 +223,43 @@ test('공용 상한 해방: armory.learn은 배우기만, armory.cap은 배운 �
   s.moonstone = 1e6;
   assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).ok, false, '이미 배운 기술');
   assert.ok(dispatch(s, { type: 'armory.learn', id: 'bell' }).ok);
-  const before = s.moonstone, up = dispatch(s, { type: 'armory.cap' });
-  assert.ok(up.ok && up.tier === 1 && s.moonstone === before - capCost(0));
-  assert.ok(up.events.some(e => e.type === 'skillCapRaised' && e.weapon === 4 && e.passive === 3));
-  assert.ok(dispatch(s, { type: 'armory.cap' }).ok); assert.equal(capTier(s), 2);
-  assert.equal(dispatch(s, { type: 'armory.cap' }).ok, false, '끝까지 해방');
+  const T = TEMP.HUNT_SKILLS.TECH, before = s.moonstone, up = dispatch(s, { type: 'armory.tech', line: 'forge' });
+  assert.ok(up.ok && up.level === 1 && s.moonstone === before - T.forge.cost[0]);
+  assert.ok(up.events.some(e => e.type === 'techResearched' && e.weapon === 4 && e.passive === 2), '무기 상한만 오른다');
+  assert.match(dispatch(s, { type: 'armory.tech', line: 'forge' }).reason, /12단계/, '도달 단계가 모자라면 거절');
+  assert.match(dispatch(s, { type: 'armory.tech', line: 'evo', id: 'bolt' }).reason, /무기 상한 해방/, '진화 비전은 무기 상한을 끝까지 연 뒤');
+  s.hunter.maxStage = 14; // 테스트 준비: 13단계까지 클리어
+  assert.ok(dispatch(s, { type: 'armory.tech', line: 'forge' }).ok); assert.ok(dispatch(s, { type: 'armory.tech', line: 'charm' }).ok);
+  assert.equal(dispatch(s, { type: 'armory.tech', line: 'forge' }).ok, false, '끝까지 연구');
+  assert.match(dispatch(s, { type: 'armory.tech', line: 'evo', id: 'tarot' }).reason, /배워/, '못 배운 무기의 진화는 거절');
+  const m = s.moonstone, ev = dispatch(s, { type: 'armory.tech', line: 'evo', id: 'crescent' });
+  assert.ok(ev.ok && s.moonstone === m - T.evo.cost[0] && evoKnown(s, 'crescent') && !evoKnown(s, 'bolt'));
+  assert.match(dispatch(s, { type: 'armory.tech', line: 'evo', id: 'bolt' }).reason, new RegExp(`${T.evo.stage[1]}단계`), '두 번째 비전은 더 깊은 단계');
+  assert.ok(T.evo.cost.every((c, i) => !i || c > T.evo.cost[i - 1]), '진화 비전은 갈수록 비싸다');
   assert.ok(dispatch(s, { type: 'hunt.start', depth: 1 }).ok);
   assert.equal(s.hunt.caps.crescent, 5); assert.equal(s.hunt.caps.bolt, 5); assert.equal(s.hunt.caps.bell, 3); assert.equal(s.hunt.caps.tarot, 0);
+  assert.ok(s.hunt.evoOk.crescent && !s.hunt.evoOk.bolt);
   assert.ok(optionsFor(s.hunt).some(o => o.id === 'crescent') && !optionsFor(s.hunt).some(o => o.id === 'tarot'));
+});
+
+test('진화 비전이 없는 무기는 Lv 최대와 짝 보조 능력이 있어도 진화하지 않는다', () => {
+  const s = createGame({ seed: 8 }); s.huntUnlocked = true; s.hunter.maxStage = 7;
+  assert.ok(dispatch(s, { type: 'hunt.start', depth: 1 }).ok);
+  const hs = s.hunt; hs.caps.bolt = 5; hs.caps.bell = 3; hs.weapons = [{ id: 'bolt', level: 4, evo: false }]; hs.passives = { bell: 1 };
+  assert.match(describeOption(hs, { kind: 'weapon', id: 'bolt' }).text, /진화 비전/);
+  hs.picks = [[{ kind: 'weapon', id: 'bolt' }]];
+  assert.ok(dispatch(s, { type: 'hunt.pick', index: 0 }).ok);
+  assert.equal(hs.weapons[0].level, 5); assert.equal(hs.weapons[0].evo, false);
 });
 
 test('기술 단련 이전 저장: 빌드에 있던 기술·레벨은 그만큼 단련된 것으로 남고, 성장 보너스는 Lv10에서 멈춘다', () => {
   const s = createGame({ seed: 6 }); s.huntUnlocked = true;
   s.hunter.builds = { neo: { level: 9, xp: 0, weapons: [{ id: 'bolt', level: 5, evo: true }, { id: 'tarot', level: 3, evo: false }], passives: { bell: 2 }, picks: [], stage: 4 } };
-  delete s.armory.skills; delete s.armory.capTier; // 테스트 준비: 단련·공용 상한 이전 저장
+  delete s.armory.skills; delete s.armory.tech; // 테스트 준비: 단련·공용 상한 이전 저장
   const r = deserialize(serialize(s)).state;
   assert.equal(skillRank(r, 'bolt'), 4); assert.equal(skillRank(r, 'tarot'), 2); assert.equal(skillRank(r, 'bell'), 2); assert.equal(skillRank(r, 'orbit'), 1);
-  assert.equal(capTier(r), 2, '기술별로 풀어 둔 가장 높은 상한(무기 Lv5)을 공용 상한으로 이어받는다');
+  assert.equal(techLevel(r, 'forge'), 2, '기술별로 풀어 둔 가장 높은 상한(무기 Lv5)을 무기 상한 연구로 이어받는다');
+  assert.equal(techLevel(r, 'charm'), 1); assert.ok(evoKnown(r, 'bolt') && evoKnown(r, 'tarot'), '진화를 허용하던 옛 상한은 배운 무기의 진화 비전으로 이어진다');
   assert.ok(dispatch(r, { type: 'hunt.start', depth: 1 }).ok);
   assert.equal(r.hunt.weapons.find(w => w.id === 'tarot').level, 3, '빼앗지 않음');
   const gearAt = xp => { const g = createGame({ seed: 6 }); g.huntUnlocked = true; g.hunter.xp = xp; dispatch(g, { type: 'hunt.start', depth: 1 }); return g.hunt.maxHp; };

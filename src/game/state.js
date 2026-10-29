@@ -48,7 +48,7 @@ export function createGame({ dev = false, seed = 20261025 } = {}) {
     farm: newFarm(seed),
     hunter: { xp: 0, kills: 0, maxStage:1 },
     huntCodex: { enemies: {}, evolved: {}, materials: {}, chests: 0, feats: {} }, // 사냥터 수집 도감(hunt-codex.js)
-    armory: {upgrades:{},supplies:{},skills:Object.fromEntries(TEMP.HUNT_SKILLS.START.map(id=>[id,1])),capTier:0},
+    armory: {upgrades:{},supplies:{},skills:Object.fromEntries(TEMP.HUNT_SKILLS.START.map(id=>[id,1])),tech:{forge:0,charm:0,evo:{}}},
     gear: { owned: [], equipped: { weapon: null, armor: null, charm: null } }, // 영냥이 장비(data/gear.js)
     learned,
     yeoniGrowth:{xp:0,counts:{},recipes:{},title:'beginner'},

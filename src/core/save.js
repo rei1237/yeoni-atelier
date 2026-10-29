@@ -14,7 +14,7 @@ import { TEMP } from '../config/balance.temp.js';
 
 import { SAVE_VERSION, createGame } from '../game/state.js';
 import { newFarm, maxFarmEnergy } from '../data/farm.js';
-import { legacySkillRanks, legacyCapTier } from '../game/moka-armory.js';
+import { legacySkillRanks, legacyTech } from '../game/moka-armory.js';
 import { legacyCodex, checkAchievements } from '../game/hunt-codex.js';
 
 export const SAVE_KEYS = Object.freeze({ normal: 'yeoni-atelier.save.v1', dev: 'yeoni-atelier.dev-save.v1' });
@@ -62,7 +62,7 @@ function migrate(data) {
   ensureRecordPlayer(data);
   data.startingDebt ??= 120000; // 이전 저장의 원금과 상환 진척은 보존
   if (data.armory && !data.armory.skills) data.armory.skills = legacySkillRanks(data); // 기술 단련 이전 저장
-  if (data.armory && data.armory.capTier == null) data.armory.capTier = legacyCapTier(data.armory.skills); // 10-28 공용 상한 이전 저장
+  if (data.armory && !data.armory.tech) { data.armory.tech = legacyTech(data); delete data.armory.capTier; } // 10-28 공용 상한·10-29 공방 연구 이전 저장
   data.huntCodex ??= legacyCodex(data); // 수집 도감 이전 저장: 깬 단계로 소급
   const base = createGame({ dev: !!data.meta?.devData });
   data.learned??={};data.learned.americano??=true; // 새 기본 메뉴는 옛 저장에서도 사용한다
