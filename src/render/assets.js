@@ -102,6 +102,7 @@ const LEGACY_ASSETS = {
     claw_glove: icon('claw_glove', '고양이 발톱 장갑', '#e8d9c4'), crescent_wand: icon('crescent_wand', '초승달 방울 지팡이', '#e5c58e'),
     scale_vest: icon('scale_vest', '생선 비늘 조끼', '#8fb8c9'), fluff_cape: icon('fluff_cape', '솜뭉치 망토', '#f4f0fa'),
     fishbone_charm: icon('fishbone_charm', '생선뼈 부적', '#d8d2bf'), churu_magnet: icon('churu_magnet', '자석 츄르', '#e85d75'),
+    tech_forge: icon('tech_forge', '무기 상한 해방', '#d9a05b'), tech_charm: icon('tech_charm', '보조 상한 해방', '#7c7fc9'), tech_evo: icon('tech_evo', '진화 비전', '#8f7ad8'),
   },
   portraits: {
     ...Object.fromEntries(RECRUITABLE.filter(c => c.id !== 'moka').map(c => [c.id, portrait(c.id, c.name, ['normal','smile','serious','surprised'])])),

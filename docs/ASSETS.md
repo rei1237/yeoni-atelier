@@ -174,6 +174,9 @@
 | icons/fluff_cape | assets/sprites/icons/fluff_cape.webp | 96×96 | 완료 |
 | icons/fishbone_charm | assets/sprites/icons/fishbone_charm.webp | 96×96 | 완료 |
 | icons/churu_magnet | assets/sprites/icons/churu_magnet.webp | 96×96 | 완료 |
+| icons/tech_forge | assets/sprites/icons/tech_forge.webp | 96×96 | 완료 |
+| icons/tech_charm | assets/sprites/icons/tech_charm.webp | 96×96 | 완료 |
+| icons/tech_evo | assets/sprites/icons/tech_evo.webp | 96×96 | 완료 |
 | portraits/yun | assets/illustrated/portraits/yun.webp | 384×576 | 완료 |
 | portraits/seohanbi | assets/illustrated/portraits/seohanbi.webp | 384×576 | 완료 |
 | portraits/museong | assets/illustrated/portraits/museong.webp | 384×576 | 완료 |

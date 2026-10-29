@@ -235,6 +235,27 @@
     "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
   },
   {
+    "id": "icons/tech_forge",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-c28de3a8-51f9-4706-a66c-ddade2118942.png",
+    "prompt": "Premium hand-painted fantasy mobile cafe game illustration: smooth antialiased contours, subtle gouache shading, elegant cream rose-gold and indigo palette, polished commercial art, NOT pixel art, no mosaic or dithering, no text, no watermark. One beautiful inventory icon of a small ornate silver anvil with a glowing rose-gold short sword blade resting on top and warm golden sparks rising upward. Isolated TRANSPARENT background, centered one object, full silhouette, generous margin, no frames or lettering, soft volumetric shading. Readable at small size but high resolution elegant illustration.",
+    "normalization": "illustration-export.py: alpha bbox, Lanczos 96×96, WebP quality85/method4; 원본 D:/yeoni-qa/art/tech-icons-v1 보존"
+  },
+  {
+    "id": "icons/tech_charm",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-d0cb5951-c3e3-4edb-8f62-64615c630233.png",
+    "prompt": "Premium hand-painted fantasy mobile cafe game illustration: smooth antialiased contours, subtle gouache shading, elegant cream rose-gold and indigo palette, polished commercial art, NOT pixel art, no mosaic or dithering, no text, no watermark. One beautiful inventory icon of a cream silk ribbon talisman knot holding a glowing indigo moonstone pendant with tiny golden sparks rising upward. Isolated TRANSPARENT background, centered one object, full silhouette, generous margin, no frames or lettering, soft volumetric shading. Readable at small size but high resolution elegant illustration.",
+    "normalization": "illustration-export.py: alpha bbox, Lanczos 96×96, WebP quality85/method4; 원본 D:/yeoni-qa/art/tech-icons-v1 보존"
+  },
+  {
+    "id": "icons/tech_evo",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-3762fc41-8861-4655-b779-98e2cc798195.png",
+    "prompt": "Premium hand-painted fantasy mobile cafe game illustration: smooth antialiased contours, subtle gouache shading, elegant cream rose-gold and indigo palette, polished commercial art, NOT pixel art, no mosaic or dithering, no text, no watermark. One beautiful inventory icon of a radiant crescent-moon crystal prism with a silver blade transforming into flowing indigo and gold light petals, magical evolution swirl. Isolated TRANSPARENT background, centered one object, full silhouette, generous margin, no frames or lettering, soft volumetric shading. Readable at small size but high resolution elegant illustration.",
+    "normalization": "illustration-export.py: alpha bbox, Lanczos 96×96, WebP quality85/method4; 원본 D:/yeoni-qa/art/tech-icons-v1 보존"
+  },
+  {
     "id": "icons/berry",
     "tool": "image_gen built-in",
     "sourceFile": "exec-a3cab462-e28f-4b99-8541-cf42b3af263a.png",
