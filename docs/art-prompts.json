@@ -158,6 +158,13 @@
     "normalization": "illustration-export.py: cell alignment, Lanczos, smooth alpha, WebP quality85/method4; representative action reused by stateRows"
   },
   {
+    "id": "icons/catnip",
+    "tool": "image_gen built-in (codex exec, 2026-10-29)",
+    "sourceFile": "D:/yeoni-qa/art/catnip-v1/catnip-2.png",
+    "prompt": "Premium hand-painted fantasy mobile cafe game illustration: smooth antialiased contours, subtle gouache shading, elegant cream rose-gold and indigo palette, polished commercial art, NOT pixel art, no mosaic or dithering, no text, no watermark. One beautiful inventory icon of a small sprig of silvervine catnip: two fresh green leaves with three plump pale golden-green silvervine fruits and a tiny gold sparkle. Isolated TRANSPARENT background, centered one object, full silhouette, generous margin, no frames or lettering, soft volumetric shading. Readable at small size but high resolution elegant illustration.",
+    "normalization": "alpha bbox trim, Lanczos fit 88px in 96x96 transparent cell, WebP quality90/method6"
+  },
+  {
     "id": "icons/bomb",
     "tool": "image_gen built-in",
     "sourceFile": "exec-5de19efb-f5f2-4ef7-8658-4027bdf98a11.png",

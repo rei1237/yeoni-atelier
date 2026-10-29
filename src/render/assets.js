@@ -95,7 +95,7 @@ const LEGACY_ASSETS = {
     flour: icon('flour', '밀가루', '#efe3c4'), egg: icon('egg', '달걀', '#f6d77a'), sugar: icon('sugar', '설탕', '#ffffff'),
     night_dew: icon('night_dew', '밤이슬', '#6f7fe8'),
     gem_s: icon('gem_s', '별조각(소)', '#8fd3ff'), gem_m: icon('gem_m', '별조각(중)', '#9dff9a'), gem_l: icon('gem_l', '별조각(대)', '#ffb36b'),
-    fish: icon('fish', '구운 생선', '#f0a060'), magnet: icon('magnet', '수염 자석', '#e85d75'), bomb: icon('bomb', '달빛 폭탄', '#c9a227'), chest: icon('chest', '별 상자', '#d9b45a'),
+    fish: icon('fish', '구운 생선', '#f0a060'), catnip: icon('catnip', '개다래 열매', '#9bc46a'), bomb: icon('bomb', '달빛 폭탄', '#c9a227'), chest: icon('chest', '별 상자', '#d9b45a'),
     // 월정석: 사냥에서 떨어지고 청토끼 금융 센터에서 골드로 바꾼다(게임 오리지널)
     moonstone: icon('moonstone', '월정석', '#cfd8ff'),
     // 영냥이 장비(게임 오리지널·임시, data/gear.js). 외형은 바뀌지 않고 아이콘만 쓴다.

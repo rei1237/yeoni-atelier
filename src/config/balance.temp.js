@@ -99,8 +99,9 @@ export const TEMP = Object.freeze({
     BOMB_RADIUS: 280,
     BOMB_DAMAGE: 200,
     POWER_DROP: Object.freeze([ // 일반 적 처치 시 확률. 10-28: 회복 생선은 보물 상자에서만 나온다
-      { id: 'magnet', chance: 0.005 },
+      { id: 'catnip', chance: 0.005 }, // 10-29: 수염 자석(별조각 끌어오기, 수집 종과 겹침) → 개다래 열매 버프
     ]),
+    CATNIP: Object.freeze({ ms: 12000, dmg: 0.3, speed: 0.2 }), // 개다래 열매: 이 시간 동안 공격력·이동 속도 +비율, 다시 주우면 시간만 새로
     // 일반 적 확률 1개, 정예·보스는 고정 개수(임시). 10-28: 일반 0.16→0.22, 보스 20→45(보스 퇴치 보상이 적다는 피드백)
     MOON_DROP: Object.freeze({ chance: 0.22, elite: 6, boss: 45 }),
     ELITE_CHEST: 0.12,        // 정예가 별 상자를 떨굴 확률(10-28: 항상 → 드물게). 안 떨구면 월정석만

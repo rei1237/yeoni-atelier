@@ -163,7 +163,8 @@
 | icons/gem_m | assets/sprites/icons/gem_m.webp | 96×96 | 완료 |
 | icons/gem_l | assets/sprites/icons/gem_l.webp | 96×96 | 완료 |
 | icons/fish | assets/sprites/icons/fish.webp | 96×96 | 완료 |
-| icons/magnet | assets/sprites/icons/magnet.webp | 96×96 | 완료 |
+| icons/magnet | assets/sprites/icons/magnet.webp | 96×96 | 미사용(10-29 개다래 열매로 교체, 파일은 보존) |
+| icons/catnip | assets/sprites/icons/catnip.webp | 96×96 | 완료 |
 | icons/bomb | assets/sprites/icons/bomb.webp | 96×96 | 완료 |
 | icons/chest | assets/sprites/icons/chest.webp | 96×96 | 완료 |
 | icons/moonstone | assets/sprites/icons/moonstone.webp | 96×96 | 완료 |

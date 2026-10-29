@@ -8,7 +8,7 @@ import {enemyVisualSize,drawSaju} from './hunt-visuals.js';
 import {fieldTheme} from '../game/hunt-field.js';
 import { TEMP } from '../config/balance.temp.js';
 import { ENEMIES } from '../data/hunt-kit.js';
-import { gemTier, mods, weaponStats, findBoss } from '../game/hunt.js';
+import { gemTier, mods, catnipLeft, weaponStats, findBoss } from '../game/hunt.js';
 import { drawActor, drawIcon } from './sprite-renderer.js';
 import { imageFor } from './assets.js';
 
@@ -205,6 +205,8 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const swing=p.swing;
   drawSaju(ctx,swing,now,opts.reducedMotion);
   for(const burst of world.fx){if(burst.kind==='ward')continue;if(burst.kind==='petal'){drawPetalWave(ctx,burst,now,opts.reducedMotion);continue;}const q=(now-burst.at)/(burst.until-burst.at);ctx.save();ctx.globalAlpha=1-q;ctx.strokeStyle=burst.kind==='burst'?'#ffb37d':'#fff4b8';ctx.lineWidth=burst.kind==='burst'?3:2;ctx.beginPath();ctx.arc(burst.x,burst.y,burst.r*(.35+.65*q),0,Math.PI*2);ctx.stroke();if(!opts.reducedMotion)for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(burst.x+Math.cos(a)*burst.r*q*.6,burst.y+Math.sin(a)*burst.r*q*.6);ctx.lineTo(burst.x+Math.cos(a)*burst.r*q,burst.y+Math.sin(a)*burst.r*q);ctx.stroke();}ctx.restore();}
+  // 개다래 열매 버프: 발밑에 옅은 초록·금빛(끝나기 2초 전부터 옅어진다)
+  const buff=catnipLeft(hs);if(buff>0){const g=ctx.createRadialGradient(p.x,p.y+14,6,p.x,p.y+14,58),a=Math.min(1,buff/2000)*(opts.reducedMotion?.5:.42+.12*Math.sin(now/180));g.addColorStop(0,`rgba(214,236,150,${a})`);g.addColorStop(1,'rgba(214,236,150,0)');ctx.fillStyle=g;ctx.fillRect(p.x-58,p.y-44,116,116);}
   // 영냥이
   const hurt = now < p.hurtUntil;
   const st = p.action !== 'idle' ? p.action : p.moving ? 'walk' : 'idle';

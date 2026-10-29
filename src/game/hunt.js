@@ -43,7 +43,7 @@ import { hunterProgress, maxHuntDepth, depthScale, huntMoonReward } from './hunt
 
 const H = TEMP.HUNT;
 const worlds = new WeakMap(); // state.hunt 객체 → 실행 중 전장(저장 안 함)
-const POWER_NAMES = { fish: '구운 생선', magnet: '수염 자석', bomb: '달빛 폭탄', chest: '별 상자' };
+const POWER_NAMES = { fish: '구운 생선', catnip: '개다래 열매', bomb: '달빛 폭탄', chest: '별 상자' };
 // 희귀 상자 룰렛 칸(월정석, 단계 보상 배율을 곱한다). 임시
 export const CHEST_WHEEL = Object.freeze([5, 8, 12, 20, 30, 50]);
 export const CHEST_FALLBACK = 25; // 올릴 무기·보조 능력이 없으면 강화 대신 더 주는 월정석(임시)
@@ -163,6 +163,12 @@ export function getHuntWorld(state) {
 
 // ── 능력치(보조 능력 반영)
 export function mods(hs) {
+  const m = baseMods(hs);
+  if (catnipLeft(hs) > 0) { m.dmg *= 1 + H.CATNIP.dmg; m.speed *= 1 + H.CATNIP.speed; }
+  return m;
+}
+export const catnipLeft = hs => Math.max(0, (hs.catnipUntil || 0) - (hs.elapsedMs || 0));
+function baseMods(hs) {
   if(hs.hunterId==='yeoni_pig'){const p=kfpPlayerStats(hs),old=hs.kfp.legacy?hs.passives:{};return {dmg:p.might,speed:p.speed*(1+.1*(old.paw||0)),area:p.area*(1+.15*(old.hat||0)),cool:p.cooldown*(1-.08*(old.bell||0)),magnet:p.magnet*(1+.3*(old.whisker||0)),crit:p.crit+.05*(old.luck||0)};}
   const p = hs.passives;
   const g = hs.gear || gearBonus();
@@ -582,9 +588,9 @@ function collect(state, w, t, m, dt) {
     } else if (it.kind === 'fish') {
       hs.hp = Math.min(hs.maxHp, hs.hp + H.HEAL_FISH);
       emit('huntPower', { kind: 'fish', label: `${POWER_NAMES.fish} · HP +${H.HEAL_FISH}` });
-    } else if (it.kind === 'magnet') {
-      for (let j = 0; j < w.drops.count; j++) if (w.drops.items[j].kind === 'gem') w.drops.items[j].magnet = true;
-      emit('huntPower', { kind: 'magnet', label: `${POWER_NAMES.magnet} · 별조각을 모두 끌어온다` });
+    } else if (it.kind === 'catnip') {
+      hs.catnipUntil = t + H.CATNIP.ms;
+      emit('huntPower', { kind: 'catnip', label: `${POWER_NAMES.catnip} · ${H.CATNIP.ms / 1000}초 공격력 +${Math.round(H.CATNIP.dmg * 100)}% · 이동 +${Math.round(H.CATNIP.speed * 100)}%` });
 
     } else if (it.kind === 'chest') queueChest(state);
   }

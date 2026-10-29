@@ -5,7 +5,7 @@ import { ENEMIES } from '../src/data/hunt-kit.js';
 import { stageDef, stageAllows, bossFor } from '../src/data/hunt-stages.js';
 import { createGame } from '../src/game/state.js';
 import { dispatch, tick } from '../src/game/engine.js';
-import { getHuntWorld, spawnEnemy, findBoss, optionsFor } from '../src/game/hunt.js';
+import { getHuntWorld, spawnEnemy, findBoss, optionsFor, mods } from '../src/game/hunt.js';
 import { skillCost, skillRank, capCost, capTier } from '../src/game/moka-armory.js';
 import { placeLock } from '../src/game/unlocks.js';
 import { hunterProgress, huntMoonReward } from '../src/game/hunt-growth.js';
@@ -324,4 +324,16 @@ test('fan·barrage 탄막에는 지나갈 빈틈이 있다', () => {
   assert.ok(bar.length <= B.slots - B.gaps * 2);
   const gaps = bar.map((a, i) => ((bar[(i + 1) % bar.length] - a) + Math.PI * 2) % (Math.PI * 2));
   assert.ok(Math.max(...gaps) >= Math.PI * 2 / B.slots * 2.5, '원형 탄막 빈틈');
+});
+
+test('개다래 열매: 주우면 정해진 시간 동안 공격력·이동 속도가 오르고 끝나면 돌아온다', () => {
+  const s = start(1); const w = getHuntWorld(s), p = w.player, C = TEMP.HUNT.CATNIP;
+  assert.ok(TEMP.HUNT.POWER_DROP.some(d => d.id === 'catnip') && !TEMP.HUNT.POWER_DROP.some(d => d.id === 'magnet'));
+  w.enemies.count = 0; const base = mods(s.hunt);
+  Object.assign(w.drops.spawn(), { kind: 'catnip', id: 'catnip', v: 0, x: p.x, y: p.y, speed: 0, magnet: false });
+  tick(s, 100, { input: { x: 0, y: 0 } });
+  const up = mods(s.hunt);
+  assert.ok(Math.abs(up.dmg - base.dmg * (1 + C.dmg)) < 1e-9 && Math.abs(up.speed - base.speed * (1 + C.speed)) < 1e-9);
+  s.hunt.elapsedMs = s.hunt.catnipUntil; // 테스트 준비: 시간 만료
+  assert.equal(mods(s.hunt).dmg, base.dmg);
 });
