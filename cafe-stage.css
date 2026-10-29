@@ -47,3 +47,26 @@ body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details b{font-size:1
  body[data-mode=prep][data-cafe-focus=true] #panel .first-day-guide p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
  body[data-mode=prep][data-cafe-focus=true] #panel .cafe-commandbar:has(~.cafe-drawer:not([hidden])) .first-day-guide{display:none}
 }
+
+/* C. 넓은 화면: 무대는 왼쪽 전체 높이, 패널은 오른쪽 기둥. 명령줄을 풀어(display:contents) 안내 → 영업 시작 → 탭 → 서랍 → 보조 줄 순서로 쌓는다.
+   서랍은 무대 위에 뜨지 않고 기둥 안 탭 내용이 된다 */
+@media(min-width:900px){
+ body[data-mode][data-cafe-focus=true] #app{display:grid;grid-template-columns:minmax(0,1fr) 320px;grid-template-rows:auto minmax(0,1fr)}
+ body[data-mode][data-cafe-focus=true] #topbar{grid-column:1/-1;grid-row:1}
+ body[data-mode][data-cafe-focus=true] #stage{grid-column:1;grid-row:2}
+ body[data-mode][data-cafe-focus=true] #panel{grid-column:2;grid-row:2;display:flex;flex-direction:column;gap:10px;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 12px calc(10px + env(safe-area-inset-bottom));background:var(--dp-ivory,#fff7ea);box-shadow:inset var(--dp,2px) 0 0 var(--dp-ivory-lo,#e9d6b9)}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-commandbar{display:contents}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-commandbar>*{flex:none;width:auto;max-width:none;margin:0}
+ body[data-mode][data-cafe-focus=true] #panel .first-day-guide{flex-direction:column;align-items:stretch;margin-inline:var(--dp,2px)}
+ body[data-mode][data-cafe-focus=true] #panel .first-day-guide button{max-width:none;width:100%}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-opening{order:1;flex-direction:column;align-items:stretch;gap:6px;padding:0}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-opening>span{display:flex;justify-content:space-between;align-items:baseline}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-start-reason{order:1}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-actions{order:2;padding-top:8px}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-actions .cafe-nav-item span{font-size:11px}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-drawer{order:3;position:static;flex:1 0 auto;width:auto;min-height:220px;max-height:none;border-radius:0}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-drawer-body{flex:1;min-height:0}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-drawer-body .customer-orders{max-height:none}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-utility-line{order:4;margin-top:auto;flex-wrap:wrap;justify-content:center}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-live-line{flex:1 0 100%;text-align:center}
+}
