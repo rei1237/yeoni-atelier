@@ -394,7 +394,7 @@ const ACTIONS = {
   'game.room.close':()=>{ui.gameRoom=false;},
   'game.install':()=>installApp(),
   'game.wake':()=>{ui.exited=false;},
-  'game.exit':()=>{if(state&&(!storageOk||!saveGame(storage,SAVE_KEY,state).ok)){toast('저장을 완료하지 못했어요. 종료 전에 저장 상태를 확인해 주세요.','bad');return;}goTitle();ui.exited=true;if(audioStatus().music)audioAction('music');if(window.opener)window.close();},
+  'game.exit':()=>{if(state&&(!storageOk||!saveGame(storage,SAVE_KEY,state).ok)){toast('저장을 완료하지 못했어요. 종료 전에 저장 상태를 확인해 주세요.','bad');return;}ui.exitSaved=!!state;goTitle();ui.exited=true;if(audioStatus().music)audioAction('music');if(window.opener)window.close();},
   'game.continue': () => {
     if(state || novelActive())return;
     const r = loadGame(storage, SAVE_KEY);

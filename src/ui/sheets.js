@@ -1,7 +1,7 @@
 import {pixelIcon,pxBtn} from './pixel-icons.js';
 import { creditsScreen } from './credits.js';
 import {titleGameRoom,gameRoomSheet} from './game-room.js';
-import {fortuneSheet} from './fortune-sheet.js';
+import {fortuneSheet,FORTUNE_SITE} from './fortune-sheet.js';
 import { ASSETS } from '../render/assets.js';
 import {hostFeeQuote} from '../game/host-fees.js';
 import {catCafeActive} from '../game/cat-cafe-rules.js';
@@ -546,7 +546,8 @@ function companionSheet(state,ui) {
 // ── 오버레이(우선순위: 확인 > 타이틀 > 사냥 결과 > 결산 > 일시정지 > 레벨업 > 만남 이벤트)
 export function overlayHtml(state, ui) {
   if(ui.gameRoom)return `<div class="dialog game-room-dialog">${gameRoomSheet('game.room.close')}</div>`;
-  if(ui.exited)return `<div class="dialog"><h2>오늘도 함께해서 고마워요</h2><p>게임과 음악을 멈췄어요. 이제 창을 닫아도 괜찮아요.</p>${btn({action:'game.wake',label:'메인 화면으로'})}</div>`;
+  // 10-29 종료 인사: 꽃돼지 연이가 배웅하고, 저장한 경우에만 저장 완료를 보여 준다
+  if(ui.exited)return `<div class="dialog exit-farewell"><h2>오늘도 함께해서 고마워요</h2><div class="exit-pig">${assetIcon('portraits/yeoni_pig')}</div><p class="exit-bubble">연이: 오늘 영업도 별 다섯 개! 푹 쉬고 내일 또 와, 꿀악!</p><p class="exit-note">${ui.exitSaved?'<b class="exit-saved">✓ 저장 완료</b>':''}게임과 음악을 멈췄어요. 이제 창을 닫아도 괜찮아요.</p>${btn({action:'game.wake',cls:'primary',label:'메인 화면으로'})}<a class="exit-fortune" href="${FORTUNE_SITE}" target="_blank" rel="noopener noreferrer">가기 전에 꿀꿀 운세에서 오늘 운세 보기 ↗</a></div>`;
   if (ui.confirm) return confirmDialog(ui.confirm);
   if (!state) return titleDialog(ui);
   if (state.mode === 'hunt' && state.hunt && state.hunt.status !== 'running') return huntResult(state);
