@@ -8,6 +8,8 @@ import { HELP_SCENES } from '../data/help.js';
 import { assetIcon } from './asset-html.js';
 import { btn, esc } from './dom.js';
 import { cellToPx } from '../render/cafe-view.js';
+import { openDemands, demandProgress, DEMAND_KINDS } from '../game/counter-demand.js';
+import { TEMP } from '../config/balance.temp.js';
 
 // 주문과 무관하게 손님이 지금 무엇을 하는지: 들어오는 중·계산·퇴장 손님을 '주문'으로 보이지 않게 한다.
 export function guestMotion(c){
@@ -75,7 +77,15 @@ export function tableBadgesHtml(state,v) {
     const urgent=visit&&waitingSatisfaction(state,visit)<55;
     const progress=cleaning?Math.min(100,100*(1-Math.max(0,t.cleanEndAt-state.shift.elapsedMs)/(t.cleanMs||1))):0;
     return `<button class="table-badge tone-${tone} ${dirty?'dirty':''} ${urgent?'urgent':''} ${c?.state==='eating'&&!dirty&&!cleaning&&multi.length<2?'enjoying':''} ${multi.length>1?'multi':''}" data-key="badge-${t.no}" data-action="${ready?'serve':dirty&&!t.cleanQueued?'clean':'table.tap'}" data-no="${t.no}"${ready?` data-item="${esc(ready.item)}"`:''} style="left:${Math.max(42,Math.min(v.w-42,p.x))}px;top:${Math.max(0,p.y-44-v.tile*.35)}px" title="${t.no}번 테이블 ${ready?MENUS[ready.menuId].short+' '+text:multi.length>1?'남은 주문 '+text:text}" aria-label="${t.no}번 테이블 ${ready?MENUS[ready.menuId].short+' '+text:multi.length>1?'남은 주문 '+text:text}"><span class="badge-pill">${ready?assetIcon('icons/'+ready.menuId):multi.length>1?`<i class="badge-icons">${[...new Set(multi.map(o=>o.menuId))].slice(0,3).map(id=>assetIcon('icons/'+id)).join('')}</i>`:order&&!motion?assetIcon('icons/'+order.menuId):''}<span>${esc(text)}</span>${cleaning?`<i class="badge-progress" style="--p:${Math.round(progress)}%" aria-hidden="true"></i>`:''}</span></button>`;
-  }).join('');
+  }).join('')+tipBadgesHtml(state,v);
+}
+// 10-29 계산대 한마디: 부탁한 손님 머리 위 말풍선을 누르면 패널을 찾지 않아도 팁을 받는다
+function tipBadgesHtml(state,v){
+ return openDemands(state).map(visit=>{
+  const c=Object.values(state.customers).find(c=>c.visitId===visit.id);if(!c)return '';
+  const d=DEMAND_KINDS[visit.demand.kind],late=demandProgress(state,visit)>=TEMP.DEMAND.goodBefore,text=late?'응대하기':'팁 받기',p=cellToPx(v,c.x+.5,c.y);
+  return `<button class="table-badge tone-tip${late?' late':''}" data-key="tip-${esc(visit.id)}" data-action="counter.respond" data-visit="${esc(visit.id)}" style="left:${Math.max(42,Math.min(v.w-42,p.x))}px;top:${Math.max(0,p.y-44-v.tile*1.1)}px" title="${esc(d.name)} ${text}" aria-label="계산대 손님 ${esc(d.name)} ${text}"><span class="badge-pill"><i aria-hidden="true">${d.icon}</i><span>${text}</span></span></button>`;
+ }).join('');
 }
 // 10-29 주문 영수증: 메뉴마다 한 줄(아이콘·이름·상태·할 일), 무대 안에 다 들어오게 놓는다.
 // 좁은 화면은 테이블과 말풍선을 가리지 않도록 테이블 위나 아래의 넓은 쪽에 가로로 펼친다
