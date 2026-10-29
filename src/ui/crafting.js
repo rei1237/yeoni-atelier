@@ -49,7 +49,7 @@ function batchProgress(s,c){return `<section class="batch-progress"><h3>${c.tabl
 export function cookStage(m,{personal,pose,phase,label}){
  const oven=m.station==='oven',row=phase==='ready'||pose?.phase==='plate'?2:pose&&pose.phase!=='prepare'?1:0;
  const sheet=personal?(imageFor('actors/'+yeoniCookSheet(m.station))?'actors/'+yeoniCookSheet(m.station):'actors/yeoni_cook'):'actors/luna_sis_cook';
- const who=personal?'연이':'루나 언니',hd=personal&&sheet!=='actors/yeoni_cook'?` hd-${oven?'bake':'drink'}`:'';
+ const who=personal?'연이':'루나 언니',hd=!personal?' hd-luna-sis':sheet!=='actors/yeoni_cook'?` hd-${oven?'bake':'drink'}`:'';
  const chef=assetStyle(sheet)?`<div class="cook-chef ${personal?'yeoni':'luna-sis'}${hd}" role="img" aria-label="${who} ${esc(label)}" style="${assetStyle(sheet)};--row:${row}"></div>`:'';
  return `<div class="craft-worktop cook-stage ${phase} ${oven?'oven':'drink'} ${personal?'by-yeoni':'by-luna-sis'}"><span class="cook-moon" aria-hidden="true"></span><div class="cook-station">${assetIcon('objects/'+(oven?'oven':'drink'))}</div>${chef}<div class="cook-dish${phase==='ready'?' done':''}">${assetIcon('icons/'+m.id)}</div><ul class="cook-ingredients" aria-label="재료">${Object.keys(m.ingredients).map(id=>`<li>${assetIcon('icons/'+id)}</li>`).join('')}</ul><p class="cook-caption"><b>${esc(who)}</b> ${esc(label)}</p></div>`;
 }

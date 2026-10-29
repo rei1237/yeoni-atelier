@@ -38,8 +38,8 @@ export function drawActor(ctx, key, o) {
   const def = actorDef(key) || ASSETS.actors.customer;
   const st = resolveState(def, o.state || 'idle');
   const base = imageFor(key);
-  // 화면 픽셀로 128px 셀보다 크게 그려지면 2배 시트로 바꾼다(데스크톱 큰 화면·확대)
-  const hd = base && (o.size / def.frame.h) * Math.abs(ctx.getTransform?.().a || 1) > 1.1 ? hdImageFor(key) : null;
+  // 화면 픽셀로 128px 셀보다 크게 그려지면 2배 시트로 바꾼다(고밀도 휴대폰·데스크톱 큰 화면·확대)
+  const hd = base && (o.size / def.frame.h) * Math.abs(ctx.getTransform?.().a || 1) > 1 ? hdImageFor(key) : null;
   const img = customerTint(hd || base, def), k = hd ? hd.width / base.width : 1;
   o={...o,actorKey:key};
   const pose=cafeIdlePose(key,o);

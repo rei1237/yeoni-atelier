@@ -1,4 +1,4 @@
-/* 요리 무대: 연이(선물)와 루나 언니(주문)가 같은 꽃·달 주방 무대를 쓴다. 버튼과 글은 가운데 정렬, 데스크톱은 2배 시트. */
+/* 요리 무대: 연이(선물)와 루나 언니(주문)가 같은 꽃·달 주방 무대를 쓴다. 버튼과 글은 가운데 정렬, 인물은 모든 화면에서 2배 시트. */
 .sheet:has(.cook-sheet){width:min(640px,100%)}
 .cook-sheet{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
 .cook-sheet>h2{position:relative;justify-content:center;width:100%;margin:2px 0 0;padding:0 44px;box-sizing:border-box}
@@ -43,6 +43,10 @@
  background-repeat:no-repeat;background-size:400% 300%;background-position:0 calc(var(--row,0) * 50%);image-rendering:auto;
  animation:cook-frames .64s steps(4) infinite;filter:drop-shadow(0 6px 5px #5a3a2233)}
 .cook-stage.ready .cook-chef{animation-duration:.96s}
+/* 요리 장면 인물은 셀보다 크게 그려져서(모바일 고밀도 화면 포함) 화면 크기와 관계없이 2배 시트를 쓴다 */
+.cook-stage .cook-chef.hd-drink{background-image:url('assets/illustrated/actors/yeoni_cook_drink_hd.webp')!important}
+.cook-stage .cook-chef.hd-bake{background-image:url('assets/illustrated/actors/yeoni_cook_bake_hd.webp')!important}
+.cook-stage .cook-chef.hd-luna-sis{background-image:url('assets/illustrated/actors/luna_sis_cook_hd.webp')!important}
 @keyframes cook-frames{from{background-position-x:0}to{background-position-x:133.333%}}
 .cook-stage .cook-dish{position:absolute;right:6%;bottom:18%;width:22%;display:flex;justify-content:center;z-index:3}
 .cook-stage .cook-dish .pixel-icon{width:100%;max-width:84px;height:84px;object-fit:contain;opacity:.3;filter:grayscale(.4);transition:opacity .4s,filter .4s}
@@ -60,8 +64,6 @@
 @media(min-width:1024px){
  .craft-worktop.cook-stage{height:300px}
  .cook-stage .cook-chef{width:240px;height:240px}
- .cook-stage .cook-chef.hd-drink{background-image:url('assets/illustrated/actors/yeoni_cook_drink_hd.webp')!important}
- .cook-stage .cook-chef.hd-bake{background-image:url('assets/illustrated/actors/yeoni_cook_bake_hd.webp')!important}
  .cook-stage .cook-station .pixel-icon{max-width:168px;height:144px}
  .cook-stage .cook-dish .pixel-icon{max-width:104px;height:104px}
  .cook-stage .cook-ingredients li{width:40px;height:40px}

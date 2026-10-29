@@ -112,7 +112,7 @@ function stageBounds(){const b=cafeBounds(state),a=state?.interior.draft&&AREAS.
 function resize() {
   const r = el.stage.getBoundingClientRect();
   document.documentElement.style.setProperty('--cafe-stage-height', `${r.height}px`);
-  dpr = Math.min(2, window.devicePixelRatio || 1);
+  dpr = Math.min(3, window.devicePixelRatio || 1); // 3배 화면 휴대폰에서도 캔버스가 늘어나 흐려지지 않게
   cssW = Math.max(1, el.stage.clientWidth); cssH = Math.max(1, el.stage.clientHeight);
   el.canvas.width = Math.round(cssW * dpr); el.canvas.height = Math.round(cssH * dpr);
   el.canvas.style.width = `${cssW}px`; el.canvas.style.height = `${cssH}px`;
