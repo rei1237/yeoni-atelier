@@ -20,7 +20,7 @@ import { bondQuestion } from '../data/bond-dialogues.js';
 import { talkCheck } from '../game/bonds.js';
 import {CAFE_LINES,PATRON_TIP_LINES,selectLine} from '../data/cafe-dialogue.js';
 import {ELDER_LOOKS} from '../data/customer-looks.js';
-import {newTalk,guestTalk,staffTalk,sayTalk,syncTalk,prepTalk} from './cafe-talk.js';
+import {newTalk,guestTalk,staffTalk,sayTalk,syncTalk,prepTalk,situationTalk,shiftSituation} from './cafe-talk.js';
 import {newCraft,mixCraft,craftHeat,craftQuality,craftShortage,deliverable} from './crafting.js';
 import {findRecipe} from '../game/recipe.js';
 import {TEMP as GAME_TEMP} from '../config/balance.temp.js';
@@ -707,7 +707,7 @@ function handleEvents(events) {
       case 'cooked': {const p=cellToPx(view,8,1.4);floater(p.x,p.y,'✧','#b07a12');}toast('한 접시 완성! 금빛 "전달하기"를 눌러 손님께 전해요.','good');break;
       case 'cleaned': if(p)floater(p.x,p.y-12,'✧ 깨끗해요','#58734e');break;
       case 'cookCancelled': toast(`조리 취소: ${ev.reason}`, 'bad'); break;
-      case 'leave': if (ev.reason === '음식을 오래 기다려 떠남' || ev.reason === '주문할 수 있는 메뉴가 없음') toast(`😣 ${ev.tableNo}번 손님: ${ev.reason}`, 'bad'); break;
+      case 'leave': if (ev.reason === '음식을 오래 기다려 떠남' || ev.reason === '주문할 수 있는 메뉴가 없음') {toast(`😣 ${ev.tableNo}번 손님: ${ev.reason}`, 'bad');if(ev.reason==='음식을 오래 기다려 떠남')situationTalk(ui.talk??=newTalk(),state,'angryLeave',performance.now(),Math.random());} break;
       case 'learned': toast(`📖 새 레시피: ${ev.name}`, 'good'); break;
       case 'discovered': ui.discovery = ev.menuId; break;
       case 'comboMiss': toast(`🤔 ${ev.hint}`, '', 2600); break;
@@ -851,6 +851,7 @@ const loop = createFrameLoop({
     stepWorldTravel(raw);
     draw(now);
     if(state?.mode==='prep'&&!ui.screen&&!ui.sheet&&!state.interior.draft&&!novelActive())prepTalk(ui.talk??=newTalk(),state,performance.now());
+    if(state?.mode==='shift'&&!ui.screen&&!ui.sheet&&!novelActive()){const k=shiftSituation(state);if(k)situationTalk(ui.talk??=newTalk(),state,k,performance.now(),Math.random());}
     if(el.talk)syncTalk(el.talk,ui.screen?null:state,view,ui.talk??=newTalk(),performance.now(),{width:cssW,height:cssH});
     render();
   },

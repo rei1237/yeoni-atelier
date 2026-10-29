@@ -4,8 +4,9 @@ import assert from 'node:assert/strict';
 import {quietShift} from './helpers.mjs';
 import {withEvents} from '../src/game/state.js';
 import {spawnCustomer} from '../src/game/cafe.js';
-import {CAFE_REPLIES} from '../src/data/cafe-dialogue.js';
-import {newTalk,guestTalk,staffTalk,stepTalk,talkPoint,sayTalk,placeBubbles,REPLY_DELAY,STAFF_GAP,TALK_MAX,TALK_MS} from '../src/ui/cafe-talk.js';
+import {CAFE_REPLIES,STAFF_SITUATIONS} from '../src/data/cafe-dialogue.js';
+import {newTalk,guestTalk,staffTalk,stepTalk,talkPoint,sayTalk,placeBubbles,situationTalk,shiftSituation,REPLY_DELAY,STAFF_GAP,SITU_GAP,TALK_MAX,TALK_MS} from '../src/ui/cafe-talk.js';
+const NAMES_OK=['yeoni','luna','luna_sis','neo'];
 const view={w:2000,h:2000,tile:40,ox:0,oy:0,scale:1};
 
 test('들어온 손님의 한마디에 연이가 이어서 답하고, 말풍선은 말한 사람 위에 뜬다',()=>{
@@ -49,4 +50,20 @@ test('겹치는 말풍선은 서로 비켜서고 화면 밖으로 나가지 않�
  for(const b of bs)assert.ok(b.l>=0&&b.r<=W&&b.t>=0&&b.b<=H,JSON.stringify(b));
  for(let i=0;i<bs.length;i++)for(let j=i+1;j<bs.length;j++){const a=bs[i],b=bs[j];assert.ok(!(a.l<b.r&&b.l<a.r&&a.t<b.b&&b.t<a.b),`${i}-${j} 겹침`);}
  assert.equal(out[0].moved,false);assert.equal(out[1].moved,true);
+});
+
+test('오래 기다리는 손님이 있으면 직원이 먼저 짚고, 같은 상황은 간격을 둔다',()=>{
+ const s=quietShift(),talk=newTalk();
+ assert.equal(shiftSituation(s),null);
+ s.tables.slice(0,2).forEach(t=>t.state='dirty');
+ assert.equal(shiftSituation(s),'dirty');
+ const {result:c}=withEvents(()=>spawnCustomer(s,{kind:'regular'})),v=s.visits[c.visitId];
+ c.state='waiting_food';s.orders.qa={id:'qa',status:'waiting',placedAt:0,menuId:'americano'};v.orderIds=['qa'];s.shift.elapsedMs=120000;
+ assert.equal(shiftSituation(s),'waitLong','급한 상황이 먼저');
+ assert.ok(situationTalk(talk,s,'waitLong',0,0));
+ const [said]=stepTalk(talk,s,10);
+ assert.ok(STAFF_SITUATIONS.waitLong.some(([w,l])=>w===said.who&&l===said.line));
+ assert.equal(situationTalk(talk,s,'waitLong',SITU_GAP-1,0),false,'같은 상황은 간격 안에 반복하지 않는다');
+ assert.ok(situationTalk(talk,s,'angryLeave',20,0),'손님이 화나서 떠나면 바로 말한다');
+ for(const lines of Object.values(STAFF_SITUATIONS))for(const [w,l] of lines){assert.ok(NAMES_OK.includes(w));assert.ok(l.split(/[.!?…]+\s*/).filter(Boolean).length<=2,l);}
 });

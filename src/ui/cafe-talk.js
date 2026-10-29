@@ -1,10 +1,11 @@
 // 카페 대화 말풍선: 말하는 사람 머리 위에 짧게 띄우고, 손님 한마디에는 연이·직원이 이어서 받아 준다.
 // 화면 연출일 뿐이라 게임 상태는 바꾸지 않는다(ui.talk에만 기록).
-import {CAFE_LINES,CAFE_REPLIES,PREP_SCENES,selectLine} from '../data/cafe-dialogue.js';
+import {CAFE_LINES,CAFE_REPLIES,PREP_SCENES,STAFF_SITUATIONS,selectLine} from '../data/cafe-dialogue.js';
+import {waitingSatisfaction} from '../game/reputation.js';
 import {cellToPx,prepSpots} from '../render/cafe-view.js';
 import {imageFor} from '../render/assets.js';
 
-export const TALK_MS=3600,TALK_MAX=2,REPLY_DELAY=1400,STAFF_GAP=9000,PREP_FIRST=2500,PREP_GAP=11000,PREP_LINE=2300;
+export const TALK_MS=3600,TALK_MAX=2,REPLY_DELAY=1400,STAFF_GAP=9000,SITU_GAP=25000,PREP_FIRST=2500,PREP_GAP=11000,PREP_LINE=2300;
 export const newTalk=()=>({items:[],queue:[],seq:0,lastStaff:-1e9,turn:0,prepTurn:0,prepAt:null});
 const NAMES={yeoni:'연이',luna:'루나',luna_sis:'루나 언니',neo:'네오'};
 const SEATED=new Set(['thinking','requesting','waiting_food','eating']);
@@ -33,6 +34,31 @@ export function staffTalk(talk,state,who,now){
   if(!state?.staff?.[who]||!CAFE_LINES[who]||busy(talk,now)||now-talk.lastStaff<STAFF_GAP)return false;
   const pool=CAFE_LINES[who];talk.turn+=1;talk.lastStaff=now;
   push(talk,{who,name:NAMES[who]||who,line:pool[talk.turn%pool.length]},now);
+  return true;
+}
+
+// 10-29 지금 직원이 짚어 줄 영업 상황(급한 것부터). 손님이 화나서 떠난 건 leave 이벤트에서 따로 부른다.
+export function shiftSituation(state){
+  if(state?.mode!=='shift')return null;
+  const guests=Object.values(state.customers||{});
+  if(guests.some(c=>c.state==='waiting_food'&&state.visits[c.visitId]&&waitingSatisfaction(state,state.visits[c.visitId])<55))return 'waitLong';
+  if(state.tray?.length&&state.tray.every(Boolean))return 'trayFull';
+  if(guests.filter(c=>c.state==='checkout').length>=3)return 'checkoutLine';
+  if((state.tables||[]).filter(t=>t.state==='dirty').length>=2)return 'dirty';
+  return null;
+}
+
+// 상황 한마디: 같은 상황은 SITU_GAP마다 한 번, 잡담 간격도 지킨다. 손님이 화나서 떠나면 바로 말한다.
+export function situationTalk(talk,state,key,now,roll=0){
+  const urgent=key==='angryLeave';
+  if(state?.mode!=='shift'||!STAFF_SITUATIONS[key]||(!urgent&&(busy(talk,now)||now-talk.lastStaff<STAFF_GAP)))return false;
+  talk.situ??={};
+  if(now-(talk.situ[key]??-1e9)<SITU_GAP)return false;
+  const lines=STAFF_SITUATIONS[key].filter(([who])=>state.staff?.[who]);
+  if(!lines.length)return false;
+  const [who,line]=lines[Math.min(lines.length-1,Math.floor(Math.max(0,roll)*lines.length))];
+  talk.situ[key]=now;talk.lastStaff=now;
+  push(talk,{who,name:NAMES[who]||who,line},now);
   return true;
 }
 
