@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import {createGame} from '../src/game/state.js';
 import {dispatch} from '../src/game/engine.js';
 import {serialize,deserialize} from '../src/core/save.js';
-import {BRANCHES,earnedRevenue,branchOffer,activeBranch,pendingBranchStory} from '../src/game/branches.js';
+import {BRANCHES,earnedRevenue,branchOffer,activeBranch,pendingBranchStory,branchLock} from '../src/game/branches.js';
+import {sheetHtml} from '../src/ui/sheets.js';
 import {pendingStory} from '../src/game/calendar.js';
 function offer(s,id){s.ledger.sales['fixture-'+id]=BRANCHES[id-1].revenue;s.ledger.story['branch:'+id]=true;}
 test('제안은 잔액이 아닌 누적 매출, 개점 확인과 비용은 한 번만',()=>{
@@ -40,4 +41,14 @@ test('후속 지점 별관은 앞 구역부터만 열리며 본점 최대 면적
   for(let n=1;n<id;n++)assert.ok(dispatch(s,{type:'expand.area',id:'branch_annex_'+n}).ok);
   assert.equal(cafeBounds(s).rows,BRANCHES[id-1].maxRows);assert.ok(validateLayout(s.interior.furniture,s.interior.areas).ok);
  }
+});
+
+test('지점 관리는 첫 지점 이야기 전까지 잠겨 보이고, 이야기를 보면 열린다', () => {
+  const s = createGame();
+  assert.ok(branchLock(s));
+  assert.match(sheetHtml(s, { sheet: { kind: 'branches' } }), /아직 닫혀 있어요/);
+  assert.match(sheetHtml(s, { sheet: { kind: 'manage' } }), /지점 이야기 뒤에 열려요/);
+  s.ledger.story['branch:2'] = true; // 테스트 준비: 청토끼의 제안을 봤다
+  assert.equal(branchLock(s), '');
+  assert.doesNotMatch(sheetHtml(s, { sheet: { kind: 'branches' } }), /아직 닫혀 있어요/);
 });

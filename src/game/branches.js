@@ -20,6 +20,8 @@ export function ensureBranches(state){
 }
 export function nextBranch(state){return BRANCHES.find(b=>!state.branches?.owned?.[b.id]&&b.id!==1)||null;}
 export function branchOffer(state){const b=nextBranch(state);return b&&earnedRevenue(state)>=b.revenue?b:null;}
+// 10-29 사용자 요청: 첫 지점 이야기(청토끼의 2호점 제안)를 보기 전에는 지점 관리를 잠가 둔다. 이미 지점을 연 저장은 열린 채로 둔다
+export function branchLock(state){if(state.ledger.story['branch:2']||Object.keys(state.branches?.owned||{}).some(id=>Number(id)>1))return '';return `누적 매출 ${BRANCHES[1].revenue.toLocaleString()}G를 넘기면 청토끼가 지점 이야기를 꺼내요`;}
 export function pendingBranchStory(state){const b=branchOffer(state);return b&&!state.ledger.story['branch:'+b.id]?'branch:'+b.id:null;}
 const canChange=state=>state.mode!=='prep'?{ok:false,reason:'영업·사냥·결산을 마치고 지점을 바꿔 주세요'}:state.interior.draft||state.outdoor?.draft?{ok:false,reason:'꾸미기 초안을 먼저 적용하거나 취소해 주세요'}:{ok:true};
 function snapshot(state){return Object.fromEntries(LOCAL.filter(k=>state[k]!==undefined).map(k=>[k,clone(state[k])]));}
