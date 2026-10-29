@@ -78,3 +78,9 @@ test('도감 이전 저장은 깬 단계로 도감·업적을 소급하고 보�
   assert.equal(b.moonstone, a.moonstone);
   assert.ok(a.moonstone > s.moonstone);
 });
+
+test('월정석 드랍은 깊은 단계일수록 확실히 많아진다', () => {
+  const at = d => huntMoonReward(1, depthScale(d, { hp: 1, dmg: 1 }, 0));
+  assert.ok(at(11) >= 3 && at(51) >= 11 && at(100) >= 20);
+  assert.ok(at(51) > at(11) * 2);
+});

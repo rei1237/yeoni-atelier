@@ -25,6 +25,8 @@ export const BOSS_TASKS = Object.freeze({
   crossx: { warn: 1400, act: 350, recover: 1700, mult: 1.3, w: 44 },
   fan: { warn: 1200, act: 200, recover: 1800, mult: .8, slots: 9, gaps: 2, arc: 1.15, speed: 190 }, // 플레이어 쪽 9칸 중 7발, 빈틈 2칸
   barrage: { warn: 1500, act: 200, recover: 2100, mult: .6, slots: 24, gaps: 3, speed: 120 },
+  // 10-29 순간 도약: range 밖에 farMs 넘게 있다가 회복 차례가 오면 플레이어 자리에 예고 원을 깔고 그 자리로 뛰어내린다(끝없는 거리 두기 파밍 방지)
+  blink: { warn: 1000, act: 300, recover: 1400, mult: 1.4, r: 110, range: 300, farMs: 1500 },
 });
 
 export const bossPhaseOf = (def, ratio) => {
@@ -74,6 +76,7 @@ function beginWarn(state, w, e, def, t) {
   e.taskPhase = 'warn'; e.taskUntil = at;
   const dmg = def.dmg * (T.mult || 1);
   if (e.task === 'charge' || e.task === 'charge2') addZone(w, { kind: 'line', x: e.x, y: e.y, x2: e.x + e.aimX * (T.dist + def.r), y2: e.y + e.aimY * (T.dist + def.r), w: def.r * 2, at, until: at, dmg: 0 });
+  else if (e.task === 'blink') { e.blinkX = p.x; e.blinkY = p.y; addZone(w, { kind: 'circle', x: p.x, y: p.y, r: T.r, at, until: at + 250, dmg }); }
   else if (e.task === 'slam') addZone(w, { kind: 'circle', x: e.x, y: e.y, r: T.r, at, until: at + 250, dmg });
   else if (e.task === 'ripple') {
     addZone(w, { kind: 'circle', x: e.x, y: e.y, r: T.r, at, until: at + 250, dmg });
@@ -121,7 +124,8 @@ function act(state, w, e, def, t, spawnMinion) {
   } else if (e.task === 'fan') {
     for (const a of fanAngles(e, T)) if (w.hostile.length < 64) w.hostile.push({ x: e.x, y: e.y, vx: Math.cos(a) * T.speed, vy: Math.sin(a) * T.speed, r: 7, dmg: def.dmg * T.mult, until: t + 4000 });
   } else if (e.task === 'stalk') e.stalkUntil = t + T.act;
-  if (['slam', 'ripple', 'cross', 'crossx', 'fault'].includes(e.task)) addBattleFx(w, { kind: 'burst', x: e.x, y: e.y, r: e.task === 'slam' || e.task === 'ripple' ? T.r : 60, at: t, until: t + 320 });
+  else if (e.task === 'blink') { addBattleFx(w, { kind: 'burst', x: e.x, y: e.y, r: def.r + 20, at: t, until: t + 240 }); e.x = e.blinkX; e.y = e.blinkY; }
+  if (['slam', 'ripple', 'blink', 'cross', 'crossx', 'fault'].includes(e.task)) addBattleFx(w, { kind: 'burst', x: e.x, y: e.y, r: e.task === 'slam' || e.task === 'ripple' ? T.r : 60, at: t, until: t + 320 });
   emit('huntEnemyAttack', { kind: 'boss', task: e.task });
 }
 
@@ -135,7 +139,11 @@ export function stepBoss(state, w, e, t, dt, spawnMinion) {
     e.phaseNo = phase; changed = phase; clearBossAttacks(w);
     e.task = null; e.leg2 = false; e.taskPhase = 'recover'; e.taskUntil = t + BOSS_TIMING.phaseRecoverMs; e.stalkUntil = 0;
   }
-  if (t >= e.taskUntil) {
+  // 멀리 달아나 있으면 회복을 끊고 순간 도약
+  const far = Math.hypot(p.x - e.x, p.y - e.y) > BOSS_TASKS.blink.range;
+  e.farMs = far ? (e.farMs || 0) + dt : 0;
+  if (e.farMs >= BOSS_TASKS.blink.farMs && e.taskPhase === 'recover') { e.farMs = 0; e.task = 'blink'; beginWarn(state, w, e, def, t); }
+  else if (t >= e.taskUntil) {
     if (e.taskPhase === 'open' || e.taskPhase === 'recover') {
       const list = tasksOf(def, e.phaseNo || 0);
       e.task = list[e.taskIdx % list.length]; e.taskIdx += 1;
