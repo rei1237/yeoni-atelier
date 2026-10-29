@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.29.3",
+  "version": "2026.10.29.4",
   "name": "연이의 아틀리에 · 두 해 빚과 무대",
   "musicTracks": 103,
-  "assetBytes": 15850422,
+  "assetBytes": 16718528,
   "channel": "production",
-  "baseCommit": "b462976a5ad85aca5ef86e31ac057e37cde0f8d4",
+  "baseCommit": "45118d29760fdd47df44495b0b717532ba2469d3",
   "newTitleArt": true
 }
