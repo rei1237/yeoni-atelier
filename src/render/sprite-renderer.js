@@ -3,7 +3,7 @@ import {cookingSockets,yeoniCookSheet} from './cooking-pose.js';
 // 캐릭터 그리기: 스프라이트 시트가 있으면 프레임을, 없으면 도형 대체를 그린다.
 // 같은 입력(상태·방향·시간)을 받으므로 시트를 넣어도 호출하는 쪽은 바뀌지 않는다.
 
-import { ASSETS, imageFor, resolveState, actorDef } from './assets.js';
+import { ASSETS, imageFor, hdImageFor, resolveState, actorDef } from './assets.js';
 import { actorSocket } from '../data/actor-sockets.js';
 
 // 카페의 대기 동작. 발 기준점은 이동하지 않고 호흡·작은 몸 기울임만 표현한다.
@@ -37,22 +37,25 @@ export function drawActor(ctx, key, o) {
   key = imageFor(dressed) ? dressed : key.split('@')[0];
   const def = actorDef(key) || ASSETS.actors.customer;
   const st = resolveState(def, o.state || 'idle');
-  const img = customerTint(imageFor(key), def);
+  const base = imageFor(key);
+  // 화면 픽셀로 128px 셀보다 크게 그려지면 2배 시트로 바꾼다(데스크톱 큰 화면·확대)
+  const hd = base && (o.size / def.frame.h) * Math.abs(ctx.getTransform?.().a || 1) > 1.1 ? hdImageFor(key) : null;
+  const img = customerTint(hd || base, def), k = hd ? hd.width / base.width : 1;
   o={...o,actorKey:key};
   const pose=cafeIdlePose(key,o);
   if (pose) {
     ctx.save();ctx.translate(o.x,o.y);ctx.rotate(pose.angle);ctx.scale(pose.scaleX,pose.scaleY);
     const body={...o,x:0,y:0,name:null};
-    if(img)drawFromSheet(ctx,def,img,st,body);
+    if(img)drawFromSheet(ctx,def,img,st,body,k);
     ctx.restore();
     if(o.name)nameTag(ctx,o.name,o.x,o.y+4+(o.nameOffsetY||0),o.size,o.tagColor);
     return;
   }
-  if (img) return drawFromSheet(ctx, def, img, st, o);
+  if (img) return drawFromSheet(ctx, def, img, st, o, k);
   // 읽는 중에는 임시 도형을 노출하지 않는다. 실제 이미지가 준비된 프레임에 그린다.
 }
 
-function drawFromSheet(ctx, def, img, st, o) {
+function drawFromSheet(ctx, def, img, st, o, k = 1) {
   const s = def.states[st];
   const row = def.stateRows[st] + (s.directional===false?0:Math.max(0, def.directions.indexOf(o.facing || 'down'))) * def.directionRows;
   const frame = (s.frameOffset || 0) + (o.animationFrame==null?Math.floor((o.t / 1000) * s.fps) % s.frames:Math.max(0,Math.min(s.frames-1,o.animationFrame)));
@@ -65,7 +68,7 @@ function drawFromSheet(ctx, def, img, st, o) {
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   if(o.flipX){ctx.save();ctx.translate(o.x,0);ctx.scale(-1,1);ctx.translate(-o.x,0);}
   if (o.flash) ctx.filter = 'brightness(3)';
-  ctx.drawImage(img, frame * def.frame.w, row * def.frame.h, def.frame.w, def.frame.h,
+  ctx.drawImage(img, frame * def.frame.w * k, row * def.frame.h * k, def.frame.w * k, def.frame.h * k,
     Math.round(o.x - def.anchor.x * scale), Math.round(o.y - def.anchor.y * scale), def.frame.w * scale, def.frame.h * scale);
   ctx.filter = 'none';
   if(o.flipX)ctx.restore();
@@ -439,7 +442,7 @@ function customerTint(image, def) {
   if(customerTints.has(cacheKey))return customerTints.get(cacheKey);
   const cv=document.createElement('canvas');cv.width=image.width;cv.height=image.height;
   const ctx=cv.getContext('2d');ctx.filter=`hue-rotate(${hue}deg)`;ctx.drawImage(image,0,0);ctx.filter='none';
-  ctx.globalCompositeOperation='destination-in';ctx.drawImage(mask,0,0);
+  ctx.globalCompositeOperation='destination-in';ctx.drawImage(mask,0,0,cv.width,cv.height);
   ctx.globalCompositeOperation='destination-over';ctx.drawImage(image,0,0);
   customerTints.set(cacheKey,cv);return cv;
 }

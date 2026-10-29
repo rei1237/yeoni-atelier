@@ -142,7 +142,7 @@ export const ASSETS=Object.freeze(Object.fromEntries([...new Set([...Object.keys
 
 // assets/manifest.json 의 ready 에 적힌 키만 불러온다. 파일이 없거나 실패하면 도형 대체로 남는다.
 const loaded = new Map(), requests = new Map();
-let available = new Set(), manifestTask;
+let available = new Set(), hdPaths = new Set(), manifestTask;
 const allEntries = () => Object.entries(ASSETS).flatMap(([g,group])=>Object.entries(group).map(([k,d])=>[`${g}/${k}`,d]));
 const definitions = new Map(allEntries());
 export const BOOT_ASSETS = ['backgrounds/title','ui/loading','actors/yeoni','actors/neo','actors/luna','actors/luna_sis','portraits/yeoni','portraits/neo','portraits/neo_cat','portraits/luna','portraits/luna_sis','backgrounds/atelier_lit','backgrounds/cafe_room','tiles/cafe_floor','tiles/cafe_wall',...allEntries().filter(([id])=>['objects/','icons/','actors/','enemies/','portraits/','talking/'].some(group=>id.startsWith(group))).map(([id])=>id)];
@@ -154,7 +154,7 @@ async function requestImage(id){
  const img=await requests.get(src);if(img)loaded.set(id,img);else requests.delete(src);return img;
 }
 export async function loadAssetImages(manifestUrl='assets/manifest.json',{keys=BOOT_ASSETS,onProgress=()=>{}}={}){
- manifestTask ||= fetch(manifestUrl).then(r=>r.ok?r.json():{ready:[]}).then(m=>{available=new Set(m.ready||[]);}).catch(()=>{});
+ manifestTask ||= fetch(manifestUrl).then(r=>r.ok?r.json():{ready:[]}).then(m=>{available=new Set(m.ready||[]);hdPaths=new Set(m.hd||[]);}).catch(()=>{});
  await manifestTask;const wanted=[...new Set(keys)].filter(id=>available.has(id));let done=0;onProgress(0,wanted.length);
  await Promise.all(wanted.map(id=>requestImage(id).finally(()=>onProgress(++done,wanted.length))));return [...loaded.keys()];
 }
@@ -162,6 +162,14 @@ export function imageFor(id){
  const key=definitions.has(id)?id:definitions.has(`actors/${id}`)?`actors/${id}`:`enemies/${id}`;
  if(!loaded.has(key)&&available.has(key))requestImage(key);
  return loaded.get(key)||null;
+}
+// 10-29 큰 화면 전용 2배 시트(manifest.hd 에 적힌 경로의 _hd.webp). 실제로 크게 그릴 때만 받고, 받기 전·실패 시에는 기본 시트를 쓴다
+const hdLoaded = new Map(), hdRequested = new Set();
+export function hdImageFor(id){
+ const key=definitions.has(id)?id:definitions.has(`actors/${id}`)?`actors/${id}`:`enemies/${id}`,d=definitions.get(key),src=d&&(d.image||d.path);
+ if(!src||!hdPaths.has(src))return null;
+ if(!hdRequested.has(src)&&typeof Image!=='undefined'){hdRequested.add(src);const img=new Image();img.onload=()=>hdLoaded.set(src,img);img.src=src.replace(/\.webp$/,'_hd.webp');}
+ return hdLoaded.get(src)||null;
 }
 export function assetLoadStatus(){return {loaded:loaded.size,requested:requests.size,available:available.size};}
 export const actorDef = key => ASSETS.actors[key] || ASSETS.enemies[key] || null;

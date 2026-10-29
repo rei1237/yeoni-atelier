@@ -518,5 +518,15 @@
     "actors/customer@look9",
     "actors/customer_seated@look9",
     "actors/customer_transition@look9"
+  ],
+  "hd": [
+    "assets/illustrated/actors/luna_idle.webp",
+    "assets/illustrated/actors/luna_sis.webp",
+    "assets/illustrated/actors/luna_sis_idle.webp",
+    "assets/illustrated/actors/neo_idle.webp",
+    "assets/illustrated/actors/yeoni.webp",
+    "assets/illustrated/actors/yeoni_cook_bake.webp",
+    "assets/illustrated/actors/yeoni_cook_drink.webp",
+    "assets/illustrated/actors/yeoni_idle.webp"
   ]
 }
