@@ -126,6 +126,8 @@ export function pendingStory(state) {
   // 첫 원정에서 돌아오면 네오의 투정 → 청토끼 환전, 그다음 윤달 공방의 첫 강화로 이어진다
   if (state.ledger.story['ev:hunt'] && !state.ledger.story['ev:return'] && state.stats.huntsCompleted >= 1) return 'ev:return';
   if (state.ledger.story['ev:return'] && !state.ledger.story['ev:forge'] && !placeLock(state, 'gear')) return 'ev:forge';
+  // 10-29 두 번째 영업을 마치면 연이가 달빛 운세 수첩을 꺼낸다(카페 수첩의 운세 화면이 열린다)
+  if (!state.ledger.story['ev:fortune'] && state.stats.shiftsCompleted >= 2) return 'ev:fortune';
   // 계절 소품: 달 이야기와 겹치지 않게 그달 중순·하순 준비 때 한 번
   if (c.part >= 1 && c.monthIdx < SEASON_MONTHS && !state.ledger.story[`season:${c.monthIdx}`]) return `season:${c.monthIdx}`;
   return pendingHanbiStory(state) || pendingBloomStory(state) || pendingBondStory(state) || pendingBranchStory(state);
@@ -176,6 +178,6 @@ export function markStory(state, id) {
   if (id === 'ev:forge' && !state.ledger.rewards['armory:first_free']) { state.ledger.rewards['armory:first_free'] = true; giftFreeEnhance(state); emit('supplyGift', { id: 'enhance', label: '윤달의 선물 · 첫 강화 1회 무료' }); }
   if (id.startsWith('rate:')) grantHikeGrowth(state, Number(id.slice(5)));
   grantEventOutfits(state, id);
-  const destination = id === 'ev:hunt' ? (placeLock(state, 'hunt') ? null : 'hunt') : id === 'ev:return' ? 'finance' : id === 'ev:forge' ? 'gear' : null;
+  const destination = id === 'ev:hunt' ? (placeLock(state, 'hunt') ? null : 'hunt') : id === 'ev:return' ? 'finance' : id === 'ev:forge' ? 'gear' : id === 'ev:fortune' ? 'fortune' : null;
   return { ok: true, ...(destination ? { destination } : {}) };
 }

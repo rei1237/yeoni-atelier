@@ -33,10 +33,11 @@ export const GUIDES = Object.freeze({
  armory:{title:'윤달의 무기 공방',image:'armory',steps:['윤달에게 월정석으로 사냥꾼별 무기·체력·줍기 범위를 강화해요. 강화에는 레벨 상한이 없어요.','모카에게 산 회복 물품은 사냥 화면의 간편 슬롯에서 써요. 모카와 인연을 쌓으면 수집 향과 방패 등 물품이 늘어나요.']},
  outfits:{title:'갈아입고 카페로',image:'outfits',steps:['함께하는 남성 동료를 고른 뒤 옷을 입어 봐요. 준비 중 입기를 누르면 저장돼요.','카페의 치비 캐릭터도 같은 옷을 입고 이동·접대해요. 의상은 외형 전용이에요.']},
  bonds:{title:'동료에게 마음 전하기',image:'bonds',steps:['위쪽 얼굴을 눌러 동료를 바꾸고 보유 음식이나 좋아하는 물건을 골라요. 구매·선물은 마지막 확인에서 실행하며, 음식과 물건을 합쳐 한 순에 한 번이에요.','동료의 성격과 고민을 듣고 세 답 중 하나를 골라요. 공감하는 답일수록 호감도가 더 올라요.','한 사람과 매 순 한 번 대화할 수 있어요. 인연 단계가 오르면 이야기와 유용한 능력이 열려요.']},
+ fortune:{title:'달빛 운세 수첩',image:'fortune',steps:['오늘의 타로 카드를 눌러 뒤집어요. 같은 날·같은 생일이면 언제 열어도 같은 카드가 나와요.','생년월일을 넣으면 사주 일간과 오늘 일진의 관계, 띠, 서양 별자리 풀이가 더해져요. 생일은 기억하기를 켰을 때만 이 기기에 남아요.','사주 여덟 글자·자미두수처럼 태어난 시간이 필요한 풀이는 아래 꿀꿀 운세 링크에서 자세히 볼 수 있어요.']},
  decorate:{title:'내 첫 공간 꾸미기',image:'interior',steps:['카페의 꾸미기 하나로 가구 구매·배치, 정원·외부, 공간 확장을 모두 해요. 아래 보유 가구 카드를 고르면 선택돼요.','바닥을 누르면 놓일 자리가 반투명하게 보여요. 추천 자리는 통로를 막지 않는 가까운 칸을 찾아 줘요. 회전으로 방향을 바꿔요.','여기에 놓기로 확정하고, 마지막에 배치 적용을 눌러야 카페에 반영돼요. 되돌리기는 확정한 배치를 한 단계씩 되돌려요.','산 가구는 바로 보관함에 들어와요. 배치를 취소해도 환불되지 않고 보관함에 남아요. 정원·외부에서는 대문에서 입구까지 길을 남겨 주세요.']},
 });
 // 새 조작 화면은 반드시 이 표와 GUIDES에 함께 등록한다.
-export const FEATURE_GUIDES=Object.freeze({worldcast:'worldcast',audio:'music',delivery:'delivery',kitchen:'recipe',craft:'cook',foodgift:'personal',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop',staffing:'staffing',branches:'branches',debt:'finance',quests:'quests',kfp:'kfp',trail:'trail'});
+export const FEATURE_GUIDES=Object.freeze({worldcast:'worldcast',audio:'music',delivery:'delivery',kitchen:'recipe',craft:'cook',foodgift:'personal',farm:'farm',hunt:'hunt',armory:'armory',outfits:'outfits',companions:'bonds',table:'serve',shop:'shop',staffing:'staffing',branches:'branches',debt:'finance',quests:'quests',kfp:'kfp',trail:'trail',fortune:'fortune'});
 export function guideForContext(s,ui){
  if(!s)return null;
  if(ui.sheet?.kind==='tutorial')return null;

@@ -31,6 +31,7 @@ import {showHelpFeedback} from './help-feedback.js';
 import { unlockAudio,setAudioScene,audioAction,sound,audioStatus,startShiftMusic } from './audio.js';
 import {tableCookingOrders} from '../game/table-cooking.js';
 import { GUIDES,guideForContext } from './tutorials.js';
+import { FORTUNE_BIRTH_KEY } from './fortune-sheet.js';
 import { btn } from './dom.js';
 import { TEMP } from '../config/balance.temp.js';
 import { createGame, personName, personDef } from '../game/state.js';
@@ -250,11 +251,15 @@ function maybeStory() {
   if (!beats) { run({ type: 'story.seen', id }, { keepQuiet: true }); return; }
   ui.sheet = null;
   const started=state;let ended=false;
-  const done = (skip=false) => {if(ended||state!==started)return;ended=true;ui.storyHold=true;try{const result=completeStory(id,cmd=>run(cmd),{skip});if(result.ok&&!result.duplicate&&result.destination==='hunt'){navigateScreen(result.entry?.ok?null:'world');ui.sheet=result.entry?.ok?null:{kind:'hunt'};ui.huntMenu='title';} if(result.ok&&!result.duplicate&&(result.destination==='finance'||result.destination==='gear'))goStoryPlace(result.destination); if (result.ok&&id.startsWith('ending:')) ui.ending = id.slice(7);}finally{ui.storyHold=false;} render(true); }; // 끝난 이야기의 행선지를 다 열 때까지 다음 이야기를 틀지 않는다
+  const done = (skip=false) => {if(ended||state!==started)return;ended=true;ui.storyHold=true;try{const result=completeStory(id,cmd=>run(cmd),{skip});if(result.ok&&!result.duplicate&&result.destination==='hunt'){navigateScreen(result.entry?.ok?null:'world');ui.sheet=result.entry?.ok?null:{kind:'hunt'};ui.huntMenu='title';} if(result.ok&&!result.duplicate&&(result.destination==='finance'||result.destination==='gear'))goStoryPlace(result.destination); if(result.ok&&!result.duplicate&&result.destination==='fortune'){loadFortuneBirth();ui.sheet={kind:'fortune'};} if (result.ok&&id.startsWith('ending:')) ui.ending = id.slice(7);}finally{ui.storyHold=false;} render(true); }; // 끝난 이야기의 행선지를 다 열 때까지 다음 이야기를 틀지 않는다
   // 이야기 속 선택지는 분위기용: 상태를 바꾸지 않고 고른 답의 박자만 잇는다. 건너뛰어도 본 것으로 친다.
   const onChoose = (cid, beat) => ({ ok: true, beats: beat?.choices?.find(c => c.id === cid)?.beats || [] });
   playNovel(beats, { onEnd:()=>done(false), onCancel:()=>done(true), onChoose });
 }
+
+// 운세 수첩의 생일은 게임 저장이 아니라 이 기기에만, 사용자가 기억하기를 켰을 때만 둔다
+function loadFortuneBirth(){try{const v=localStorage.getItem(FORTUNE_BIRTH_KEY);if(v){ui.fortuneBirth=v;ui.fortuneRemember=true;}}catch{}}
+function keepFortuneBirth(){try{if(ui.fortuneRemember&&ui.fortuneBirth)localStorage.setItem(FORTUNE_BIRTH_KEY,ui.fortuneBirth);else localStorage.removeItem(FORTUNE_BIRTH_KEY);}catch{}}
 
 // 이야기가 가리킨 마을 장소로 바로 데려간다(도착 처리는 world.arrive). 공방은 강화 탭을 연다.
 function goStoryPlace(id){
@@ -331,6 +336,7 @@ const ACTIONS = {
   'guide.next':()=>{const g=GUIDES[ui.guideId||'cook'];if((ui.guideStep||0)<g.steps.length-1)ui.guideStep=(ui.guideStep||0)+1;else finishGuide(true);},
   'guide.back':()=>{ui.guideStep=Math.max(0,(ui.guideStep||0)-1);},
   'guide.close':()=>finishGuide(),
+  'fortune.flip':()=>{ui.fortuneFlip=true;},
   'hunt.start': () => { ui.sheet = { kind: 'hunt' }; },
   'hunt.depart': async d => { if(ui.huntLoading)return;ui.huntLoading=true;const departing=state;try{const keys=[...Object.keys(ASSETS.enemies).map(id=>'enemies/'+id),'actors/neo_cat','actors/seohanbi'];await loadAssetImages(undefined,{keys});if(state!==departing||ui.sheet?.kind!=='hunt')return;if(keys.some(id=>!imageFor(id))){toast('사냥터 그림을 불러오지 못했어요. 연결을 확인하고 다시 출발해 주세요.');return;}if (run({ type: 'hunt.start', depth: n(d.depth), hunterId:ui.hunterId||'neo' }).ok) ui.sheet = null;}finally{ui.huntLoading=false;render(true);} },
   'farm.select': d => { ui.farmCrop = d.id; },
@@ -345,7 +351,7 @@ const ACTIONS = {
   'farm.expand': () => run({ type: 'farm.expand' }),
   'farm.greenhouse': () => run({ type: 'farm.greenhouse' }),
   // 화면 전용
-  'sheet.open': d => { if(d.sheet==='worldcast'&&!worldMeetingAccess(state).unlocked){toast(worldMeetingAccess(state).hint);return;} if(d.sheet==='interior'||d.sheet==='grounds'){ACTIONS['decor.open']({space:d.sheet==='grounds'?'outdoor':''});return;}if(d.sheet==='town'&&state?.mode==='shift'){toast(ISLAND_SHIFT_LOCK);return;}if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
+  'sheet.open': d => { if(d.sheet==='worldcast'&&!worldMeetingAccess(state).unlocked){toast(worldMeetingAccess(state).hint);return;} if(d.sheet==='interior'||d.sheet==='grounds'){ACTIONS['decor.open']({space:d.sheet==='grounds'?'outdoor':''});return;}if(d.sheet==='town'&&state?.mode==='shift'){toast(ISLAND_SHIFT_LOCK);return;}if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'fortune') loadFortuneBirth(); if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
   'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; maybeVisit(d.tab); },
   'sheet.close': () => { if(ui.sheet?.kind==='tutorial')finishGuide();else ui.sheet = ui.sheet?.kind==='rankup'?ui.sheet.back:null; },
   'overlay.settlement': () => {},
@@ -896,6 +902,7 @@ function showCafeLine(line,speaker,portrait='customer'){
  const now=performance.now();if(ui.chatter&&now<ui.chatter.until-1800)return;
  const hunting=state?.mode==='hunt';if(hunting&&now-(ui.lastHuntChatter||0)<8000)return;if(hunting)ui.lastHuntChatter=now;ui.chatter={line,speaker,portrait,hunting,until:now+(hunting?1800:4500)};
 }
+document.addEventListener('change',e=>{if(e.target.id==='fortune-birth'){ui.fortuneBirth=e.target.value;keepFortuneBirth();render(true);}else if(e.target.id==='fortune-remember'){ui.fortuneRemember=e.target.checked;keepFortuneBirth();render(true);}});
 document.addEventListener('change',e=>{if(e.target.id==='guide-selector'){ui.guideId=e.target.value;ui.guideStep=0;render(true);}});
 
 

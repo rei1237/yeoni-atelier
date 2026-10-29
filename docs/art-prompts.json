@@ -2212,6 +2212,13 @@
     "processing": "Original art, WebP export, alpha component isolation for individual props."
   },
   {
+    "id": "guides/fortune",
+    "tool": "composite",
+    "sourceFile": "code-destiny public/images/fortune-tea-house/result-moonlit-reading-desktop.webp + yeoni-tarot-pose-2.webp",
+    "prompt": "No new generation. A first imagegen draft (Yeoni drawn with three arms) was rejected; per user request the existing Code Destiny fortune tea house art is reused as is.",
+    "processing": "Background right crop to 498x318, Yeoni tarot pose scaled to 300px height and placed at the left edge. Composite PNG kept on D."
+  },
+  {
     "id": "guides/finance",
     "tool": "imagegen",
     "sourceFile": "D:/yeoni-qa/art/cafe-ux/finance-guide-20261028/cheongtokki-finance-guide-v2.png",

@@ -8529,6 +8529,16 @@ export const ASSET_UPDATES = {
         318
       ],
       "opaque": true
+    },
+    "fortune": {
+      "kind": "object",
+      "label": "fortune",
+      "path": "assets/illustrated/guides/fortune.webp",
+      "dimensions": [
+        498,
+        318
+      ],
+      "opaque": true
     }
   },
   "effects": {

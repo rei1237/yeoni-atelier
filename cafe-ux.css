@@ -132,3 +132,20 @@ body[data-editing=true] #panel{max-height:none;overflow:hidden;padding:0;min-wid
 @media(max-width:600px){.craft-worktop .craft-chef{top:40px;left:calc(50% - 32px)}}
 
 .cafe-decor-entry{min-width:56px;min-height:44px;white-space:nowrap}.editor-shop{min-height:44px;width:100%;margin:0 0 8px;white-space:normal}.furniture-choice small{line-height:1.45}.selected-furniture p{line-height:1.6}.decor-theme .meta span{line-height:1.6;word-break:keep-all}
+
+/* 10-29 달빛 운세 수첩: 카드 한 장과 풀이 줄. 근거 줄은 네오 몫이라 한 톤 낮춘다. */
+.fortune-date{font-size:12px;color:var(--ml-muted,#7a6670);line-height:1.6;word-break:keep-all}
+.fortune-section{padding:12px 0;border-bottom:1px solid #e4d7c5}.fortune-section h3{margin:0 0 8px;font-size:15px;color:#67415a}
+.fortune-tarot{text-align:center}
+.fortune-card{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:132px;min-height:212px;margin:4px auto 8px;padding:6px;border-radius:12px;border:1px solid #b58e67;background:#2c1d33;color:#f4e3c4;box-shadow:0 6px 18px #2c1d3340}
+.fortune-card img{width:120px;height:200px;object-fit:cover;border-radius:8px}.fortune-card>span{font-size:11px}
+button.fortune-card{position:relative}button.fortune-card>span{position:absolute;bottom:12px;left:10px;right:10px;padding:4px;border-radius:8px;background:#2c1d33cc}
+.fortune-card.is-open{background:linear-gradient(#3a2747,#241830);animation:fortune-flip .45s ease-out}.fortune-card.is-open>span{font-size:22px;color:#e8c77f}.fortune-card.is-open b{font-size:19px}.fortune-card.is-open small{font-size:11px;opacity:.8}
+@keyframes fortune-flip{from{transform:rotateY(90deg)}to{transform:none}}
+@media(prefers-reduced-motion:reduce){.fortune-card.is-open{animation:none}}
+.fortune-say{line-height:1.7;word-break:keep-all;text-align:left}.fortune-basis{font-size:12px;color:var(--ml-muted,#7a6670);line-height:1.6;word-break:keep-all;text-align:left}
+.fortune-birth{display:grid;gap:6px;font-weight:700}.fortune-birth input{min-height:44px;font-size:16px;padding:0 10px;border:1px solid #c4a47b;border-radius:10px;background:#fffaf2}
+.fortune-remember{display:flex;align-items:center;gap:8px;min-height:44px}.fortune-remember input{width:20px;height:20px}
+.fortune-row{padding:8px 0}.fortune-row+.fortune-row{border-top:1px dashed #e4d7c5}.fortune-row small{display:block;font-size:11px;color:var(--ml-muted,#7a6670)}.fortune-row b{display:block;margin:2px 0 4px;word-break:keep-all}.fortune-row p{margin:0;line-height:1.65;word-break:keep-all}
+.fortune-hint{font-size:13px;color:var(--ml-muted,#7a6670);padding:10px 0}
+.fortune-more p{line-height:1.7;word-break:keep-all}.fortune-cta{display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:8px;border-radius:12px;background:#754355;color:#fff8ed;font-weight:700;text-decoration:none}
