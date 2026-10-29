@@ -1,7 +1,9 @@
 import { btn,esc } from './dom.js';
 import { assetIcon } from './asset-html.js';
 import {firstDayStep} from '../game/first-day.js';
+import {shortIngredients} from '../game/delivery.js';
 export const GUIDES = Object.freeze({
+ restock:{title:'모카 재료 배달',image:'shop',steps:['메뉴에 쓸 재료가 모자라요. 영업 중에도 모카가 재료를 배달해 줘요.','「떨어진 재료 채우기」를 누르면 모자란 재료가 5개까지 담겨요. 커피 바·베이커리·찻집 묶음이나 ＋5로 더 담을 수 있어요.','주문 한 건마다 배달비가 붙으니 한 번에 넉넉히 담아요. 시작하기를 누르면 배달 화면이 열려요.']},
  delivery:{title:'모카 묶음 배달',image:'shop',steps:['여러 재료를 장바구니에 담고 수량을 골라요. 주문 한 건당 기본 배달비 200G가 붙고, 모카 인연 능력이 있으면 할인이 적용돼요.','재료값·배달비·총액을 확인하고 주문해요. 영업 전에 가게에서 직접 구매하면 배달비가 없어요.']},
  batch:{title:'한 테이블 함께 조리',image:'cook',steps:['한 번의 재료 준비와 타이밍으로 이 테이블의 미조리 주문들을 함께 시작해요. 이미 만드는 메뉴는 중복하지 않아요.','설비가 비어 있으면 함께 만들고, 꽉 차면 순서대로 만들어요. 전체 주문의 재료나 대기 공간이 부족하면 아무 메뉴도 시작하지 않아요.']},
  firstday:{title:'연이와 보내는 첫날',image:'cook',steps:['첫날에는 행동력 3이 있어요. 연이의 요리와 동료 대화를 따라 해 보세요. 실제 활동에 성공하면 행동력이 자동으로 줄어요.','화면 아래 첫날 안내가 다음 할 일을 알려 줘요. 준비가 끝나면 영업을 열고 주문·조리·서빙·정리를 차례로 배워요.']},
@@ -48,10 +50,12 @@ export function guideForContext(s,ui){
  if(ui.sheet?.kind==='craft'&&ui.craft?.purpose==='gift')return 'personal';
  if(ui.sheet?.kind==='town'&&ui.sheet.tab==='finance')return s.tutorials?.exchange?null:s.moonstone>0||s.tutorials?.finance?'exchange':'finance'; // 사냥에서 돌아와 월정석을 들고 오면 환전부터 알려 준다(장부 안내를 먼저 봤어도)
  if(ui.sheet?.kind==='town')return ({moka:'shop',finance:'finance',expand:'expand',luna:'shelter'})[ui.sheet.tab]||null;
+ if(ui.sheet?.kind==='delivery'&&s.tutorials?.restock)return null; // 재료 소진 안내에서 이미 배웠다
  if(ui.sheet)return FEATURE_GUIDES[ui.sheet.kind]||null;
  if(s.interior.draft)return null; // 꾸미기 화면은 화면 안 단계 안내(decor-screen.js)를 쓴다
  if(ui.screen==='world')return 'world';
  if(ui.screen==='quests')return 'quests';
+ if(['prep','shift'].includes(s.mode)&&!s.tutorials?.restock&&shortIngredients(s).length)return 'restock'; // 10-29 재료가 떨어지면 모카 배달을 알려 준다
  if(ui.cafeDrawer==='crew')return 'growth';
  return s.day===1&&s.mode==='prep'&&!s.tutorials?.firstdayintro?'firstday':null;
 }

@@ -37,6 +37,7 @@ import { TEMP } from '../config/balance.temp.js';
 import { createGame, personName, personDef } from '../game/state.js';
 import { dispatch, tick, helperAvailable, HELPERS } from '../game/engine.js';
 import { findServeTarget } from '../game/cafe.js';
+import { bundleItems } from '../game/delivery.js';
 import { getHuntWorld, paused as huntPaused } from '../game/hunt.js';
 import { preview as interiorPreview } from '../game/interior.js';
 import { furnitureCells } from '../game/space.js';
@@ -577,6 +578,8 @@ let giftRequestSeq=0;
 ACTIONS['delivery.open']=()=>{ui.deliveryCart={};ui.deliveryReturn=null;ui.deliveryRequest='delivery-'+crypto.randomUUID();ui.sheet={kind:'delivery'};};
 ACTIONS['delivery.close']=()=>{ui.sheet=ui.deliveryReturn||null;ui.deliveryReturn=null;};
 ACTIONS['delivery.qty']=d=>{ui.deliveryCart??={};const qty=Math.max(0,Math.min(99,(ui.deliveryCart[d.id]||0)+n(d.delta)));if(qty)ui.deliveryCart[d.id]=qty;else delete ui.deliveryCart[d.id];ui.deliveryRequest='delivery-'+crypto.randomUUID();};
+ACTIONS['delivery.bundle']=d=>{ui.deliveryCart??={};for(const [id,q] of Object.entries(bundleItems(state,d.id)))ui.deliveryCart[id]=Math.min(99,(ui.deliveryCart[id]||0)+q);ui.deliveryRequest='delivery-'+crypto.randomUUID();};
+ACTIONS['delivery.clear']=()=>{ui.deliveryCart={};ui.deliveryRequest='delivery-'+crypto.randomUUID();};
 ACTIONS['delivery.order']=()=>{ui.deliveryRequest??='delivery-'+crypto.randomUUID();const result=run({type:'shop.deliver',items:{...ui.deliveryCart},requestId:ui.deliveryRequest});if(result.ok){ui.deliveryCart={};ui.deliveryRequest=null;ui.sheet=ui.deliveryReturn||null;ui.deliveryReturn=null;toast('모카 배달 도착 · 재료값 '+result.base+'G + 배달비 '+result.fee+'G','good');}};
 ACTIONS['yeoni.kitchen']=()=>{ui.giftRecipient=null;ui.foodFilter='all';ui.sheet={kind:'foodgift'};};
 ACTIONS['yeoni.title']=d=>run({type:'yeoni.title',id:d.id});
@@ -796,7 +799,7 @@ function render(force = false) {
   // 잠긴 농장·공방에서는 안내를 띄우지 않는다
   const guideLocked=guide==='farm'?placeLock(state,'farm'):guide==='armory'?placeLock(state,'gear'):'';
   if(state && ui.sheet?.kind!=='tutorial' && guide && !guideLocked && (guide!=='outfits'||state.hostbar.open) && !state.tutorials?.[guide] && !novelActive()){
-    ui.guideReturn=ui.sheet||{kind:null};ui.guideId=guide;ui.guideStep=0;ui.sheet={kind:'tutorial'};
+    ui.guideReturn=ui.sheet||{kind:null};ui.guideId=guide;ui.guideStep=0;ui.guideAction=guide==='restock'?'delivery.open':null;ui.sheet={kind:'tutorial'};
   }
   const sh = sheetHtml(state, ui);
   el.sheetWrap.hidden = !sh;

@@ -166,3 +166,32 @@ body[data-mode] .music-room .music-tracks button[aria-pressed=true]{background:v
 body[data-mode] .music-room .music-tracks small{color:var(--ml-muted)}body[data-mode] .music-room .music-tracks em{color:var(--ml-rose);font-style:normal;font-weight:700}
 body[data-mode] .music-room .music-row-mark{color:var(--ml-gold)}
 body[data-mode] .music-room .music-sfx summary{color:var(--ml-ink)}body[data-mode] .music-room .music-note{color:var(--ml-muted)}
+
+/* 10-29 모카 배달: 말풍선 → 빠른 묶음 타일 → 재료 줄(−·수량·+1·+5) → 아래 고정 합계 */
+.sheet .delivery-sheet h2{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sheet .delivery-intro{display:flex;gap:10px;align-items:center;margin:4px 0 8px}
+.sheet .delivery-intro .pixel-icon{width:56px;height:60px;flex:none;object-fit:contain}
+.sheet .delivery-bubble{position:relative;flex:1;margin:0;padding:10px 12px;background:var(--dp-ivory);color:var(--dp-ink);font-size:13px;line-height:1.5;box-shadow:var(--dp-tile);word-break:keep-all}
+.sheet .delivery-alert{margin:0 0 8px;padding:8px 10px;background:#fbe7ea;color:#8c3550;font-size:12px;font-weight:700;box-shadow:inset 3px 0 0 var(--dp-rose)}
+.sheet .delivery-h{display:flex;align-items:center;justify-content:space-between;margin:14px 0 6px;font-size:14px;color:var(--dp-ink)}
+.sheet .delivery-bundles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sheet .delivery-bundles .delivery-bundle{display:grid;justify-items:start;gap:3px;min-height:84px;padding:9px 10px;margin:0;border:0;border-radius:0;background:var(--dp-ivory);color:var(--dp-ink);box-shadow:var(--dp-tile);text-align:left;white-space:normal}
+.sheet .delivery-bundle.urgent{background:#fbe7ea;box-shadow:inset 0 0 0 2px var(--dp-rose)}
+.sheet .delivery-bundle[aria-disabled=true]{opacity:.55}
+.sheet .delivery-bundle b{font-size:13px}.sheet .delivery-bundle small{font-size:12px;color:var(--ml-muted,#766170);line-height:1.4;word-break:keep-all}
+.sheet .db-icons{display:flex;gap:2px}.sheet .db-icons .pixel-icon{width:24px;height:24px;object-fit:contain}
+.sheet .delivery-clear{min-height:32px;padding:2px 10px;font-size:12px;background:transparent;border:1px solid var(--ml-line,#d9c8b1);box-shadow:none}
+.sheet .delivery-list{list-style:none;margin:0;padding:0;border-top:1px solid #e4d7c5}
+.sheet .delivery-item{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 4px;border-bottom:1px solid #e4d7c5}
+.sheet .delivery-item.picked{background:#fff3f5}
+.sheet .delivery-item>.pixel-icon{width:34px;height:34px;object-fit:contain}
+.sheet .di-name b{display:block;font-size:14px}.sheet .di-name small{display:block;font-size:12px;color:var(--ml-muted,#766170)}.sheet .di-name small.low{color:#a33a5a;font-weight:700}
+.sheet .di-qty{display:flex;align-items:center;gap:4px}
+.sheet .di-qty button{width:44px;min-width:44px;height:44px;min-height:44px;padding:0;font-size:13px;font-weight:700}
+.sheet .di-qty output{min-width:24px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums}
+.sheet .delivery-tip{margin:10px 0 0;color:var(--ml-muted,#766170)}
+.sheet .delivery-total{position:sticky;bottom:-1px;margin:12px -4px 0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--dp-ivory);box-shadow:0 -2px 0 #e4d7c5}
+.sheet .delivery-total p{display:flex;justify-content:space-between;gap:8px;margin:0 0 4px;font-size:12px}
+.sheet .delivery-total p.sum{font-size:14px;margin-bottom:8px}
+.sheet .delivery-total button{width:100%;min-height:48px}
+@media(max-width:360px){.sheet .delivery-item{grid-template-columns:28px minmax(0,1fr)}.sheet .di-qty{grid-column:1/-1;justify-content:flex-end}}

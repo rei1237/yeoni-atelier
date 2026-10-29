@@ -1,4 +1,4 @@
-import {INGREDIENTS} from '../data/menus.js';
+import {INGREDIENTS,MENUS} from '../data/menus.js';
 import {bondFx} from '../data/bonds.js';
 import {TEMP} from '../config/balance.temp.js';
 import {workShop} from './bonds.js';
@@ -18,4 +18,22 @@ export function orderDelivery(s,items,requestId){
  if(s.gold<quote.cost)return {ok:false,reason:`골드가 부족해요. 재료값 ${quote.base}G + 배달비 ${quote.fee}G = ${quote.cost}G`};
  s.gold-=quote.cost;for(const [id,n] of Object.entries(items)){s.stock[id]=(s.stock[id]||0)+n;if(id==='night_dew')s.stats.nightDewObtained+=n;}
  (s.ledger.deliveries??={})[requestId]={base:quote.base,fee:quote.fee,cost:quote.cost};workShop(s);emit('deliveryArrived',quote);return quote;
+}
+// 10-29 배운 메뉴를 한 번 만들기에도 모자란 판매 재료(배달로 채울 수 있는 것만)
+export function shortIngredients(s){
+ const need={};
+ for(const [id,on] of Object.entries(s.learned||{})){if(!on||!MENUS[id])continue;for(const [ing,n] of Object.entries(MENUS[id].ingredients)){const x=INGREDIENTS[ing];if(x&&(x.basic||x.shop)&&(s.stock[ing]||0)<n)need[ing]=true;}}
+ return Object.keys(need);
+}
+// 10-29 모카 묶음 담기. refill 은 모자란 재료를 5개까지 채운다
+export const DELIVERY_BUNDLES=Object.freeze([
+ {id:'refill',name:'떨어진 재료 채우기',items:null},
+ {id:'coffee',name:'커피 바 묶음',items:{bean:5,milk:5,sugar:5}},
+ {id:'bakery',name:'베이커리 묶음',items:{flour:5,egg:5,milk:5,sugar:5}},
+ {id:'tea',name:'찻집 묶음',items:{tea:5,sugar:5}},
+]);
+export function bundleItems(s,id){
+ const b=DELIVERY_BUNDLES.find(x=>x.id===id);if(!b)return {};
+ if(b.items)return {...b.items};
+ return Object.fromEntries(shortIngredients(s).map(ing=>[ing,Math.max(1,5-(s.stock[ing]||0))]));
 }
