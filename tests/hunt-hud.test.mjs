@@ -13,3 +13,10 @@ test('사냥 상단은 실제 체력·원정 경험치·획득량을 읽고 상�
  assert.equal(JSON.stringify(s),before);
  s.paused=true;assert.match(topbarHtml(s,{}),/사냥 계속하기/);
 });
+
+test('전체화면 단추는 지원하는 브라우저에서만 보이고, 켜진 상태를 알린다',()=>{
+ const s=createGame();s.huntUnlocked=true;assert.ok(dispatch(s,{type:'hunt.start',depth:1}).ok);
+ assert.doesNotMatch(topbarHtml(s,{}),/hunt\.fullscreen/);
+ assert.match(topbarHtml(s,{canFullscreen:true}),/data-action="hunt\.fullscreen"[^>]*aria-label="전체화면으로 보기" aria-pressed="false"/);
+ assert.match(topbarHtml(s,{canFullscreen:true,fullscreen:true}),/aria-label="전체화면 끝내기" aria-pressed="true"/);
+});

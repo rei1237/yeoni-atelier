@@ -96,6 +96,8 @@ const SPEED_KEY='yeoni-atelier.play-speed.v1';
 const savedSpeed=()=>{try{const v=Number(storage.getItem(SPEED_KEY));return [1,2,3].includes(v)?v:1;}catch{return 1;}};
 function setPlaySpeed(v){ui.playSpeed=[1,2,3].includes(v)?v:1;try{storage.setItem(SPEED_KEY,String(ui.playSpeed));}catch{}}
 const ui = { playSpeed:savedSpeed(), camera:{zoom:1,x:0,y:0}, dev: DEV, hostDemo:HOST_DEMO, speed: 1, sheet: null, confirm: null, selectedSlot: null, recruitEvent: null, combo: [], discovery: null, ending: null, storageOk, hasSave: hasSave(storage, SAVE_KEY) };
+ui.canFullscreen=!!document.fullscreenEnabled&&typeof document.documentElement.requestFullscreen==='function';
+document.addEventListener('fullscreenchange',()=>{ui.fullscreen=!!document.fullscreenElement;render(true);});
 if (DEV) document.documentElement.classList.add('dev');
 
 const el = { topbar: $('#topbar'), panel: $('#panel'), stage: $('#stage'), canvas: $('#view'), hits: $('#hits'), bubbles: $('#bubbles'), talk: $('#talk'),
@@ -339,6 +341,8 @@ const ACTIONS = {
   'guide.close':()=>finishGuide(),
   'fortune.flip':()=>{ui.fortuneFlip=true;},
   'hunt.start': () => { ui.sheet = { kind: 'hunt' }; },
+  // 10-29 사냥터 전체화면: 페이지 전체를 띄우고, 다시 누르면 창 모드로
+  'hunt.fullscreen': () => { const p=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen({navigationUI:'hide'});p?.catch?.(()=>toast('이 브라우저에서는 전체화면을 열 수 없어요.','bad')); },
   'hunt.depart': async d => { if(ui.huntLoading)return;ui.huntLoading=true;const departing=state;try{const keys=[...Object.keys(ASSETS.enemies).map(id=>'enemies/'+id),'actors/neo_cat','actors/seohanbi'];await loadAssetImages(undefined,{keys});if(state!==departing||ui.sheet?.kind!=='hunt')return;if(keys.some(id=>!imageFor(id))){toast('사냥터 그림을 불러오지 못했어요. 연결을 확인하고 다시 출발해 주세요.');return;}if (run({ type: 'hunt.start', depth: n(d.depth), hunterId:ui.hunterId||'neo' }).ok) ui.sheet = null;}finally{ui.huntLoading=false;render(true);} },
   'farm.select': d => { ui.farmCrop = d.id; },
   'farm.plot': d => { ui.farmPlot = n(d.index); },

@@ -16,3 +16,31 @@ body[data-mode=hunt] #topbar .hunt-pause:hover{background:#45405a}body[data-mode
 @media(max-height:500px) and (orientation:landscape){body[data-mode=hunt] #topbar{grid-template-columns:minmax(150px,1fr) minmax(220px,1.5fr) auto 48px;padding:5px 12px;gap:4px 12px}.hunt-identity{grid-row:1/3;grid-column:1}.hunt-vitals{grid-row:1;grid-column:2;align-self:center}.hunt-wallet{grid-row:2;grid-column:2;padding:0}.hunt-clock{grid-row:1/3;grid-column:3}.hunt-pause{grid-row:1/3;grid-column:4}.hunt-face{width:36px;height:40px}.hunt-face .pixel-icon{width:34px;height:38px}.hunt-identity b{font-size:13px}.hunt-vitals>div>div{margin-bottom:3px}.hunt-vitals meter,.hunt-vitals progress{height:5px}}
 
 .finance-host>.pixel-icon{width:72px;height:76px;object-fit:contain;flex:none;border:1px solid #ddc4a5;border-radius:12px;background:#fbf3e7}
+
+/* 10-29 전체화면 단추와 데스크톱 넓은 사냥터: 위는 한 줄 정보 띠, 아래는 한 줄 도구 띠 */
+body[data-mode=hunt] #topbar:has(.hunt-full){grid-template-columns:minmax(0,1fr) auto 48px 48px}
+body[data-mode=hunt] #topbar .hunt-full{display:grid;place-items:center;width:48px;min-height:48px;padding:0;border:1px solid #b59a73;border-radius:10px;background:#323950;color:#fff3d6;box-shadow:none;align-self:center}
+body[data-mode=hunt] #topbar .hunt-full:hover{background:#45405a}
+body[data-mode=hunt] #topbar .hunt-full[aria-pressed=true]{background:#f0cf92;color:#20263a}
+@media(min-width:900px){
+ body[data-mode=hunt] #app{max-width:none;width:100%}
+ body[data-mode=hunt] #topbar,body[data-mode=hunt] #topbar:has(.hunt-full){grid-template-columns:auto minmax(220px,1fr) auto auto 48px 48px;align-items:center;gap:0 22px;padding:10px 24px}
+ body[data-mode=hunt] #topbar>*{grid-row:1}
+ body[data-mode=hunt] .hunt-identity{grid-column:1}
+ body[data-mode=hunt] .hunt-vitals{grid-column:2;max-width:620px;gap:22px}
+ body[data-mode=hunt] .hunt-wallet{grid-column:3;padding:6px 12px;border:1px solid #57506a;border-radius:999px;background:#2a3049}
+ body[data-mode=hunt] .hunt-clock{grid-column:4}
+ body[data-mode=hunt] #topbar .hunt-pause{grid-column:5}
+ body[data-mode=hunt] #topbar .hunt-full{grid-column:6}
+ body[data-mode=hunt] #panel{max-height:none;overflow:visible;padding:10px 24px calc(10px + env(safe-area-inset-bottom))}
+ body[data-mode=hunt] .hunt-dock{grid-template-columns:minmax(260px,1fr) minmax(0,560px) auto;align-items:center;gap:8px 18px;max-width:1600px;margin:0 auto}
+ body[data-mode=hunt] .hunt-dock>.row{grid-column:1;grid-row:1;flex-wrap:nowrap;font-size:13px}
+ body[data-mode=hunt] .hunt-dock>.row b{flex-basis:auto}
+ body[data-mode=hunt] .hunt-dock>.hunt-quickslots{grid-column:2;grid-row:1}
+ body[data-mode=hunt] .hunt-dock>.hunt-quickslots>button{min-height:52px}
+ body[data-mode=hunt] .hunt-dock>.hunt-audio-controls{grid-column:3;grid-row:1}
+ body[data-mode=hunt] .hunt-dock>.hunt-petal{grid-column:3;grid-row:2}
+ body[data-mode=hunt] .hunt-dock>details,body[data-mode=hunt] .hunt-dock>.hunt-kit-details{grid-column:1/3;grid-row:2}
+ body[data-mode=hunt] .hunt-dock>small{grid-column:1/-1;grid-row:3;color:#cfc3d3}
+ body[data-mode=hunt] .toasts{top:84px}
+}
