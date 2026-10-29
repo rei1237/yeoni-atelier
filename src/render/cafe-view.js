@@ -194,12 +194,12 @@ export function drawCafe(ctx, state, v, opts = {}) {
       const map = { walk: 'walk', serve: 'serve', clean: 'clean', host: 'host', react: 'react' };
       let st = map[s.action] || 'idle';
       if (s.action === 'cook') st = 'cook'; // 루나 언니가 굽는 중
-      actors.push({ key: s.id==='neo'&&catCafeActive(state)?'neo_cat_cafe':ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, walkDistance:s.walkDistance, servicePose:s.id==='neo'&&catCafeActive(state)?null:s.servicePose?{...s.servicePose,progress:Math.max(0,Math.min(1,(state.shift.elapsedMs-s.servicePose.at)/(s.servicePose.until-s.servicePose.at)))}:null, cooking:staffCookingPose(state,s,opts.reducedMotion), closing:s.id==='neo'&&catCafeActive(state)?null:closingChore(s.id,s,state.shift.elapsedMs,shiftDuration(state),TEMP.CLOSING_MS,opts.reducedMotion), gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: s.facing, name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, carryMore: (s.carryMore||[]).map(it=>it.menuId), ...outfitLook(state, s.id) } });
+      actors.push({ key: s.id==='neo'&&catCafeActive(state)?'neo_cat_cafe':ASSETS.actors[s.id] ? s.id : 'customer', x: s.x, y: s.y, o: { state: st, walkDistance:s.walkDistance, servicePose:s.id==='neo'&&catCafeActive(state)?null:s.servicePose?{...s.servicePose,progress:Math.max(0,Math.min(1,(state.shift.elapsedMs-s.servicePose.at)/(s.servicePose.until-s.servicePose.at)))}:null, cooking:staffCookingPose(state,s,opts.reducedMotion), closing:s.id==='neo'&&catCafeActive(state)?null:closingChore(s.id,s,state.shift.elapsedMs,shiftDuration(state),TEMP.CLOSING_MS,opts.reducedMotion), gesture:s.id==='yeoni'&&state.cafeGesture&&state.shift.elapsedMs-state.cafeGesture.at<1040?{...state.cafeGesture,age:state.shift.elapsedMs-state.cafeGesture.at}:null, cleaning:s.action==='clean', facing: yeoniIdleFacing(state,s,layout), name: staffName(state, s.id), carry: s.carry ? { color: MENUS[s.carry.menuId].color,menuId:s.carry.menuId } : null, carryMore: (s.carryMore||[]).map(it=>it.menuId), ...outfitLook(state, s.id) } });
     }
     if(state.stage?.activeUntil!=null)actors.push(...stageLineup(state,actors,opts.reducedMotion));
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
     const personalJob=state.foodGifts?.job?.maker==='yeoni'?state.foodGifts.job:null,spot=prepSpots(state);
-    actors.push({ key: 'yeoni', x: spot.yeoni.x, y: spot.yeoni.y, o: { cooking:personalJob?cookingPose(personalJob,MENUS[personalJob.menuId].station,opts.reducedMotion):null,state:personalJob?'cook':'idle', facing: layout.yeoniFacing, name: '연이', ...outfitLook(state, 'yeoni') } });
+    actors.push({ key: 'yeoni', x: spot.yeoni.x, y: spot.yeoni.y, o: { cooking:personalJob?cookingPose(personalJob,MENUS[personalJob.menuId].station,opts.reducedMotion):null,state:personalJob?'cook':'idle', facing: personalJob?layout.yeoniFacing:'down', name: '연이', ...outfitLook(state, 'yeoni') } });
     for (const id of STAFF_CREW) {
       actors.push({ key: id, x: spot[id].x, y: spot[id].y, o: { state: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'cook':'idle',cooking:id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?cookingPose(state.foodGifts?.job,MENUS[state.foodGifts?.job?.menuId]?.station,opts.reducedMotion):null, facing: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'up':'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
     }
@@ -230,6 +230,15 @@ export function drawCafe(ctx, state, v, opts = {}) {
       ctx.setLineDash([]);
     }
   }
+}
+
+// 할 일 없이 선 연이는 정면(홀)을 본다. 계산 손님이 계산 자리에 섰거나 계산·인사 몸짓 중이면 상태 방향(계산대 쪽)을 쓴다. 그리는 방향만 바꾸고 상태는 그대로다.
+export function yeoniIdleFacing(state,s,layout=cafeLayout(state)){
+  if(s.id!=='yeoni'||s.path?.length||s.carry||!['idle','react'].includes(s.action||'idle'))return s.facing;
+  const g=state.cafeGesture;
+  if(g&&g.kind!=='welcome'&&state.shift.elapsedMs-g.at<1040)return s.facing;
+  const at=layout.spots.checkout;
+  return Object.values(state.customers||{}).some(c=>c.state==='checkout'&&Math.hypot(c.x-at.x-.5,c.y-at.y-.5)<.6)?s.facing:'down';
 }
 
 // 준비·정산 화면에서 서 있는 자리(칸 가운데). 준비 시간 잡담 말풍선(cafe-talk.js)도 이 자리를 기준점으로 쓴다
