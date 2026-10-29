@@ -178,8 +178,10 @@ body[data-mode=hunt] .cafe-chatter p{color:var(--night-ink)}
 .hunt-home button.on{background:#352F68;box-shadow:inset 0 0 0 1.5px var(--petal-lilac)}.hunt-home button.ghost{background:transparent;box-shadow:none}
 .hunt-home .card{background:#1B2144;border:1px solid #D9B26A66}.hunt-home progress,.hunt-home input[type=range]{accent-color:var(--moon-gold)}
 .hh-top{display:flex;justify-content:flex-end;min-height:44px}
-.hh-logo{text-align:center;margin-top:-30px}.hh-logo small{display:block;color:var(--petal-rose);letter-spacing:.32em;font-size:12px;font-weight:700}
-.hh-logo h2{display:block;text-align:center;font-size:34px;letter-spacing:.14em;font-weight:800;margin:6px 0 2px;text-shadow:0 0 18px #D9B26A66}
+.hh-logo{text-align:center;margin-top:-30px}.hh-logo small{display:block;color:#F6C9D6;letter-spacing:.32em;font-size:12px;font-weight:800;text-shadow:0 1px 0 #120F2A}
+/* 남색 밤하늘 위 제목: 달빛 금색 글자 + 또렷한 짙은 외곽선(번짐 그림자만 두면 어둡고 흐려 보였다) */
+.hh-logo h2{display:block;text-align:center;font-size:34px;letter-spacing:.14em;font-weight:800;margin:6px 0 2px;color:#FFE9B0;background:linear-gradient(180deg,#FFFBEF 0%,#FFE7A6 52%,#E9B45E 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 0 #14112E) drop-shadow(0 0 1px #14112E) drop-shadow(0 0 14px #F2C46A59)}
+@media (forced-colors:active){.hh-logo h2{-webkit-text-fill-color:CanvasText;background:none;filter:none}}
 .hh-logo .night-orn{display:block;width:200px;height:25px;margin:0 auto}.hh-logo p{font-size:13px;color:#D8D0E6;margin:6px 0 0}
 .hh-hero{width:150px;height:150px;margin:14px auto 8px;border-radius:50%;background:radial-gradient(circle at 42% 38%,#3A4380,#161B38 70%);box-shadow:0 0 0 1.5px var(--moon-gold),-6px -4px 0 1px #E6E9F566,0 0 40px #B9A6E044;overflow:hidden;display:grid;place-items:end center}
 .hh-hero canvas{width:96px;height:144px}
