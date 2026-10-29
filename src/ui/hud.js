@@ -51,7 +51,7 @@ import { debtStage, recruitView } from '../game/economy.js';
 import { preview as interiorPreview } from '../game/interior.js';
 import { cellToPx } from '../render/cafe-view.js';
 import { btn, esc } from './dom.js';
-import { guestMotion } from './table-ui.js';
+import { guestMotion, orderChipsHtml } from './table-ui.js';
 
 const won = n => n === 100_000_000 ? '1억 골드' : `${Math.floor(n).toLocaleString('ko-KR')}G`;
 
@@ -296,14 +296,14 @@ function customerOrders(state){
  const rows=tidy+Object.values(state.customers).map(c=>{
   const v=state.visits[c.visitId];if(!v||c.state==='leaving')return '';
   const pending=v.orderIds.map(id=>state.orders[id]).filter(o=>o&&['waiting','assigned'].includes(o.status));
-  const order=pending.find(o=>o.status==='waiting')||pending[0], menu=MENUS[order?.menuId];
-  const counts={};for(const o of v.orderIds.map(id=>state.orders[id]).filter(Boolean))counts[o.menuId]=(counts[o.menuId]||0)+1;
-  const items=Object.entries(counts).map(([id,n])=>`${MENUS[id].short}${n>1?' ×'+n:''}`).join(' · ');
+  const order=pending.find(o=>o.status==='waiting')||pending[0];
+  // 10-29 주문 영수증: 메뉴 이름을 한 줄로 이어 붙이면 잘리므로 메뉴마다 상태 칩으로 다 보여 준다
+  const chips=orderChipsHtml(state,v),items=v.orderIds.map(id=>state.orders[id]).filter(o=>o&&o.status!=='cancelled').map(o=>MENUS[o.menuId].short).join(' · ');
   const job=order&&Object.values(state.stations).flatMap(s=>stationJobs(s)).find(j=>j&&j.orderId===order.id);
   const tray=order&&state.tray.some(it=>it?.menuId===order.menuId&&!it.reservedFor&&(!it.orderId||it.orderId===order.id)), help=v.help?.some(h=>h.status==='open');
   const score=waitingSatisfaction(state,v),mood=score>=80?'여유':score>=55?'기다림':'서둘러요';
   const status=help?'도움 요청':c.state==='checkout'?guestMotion(c):job?'조리 중':tray?'완성 · 전달하기':order?.status==='assigned'?'가져가는 중':order?'주문 · 만들기':c.state==='eating'?'맛있게 먹는 중':c.state==='requesting'?'지명 요청':c.state==='entering'?'자리로 안내 중':'메뉴 고르는 중';
-  return btn({action:help?'table.tap':order?.status==='waiting'&&!job?'order.quick':'table.tap',args:{id:order?.id||'',no:c.tableNo,key:'order-'+c.id},disabled:c.tableNo===0&&(!order||!!job),cls:'customer-order',title:`${c.tableNo?c.tableNo+'번':'포장'} · ${items||status} · ${status}`,label:`${menu?assetIcon('icons/'+menu.id):'<span class="order-thinking" aria-hidden="true">…</span>'}<span class="order-content"><b>${v.kind==='takeaway'?'포장':`${c.tableNo}번`} · ${esc(items||status)}</b><small>${esc(CUSTOMER_WEALTH[v.wealthId]?.name||'손님')} · ${status}</small>${pending.length?`<span class="patience ${score<55?'urgent':''}"><meter min="0" max="100" value="${score}" aria-label="손님 만족도 ${score}점"></meter><small>${mood}</small></span>`:''}</span>`});
+  return btn({action:help?'table.tap':order?.status==='waiting'&&!job?'order.quick':'table.tap',args:{id:order?.id||'',no:c.tableNo,key:'order-'+c.id},disabled:c.tableNo===0&&(!order||!!job),cls:'customer-order',title:`${c.tableNo?c.tableNo+'번':'포장'} · ${items||status} · ${status}`,label:`<span class="order-no" aria-hidden="true">${v.kind==='takeaway'?'포장':c.tableNo}</span><span class="order-content"><b>${v.kind==='takeaway'?'포장':`${c.tableNo}번`} · ${esc(CUSTOMER_WEALTH[v.wealthId]?.name||'손님')}</b>${chips?`<span class="order-chips">${chips}</span>`:''}<small>${status}</small>${pending.length?`<span class="patience ${score<55?'urgent':''}"><meter min="0" max="100" value="${score}" aria-label="손님 만족도 ${score}점"></meter><small>${mood}</small></span>`:''}</span>`});
  }).join('');
  return `<div class="customer-orders" aria-label="손님 주문 현황">${rows||'<p class="tray-guide">곧 첫 손님이 찾아와요. 재료와 주방을 준비해 주세요.</p>'}</div>`;
 }

@@ -4,10 +4,10 @@ import {createGame} from '../src/game/state.js';
 import {dispatch,tick} from '../src/game/engine.js';
 import {serialize,deserialize} from '../src/core/save.js';
 import {quietShift,seat} from './helpers.mjs';
-import {spawnCustomer} from '../src/game/cafe.js';
+import {spawnCustomer,placeOrder} from '../src/game/cafe.js';
 import {customerLook} from '../src/data/customer-looks.js';
 import {worldScreenHtml} from '../src/ui/world-screen.js';
-import {tableBadgesHtml,tablePopHtml} from '../src/ui/table-ui.js';
+import {tableBadgesHtml,tablePopHtml,orderChipsHtml} from '../src/ui/table-ui.js';
 import {panelHtml,automationChips} from '../src/ui/hud.js';
 import {computeView} from '../src/render/cafe-view.js';
 
@@ -34,6 +34,19 @@ test('테이블 정리·주문·서빙 행동이 실제 상태에 맞게 노출�
  const o=s.orders[s.visits[guest.vid].orderIds[0]];assert.ok(o);
  assert.match(tablePopHtml(s,v,{tablePop:{no:guest.tableNo}}),/data-action="order.quick"/);
  s.tray[0]={id:'qa-dish',menuId:o.menuId};assert.match(tablePopHtml(s,v,{tablePop:{no:guest.tableNo}}),/data-action="serve"/);
+});
+test('한 손님이 여러 개 주문해도 팝오버·말풍선·주문 칩에 전부 상태별로 보인다',()=>{
+ const s=quietShift(),guest=seat(s,{kind:'regular'}),visit=s.visits[guest.vid];
+ const os=['fortune_latte','yeoni_rose_mille','yeoni_garden_quiche','yeoni_garden_quiche','americano'].map(id=>placeOrder(s,visit,id));
+ os[0].status='served';os[1].status='assigned';
+ for(const [w,h] of [[390,500],[1280,640]]){
+  const v=computeView(w,h),pop=tablePopHtml(s,v,{tablePop:{no:guest.tableNo}});
+  assert.equal((pop.match(/<li class="table-order/g)||[]).length,5);assert.match(pop,/남은 주문 4 \/ 5/);
+  assert.match(pop,/st-done/);assert.match(pop,/st-carry/);assert.equal((pop.match(/data-action="order.quick"/g)||[]).length,3);
+  assert.ok(Number(pop.match(/max-height:(\d+)px/)[1])<=v.h,'팝오버는 무대 높이를 넘지 않는다');
+  assert.match(tableBadgesHtml(s,v),new RegExp(`data-no="${guest.tableNo}"[^>]*aria-label="[^"]*남은 주문 4개"`));
+ }
+ const chips=orderChipsHtml(s,visit);assert.equal((chips.match(/class="order-chip/g)||[]).length,4);assert.match(chips,/×2/);assert.match(chips,/st-done/);
 });
 test('주방 설비는 한 번만 나오고 잠긴 자동화에는 인연 조건이 있다',()=>{
  const s=quietShift();assert.equal((panelHtml(s,{selectedSlot:null}).match(/class="station-dock"/g)||[]).length,1);

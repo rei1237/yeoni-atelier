@@ -95,3 +95,37 @@ body[data-mode=hunt]:has(#sheet-wrap:not([hidden])) .toasts{top:10px}
 .demand-desk.late .demand-cta{background:#fff;color:#79394c;box-shadow:inset 0 0 0 1.5px #e0b8c3}
 .demand-desk.late .demand-meter{background:linear-gradient(90deg,#c9b9a6 var(--left,0%),#efe7dc var(--left,0%))}
 .cafe-drawer .demand-desk{margin:8px 0}
+/* 10-29 주문 영수증: 메뉴마다 상태 칩(만들기 금색·조리 점선·완성 세이지·운반 라벤더·다 나감 흐리게) */
+.order-chips{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 3px}
+.order-chip{--oc:#d9b26a;display:inline-flex;align-items:center;gap:3px;max-width:100%;min-height:22px;padding:1px 8px 1px 3px;box-sizing:border-box;border:1.5px solid var(--oc);border-radius:999px;background:#fffaf3;color:#3b2a24;font-size:11px;font-weight:700;line-height:1.2;letter-spacing:-.01em;white-space:nowrap}
+.order-chip>span{overflow:hidden;text-overflow:ellipsis}
+.customer-order .order-chip .pixel-icon,.order-chip .pixel-icon{width:18px;height:18px;flex:none;margin:0}
+.order-chip.st-cook{--oc:#d7c3a7;border-style:dashed;color:#76665c}
+.order-chip.st-ready{--oc:#8fae86;background:#eef5ea;color:#42674e}
+.order-chip.st-carry{--oc:#c9b9d8;color:#5c4f6b}
+.order-chip.st-done{--oc:#e4d8c6;color:#9a897c;opacity:.75}.order-chip.st-done>span::before{content:'✓ '}
+.customer-orders .customer-order{height:auto;min-height:58px;align-items:flex-start;gap:9px;padding:7px 10px}
+.customer-order .order-no{display:grid;place-items:center;flex:none;width:30px;height:30px;margin-top:1px;border-radius:50%;background:#c9b08a;color:#fff;font-size:13px;font-weight:800;box-shadow:0 0 0 2px #fffaf3,0 2px 5px #4a2c241f}
+.customer-order .order-content b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 팝오버: 높이는 무대 안 남은 공간까지(인라인 max-height), 한 번에 만들기는 아래에 붙어 있다 */
+.table-pop.has-orders::after{display:none}
+.table-pop header .pop-count{margin:0 0 0 8px;color:#8a7466;font-size:11.5px;font-weight:700;white-space:nowrap}
+.table-pop .pop-guest{margin:0 0 4px;color:#6b574b;font-size:12px}
+.table-pop .pop-ticket{display:grid;gap:4px;margin:6px 0 0;padding:0;list-style:none}
+.table-pop .pop-ticket.two-col{grid-template-columns:repeat(2,minmax(0,1fr))}
+.table-pop .table-order{display:flex;flex-wrap:nowrap;align-items:center;gap:6px;min-height:44px;margin:0;padding:2px 4px 2px 6px;box-sizing:border-box}
+.table-pop .table-order>span{flex:1;min-width:0;overflow:hidden;font-size:12.5px;font-weight:700;white-space:nowrap;text-overflow:ellipsis}
+.table-pop .table-order .pixel-icon{width:28px;height:28px;flex:none}
+.table-pop .table-order button{flex:none;min-height:40px;padding:0 12px;font-size:12px}
+.table-pop .table-order small{flex:none;padding-right:6px;color:#76665c;font-size:11.5px;line-height:1.3;white-space:nowrap}
+.table-pop .table-order.st-ready{background:#f3f8ef;box-shadow:inset 0 0 0 1.5px #8fae86}
+.table-pop .table-order.st-cook small{color:#a07a2e}
+.table-pop .table-order.st-done{opacity:.62}
+.table-pop .pop-actions{position:sticky;bottom:-8px;margin:6px -12px -8px;padding:8px 12px;background:linear-gradient(180deg,#fff5ec00,#fff5ec 28%)}
+.table-pop .pop-actions button{width:100%;min-height:44px;border-radius:999px}
+@media(max-width:560px){.table-pop .pop-ticket.two-col .table-order button{padding:0 10px}.table-pop .pop-ticket.two-col .table-order small{padding-right:4px;font-size:11px}}
+/* 테이블 말풍선: 남은 주문이 둘 이상이면 아이콘을 겹쳐 늘어놓고 개수 */
+.table-badge.multi .badge-pill{padding-left:6px}
+.table-badge .badge-icons{display:inline-flex;align-items:center;flex:none}
+.table-badge .badge-icons .pixel-icon{margin:0 0 0 -7px}.table-badge .badge-icons .pixel-icon:first-child{margin-left:0}
+.table-badge.multi .badge-icons .pixel-icon{display:block;width:16px;height:16px;border-radius:50%;background:#fffaf3;box-shadow:0 0 0 1.5px #fffaf3}
