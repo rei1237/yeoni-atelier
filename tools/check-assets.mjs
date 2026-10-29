@@ -55,7 +55,8 @@ async function checkFolder(relative) {
  }
 }
 await checkFolder('assets/');
-if(folderBytes>=20_000_000)errors.push('assets/ 전체 20MB 예산 초과: '+folderBytes+'바이트');
+// 10-29 사용자 결정: 큰 화면 2배 배우 시트(_hd)를 모두 싣도록 assets/ 전체 45MB. 휴대폰은 _hd 를 받지 않는다
+if(folderBytes>=45_000_000)errors.push('assets/ 전체 45MB 예산 초과: '+folderBytes+'바이트');
 console.log('등록 에셋 '+count+'/'+manifest.ready.length+' · 런타임 '+totalBytes+'바이트 ('+(totalBytes/1e6).toFixed(2)+'MB)');
 console.log('로컬 보존 포함 '+localFiles+'파일 · '+localBytes+'바이트');
 console.log('배포 assets/ 전체 '+folderFiles+'파일 · '+folderBytes+'바이트 ('+(folderBytes/1e6).toFixed(2)+'MB)');

@@ -88,7 +88,7 @@ def build(item, limit):
             hd = r[1] if ok else cell.resize((fw*K, fh*K), Image.Resampling.LANCZOS)
             out.paste(hd, (x*fw*K, y*fh*K)); report.append(round(r[0], 1) if r else None)
     good = sum(1 for e in report if e is not None and e <= limit)
-    # 맞은 셀이 절반도 안 되면 늘린 그림뿐이라 내보내지 않는다. 2배 시트는 원본의 약 4배라 품질 82로 assets/ 20MB 예산을 지킨다
+    # 맞은 셀이 절반도 안 되면 늘린 그림뿐이라 내보내지 않는다. 2배 시트는 원본의 약 4배라 품질 82로 assets/ 45MB 예산(10-29)을 지킨다
     if good*2 >= len(report): out.save(path.with_name(key+'_hd.webp'), 'WEBP', quality=82, method=6)
     return {'id': item['id'], 'cells': len(report), 'matched': good, 'errors': report}
 
