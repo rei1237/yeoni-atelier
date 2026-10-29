@@ -3979,19 +3979,46 @@
     "tool": "built-in image_gen",
     "prompt": "Keep Yeoni and the moonlit floral cafe game-room composition. Revise Neo to official profile: silver-white hair, icy blue eyes, reserved smile, earrings, black inner shirt and white patterned jacket with straps and chains. Both seated holding controllers. No lettering or logos.",
     "source": "Official Neo profile supplied by user: D:/CodeDestiny-Build/네오 인간 프로필1.png",
-    "export": "640x360 WebP quality50; original saved in chat outputs"
+    "export": "640x360 WebP quality50; original saved in chat outputs",
+    "pixelRedraw": {
+      "date": "2026-10-29",
+      "why": "게임방·메인 화면 2D 도트 통일(사용자 요청)",
+      "tool": "codex exec built-in image_gen",
+      "prompt": "Redraw the FIRST attached image (the cozy moonlit floral cafe game room) as premium 2D pixel art for a cozy cafe management game, keeping the same composition: Yeoni on the left and Neo on the right, sitting side by side on a green velvet sofa, both holding game controllers, a moonlit night window with town silhouette behind, warm lamp at left, roses and vines, a small tea set on a table at right.\nYeoni (see the third attached image): young woman with very long wavy pink hair, pink flower hair ornament, warm brown eyes, cream floral dress, bright happy smile.\nNeo (see the second attached image): human young man with silver-white hair, icy blue eyes, gentle reserved smile, earrings, black inner shirt and white patterned jacket with straps and chains. He is a HUMAN man, not an animal. He sits relaxed and glances warmly toward Yeoni while playing.\nStyle: hand-placed pixel art like a high quality 16-bit era console game scene, crisp square pixels on a clear pixel grid about 320x180 logical resolution, limited warm palette (rose, cream, gold, sage green, deep navy night), clean dark outlines, dithering for lamp glow and moonlight, no blur, no anti-aliased painterly brush strokes, no photographic detail.\nWide 16:9 landscape framing, both characters fully readable from head to knees. No text, no letters, no logos, no UI, no watermark.",
+      "reference": "D:/yeoni-qa/art/pixel-v1/ref-game-room-original.png; D:/CodeDestiny-Build/네오 인간 프로필1.png; D:/CodeDestiny-Build/연이 프로필1.png",
+      "original": "D:/yeoni-qa/art/pixel-v1/game-room-pixel-1.png",
+      "export": "16:9 가운데 자르기 → LANCZOS 축소 → WebP q78"
+    }
   },
   {
     "id": "ui/game_flying",
     "tool": "built-in image_gen",
     "prompt": "Official pink lotus flower pig with lavender scarf flying toward golden lotus between moonlit garden towers. Premium painted game card, no text.",
-    "reference": "D:/CodeDestiny-Build/연이 프로필1.png"
+    "reference": "D:/CodeDestiny-Build/연이 프로필1.png",
+    "pixelRedraw": {
+      "date": "2026-10-29",
+      "why": "게임방·메인 화면 2D 도트 통일(사용자 요청)",
+      "tool": "codex exec built-in image_gen",
+      "prompt": "Redraw the attached card illustration as premium 2D pixel art, keeping the same subject and composition: a round cute pink lotus pig with a lavender scarf and a pink lotus flower on its head, flying happily through a moonlit garden between glowing towers toward a golden lotus, with sparkling magic trails.\nStyle: high quality 16-bit era console game pixel art, crisp square pixels on a clear grid about 240x135 logical resolution, limited palette (pink, lavender, gold, deep navy night), clean dark outlines, dithering, no blur, no painterly strokes.\nWide 16:9 landscape. No text, no letters, no logos, no UI, no watermark.",
+      "reference": "D:/yeoni-qa/art/pixel-v1/ref-game-flying-original.png",
+      "original": "D:/yeoni-qa/art/pixel-v1/game-flying-pixel-1.png",
+      "export": "16:9 가운데 자르기 → LANCZOS 축소 → WebP q78"
+    }
   },
   {
     "id": "ui/game_killer",
     "tool": "built-in image_gen",
     "prompt": "New official rounded pink lotus pig with purple scarf and wood-stock cartoon gun, no cigarette. Original blue zombie rabbits and abandoned moonlit city. No old flat pig design.",
-    "reference": "D:/CodeDestiny-Build/연이 프로필1.png; original blue zombie rabbits only"
+    "reference": "D:/CodeDestiny-Build/연이 프로필1.png; original blue zombie rabbits only",
+    "pixelRedraw": {
+      "date": "2026-10-29",
+      "why": "게임방·메인 화면 2D 도트 통일(사용자 요청)",
+      "tool": "codex exec built-in image_gen",
+      "prompt": "Redraw the attached card illustration as premium 2D pixel art, keeping the same subject and composition: a round cute pink lotus pig with a purple scarf and a pink lotus flower on its head, holding a cartoon wood-stock toy gun, in an abandoned moonlit city at night with blue cartoon zombie rabbits behind. Playful, not gory.\nStyle: high quality 16-bit era console game pixel art, crisp square pixels on a clear grid about 240x135 logical resolution, limited palette (pink, lavender, gold, deep blue night), clean dark outlines, dithering, no blur, no painterly strokes.\nWide 16:9 landscape. No text, no letters, no logos, no UI, no watermark.",
+      "reference": "D:/yeoni-qa/art/pixel-v1/ref-game-killer-original.png",
+      "original": "D:/yeoni-qa/art/pixel-v1/game-killer-pixel-1.png",
+      "export": "16:9 가운데 자르기 → LANCZOS 축소 → WebP q78"
+    }
   },
   {
     "id": "actors/luna_sis_close",
