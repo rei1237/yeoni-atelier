@@ -3,6 +3,7 @@ import { esc, btn } from './dom.js';
 import { won } from './hud.js';
 import { assetIcon } from './asset-html.js';
 import { personName } from '../game/state.js';
+import { PEOPLE } from '../data/companions.js';
 import { dateLabel, isEnded, totalTurns } from '../game/calendar.js';
 import { TEMP } from '../config/balance.temp.js';
 
@@ -22,14 +23,22 @@ export function settlementView(state) {
   const grade = rate == null ? 'quiet' : rate >= .95 ? 'perfect' : rate >= .8 ? 'great' : rate >= .6 ? 'good' : 'tough';
   const past = Object.values(state.ledger.settlements).filter(o => o.shiftId !== s.shiftId);
   const best = past.length > 0 && s.result > 0 && past.every(o => s.result > o.result);
-  const crew = Object.entries(s.crew || {}).map(([id, jobs]) => ({ id, jobs })).sort((a, b) => b.jobs - a.jobs);
-  const mvp = crew.length > 1 && crew[0].jobs > crew[1].jobs ? crew[0].id : null;
+  // 10-29 MVP는 분야별: 홀(서빙·정리)·주방(굽기)·접대에서 가장 많이 한 사람. 같은 건수면 그 분야는 비운다
+  const kitchen = s.kitchen || {}, hosted = {};
+  for (const h of s.hostings || []) hosted[h.nominee] = (hosted[h.nominee] || 0) + 1;
+  const crew = Object.entries(s.crew || {}).map(([id, jobs]) => PEOPLE[id]?.work === 'baker' ? { id, field: 'kitchen', n: kitchen[id] ?? 0 } : { id, field: 'hall', n: jobs });
+  const mvps = { hall: topOf(crew.filter(c => c.field === 'hall')), kitchen: topOf(crew.filter(c => c.field === 'kitchen')), host: topOf(Object.entries(hosted).map(([id, n]) => ({ id, n }))) };
+  for (const c of crew) { c.hosted = hosted[c.id] || 0; c.mvp = Object.keys(mvps).filter(f => mvps[f] === c.id); }
+  crew.sort((a, b) => b.mvp.length - a.mvp.length || (a.field === 'hall' ? 0 : 1) - (b.field === 'hall' ? 0 : 1) || b.n - a.n);
   const tips = s.baseTips + s.feverTips + (s.stageTips || 0), income = s.sales + (s.hostFees || 0) + tips;
   const monthEnd = (s.payroll?.closed ? s.payroll.paid : 0) + (s.loanInterest?.due ? s.loanInterest.paid : 0) + (s.interest?.due ? s.interest.paid : 0);
   const line = best ? '오늘이 우리 카페 최고 기록이야! 별자리가 다 같이 웃어 준 날이네, 다들 고마워.' : past.length === 0 ? '우리 카페 첫 영업 끝! 첫 점괘처럼 좋은 시작이야, 같이 해 줘서 고마워.' : GRADES[grade].line;
-  return { rate, grade, ...GRADES[grade], best, first: past.length === 0, crew, mvp, tips, income, monthEnd, line };
+  return { rate, grade, ...GRADES[grade], best, first: past.length === 0, crew, mvps, tips, income, monthEnd, line };
 }
 
+const topOf = list => { const [a, b] = [...list].sort((x, y) => y.n - x.n); return a && a.n > 0 && (!b || a.n > b.n) ? a.id : null; };
+const FIELD = { hall: '홀', kitchen: '주방', host: '접대' };
+const mateWork = c => `${c.field === 'kitchen' ? `주방 ${c.n}접시` : `홀 일 ${c.n}건`}${c.hosted ? ` · 접대 ${c.hosted}회` : ''}`;
 const signed = n => `${n >= 0 ? '+' : '−'}${won(Math.abs(n))}`;
 const pct = (n, of) => of > 0 ? Math.max(0, Math.min(100, n / of * 100)).toFixed(1) : 0;
 
@@ -52,7 +61,7 @@ export function settlementScreen(state) {
     ['🍂', '놓친 주문', `${s.lostOrders}건`],
   ].map(([icon, label, value], i) => `<div class="settle-tile" style="--d:${i}"><i aria-hidden="true">${icon}</i><small>${label}</small><b>${value}</b></div>`).join('');
   const crew = v.crew.length
-    ? `<section class="settle-crew" aria-label="오늘 함께한 동료"><h3>오늘 함께한 동료</h3><div>${v.crew.map(c => `<div class="settle-mate${c.id === v.mvp ? ' mvp' : ''}">${assetIcon(`portraits/${c.id}`, `<span class="settle-initial">${esc(personName(state, c.id).slice(0, 1))}</span>`)}<b>${esc(personName(state, c.id))}</b><small>홀 일 ${c.jobs}건</small>${c.id === v.mvp ? '<em>오늘의 MVP</em>' : ''}</div>`).join('')}</div></section>`
+    ? `<section class="settle-crew" aria-label="오늘 함께한 동료"><h3>오늘 함께한 동료</h3><div>${v.crew.map(c => `<div class="settle-mate${c.mvp.length ? ' mvp' : ''}">${assetIcon(`portraits/${c.id}`, `<span class="settle-initial">${esc(personName(state, c.id).slice(0, 1))}</span>`)}<b>${esc(personName(state, c.id))}</b><small>${mateWork(c)}</small>${c.mvp.length ? `<em>${c.mvp.map(f => FIELD[f]).join('·')} MVP</em>` : ''}</div>`).join('')}</div></section>`
     : '';
   const hostings = s.hostings.length
     ? `<div class="list">${s.hostings.map(h => `<div class="item"><div class="meta grow"><b>${h.tableNo}번 · ${esc(personName(state, h.nominee))} · ${h.H.toFixed(1)} ${esc(h.grade)}${h.capped ? ' (상한)' : ''}</b><span>지명료 ${won(h.hostFee || 0)} · 주문 ${won(h.servedTotal)} · 팁 ${won(h.tip)}${h.feverExtra ? ` (피버 +${h.feverExtra})` : ''} · 음식 ${h.food ?? '-'}점</span></div></div>`).join('')}</div>`

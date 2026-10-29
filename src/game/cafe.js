@@ -218,6 +218,7 @@ export function stepStations(state, dt) {
       const pickup=order?.status==='waiting'&&state.visits[order.visitId]?.kind==='takeaway'&&state.visits[order.visitId].status==='active';
       st[slot]=null;
       if(state.staff.luna_sis&&!isResting(state,'luna_sis'))changeStress(state,'cook','luna_sis');
+      const baker=Object.values(state.staff).find(b=>PEOPLE[b.id]?.work==='baker');if(baker)baker.cooked=(baker.cooked||0)+1; // 마감 화면 주방 MVP용
       if(pickup){recordServe(state,order,item);emit('takeawayDone',{price:order.price});}
       else if(placeInTray(state,item))emit('cooked',{station:sid,menuId:item.menuId});
       else{st[heldKey(slot)]=item;emit('trayFull',{station:sid,menuId:item.menuId});}
@@ -811,11 +812,11 @@ export function checkout(state,visit){
  state.cafeGesture={kind:'bow',at:state.shift.elapsedMs};
  if(amount)emit('paidAtCounter',{amount});return true;
 }
-// 통큰·대부호 일반 손님은 계산할 때 가끔 팁을 둔다. 결산 카드의 팁 줄(baseTips)로 들어가고 원장(ledger.patronTips)에 방문마다 한 번
+// 매우 만족한 통큰·대부호 일반 손님은 계산할 때 팁을 둔다(자동). 결산 카드의 팁 줄(baseTips)로 들어가고 원장(ledger.patronTips)에 방문마다 한 번
 function patronTip(state,visit){
  const rule=TEMP.PATRON.tip[visit.wealthId];
  if(!rule||visit.kind==='nomination'||!(visit.bill>0)||state.ledger.patronTips?.[visit.id]!=null||!state.shift)return 0;
- if(nextRandom(state.rng)>=rule.chance)return 0;
+ if(!(visit.reviewScore>=PDF.GRADE.great))return 0;
  const tip=Math.max(1,Math.min(rule.cap,Math.round(visit.bill*rule.rate)));
  (state.ledger.patronTips||={})[visit.id]=tip;state.shift.baseTips+=tip;
  emit('patronTip',{visitId:visit.id,customerId:visit.customerId,wealthId:visit.wealthId,tip});return tip;

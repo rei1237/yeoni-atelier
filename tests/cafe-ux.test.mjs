@@ -90,3 +90,11 @@ test('지금 할 일은 전달→정리→만들기 순이고 완성 접시는 �
  assert.match(tableBadgesHtml(s,v),new RegExp(`data-action="serve" data-no="${guest.tableNo}" data-item="qa-dish"`));
  assert.ok(dispatch(s,{type:'serve',itemId:'qa-dish',tableNo:guest.tableNo}).ok);assert.ok(!cafeTasks(s).some(k=>k.kind==='serve'));
 });
+
+test('영업 중에는 재성의 섬 버튼이 잠기고, 영업 준비 때는 열린다', () => {
+ const island=html=>html.match(/<button[^>]*data-sheet="town"[^>]*>/)?.[0]||'';
+ const shift=island(panelHtml(quietShift(),{}));
+ assert.match(shift,/aria-disabled="true"/);assert.match(shift,/영업 중에는 재성의 섬에 갈 수 없어요/);
+ assert.doesNotMatch(island(panelHtml(createGame(7),{})),/aria-disabled/);
+ const s=quietShift();assert.equal(dispatch(s,{type:'world.arrive',place:'moka'}).ok,false,'영업 중 도착 명령도 거절');
+});

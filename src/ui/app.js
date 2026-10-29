@@ -20,7 +20,7 @@ import { bondQuestion } from '../data/bond-dialogues.js';
 import { talkCheck } from '../game/bonds.js';
 import {CAFE_LINES,PATRON_TIP_LINES,selectLine} from '../data/cafe-dialogue.js';
 import {ELDER_LOOKS} from '../data/customer-looks.js';
-import {newTalk,guestTalk,staffTalk,sayTalk,syncTalk,prepTalk} from './cafe-talk.js';
+import {newTalk,guestTalk,staffTalk,sayTalk,syncTalk,prepTalk,situationTalk,shiftSituation} from './cafe-talk.js';
 import {newCraft,mixCraft,craftHeat,craftQuality,craftShortage,deliverable} from './crafting.js';
 import {findRecipe} from '../game/recipe.js';
 import {TEMP as GAME_TEMP} from '../config/balance.temp.js';
@@ -31,6 +31,7 @@ import {showHelpFeedback} from './help-feedback.js';
 import { unlockAudio,setAudioScene,audioAction,sound,audioStatus,startShiftMusic } from './audio.js';
 import {tableCookingOrders} from '../game/table-cooking.js';
 import { GUIDES,guideForContext } from './tutorials.js';
+import { FORTUNE_BIRTH_KEY } from './fortune-sheet.js';
 import { btn } from './dom.js';
 import { TEMP } from '../config/balance.temp.js';
 import { createGame, personName, personDef } from '../game/state.js';
@@ -130,11 +131,14 @@ function save(quiet = true) {
 }
 
 // 독립 화면의 주소 이력은 UI만 바꾸며 게임 저장과 분리한다.
+// 10-29 영업 중에는 가게를 비울 수 없어 재성의 섬 지도도 열지 않는다
+const ISLAND_SHIFT_LOCK='영업 중에는 재성의 섬에 갈 수 없어요. 마감한 뒤 다녀와요';
 function navigateScreen(screen, replace=false) {
+  if(screen==='world'&&state?.mode==='shift'){toast(ISLAND_SHIFT_LOCK);return false;}
   ui.worldTrip=null; ui.worldMarker=null; ui.worldCardOpen=false; ui.screen=screen; ui.sheet=null; ui.tablePop=null; ui.cafeDrawer=null;
   history[replace?'replaceState':'pushState']({yeoniScreen:screen},'',screen?'#'+screen:location.pathname+location.search);
 }
-window.addEventListener('popstate',e=>{ui.worldTrip=null;ui.worldMarker=null;ui.worldCardOpen=false;if(state?.interior.draft&&decorBack(true))return;ui.screen=state?(e.state?.yeoniScreen||null):null;ui.sheet=null;ui.tablePop=null;ui.cafeDrawer=null;render(true);});
+window.addEventListener('popstate',e=>{ui.worldTrip=null;ui.worldMarker=null;ui.worldCardOpen=false;if(state?.interior.draft&&decorBack(true))return;ui.screen=state?(e.state?.yeoniScreen||null):null;if(ui.screen==='world'&&state?.mode==='shift')ui.screen=null;ui.sheet=null;ui.tablePop=null;ui.cafeDrawer=null;render(true);});
 document.addEventListener('keydown',e=>{if(e.defaultPrevented||e.key!=='Escape'||novelActive())return;if(ui.worldTrip){ui.worldTrip=null;ui.worldMarker=null;render(true);return;}if(ui.worldCardOpen){ui.worldCardOpen=false;render(true);return;}if(state?.interior.draft&&!ui.sheet&&!ui.confirm){decorBack(false);render(true);return;}if(ui.cafeDrawer){ui.cafeDrawer=null;render(true);}else if(ui.tablePop){ui.tablePop=null;render(true);}else if(ui.screen&&!ui.sheet){navigateScreen(null,true);render(true);}});
 // 꾸미기 뒤로: 고른 가구는 선택만 풀고, 적용 전 변경이 있으면 묻고, 없으면 닫는다. 화면을 유지하면 true.
 function decorBack(fromHistory){
@@ -247,15 +251,19 @@ function maybeStory() {
   if (!beats) { run({ type: 'story.seen', id }, { keepQuiet: true }); return; }
   ui.sheet = null;
   const started=state;let ended=false;
-  const done = (skip=false) => {if(ended||state!==started)return;ended=true;ui.storyHold=true;try{const result=completeStory(id,cmd=>run(cmd),{skip});if(result.ok&&!result.duplicate&&result.destination==='hunt'){navigateScreen(result.entry?.ok?null:'world');ui.sheet=result.entry?.ok?null:{kind:'hunt'};ui.huntMenu='title';} if(result.ok&&!result.duplicate&&(result.destination==='finance'||result.destination==='gear'))goStoryPlace(result.destination); if (result.ok&&id.startsWith('ending:')) ui.ending = id.slice(7);}finally{ui.storyHold=false;} render(true); }; // 끝난 이야기의 행선지를 다 열 때까지 다음 이야기를 틀지 않는다
+  const done = (skip=false) => {if(ended||state!==started)return;ended=true;ui.storyHold=true;try{const result=completeStory(id,cmd=>run(cmd),{skip});if(result.ok&&!result.duplicate&&result.destination==='hunt'){navigateScreen(result.entry?.ok?null:'world');ui.sheet=result.entry?.ok?null:{kind:'hunt'};ui.huntMenu='title';} if(result.ok&&!result.duplicate&&(result.destination==='finance'||result.destination==='gear'))goStoryPlace(result.destination); if(result.ok&&!result.duplicate&&result.destination==='fortune'){loadFortuneBirth();ui.sheet={kind:'fortune'};} if (result.ok&&id.startsWith('ending:')) ui.ending = id.slice(7);}finally{ui.storyHold=false;} render(true); }; // 끝난 이야기의 행선지를 다 열 때까지 다음 이야기를 틀지 않는다
   // 이야기 속 선택지는 분위기용: 상태를 바꾸지 않고 고른 답의 박자만 잇는다. 건너뛰어도 본 것으로 친다.
   const onChoose = (cid, beat) => ({ ok: true, beats: beat?.choices?.find(c => c.id === cid)?.beats || [] });
   playNovel(beats, { onEnd:()=>done(false), onCancel:()=>done(true), onChoose });
 }
 
+// 운세 수첩의 생일은 게임 저장이 아니라 이 기기에만, 사용자가 기억하기를 켰을 때만 둔다
+function loadFortuneBirth(){try{const v=localStorage.getItem(FORTUNE_BIRTH_KEY);if(v){ui.fortuneBirth=v;ui.fortuneRemember=true;}}catch{}}
+function keepFortuneBirth(){try{if(ui.fortuneRemember&&ui.fortuneBirth)localStorage.setItem(FORTUNE_BIRTH_KEY,ui.fortuneBirth);else localStorage.removeItem(FORTUNE_BIRTH_KEY);}catch{}}
+
 // 이야기가 가리킨 마을 장소로 바로 데려간다(도착 처리는 world.arrive). 공방은 강화 탭을 연다.
 function goStoryPlace(id){
-  navigateScreen('world');
+  if(navigateScreen('world')===false)return;
   if(id==='gear')run({type:'town.visit',place:'gear'},{keepQuiet:true}); // 첫 강화 이야기가 공방 소개를 대신한다
   enterWorldPlace(id);
   if(id==='gear'&&ui.worldAt==='gear'){ui.sheet={kind:'armory'};ui.armoryTab='upgrade';}
@@ -328,6 +336,7 @@ const ACTIONS = {
   'guide.next':()=>{const g=GUIDES[ui.guideId||'cook'];if((ui.guideStep||0)<g.steps.length-1)ui.guideStep=(ui.guideStep||0)+1;else finishGuide(true);},
   'guide.back':()=>{ui.guideStep=Math.max(0,(ui.guideStep||0)-1);},
   'guide.close':()=>finishGuide(),
+  'fortune.flip':()=>{ui.fortuneFlip=true;},
   'hunt.start': () => { ui.sheet = { kind: 'hunt' }; },
   'hunt.depart': async d => { if(ui.huntLoading)return;ui.huntLoading=true;const departing=state;try{const keys=[...Object.keys(ASSETS.enemies).map(id=>'enemies/'+id),'actors/neo_cat','actors/seohanbi'];await loadAssetImages(undefined,{keys});if(state!==departing||ui.sheet?.kind!=='hunt')return;if(keys.some(id=>!imageFor(id))){toast('사냥터 그림을 불러오지 못했어요. 연결을 확인하고 다시 출발해 주세요.');return;}if (run({ type: 'hunt.start', depth: n(d.depth), hunterId:ui.hunterId||'neo' }).ok) ui.sheet = null;}finally{ui.huntLoading=false;render(true);} },
   'farm.select': d => { ui.farmCrop = d.id; },
@@ -342,7 +351,7 @@ const ACTIONS = {
   'farm.expand': () => run({ type: 'farm.expand' }),
   'farm.greenhouse': () => run({ type: 'farm.greenhouse' }),
   // 화면 전용
-  'sheet.open': d => { if(d.sheet==='worldcast'&&!worldMeetingAccess(state).unlocked){toast(worldMeetingAccess(state).hint);return;} if(d.sheet==='interior'||d.sheet==='grounds'){ACTIONS['decor.open']({space:d.sheet==='grounds'?'outdoor':''});return;}if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
+  'sheet.open': d => { if(d.sheet==='worldcast'&&!worldMeetingAccess(state).unlocked){toast(worldMeetingAccess(state).hint);return;} if(d.sheet==='interior'||d.sheet==='grounds'){ACTIONS['decor.open']({space:d.sheet==='grounds'?'outdoor':''});return;}if(d.sheet==='town'&&state?.mode==='shift'){toast(ISLAND_SHIFT_LOCK);return;}if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'fortune') loadFortuneBirth(); if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
   'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; maybeVisit(d.tab); },
   'sheet.close': () => { if(ui.sheet?.kind==='tutorial')finishGuide();else ui.sheet = ui.sheet?.kind==='rankup'?ui.sheet.back:null; },
   'overlay.settlement': () => {},
@@ -704,7 +713,7 @@ function handleEvents(events) {
       case 'cooked': {const p=cellToPx(view,8,1.4);floater(p.x,p.y,'✧','#b07a12');}toast('한 접시 완성! 금빛 "전달하기"를 눌러 손님께 전해요.','good');break;
       case 'cleaned': if(p)floater(p.x,p.y-12,'✧ 깨끗해요','#58734e');break;
       case 'cookCancelled': toast(`조리 취소: ${ev.reason}`, 'bad'); break;
-      case 'leave': if (ev.reason === '음식을 오래 기다려 떠남' || ev.reason === '주문할 수 있는 메뉴가 없음') toast(`😣 ${ev.tableNo}번 손님: ${ev.reason}`, 'bad'); break;
+      case 'leave': if (ev.reason === '음식을 오래 기다려 떠남' || ev.reason === '주문할 수 있는 메뉴가 없음') {toast(`😣 ${ev.tableNo}번 손님: ${ev.reason}`, 'bad');if(ev.reason==='음식을 오래 기다려 떠남')situationTalk(ui.talk??=newTalk(),state,'angryLeave',performance.now(),Math.random());} break;
       case 'learned': toast(`📖 새 레시피: ${ev.name}`, 'good'); break;
       case 'discovered': ui.discovery = ev.menuId; break;
       case 'comboMiss': toast(`🤔 ${ev.hint}`, '', 2600); break;
@@ -848,6 +857,7 @@ const loop = createFrameLoop({
     stepWorldTravel(raw);
     draw(now);
     if(state?.mode==='prep'&&!ui.screen&&!ui.sheet&&!state.interior.draft&&!novelActive())prepTalk(ui.talk??=newTalk(),state,performance.now());
+    if(state?.mode==='shift'&&!ui.screen&&!ui.sheet&&!novelActive()){const k=shiftSituation(state);if(k)situationTalk(ui.talk??=newTalk(),state,k,performance.now(),Math.random());}
     if(el.talk)syncTalk(el.talk,ui.screen?null:state,view,ui.talk??=newTalk(),performance.now(),{width:cssW,height:cssH});
     render();
   },
@@ -892,6 +902,7 @@ function showCafeLine(line,speaker,portrait='customer'){
  const now=performance.now();if(ui.chatter&&now<ui.chatter.until-1800)return;
  const hunting=state?.mode==='hunt';if(hunting&&now-(ui.lastHuntChatter||0)<8000)return;if(hunting)ui.lastHuntChatter=now;ui.chatter={line,speaker,portrait,hunting,until:now+(hunting?1800:4500)};
 }
+document.addEventListener('change',e=>{if(e.target.id==='fortune-birth'){ui.fortuneBirth=e.target.value;keepFortuneBirth();render(true);}else if(e.target.id==='fortune-remember'){ui.fortuneRemember=e.target.checked;keepFortuneBirth();render(true);}});
 document.addEventListener('change',e=>{if(e.target.id==='guide-selector'){ui.guideId=e.target.value;ui.guideStep=0;render(true);}});
 
 
