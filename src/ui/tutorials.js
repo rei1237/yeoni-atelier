@@ -13,6 +13,7 @@ export const GUIDES = Object.freeze({
  branches:{title:'카페 지점 관리',image:'interior',steps:['지점마다 개설 조건과 비용을 확인해요. 구매한 지점은 영업 준비 중에 이동할 수 있어요.','진행 중인 요리를 마치고 이동해 주세요. 새 지점을 열어도 기존 지점의 배치는 보존돼요.']},
  staffing:{title:'직원 배치',image:'host',steps:['함께하는 동료 중 카페에서 일할 직원을 선택해요. 배치 가능한 인원과 공간을 확인해요.','동료의 인연 능력과 휴무 상태를 함께 살펴보세요. 자동 운영은 필요한 인연 단계와 이야기를 마친 뒤 켤 수 있어요.']},
  recipe:{title:'레시피 수첩',image:'cook',steps:['메뉴별 재료와 배운 레시피를 확인해요. 손님 주문은 영업 중에 만들어요.','영업 전 여분 음식은 연이의 주방에서 만들어요. 특별 메뉴는 성장과 첫 완성 조건을 채워 등록해요.']},
+ exchange:{title:'월정석 환전',image:'finance',steps:['사냥에서 가져온 월정석은 청토끼 금융 센터에서 골드로 바꿔요. 맨 위 환전 칸에 1개당 받을 골드가 적혀 있어요.','10·100·1000·전부 버튼이나 −·+로 개수를 골라요. 받을 골드와 환전 뒤 남는 월정석이 바로 아래에 미리 보여요.','개수 환전하기 버튼을 누르면 골드가 바로 들어와요. 환전·대출·상환에는 행동력이 들지 않아요. 월정석은 나중에 윤달 공방 강화에도 쓰니 조금 남겨 둬도 좋아요.']},
  finance:{title:'장부와 금융',image:'finance',steps:['보유 골드와 남은 빚, 상환 조건을 확인해요. 표시된 비용을 확인한 뒤 필요한 거래를 골라요.','금융 거래와 재료 구매에는 행동력이 들지 않아요. 월정석과 골드는 서로 다른 재화예요.']},
  expand:{title:'가구 상점과 증축',image:'interior',steps:['구매 가능한 가구와 증축 조건을 확인해요. 잠겨 있으면 개방 시기를 알려 드려요.','카페의 꾸미기에서 보유 가구를 배치해요. 통로를 남기고 적용하면 영업에 반영돼요.']},
  shelter:{title:'루나의 쉼터',image:'bonds',steps:['동료의 스트레스와 쉼터 이용 조건을 확인해요. 필요한 동료를 골라 쉬게 해 주세요.','회복 비용과 이용 가능 횟수는 버튼의 안내를 확인해요.']},
@@ -44,6 +45,7 @@ export function guideForContext(s,ui){
  if(ui.sheet?.kind==='foodgift'&&s.tutorials?.personal&&!s.tutorials?.signatures&&(s.yeoniGrowth?.xp||0)>=72)return 'signatures';
  if(ui.sheet?.kind==='craft'&&ui.craft?.tableNo)return 'batch';
  if(ui.sheet?.kind==='craft'&&ui.craft?.purpose==='gift')return 'personal';
+ if(ui.sheet?.kind==='town'&&ui.sheet.tab==='finance')return s.tutorials?.exchange?null:s.moonstone>0||s.tutorials?.finance?'exchange':'finance'; // 사냥에서 돌아와 월정석을 들고 오면 환전부터 알려 준다(장부 안내를 먼저 봤어도)
  if(ui.sheet?.kind==='town')return ({moka:'shop',finance:'finance',expand:'expand',luna:'shelter'})[ui.sheet.tab]||null;
  if(ui.sheet)return FEATURE_GUIDES[ui.sheet.kind]||null;
  if(s.interior.draft)return null; // 꾸미기 화면은 화면 안 단계 안내(decor-screen.js)를 쓴다

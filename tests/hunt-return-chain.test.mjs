@@ -78,3 +78,14 @@ test('청토끼 환전은 10·100·1000·전부와 직접 입력, 받을 골드 
   const g = s.gold, r = dispatch(s, { type: 'moonstone.exchange', qty: 250 });
   assert.ok(r.ok); assert.equal(s.moonstone, 618); assert.equal(s.gold - g, r.gold);
 });
+
+test('첫 귀환 뒤 금융 센터에 오면 장부 안내를 이미 봤어도 환전 안내가 한 번 나온다', async () => {
+  const { guideForContext, GUIDES } = await import('../src/ui/tutorials.js');
+  const s = createGame(); const ui = { sheet: { kind: 'town', tab: 'finance' } };
+  assert.equal(guideForContext(s, ui), 'finance', '월정석이 없을 때 처음 오면 금융 안내');
+  s.tutorials = { finance: true }; s.moonstone = 12; // 테스트 준비: 장부 안내는 봤고 첫 사냥에서 월정석을 가져왔다
+  assert.equal(guideForContext(s, ui), 'exchange');
+  assert.match(GUIDES.exchange.steps.join(' '), /환전하기/);
+  assert.ok(dispatch(s, { type: 'tutorial.seen', id: 'exchange' }).ok);
+  assert.equal(guideForContext(s, ui), null, '한 번만');
+});
