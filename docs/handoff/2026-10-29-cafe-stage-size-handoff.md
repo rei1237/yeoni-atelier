@@ -59,7 +59,7 @@ C:\Users\user 에서 세션을 열고:
 ### A. 상단 바 압축 (140 → 데스크톱 ≤ 64, 모바일 ≤ 92)
 - 데스크톱(≥900): 상태 5칸을 시간·골드와 **같은 한 줄**의 작은 칩(아이콘+값, 높이 32~36)으로. 라벨("인기도" 등)은 `title`/`aria-label`로
 - 모바일: 시간·골드 줄 아래 칩 한 줄(높이 ≤ 30, 가로 스크롤 금지 — 5개가 360px에 들어가게 값만)
-- 마크업은 `src/ui/hud.js`의 상태 줄(검색: `cafe-status-details`), 스타일은 `yeoni-growth.css:8·31`. CSS 로드 순서상 새 규칙은 `main-pixel.css`(마지막) 또는 `cafe-play.css` 끝에
+- 마크업은 `src/ui/hud.js:133`(`cafe-status-main`·`cafe-status-details`, 칩은 모두 `cafe.drawer`/`yeoni.kitchen` 버튼이라 action은 유지), 스타일은 `yeoni-growth.css:8·31`. CSS 로드 순서상 새 규칙은 `main-pixel.css`(마지막) 또는 `cafe-play.css` 끝에
 ### B. 준비 화면 하단 패널 압축 (273 → ≤ 130)
 - 영업 시작 버튼과 명령줄(영업 준비·주방·직원·모카 배달·재성의 섬)을 **한 줄**로: 데스크톱은 [명령줄 …][영업 시작하기] 가로 배치, 모바일은 명령줄 위 얇은 영업 시작 바(48px)
 - 첫날 안내 카드(`.first-day-guide`, 튜토리얼 진행용)는 무대 위 **떠 있는 작은 카드**로(데스크톱: 방 옆 빈 공간, 모바일: 무대 하단 겹침 1~2줄 + 접기). 버튼 action(`아메리카노 만들기 · 행동력 1`)과 튜토리얼 스포트라이트 대상은 그대로
@@ -70,7 +70,7 @@ C:\Users\user 에서 세션을 열고:
 ### D. 무대 여백·배우 크기 (`computeView`)
 - 여백 `cols+2.2`·`rows+3`(벽·정원 그림 자리)을 실제 방 그림 테두리에 맞춰 줄인다(예 `cols+1.4`·`rows+2.2`). 방 그림 가장자리 정원이 약간 잘려도 된다. 바닥 12×16과 카운터·입구는 다 보여야 한다
 - C 이후에도 캐릭터가 작으면 `actorSize`를 10%까지 키우고 이름표 글자(`drawNameTags` fs 12~14)를 확인
-- 확대(`zoomTo` 1~2.4)·카메라 드래그·`focusCell`·`#hits`·배지·`cellToPx`가 모두 같은 view를 쓰므로 공식만 바꾸면 된다. `computeView`를 직접 부르는 테스트(`tests/cafe-ux.test.mjs`·`parallel-cooking.test.mjs`·`manual.test.mjs`·`expanded-view.test.mjs` 등, `computeView(390,500)`)가 깨지면 수치 기대만 고친다
+- 확대(`zoomTo` 1~2.4)·카메라 드래그·`focusCell`·`#hits`·배지·`cellToPx`가 모두 같은 view를 쓰므로 공식만 바꾸면 된다. `computeView`를 직접 부르는 테스트(`tests/cafe-ux.test.mjs`·`cafe-play-loop.test.mjs`·`parallel-cooking.test.mjs`·`manual.test.mjs`·`expanded-view.test.mjs`, `computeView(390,500)` 등)가 깨지면 수치 기대만 고친다
 ### E. 가로 폰(844×390) 준비 무대 0px
 - 패널이 높이를 다 가져가 `#stage`가 0이 된다. C의 옆 패널을 `(orientation:landscape) and (max-height:500px)`에도 적용하면 같이 풀린다. 상단 바도 가로에서는 한 줄(≤ 44)
 
