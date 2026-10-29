@@ -1,6 +1,7 @@
 import { cheerOnServe } from './fans.js';
 import {trafficStep,cafeActors,ACTOR_GAP} from './cafe-traffic.js';
 import {yeoniEffects} from './yeoni-growth.js';
+import {maybeDemand} from './counter-demand.js';
 import {cafeCapacity,assignedHosts} from './capacity.js';
 import {activeSlotNames,heldKey,runningJobs,queuedJobs,stationJobs,stationItems} from './station-slots.js';
 export {stationJobs,stationItems} from './station-slots.js';
@@ -648,6 +649,7 @@ export function customerLeave(state, c, reason) {
   state.cafeGesture={kind:'bow',at:state.shift.elapsedMs};
   c.state = visit.bill>0 && !visit.paid ? 'checkout' : 'leaving';
   c.action = 'walk';c.payAt=null;c.checkoutJoinedAt=state.shift.elapsedMs;
+  if(c.state==='checkout'&&reason!=='영업 종료')maybeDemand(state,visit);
   if(c.standing)c.path=[];else setPath(state,c,c.state==='checkout'?nearestWalkable(getGrid(state),cafeSpots(state).checkout):cafeSpots(state).entrance);
   emit('leave', { tableNo: c.tableNo, reason });
 }

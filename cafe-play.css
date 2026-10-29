@@ -41,3 +41,57 @@ body[data-mode=hunt] #panel{flex:none;display:block;max-height:46dvh;overflow:au
 body[data-mode=hunt] .toasts{top:122px}
 
 body[data-mode=hunt]:has(#sheet-wrap:not([hidden])) .toasts{top:10px}
+
+/* 10-29 카페 상태 말풍선: 대화창(.talk-bubble)과 같은 문법 — 크림 바탕, 1.5px 색 테두리, 옅은 후광, 아래 꼬리.
+   버튼 자체는 44px 터치 영역만 맡고 보이는 것은 안쪽 pill이라, 모바일에서도 손님·테이블을 덜 가린다. */
+.table-badge{--tb:#c9b08a;--tb-soft:#f7efe2;min-width:44px;min-height:44px;max-width:136px;padding:0;background:transparent!important;border:0!important;box-shadow:none!important;align-items:flex-end;animation:none}
+.table-badge.dirty:not([aria-disabled=true]){animation:none}
+.table-badge .badge-pill{position:relative;display:inline-flex;align-items:center;gap:4px;max-width:100%;min-height:28px;padding:4px 10px;box-sizing:border-box;border:1.5px solid var(--tb);border-radius:999px;background:linear-gradient(180deg,#fffdf9,#fff5ec);box-shadow:0 0 0 2.5px #fffaf399,0 4px 10px #4a2c2424;color:#3b2a24;font-size:11.5px;font-weight:700;line-height:1.2;letter-spacing:-.01em}
+.table-badge .badge-pill::after{content:'';position:absolute;left:50%;bottom:-5px;width:7px;height:7px;margin-left:-3.5px;background:#fff5ec;border:solid var(--tb);border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
+.table-badge .badge-pill>span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.table-badge .pixel-icon{width:18px;height:18px;margin:0 0 0 -4px;flex:none}
+.table-badge.tone-dirty{--tb:#e08aa3;--tb-soft:#fde9ef}
+.table-badge.tone-dirty .badge-pill{padding-left:8px;color:#79394c}
+.table-badge.tone-dirty .badge-pill::before{content:'';width:7px;height:7px;border-radius:50%;background:#e08aa3;box-shadow:0 0 0 2px #fde9ef;flex:none}
+.table-badge.tone-dirty:not([aria-disabled=true]) .badge-pill{animation:badge-call 1.8s ease-in-out infinite}
+@keyframes badge-call{50%{box-shadow:0 0 0 4px #f3c2d0aa,0 4px 12px #b5476b33}}
+.table-badge.tone-queued{--tb:#d7c3a7}.table-badge.tone-queued .badge-pill{color:#76665c;font-weight:600}
+.table-badge.tone-cleaning{--tb:#8fae86;--tb-soft:#eef5ea}
+.table-badge.tone-cleaning .badge-pill{padding-bottom:7px;color:#42674e}
+.table-badge .badge-progress{position:absolute;left:10px;right:10px;bottom:3px;height:3px;border-radius:3px;background:linear-gradient(90deg,#8fae86 var(--p,0%),#dfe9da var(--p,0%))}
+.table-badge.tone-order{--tb:#d9b26a}.table-badge.tone-request{--tb:#9f8ccc}.table-badge.tone-moving{--tb:#c9b9d8}.table-badge.tone-moving .badge-pill{color:#5c4f6b;font-weight:600}
+.table-badge.urgent{--tb:#c05a72}.table-badge.urgent .badge-pill{box-shadow:0 0 0 2.5px #f6d3dbcc,0 4px 10px #8b2f4633}
+.table-badge:active .badge-pill{transform:translateY(1px)}
+.table-badge:focus-visible{outline:none}.table-badge:focus-visible .badge-pill{outline:3px solid var(--focus-gold);outline-offset:2px}
+.table-badge.enjoying .badge-pill{min-height:0;padding:0;border:0;background:none;box-shadow:none}.table-badge.enjoying .badge-pill::after{display:none}
+@media(max-width:560px){.table-badge{max-width:112px}.table-badge .badge-pill{min-height:24px;padding:3px 8px;font-size:11px}.table-badge .pixel-icon{width:16px;height:16px}}
+@media(prefers-reduced-motion:reduce){.table-badge.tone-dirty .badge-pill{animation:none}}
+
+/* 테이블 팝오버: 말풍선과 같은 테두리·이름표 */
+.table-pop{--tb:#c9b08a;padding:12px 12px 8px;border:1.5px solid var(--tb)!important;border-radius:18px;background:linear-gradient(180deg,#fffdf9,#fff5ec)!important;box-shadow:0 0 0 3px #fffaf399,0 10px 26px #4a2c2433;color:#3b2a24}
+.table-pop header{min-height:36px;margin:-6px -4px 6px 0}
+.table-pop .pop-name{padding:2px 12px 3px;border-radius:999px;background:var(--tb);color:#fff;font-size:11.5px;letter-spacing:.04em;box-shadow:0 2px 5px #4a2c241f}
+.table-pop header .pop-close{margin-left:auto;min-width:44px;min-height:36px;padding:0;border:0;border-radius:999px;background:transparent;color:#8a7466;font-size:15px;box-shadow:none}
+.table-pop header .pop-close:hover{background:#f6ecdf}
+.table-pop>p{margin:0 0 8px;font-size:12.5px;line-height:1.5;word-break:keep-all}
+.table-pop meter{display:block;width:100%;height:5px;margin:0 0 4px;border-radius:5px}
+.table-pop .table-order{padding:6px 8px;border-radius:12px;background:#fffaf3;box-shadow:inset 0 0 0 1px #eadcc6}
+.table-pop .table-order button,.table-pop>button{min-height:40px;border-radius:999px}
+.table-pop>button{width:100%}
+.table-pop::after{margin-top:8px;height:16px}
+
+/* 10-29 계산대 한마디: 명령 바 카드라 외곽은 픽셀 타일(main-pixel.css)을 그대로 쓰고, 안쪽은 연이 색 아이콘·따옴표·팁 칩.
+   아래 줄이 줄어드는 동안(절반 전) 응대하면 골드 팁 */
+.demand-desk{margin:0 0 6px}
+.demand-desk .demand-respond{--tb:#e08aa3;position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px;width:100%;min-height:52px;padding:8px 10px 11px;color:#3b2a24;text-align:left;overflow:hidden}
+.demand-desk .demand-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#fde9ef;box-shadow:0 0 0 1.5px var(--tb),0 0 0 3.5px #fff;font-size:18px;line-height:1}
+.demand-desk .demand-text{min-width:0}
+.demand-desk .demand-text b{display:block;font-size:12px;color:#79394c;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.demand-desk .demand-text em{font-style:normal;color:#b07a12}
+.demand-desk .demand-text small{display:block;font-size:11.5px;font-weight:500;line-height:1.35;color:#5d4b45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.demand-desk .demand-cta{padding:5px 11px;border-radius:999px;background:#944b60;color:#fff;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 2px 0 #79394c}
+.demand-desk .demand-meter{position:absolute;left:12px;right:12px;bottom:4px;height:3px;border-radius:3px;background:linear-gradient(90deg,#e0b25a var(--left,100%),#f3e4dc var(--left,100%))}
+.demand-desk.late .demand-icon{background:#f4ede3;box-shadow:0 0 0 1.5px #d7c3a7,0 0 0 3.5px #fff}
+.demand-desk.late .demand-cta{background:#fff;color:#79394c;box-shadow:inset 0 0 0 1.5px #e0b8c3}
+.demand-desk.late .demand-meter{background:linear-gradient(90deg,#c9b9a6 var(--left,0%),#efe7dc var(--left,0%))}
+.cafe-drawer .demand-desk{margin:8px 0}

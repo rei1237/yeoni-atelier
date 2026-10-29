@@ -19,7 +19,7 @@ import { tableBadgesHtml, tablePopHtml } from './table-ui.js';
 import { bondQuestion } from '../data/bond-dialogues.js';
 import { talkCheck } from '../game/bonds.js';
 import {CAFE_LINES,selectLine} from '../data/cafe-dialogue.js';
-import {newTalk,guestTalk,staffTalk,sayTalk,syncTalk} from './cafe-talk.js';
+import {newTalk,guestTalk,staffTalk,sayTalk,syncTalk,prepTalk} from './cafe-talk.js';
 import {newCraft,mixCraft,craftHeat,craftQuality,craftShortage,deliverable} from './crafting.js';
 import {findRecipe} from '../game/recipe.js';
 import {TEMP as GAME_TEMP} from '../config/balance.temp.js';
@@ -51,6 +51,7 @@ import { decorDirty, purchaseGate, placedNote } from './decor-screen.js';
 import { drawHunt } from '../render/hunt-view.js';
 import { $, morph, toast, floater, shake } from './dom.js';
 import { topbarHtml, panelHtml, bubblesHtml, hitsHtml, won } from './hud.js';
+import { DEMAND_KINDS } from '../game/counter-demand.js';
 import { sheetHtml, overlayHtml, tiredLine } from './sheets.js';
 import { drawDressroom, drawInlinePortraits } from './dressroom.js';
 import { outfitLine } from '../data/outfit-lines.js';
@@ -443,6 +444,7 @@ const ACTIONS = {
   'nomination.accept': d => {if(run({ type: 'nomination.accept', tableNo: n(d.no) }).ok)ui.sheet=null;},
   'nomination.decline': d => run({ type: 'nomination.decline', tableNo: n(d.no) }),
   'nomination.propose': d => run({ type: 'nomination.propose', tableNo: n(d.no), personId: d.person }),
+  'counter.respond': d => run({ type: 'counter.respond', visitId: d.visit }),
   'help.respond': d => {if(run({ type: 'help.respond', visitId: d.visit, index: n(d.index), choice: d.choice }).ok)ui.sheet=null;},
   'cook': d => beginCraft(d.menu),
   'order.table':d=>{const orders=tableCookingOrders(state,n(d.no));if(!orders.length)return;beginCraft(orders[0].menuId,orders[0].id);ui.craft.tableNo=n(d.no);ui.craft.batchMenus=orders.map(o=>o.menuId);},
@@ -671,9 +673,11 @@ function handleEvents(events) {
       case 'guestChatter': if(state.mode==='shift'&&ev.customerId){guestTalk(ui.talk??=newTalk(),state,ev,performance.now(),Math.random());break;}showCafeLine(ev.line,ev.kind==='takeaway'?'포장 손님':ev.tableNo?`${ev.tableNo}번 손님`:'손님','customer'); break;
       case 'paidAtCounter': sound('coin'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;
       case 'cafeLevelUp': sound('bond'); toast(`카페 Lv.${ev.level}! ${ev.apGain>0?`다음 순부터 마을 행동력 +${ev.apGain}`:'더 많은 손님과 새로운 취향이 찾아와요'}`,'good');break;
+      case 'counterDemand': sound('bond'); break;
+      case 'counterDemandDone': {const k=DEMAND_KINDS[ev.kind];sound('coin');toast(`${k.icon} ${k.done}${ev.tip?` · 팁 +${ev.tip}G`:''}`,'good',2400);break;}
       case 'takeawayDone': toast('포장 완료 · 손님이 계산대에서 받아 갔어요','good');break;
       case 'farmAction': ui.farmFeedback=ev.text;ui.farmMotion={kind:ev.kind,index:ev.index,cropId:ev.cropId,at:performance.now()};ui.farmAnimUntil=performance.now()+1800;toast(ev.text,'good');break;
-      case 'shiftStart': sound('open'); startShiftMusic(); toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 10:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
+      case 'shiftStart': ui.talk=newTalk(); sound('open'); startShiftMusic(); toast(`☀ ${dateLabel(state, ev.day)} 영업 시작 · 10:00`, 'good'); gagOnce('start', pickLine(GAG_SHIFT_START), 0); break;
       case 'closingStart': sound('close'); toast('🌙 마감 30초 전 · 새 손님은 받지 않아요. 남은 주문은 끝나도 매출로 잡혀요', '', 3600); sayTalk(ui.talk??=newTalk(),state,'luna_sis','설거지랑 청소, 시작할게요. 괜찮아요, 남은 주문도 끝까지 챙길게요.',performance.now()); break;
       case 'served': floater(p?.x??cssW/2, (p?.y??cssH*.75) - 10, '주문 완료', '#b07a12'); if (state.stats.served % 4 === 0) gagOnce('kitchen', pickLine(GAG_KITCHEN), 45000); break;
       case 'nominationRequest': toast(`💌 ${ev.tableNo}번 손님이 ${personName(state, ev.nominee)} 지명 요청 — 테이블을 눌러 확인`, 'good', 3600); break;
@@ -840,6 +844,7 @@ const loop = createFrameLoop({
     }
     stepWorldTravel(raw);
     draw(now);
+    if(state?.mode==='prep'&&!ui.screen&&!ui.sheet&&!state.interior.draft&&!novelActive())prepTalk(ui.talk??=newTalk(),state,performance.now());
     if(el.talk)syncTalk(el.talk,ui.screen?null:state,view,ui.talk??=newTalk(),performance.now(),{width:cssW,height:cssH});
     render();
   },

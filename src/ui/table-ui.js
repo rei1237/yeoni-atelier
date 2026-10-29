@@ -32,10 +32,12 @@ export function tableBadgesHtml(state,v) {
     const worker=Object.values(state.staff||{}).find(s=>s.servicePose?.tableNo===t.no);
     if(worker)p.x+=p.x<v.w/2?Math.max(62,v.tile*1.6):-Math.max(62,v.tile*1.6);
     placed.push(p);
-    const motion=guestMotion(c),text=cleaning?'닦는 중':dirty?(t.cleanQueued?'정리하러 가는 중':'정리'):motion||(c.state==='eating'?'식사 중':c.state==='requesting'?'지명 요청':order?MENUS[order.menuId].short:'메뉴 고르는 중');
+    const motion=guestMotion(c),text=cleaning?'닦는 중':dirty?(t.cleanQueued?'정리하러 가는 중':'정리하기'):motion||(c.state==='eating'?'식사 중':c.state==='requesting'?'지명 요청':order?MENUS[order.menuId].short:'메뉴 고르는 중');
+    // 10-29 말풍선 문법: 버튼은 44px 터치 영역만, 보이는 것은 안쪽 pill(대화창과 같은 크림 바탕·색 테두리·꼬리)
+    const tone=cleaning?'cleaning':dirty?(t.cleanQueued?'queued':'dirty'):c?.state==='requesting'?'request':motion?'moving':order?'order':'calm';
     const urgent=visit&&waitingSatisfaction(state,visit)<55;
     const progress=cleaning?Math.min(100,100*(1-Math.max(0,t.cleanEndAt-state.shift.elapsedMs)/(t.cleanMs||1))):0;
-    return `<button class="table-badge ${dirty?'dirty':''} ${urgent?'urgent':''} ${c?.state==='eating'&&!dirty&&!cleaning?'enjoying':''}" data-key="badge-${t.no}" data-action="${dirty&&!t.cleanQueued?'clean':'table.tap'}" data-no="${t.no}" style="left:${Math.max(42,Math.min(v.w-42,p.x))}px;top:${Math.max(0,p.y-44-v.tile*.35)}px" title="${t.no}번 테이블 ${text}" aria-label="${t.no}번 테이블 ${text}">${order&&!motion?assetIcon('icons/'+order.menuId):''}<span>${esc(text)}</span>${cleaning?`<progress max="100" value="${progress}" aria-label="정리 진행"></progress>`:''}</button>`;
+    return `<button class="table-badge tone-${tone} ${dirty?'dirty':''} ${urgent?'urgent':''} ${c?.state==='eating'&&!dirty&&!cleaning?'enjoying':''}" data-key="badge-${t.no}" data-action="${dirty&&!t.cleanQueued?'clean':'table.tap'}" data-no="${t.no}" style="left:${Math.max(42,Math.min(v.w-42,p.x))}px;top:${Math.max(0,p.y-44-v.tile*.35)}px" title="${t.no}번 테이블 ${text}" aria-label="${t.no}번 테이블 ${text}"><span class="badge-pill">${order&&!motion?assetIcon('icons/'+order.menuId):''}<span>${esc(text)}</span>${cleaning?`<i class="badge-progress" style="--p:${Math.round(progress)}%" aria-hidden="true"></i>`:''}</span></button>`;
   }).join('');
 }
 export function tablePopHtml(state,v,ui) {
@@ -45,7 +47,7 @@ export function tablePopHtml(state,v,ui) {
   const p=cellToPx(v,t.table.x+.5,t.table.y+.5),width=Math.min(280,v.w-16);
   const left=Math.max(8,Math.min(v.w-width-8,p.x>v.w/2?p.x-width-14:p.x+14));
   let body='<p>다음 손님을 기다리는 자리예요.</p>';
-  if(t.state==='dirty'||t.state==='cleaning')body=btn({action:'clean',args:{no:t.no},disabled:t.cleanQueued||t.state==='cleaning',label:t.state==='cleaning'?'닦는 중':t.cleanQueued?'정리하러 가는 중':'정리하기',cls:'primary'});
+  if(t.state==='dirty'||t.state==='cleaning')body=`<p>${t.state==='cleaning'?'루나가 테이블을 반짝반짝 닦고 있어요.':t.cleanQueued?'루나가 행주를 들고 오는 중이에요.':'손님이 떠난 자리예요. 치워야 다음 손님을 앉힐 수 있어요.'}</p>`+btn({action:'clean',args:{no:t.no},disabled:t.cleanQueued||t.state==='cleaning',label:t.state==='cleaning'?'닦는 중':t.cleanQueued?'정리하러 가는 중':'정리하기',cls:'primary'});
   if(visit){
     const orders=visit.orderIds.map(id=>state.orders[id]).filter(Boolean),score=waitingSatisfaction(state,visit);
     body=`<p>${esc(c.label||'손님')} · ${guestMotion(c)||(c.state==='eating'?'맛있게 먹는 중':'주문 현황')}</p><meter min="0" max="100" value="${score}" aria-label="손님 만족도 ${score}점"></meter>`+orders.map(o=>{
@@ -57,5 +59,5 @@ export function tablePopHtml(state,v,ui) {
     if(visit.kind==='nomination')body+=btn({action:'sheet.open',args:{sheet:'table',no:t.no},label:'접대 자세히'});
     for(const h of visit.help||[])if(h.status==='open'){const scene=HELP_SCENES[h.kind];body+=`<div class="table-help"><b>${esc(HELP_KINDS[h.kind].label)}</b><p>${esc(scene.prompt)}</p>${scene.choices.map(([choice,label])=>btn({action:'help.respond',args:{visit:visit.id,index:h.index,choice},label:esc(label)})).join('')}</div>`;}
   }
-  return `<section class="table-pop" role="dialog" aria-label="${t.no}번 테이블" style="left:${left}px;top:${Math.max(8,Math.min(v.h-210,p.y-70))}px;width:${width}px"><header><b>${t.no}번 테이블</b>${btn({action:'table.close',label:'✕',title:'테이블 닫기'})}</header>${body}</section>`;
+  return `<section class="table-pop" role="dialog" aria-label="${t.no}번 테이블" style="left:${left}px;top:${Math.max(8,Math.min(v.h-210,p.y-70))}px;width:${width}px"><header><b class="pop-name">${t.no}번 테이블</b>${btn({action:'table.close',cls:'pop-close',label:'✕',title:'테이블 닫기'})}</header>${body}</section>`;
 }

@@ -194,14 +194,13 @@ export function drawCafe(ctx, state, v, opts = {}) {
     }
     if(state.stage?.activeUntil!=null)actors.push(...stageLineup(state,actors,opts.reducedMotion));
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
-    const personalJob=state.foodGifts?.job?.maker==='yeoni'?state.foodGifts.job:null;
-    actors.push({ key: 'yeoni', x: (personalJob?SPOTS.drinkFront.x:SPOTS.yeoniHome.x) + 0.5, y: (personalJob?SPOTS.drinkFront.y:SPOTS.yeoniHome.y) + 0.5, o: { cooking:personalJob?cookingPose(personalJob,MENUS[personalJob.menuId].station,opts.reducedMotion):null,state:personalJob?'cook':'idle', facing: layout.yeoniFacing, name: '연이', ...outfitLook(state, 'yeoni') } });
+    const personalJob=state.foodGifts?.job?.maker==='yeoni'?state.foodGifts.job:null,spot=prepSpots(state);
+    actors.push({ key: 'yeoni', x: spot.yeoni.x, y: spot.yeoni.y, o: { cooking:personalJob?cookingPose(personalJob,MENUS[personalJob.menuId].station,opts.reducedMotion):null,state:personalJob?'cook':'idle', facing: layout.yeoniFacing, name: '연이', ...outfitLook(state, 'yeoni') } });
     for (const id of STAFF_CREW) {
-      const home = id === 'luna' ? SPOTS.lunaHome : SPOTS.sisHome;
-      actors.push({ key: id, x: home.x + 0.5, y: home.y + 0.5, o: { state: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'cook':'idle',cooking:id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?cookingPose(state.foodGifts?.job,MENUS[state.foodGifts?.job?.menuId]?.station,opts.reducedMotion):null, facing: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'up':'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
+      actors.push({ key: id, x: spot[id].x, y: spot[id].y, o: { state: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'cook':'idle',cooking:id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?cookingPose(state.foodGifts?.job,MENUS[state.foodGifts?.job?.menuId]?.station,opts.reducedMotion):null, facing: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'up':'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
     }
-    if (assignedHosts(state).includes('neo') && state.people.neo?.activity === 'idle') actors.push({ key: catCafeActive(state)?'neo_cat_cafe':'neo', x: SPOTS.neoHome.x + 0.5, y: SPOTS.neoHome.y + 0.5, o: { state: 'idle', facing: 'down', name: personName(state,'neo'), ...outfitLook(state, 'neo') } });
-    assignedHosts(state).filter(id=>id!=='neo'&&!STAFF_CREW.includes(id)).forEach((id,i)=>actors.push({key:id,x:2.5+(i%4)*2,y:10.5+Math.floor(i/4)*2,o:{state:'idle',facing:'down',name:personName(state,id),...outfitLook(state,id)}}));
+    if (spot.neo) actors.push({ key: catCafeActive(state)?'neo_cat_cafe':'neo', x: spot.neo.x, y: spot.neo.y, o: { state: 'idle', facing: 'down', name: personName(state,'neo'), ...outfitLook(state, 'neo') } });
+    assignedHosts(state).filter(id=>id!=='neo'&&!STAFF_CREW.includes(id)).forEach(id=>actors.push({key:id,x:spot[id].x,y:spot[id].y,o:{state:'idle',facing:'down',name:personName(state,id),...outfitLook(state,id)}}));
   }
   actors.sort((a, b) => a.y - b.y);
   const tags = [];
@@ -227,6 +226,16 @@ export function drawCafe(ctx, state, v, opts = {}) {
       ctx.setLineDash([]);
     }
   }
+}
+
+// 준비·정산 화면에서 서 있는 자리(칸 가운데). 준비 시간 잡담 말풍선(cafe-talk.js)도 이 자리를 기준점으로 쓴다
+export function prepSpots(state){
+  const job=state.foodGifts?.job?.maker==='yeoni',y=job?SPOTS.drinkFront:SPOTS.yeoniHome,out={yeoni:{x:y.x+.5,y:y.y+.5}};
+  for(const id of STAFF_CREW){const h=id==='luna'?SPOTS.lunaHome:SPOTS.sisHome;out[id]={x:h.x+.5,y:h.y+.5};}
+  const hosts=assignedHosts(state);
+  if(hosts.includes('neo')&&state.people.neo?.activity==='idle')out.neo={x:SPOTS.neoHome.x+.5,y:SPOTS.neoHome.y+.5};
+  hosts.filter(id=>id!=='neo'&&!STAFF_CREW.includes(id)).forEach((id,i)=>{out[id]={x:2.5+(i%4)*2,y:10.5+Math.floor(i/4)*2};});
+  return out;
 }
 
 function staffName(state, id) {
@@ -259,8 +268,9 @@ function drawTable(ctx, state, p, T, f, tb, t) {
   }
   if (tb?.state === 'cleaning' && tb.cleanEndAt != null) {
     const k = 1 - Math.max(0, tb.cleanEndAt - state.shift.elapsedMs) / (tb.cleanMs || PDF.CLEAN_MS);
-    ctx.strokeStyle = '#4fa3d9'; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(p.x + T / 2, p.y + T / 2, T * 0.42, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, k)); ctx.stroke();
+    ctx.strokeStyle = '#fff9ef'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(p.x + T / 2, p.y + T / 2, T * 0.42, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = '#8fae86'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(p.x + T / 2, p.y + T / 2, T * 0.42, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, k)); ctx.stroke(); ctx.lineCap = 'butt';
   }
   // 서빙된 음식 접시
   if (visit) {

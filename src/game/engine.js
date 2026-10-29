@@ -17,6 +17,7 @@ import { TEMP } from '../config/balance.temp.js';
 import { withEvents } from './state.js';
 import * as cafe from './cafe.js';
 import * as nom from './nomination.js';
+import { respondDemand } from './counter-demand.js';
 import * as shift from './shift.js';
 import * as eco from './economy.js';
 import * as interior from './interior.js';
@@ -40,7 +41,7 @@ const ALLOWED_WHILE_PAUSED = new Set(['resume', 'pause', 'auto.toggle', 'automat
 // 배드 엔딩(가게를 내줌) 뒤에는 후일담 자유 영업이 없다: 결산 닫기·결말 기록만 받는다
 const AFTER_BAD_END = new Set(['story.seen', 'settlement.close', 'tutorial.seen', 'pause', 'resume']);
 // 영업 중에만 의미가 있는 명령
-const SHIFT_ONLY = new Set(['order.table','order.quick', 'cook', 'cook.cancelNext', 'cook.cancel', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'fever.activate', 'stage.perform']);
+const SHIFT_ONLY = new Set(['order.table','order.quick', 'cook', 'cook.cancelNext', 'cook.cancel', 'serve', 'clean', 'nomination.accept', 'nomination.decline', 'nomination.propose', 'help.respond', 'counter.respond', 'fever.activate', 'stage.perform']);
 
 const FARM_ACTIONS = new Set(['farm.harvest','farm.plant','farm.water','farm.tend']);
 export const HELPERS = Object.freeze({neo:{tier:1,actions:['farm.water','farm.tend']},moka:{tier:2,actions:['farm.water','farm.tend']},yun:{tier:3,actions:['farm.harvest']}});
@@ -103,6 +104,7 @@ function execute(state, cmd) {
     case 'nomination.decline': return nom.decline(state, cmd.tableNo);
     case 'nomination.propose': return nom.propose(state, cmd.tableNo, cmd.personId);
     case 'help.respond': return nom.respondHelp(state, cmd.visitId, cmd.index, cmd.choice);
+    case 'counter.respond': return respondDemand(state, cmd.visitId);
     case 'fever.activate': return nom.activateFever(state);
     case 'stage.perform': return startStage(state);
     case 'concert.hold': return holdConcert(state);

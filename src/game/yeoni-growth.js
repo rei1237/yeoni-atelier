@@ -1,7 +1,7 @@
 import {emit} from './state.js';
 import {MENUS} from '../data/menus.js';
 // TEMP: 연이의 직접 활동 성장. 기존 플레이 기록은 소급하지 않는다.
-export const YEONI_GROWTH = Object.freeze({maxLevel:50, xp:{cook:12,farm:4,talk:10,gift:6}, revenuePerLevel:.01,revenueCap:.25,cookPerLevel:.01,cookCap:.2,checkoutPerLevel:.02,checkoutCap:.4,patiencePerLevel:.01,patienceCap:.2,reviewPerLevel:.02,reviewCap:.4});
+export const YEONI_GROWTH = Object.freeze({maxLevel:50, xp:{cook:12,farm:4,talk:10,gift:6,counter:1}, revenuePerLevel:.01,revenueCap:.25,cookPerLevel:.01,cookCap:.2,checkoutPerLevel:.02,checkoutCap:.4,patiencePerLevel:.01,patienceCap:.2,reviewPerLevel:.02,reviewCap:.4});
 export const YEONI_TITLES = Object.freeze([
  {id:'beginner',name:'첫 잔의 주인',kind:'level',need:1},
  {id:'cook',name:'향을 빚는 손',kind:'cook',need:10},
