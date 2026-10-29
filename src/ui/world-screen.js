@@ -10,6 +10,9 @@ import { townCheck } from '../game/town.js';
 import { questView } from '../game/economy.js';
 import { MENUS, INGREDIENTS } from '../data/menus.js';
 import { assetStyle, assetIcon } from './asset-html.js';
+// 10-29 사용자 요청: 데스크톱(넓은 화면 + 마우스)은 원본 해상도 지도, 모바일은 경량본. 고해상도를 다 받기 전에는 경량본을 그대로 쓴다
+const DESKTOP_MAP='(min-width: 1024px) and (hover: hover) and (pointer: fine)';
+const worldMapStyle=id=>(globalThis.matchMedia?.(DESKTOP_MAP).matches&&assetStyle('ui/town-map-hd'))||assetStyle(id);
 import { btn, esc } from './dom.js';
 
 // 목적지·의뢰는 기존 상태를 읽는다. 화면 이동은 행동력이나 보상을 바꾸지 않는다.
@@ -40,7 +43,7 @@ export function mapScreenHtml(state,ui) {
   const meeting=worldMeetingAccess(state);
   const chosen=WORLD_PLACES.find(p=>p.id===ui.worldPlace);
   const lock=chosen?(placeLock(state,chosen.id)||(chosen.id!=='atelier'&&!townCheck(state).ok?townCheck(state).reason:'')):'';
-  const mapStyle=assetStyle('ui/town-map-'+season(calendarOf(state.day).month));
+  const mapStyle=worldMapStyle('ui/town-map-'+season(calendarOf(state.day).month));
   const nodes=WORLD_PLACES.map(p=>{
     const pin=WORLD_NAV.destinations.find(d=>d.id===p.id).pin, why=placeLock(state,p.id);
     const name=why?(p.id==='expand'?'가구와 꽃 상점':'잠긴 장소'):p.name;

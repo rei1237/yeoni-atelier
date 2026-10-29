@@ -213,6 +213,7 @@
 | ui/town-map-summer | assets/ui/town-map-summer.webp | 1152×768 | 완료 |
 | ui/town-map-autumn | assets/ui/town-map-autumn.webp | 1152×768 | 완료 |
 | ui/town-map-winter | assets/ui/town-map-winter.webp | 1152×768 | 완료 |
+| ui/town-map-hd | assets/ui/jaeseong-island-hd.webp | 1536×1024 | 완료 |
 | ui/town-node-atelier | assets/ui/town-node-atelier.webp | 128×128 | 완료 |
 | ui/town-node-expand | assets/ui/town-node-expand.webp | 128×128 | 완료 |
 | ui/town-node-moka | assets/ui/town-node-moka.webp | 128×128 | 완료 |
@@ -673,7 +674,7 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 
 
 ### 2026-10-28 새 재성의 섬 원화
-사용자 승인한 신규 원화는 외부 참조 이미지 없이 생성했으며 원본은 D:/yeoni-qa/art/cafe-ux/new-island-20261028/original-worldmap.png에 보존한다. assets/ui/jaeseong-island.webp는 1152×768 경량 파생본이다. 새 원화의 위치·길은 src/ui/world-navigation-data.js를 따른다.
+사용자 승인한 신규 원화는 외부 참조 이미지 없이 생성했으며 원본은 D:/yeoni-qa/art/cafe-ux/new-island-20261028/original-worldmap.png에 보존한다. assets/ui/jaeseong-island.webp는 1152×768 경량 파생본이다. 10-29 사용자 요청으로 데스크톱(가로 1024px 이상 + 마우스·트랙패드, `(min-width: 1024px) and (hover: hover) and (pointer: fine)`)은 같은 원본을 그대로 옮긴 assets/ui/jaeseong-island-hd.webp(1536×1024, 품질 88, 506,510바이트, 표시 키 `ui/town-map-hd`)를 받는다. 모바일·태블릿 터치는 경량본만 받고, 데스크톱도 고해상도를 다 받기 전에는 경량본으로 보인다. 원본이 1536×1024라 그 이상은 다시 그려야 한다. 새 원화의 위치·길은 src/ui/world-navigation-data.js를 따른다.
 
 데스크톱 타이틀 assets/illustrated/backgrounds/title-landscape-hd.webp(1536×1024)는 title-landscape.webp와 같은 구도를 고해상도로 다시 그린 CSS 전용 파생본이다. 1024px 이상 화면에서만 받고, 원본 PNG는 D:/CodeDestiny-Build/yeoni-hd/title-landscape-hd.png에 둔다.
 

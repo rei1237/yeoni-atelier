@@ -74,6 +74,13 @@
     "source": "https://assets.code-destiny.com/CodeDestinyNovel/background/재성의 섬.webp"
   },
   {
+    "id": "ui/town-map-hd",
+    "tool": "image_gen built-in",
+    "sourceFile": "D:/yeoni-qa/art/cafe-ux/new-island-20261028/original-worldmap.png",
+    "prompt": "2026-10-28 사용자 승인 새 재성의 섬 원화(1536×1024)를 데스크톱용으로 그대로 옮김. 신규 생성·확대 없음.",
+    "normalization": "PIL WebP quality88/method6, 원본 해상도 유지(10-29 데스크톱 전용)"
+  },
+  {
     "id": "icons/bean",
     "tool": "image_gen built-in",
     "sourceFile": "exec-6e74415e-2857-47e3-ab5f-19a30e6af1d9.png",

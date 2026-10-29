@@ -9962,6 +9962,7 @@ for(let i=0;i<8;i++) ASSET_UPDATES.actors[`customer@look${i}`] = {...ASSET_UPDAT
 
 // 원작 재성의 섬 정본. 계절에 따른 새 설정 없이 같은 원본을 공유한다.
 for(const season of ['spring','summer','autumn','winter'])ASSET_UPDATES.ui['town-map-'+season]={kind:'ui',label:'재성의 섬',path:'assets/ui/jaeseong-island.webp',dimensions:[1152,768],opaque:true};
+ASSET_UPDATES.ui['town-map-hd']={kind:'ui',label:'재성의 섬 · 데스크톱 원본 해상도',path:'assets/ui/jaeseong-island-hd.webp',dimensions:[1536,1024],opaque:true}; // 10-29: 데스크톱에서만 불러온다(world-screen.js)
 
 // 원본 도착 전 연결 정의만 둔다. 픽셀·규격·예산 검증 후에만 manifest.ready에 추가한다.
 ASSET_UPDATES.buildings={...(ASSET_UPDATES.buildings||{}),...Object.fromEntries(['original','blossom','salon'].map(id=>['cafe_'+id,{kind:'object',label:'카페 외관 '+id,path:'assets/illustrated/buildings/cafe_'+id+'.webp',dimensions:[256,256],anchor:{x:128,y:240.64},size:{w:6,h:3}}]))};
