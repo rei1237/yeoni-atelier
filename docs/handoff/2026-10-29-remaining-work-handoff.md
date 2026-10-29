@@ -92,5 +92,8 @@ C:\Users\user 에서 세션을 열고:
    - 고치려면 준비 화면 잡담의 화자·문장·주기(새 내용)를 정해야 한다 → 사람 결정 대기로 남긴다. 정해지면 ①의 조건에 `prep`을 넣고 ②를 `[data-mode=shift]`로 좁히고 준비 화면 잡담 발생원을 더한다
 3. 농장 일괄 수확(설계 3) → 테스트 추가 → 농장 창 QA → 커밋 — 미착수
 4. 손님 요구 게이지 설계 초안(설계 4) → WORLD.md·TUNING.md → 커밋(구현 안 함) — 완료(설계 초안만: WORLD.md "손님 요구: 계산대 한마디"·TUNING.md TEMP 후보와 구현 조건. 보상 종류는 사람 결정 대기)
-5. UI 그림(설계 5) → 하나씩 만들고 등록·비교 → `node tools/check-assets.mjs`·`PYTHONIOENCODING=utf-8 py tools/check-sprites.py` → 하나씩 커밋 — 미착수
+5. UI 그림(설계 5) → 하나씩 만들고 등록·비교 → `node tools/check-assets.mjs`·`PYTHONIOENCODING=utf-8 py tools/check-sprites.py` → 하나씩 커밋 — 완료(새 그림 없음, 비교만)
+   - 이 후보 목록은 09:03에 썼고, 09:21에 72443b8이 메인 화면·창 틀을 도트 테마로 바꿨다. ① 하단 명령줄 아이콘(12×12 도트 아이콘) ② 상점 공통 틀 ④ 준비 화면 패널 틀은 그 커밋에서 이미 다시 그려졌다. 여기에 손그림 일러스트를 올리면 도트 방향과 부딪힌다
+   - ③ 결산 카드 ⑤ 농장 밭 타일은 390×844에서 찍어 봤다. 어색한 그림이 없어서 "원본보다 어색하면 넣지 않는다"에 따라 넣지 않았다. 찍은 화면은 `D:/yeoni-qa/art/ui-v2/compare/ui-before-{prep,shop,settle,farm}-390.png`
+   - 사람 결정 대기: 결산 카드도 도트 테마(`main-pixel.css`)로 맞출지. 지금은 둥근 카드라 메인 화면 도트 틀과 결이 다르다. 이건 그림이 아니라 CSS 일이다
 6. `npm test`·`node tools/check-assets.mjs`·`PYTHONIOENCODING=utf-8 py tools/check-sprites.py`·`git diff --check` → release.json 올림(version·baseCommit, 에셋이 바뀌면 assetBytes) → `git push origin HEAD:main` → `gh run list --limit 6 --json name,headSha,status,conclusion`(Game checks), `gh api repos/rei1237/yeoni-atelier/commits/<sha>/statuses`(Vercel), `curl https://rei1237.github.io/yeoni-atelier/release.json`(Pages) → 이 문서에 SHA 기록·`status: done` → 한국어 보고(실기기는 "미검증") — 미착수
