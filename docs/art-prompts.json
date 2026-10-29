@@ -4027,8 +4027,8 @@
   },
   {
     "id": "ui/game_flying",
-    "tool": "built-in image_gen",
-    "prompt": "Official pink lotus flower pig with lavender scarf flying toward golden lotus between moonlit garden towers. Premium painted game card, no text.",
+    "tool": "image_gen built-in",
+    "prompt": "16:9 storybook fantasy game card without text. Yeoni the round pink lotus pig and Yeongnyangi the white wizard cat on a navy bronze sky motorcycle fly together through a moonlit Korean lotus garden. Yeoni has two clearly separated front paws attached at shoulders, two hindlegs and translucent wings separate from arms. Lavender scarf, dimensional pink lotus, full characters centered with mobile safe margins. Cat wears goggles and a wizard hat; blue propulsion behind the motorcycle.",
     "reference": "D:/CodeDestiny-Build/연이 프로필1.png",
     "pixelRedraw": {
       "date": "2026-10-29",
@@ -4038,7 +4038,9 @@
       "reference": "D:/yeoni-qa/art/pixel-v1/ref-game-flying-original.png",
       "original": "D:/yeoni-qa/art/pixel-v1/game-flying-pixel-1.png",
       "export": "16:9 가운데 자르기 → LANCZOS 축소 → WebP q78"
-    }
+    },
+    "sourceFile": "scratch/art-originals/game-flying-duo.png",
+    "normalization": "sharp resize cover 480x270 WebP quality90 effort6; generated PNG preserved locally in scratch/art-originals; no runtime geometry changes."
   },
   {
     "id": "ui/game_killer",
