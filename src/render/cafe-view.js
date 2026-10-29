@@ -209,8 +209,8 @@ export function drawCafe(ctx, state, v, opts = {}) {
   pieces.sort((a,b)=>a.depth-b.depth);for(const piece of pieces)piece.paint();
   for (const paint of stageRain.splice(0)) paint(); // 손님 위, 주문 말풍선 아래
   if(state.mode==='shift')drawStations(ctx,state,v);
-  // 테이블 말풍선 자리(table-ui.js tableBadgesHtml과 같은 기준점, 폭은 최소 폭 44px)
-  const badges = state.mode === 'shift' ? state.tables.filter(t => t.customerId || t.state === 'dirty' || t.state === 'cleaning').map(t => { const b = P(t.table.x + .5, t.table.y + .15); return { x: b.x, y: b.y - 44 - T * .35, w: 44, h: 46 }; }) : [];
+  // 피할 자리: 화면이 실제 말풍선·확대 버튼 크기를 넘겨 주면(opts.tagAvoid) 그것을, 없으면 tableBadgesHtml 기준점과 최소 폭 44px로 어림한다
+  const badges = opts.tagAvoid || (state.mode === 'shift' ? state.tables.filter(t => t.customerId || t.state === 'dirty' || t.state === 'cleaning').map(t => { const b = P(t.table.x + .5, t.table.y + .15); return { x: b.x, y: b.y - 44 - T * .35, w: 44, h: 46 }; }) : []);
   drawNameTags(ctx, tags, T * 1.8, badges);
 
   // 편집 표시: 선택 가구와 문제 가구

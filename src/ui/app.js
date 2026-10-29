@@ -770,6 +770,7 @@ function render(force = false) {
   morph(el.bubbles, state?.mode === 'shift' || state?.mode === 'hunt' ? bubblesHtml(ui) : '');
   morph(el.hits, hitsHtml(state, view, ui)+tableBadgesHtml(state,view)+tablePopHtml(state,view,ui));
   document.getElementById('camera-controls').hidden=!state||state.mode==='hunt'||!!state.interior.draft&&ui.decorSpace==='outdoor';
+  ui.tagAvoid=state&&state.mode!=='hunt'?domTagAvoid():null;
   const hunting=state?.mode==='hunt', h=state?.hunt;
   // 보스곡은 서한비(검은 호랑이) 전용. 일반 단계 보스는 깊이별 사냥곡
   const hanbiAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>e.type==='boss_hanbi');
@@ -808,7 +809,7 @@ function draw(t) {
   const draft = state.interior.draft;
   let problemUids;
   if (draft) problemUids = new Set(interiorPreview(state).problems.map(p => p.uid).filter(Boolean));
-  drawCafe(ctx, state, view, { selectedUid: draft?.selected ?? null, problemUids, focusArea: draft ? ui.decorArea : null, t, reducedMotion:motionPreference.matches });
+  drawCafe(ctx, state, view, { selectedUid: draft?.selected ?? null, problemUids, focusArea: draft ? ui.decorArea : null, t, reducedMotion:motionPreference.matches, tagAvoid: ui.tagAvoid });
   for (const tb of state.tables) tablePx[tb.no] = cellToPx(view, tb.table.x + 0.5, tb.table.y);
 }
 
@@ -853,6 +854,8 @@ if (DEV && new URLSearchParams(location.search).get('qa') === 'actors') import('
 document.addEventListener('change',e=>{if(e.target.id==='hunt-stage'){ui.huntStage=Number(e.target.value);render(true);}});
 
 // 브라우저 확대에서도 논리 화면 좌표를 한 곳에서 계산한다.
+// 이름표가 피할 DOM 사각형(테이블 말풍선·확대 버튼)을 실제로 놓인 크기 그대로 캔버스 좌표로 바꾼다(x는 가운데)
+function domTagAvoid(){const cr=el.canvas.getBoundingClientRect();if(!cr.width||!cr.height)return null;const k=cssW/cr.width,q=cssH/cr.height,box=r=>({x:(r.left-cr.left+r.width/2)*k,y:(r.top-cr.top)*q,w:r.width*k,h:r.height*q});const out=[...el.hits.querySelectorAll('.table-badge')].map(b=>box(b.getBoundingClientRect()));const cam=document.getElementById('camera-controls');if(!cam.hidden&&cam.offsetParent)out.push(box(cam.getBoundingClientRect()));return out;}
 function canvasPoint(e){const r=el.canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*cssW/r.width,y:(e.clientY-r.top)*cssH/r.height};}
 let cameraDrag=null;
 el.stage.addEventListener('pointerdown',e=>{if(state?.mode==='hunt'||e.target.closest('button,.decor-grounds')||(ui.camera.zoom<=1&&view.tile*view.cols<=cssW&&view.tile*view.rows<=cssH))return;const p=canvasPoint(e);cameraDrag={x:p.x,y:p.y,px:ui.camera.x,py:ui.camera.y};el.stage.setPointerCapture(e.pointerId);});
