@@ -27,10 +27,12 @@ test('두 번째 영업을 마치면 운세 이야기가 나오고, 본 뒤에 �
   assert.notEqual(pendingStory(s), 'ev:fortune');
   const ui = { sheet: { kind: 'fortune' } };
   assert.match(sheetHtml(s, ui), /두 번째 영업을 마치면/);
+  assert.match(sheetHtml(s, { sheet: { kind: 'manage' } }), /notebook-link locked" data-action="sheet.open" data-sheet="fortune"[^]*?두 번째 영업을 마치면 열려요/, '수첩에서는 잠긴 타일로 열리는 조건을 보여 준다');
   s.stats.shiftsCompleted = 2;
   assert.equal(pendingStory(s), 'ev:fortune');
   assert.ok(EVENT_STORIES['ev:fortune'].length > 5);
   assert.equal(markStory(s, 'ev:fortune').destination, 'fortune');
+  assert.doesNotMatch(sheetHtml(s, { sheet: { kind: 'manage' } }), /notebook-link locked" data-action="sheet.open" data-sheet="fortune"/, '이야기를 본 뒤에는 잠금이 풀린다');
   const html = sheetHtml(s, { ...ui, fortuneBirth: '1996-08-01', fortuneFlip: true });
   assert.match(html, /오늘의 타로 한 장/);
   assert.match(html, /쥐띠/);
