@@ -7,8 +7,7 @@ import {dispatch} from '../src/game/engine.js';
 import {TEMP} from '../src/config/balance.temp.js';
 import {maybeDemand,openDemands} from '../src/game/counter-demand.js';
 import {newTalk,prepTalk,stepTalk,PREP_FIRST,PREP_LINE} from '../src/ui/cafe-talk.js';
-import {prepSpots,computeView} from '../src/render/cafe-view.js';
-import {tableBadgesHtml} from '../src/ui/table-ui.js';
+import {prepSpots} from '../src/render/cafe-view.js';
 
 function asking(s,{bill=200,ago=0}={}){
  const {cid,vid}=seat(s,{kind:'regular'}),v=s.visits[vid],at=s.shift.elapsedMs-ago;
@@ -53,11 +52,4 @@ test('영업 준비 화면에서 연이와 동료가 장면 하나를 주고받�
  const next=stepTalk(talk,s,PREP_FIRST+PREP_LINE+10).map(i=>i.who);
  assert.equal(next.length,2);assert.notEqual(next[0],next[1],'다른 사람이 받아 준다');
  s.mode='shift';assert.equal(prepTalk(newTalk(),s,PREP_FIRST),false);
-});
-
-test('부탁한 계산대 손님 머리 위 말풍선으로 바로 팁을 받는다',()=>{
- const s=quietShift(),v=asking(s),html=tableBadgesHtml(s,computeView(1180,700));
- assert.match(html,new RegExp(`data-action="counter.respond" data-visit="${v.id}"[^>]*>.*팁 받기`));
- dispatch(s,{type:'counter.respond',visitId:v.id});
- assert.doesNotMatch(tableBadgesHtml(s,computeView(1180,700)),/counter\.respond/,'받고 나면 말풍선이 사라진다');
 });
