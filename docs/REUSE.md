@@ -117,3 +117,6 @@ Code Destiny 로컬 원본의 공개 프로필·라이트노벨 이미지·운�
 - 글꼴 원본: [Galmuri](https://github.com/quiple/galmuri) 2.40.3 Galmuri11-Bold, SIL Open Font License 1.1(© Lee Minseo). KS X 1001 완성형 한글·ASCII·기호 2,481자로 서브셋했고 파일은 `assets/fonts/YeoniPixel-Subset.woff2`(40,968바이트)다.
 - 수정 글꼴의 내부 family/PostScript 이름은 `Yeoni Pixel` / `YeoniPixel-Bold`로 바꿨다. 원본 저작권·OFL 전문은 `assets/fonts/OFL-Galmuri.txt`에 함께 배포한다. 메인 화면 버튼(`title-pixel.css`)에서만 쓴다.
 - 버튼 도트 아이콘(`src/ui/pixel-icons.js`, 12×12 SVG)은 이 프로젝트에서 새로 그린 게임 오리지널이다.
+
+## 2026-10-29 메인 화면 등장인물 · 재성의 섬 이야기
+`src/ui/lore.js`의 인물 소개와 재성의 섬 줄거리는 읽기 전용 code-destiny 저장소의 `app/world/world-data.js`(세계관 페이지 인물·장소)와 `lib/stories/vn/index.ts`의 EP.13–16 한 줄 소개를 짧게 고쳐 쓴 것이다. 문장을 그대로 옮기지 않았고, 네오·검은 호랑이·흑월의 정체와 원작 결말은 넣지 않았다. 「아틀리에에서」 줄은 이 게임의 외전 설정이다. 초상화는 이 저장소에 이미 있는 에셋만 썼다.

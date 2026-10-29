@@ -397,6 +397,9 @@ const ACTIONS = {
 
   'game.room':()=>{if(state)save();ui.gameRoom=true;},
   'game.room.close':()=>{ui.gameRoom=false;},
+  'lore.open':()=>{ui.loreBook='cast';},
+  'lore.tab':d=>{ui.loreBook=d.tab==='story'?'story':'cast';},
+  'lore.close':()=>{ui.loreBook=null;},
   'game.install':()=>installApp(),
   'game.wake':()=>{ui.exited=false;},
   'game.exit':()=>{if(state&&(!storageOk||!saveGame(storage,SAVE_KEY,state).ok)){toast('저장을 완료하지 못했어요. 종료 전에 저장 상태를 확인해 주세요.','bad');return;}ui.exitSaved=!!state;goTitle();ui.exited=true;if(audioStatus().music)audioAction('music');if(window.opener)window.close();},
