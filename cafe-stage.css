@@ -24,3 +24,26 @@ body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details b{font-size:1
  body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details{margin-top:2px;padding-top:0;border-top:0;gap:4px}
  body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details button{margin-block:0}
 }
+
+/* B. 세로 화면 명령줄: 보조 버튼은 아이콘만 남겨 영업 시작(준비)·상황 한 줄(영업)과 한 줄로, 아래 탭은 48px.
+   준비 화면의 첫날 안내 카드는 무대 아래쪽에 떠 있는 카드가 된다(영업 중에는 제자리). 서랍이 열리면 카드를 숨긴다 */
+@media(max-width:899px) and (min-height:501px){
+ body[data-mode][data-cafe-focus=true] #panel .cafe-commandbar{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;padding:4px 8px calc(4px + env(safe-area-inset-bottom))}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-commandbar>*{flex:1 0 100%;min-width:0;margin-block:0}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-utility-line{flex:1 1 auto;gap:2px;min-height:44px}
+ body[data-mode=prep][data-cafe-focus=true] #panel .cafe-utility-line{flex:0 0 auto}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-live-line{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-utility{min-width:44px;padding:0}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-utility:not(.music-toggle)>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-utility .ml-icon{width:20px;height:20px}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-opening{flex:1 1 0;max-width:none;margin:0;padding:0}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-opening>span{display:none}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-opening .cafe-open{min-height:48px;padding:6px 10px;font-size:15px;white-space:nowrap}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-actions{padding-top:2px}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-actions .cafe-nav-item{min-height:48px;gap:2px;padding:2px 1px}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-actions .ml-icon{width:22px;height:22px}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-actions .cafe-nav-item span{font-size:11px;line-height:1.2}
+ body[data-mode=prep][data-cafe-focus=true] #panel .first-day-guide{position:absolute;left:8px;right:8px;bottom:calc(100% + 8px);z-index:2;padding:8px 10px}
+ body[data-mode=prep][data-cafe-focus=true] #panel .first-day-guide p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ body[data-mode=prep][data-cafe-focus=true] #panel .cafe-commandbar:has(~.cafe-drawer:not([hidden])) .first-day-guide{display:none}
+}
