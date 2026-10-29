@@ -50,7 +50,7 @@ body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details b{font-size:1
 
 /* C. 넓은 화면: 무대는 왼쪽 전체 높이, 패널은 오른쪽 기둥. 명령줄을 풀어(display:contents) 안내 → 영업 시작 → 탭 → 서랍 → 보조 줄 순서로 쌓는다.
    서랍은 무대 위에 뜨지 않고 기둥 안 탭 내용이 된다 */
-@media(min-width:900px){
+@media(min-width:900px),(max-height:500px) and (orientation:landscape){
  body[data-mode][data-cafe-focus=true] #app{display:grid;grid-template-columns:minmax(0,1fr) 320px;grid-template-rows:auto minmax(0,1fr)}
  body[data-mode][data-cafe-focus=true] #topbar{grid-column:1/-1;grid-row:1}
  body[data-mode][data-cafe-focus=true] #stage{grid-column:1;grid-row:2}
@@ -69,4 +69,12 @@ body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details b{font-size:1
  body[data-mode][data-cafe-focus=true] #panel .cafe-drawer-body .customer-orders{max-height:none}
  body[data-mode][data-cafe-focus=true] #panel .cafe-utility-line{order:4;margin-top:auto;flex-wrap:wrap;justify-content:center}
  body[data-mode][data-cafe-focus=true] #panel .cafe-live-line{flex:1 0 100%;text-align:center}
+}
+/* E. 가로 폰: 방이 세로로 길어 무대는 폭을 다 못 쓴다. 옆 패널을 넓게 두고 상단 바는 칩 44px 한 줄만 남긴다 */
+@media(max-height:500px) and (orientation:landscape){
+ body[data-mode][data-cafe-focus=true] #app{grid-template-columns:minmax(0,1fr) min(440px,52%)}
+ body[data-mode][data-cafe-focus=true] #topbar{min-height:0;padding-block:1px}
+ body[data-mode][data-cafe-focus=true] #panel{gap:6px;padding-top:8px}
+ body[data-mode][data-cafe-focus=true] #panel .cafe-opening>span{display:none}
+ body[data-mode][data-cafe-focus=true] #camera-controls{flex-direction:column}
 }
