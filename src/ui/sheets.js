@@ -627,7 +627,7 @@ function chestDialog(state) {
 }
 
 // 한 번 출발에 3단계를 마친 사냥꾼의 한마디
-export const tiredLine = id => id === 'seohanbi' ? '오늘 사냥은 여기까지. 무리하면 내일이 무뎌져' : id === 'yeoni_pig' ? '꿀악! 오늘 운동은 별 다섯… 이제 간식 먹으러 가자!' : '또 나만 뛰었네. 연이 얼굴 보고 쉬어야겠다.';
+export const tiredLine = id => id === 'seohanbi' ? '오늘 사냥은 여기까지. 무리하면 내일이 무뎌져' : id === 'yeoni_pig' ? '오늘 운동운은 별 다섯! 이제 행운의 간식 먹으러 가자!' : '또 나만 뛰었네. 연이 얼굴 보고 쉬어야겠다.';
 
 // 단계 클리어: 다음 단계로 이어 가거나 귀환해 정산한다. 고르는 동안 시간이 멈춘다
 function stageClearDialog(state) {

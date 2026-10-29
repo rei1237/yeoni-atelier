@@ -14,7 +14,7 @@ export const BOND_STORIES = Object.freeze(extendBondScenes({
       { s: 'neo_cat', t: '…세는 건 좋다. 대신 내 뒤에서 세라.', c: 'neo_cat:serious' },
       { s: 'nar', t: '연이는 장부를 어떻게 할까?', skipText: '건너뛰기', choices: [
         { id: 'hold', text: '장부를 꼭 안고 뒤에 선다.', beats: [
-          { s: 'yeoni', t: '뒤에서 세는 거, 회계 담당의 정석이지. 꿀악.', l: 'yeoni:smile' },
+          { s: 'yeoni', t: '뒤에서 세는 거, 회계 담당의 정석이지. 오늘 운세도 꼼꼼함이 행운이래.', l: 'yeoni:smile' },
           { s: 'neo_cat', t: '정석이라. 좋은 말이군.', c: 'neo_cat:smug' },
         ] },
         { id: 'lamp', text: '장부 대신 등불을 들어 길을 비춘다.', beats: [

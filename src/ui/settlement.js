@@ -8,10 +8,10 @@ import { TEMP } from '../config/balance.temp.js';
 
 // 서빙률(서빙 완료 ÷ (서빙 완료 + 놓친 주문)) 기준 도장
 const GRADES = {
-  perfect: { label: '완벽한 영업', stars: 3, line: '꿀악! 한 분도 놓치지 않았어. 오늘 우리 정말 완벽했지?' },
+  perfect: { label: '완벽한 영업', stars: 3, line: '오늘 점괘가 대길이더니 한 분도 놓치지 않았어! 우리 정말 완벽했지?' },
   great: { label: '훌륭한 영업', stars: 2, line: '오늘도 수고 많았어! 손님들 표정이 다 밝았어.' },
   good: { label: '무난한 영업', stars: 1, line: '조금 바빴지만 잘 버텼어. 다음 순엔 더 잘할 수 있어!' },
-  tough: { label: '아쉬운 영업', stars: 0, line: '꿀악… 놓친 주문이 좀 있었어. 다음엔 서빙 순서를 같이 정해 보자.' },
+  tough: { label: '아쉬운 영업', stars: 0, line: '놓친 주문이 좀 있었어. 운도 준비한 만큼 따라오니까, 다음엔 서빙 순서를 같이 정해 보자.' },
   quiet: { label: '조용한 하루', stars: 0, line: '오늘은 손님이 적었네. 다음 순엔 더 많이 오시도록 준비해 보자!' },
 };
 
@@ -26,7 +26,7 @@ export function settlementView(state) {
   const mvp = crew.length > 1 && crew[0].jobs > crew[1].jobs ? crew[0].id : null;
   const tips = s.baseTips + s.feverTips + (s.stageTips || 0), income = s.sales + (s.hostFees || 0) + tips;
   const monthEnd = (s.payroll?.closed ? s.payroll.paid : 0) + (s.loanInterest?.due ? s.loanInterest.paid : 0) + (s.interest?.due ? s.interest.paid : 0);
-  const line = best ? '꿀악! 오늘이 우리 카페 최고 기록이야! 다들 정말 고마워.' : past.length === 0 ? '꿀악! 우리 카페 첫 영업 끝! 같이 해 줘서 고마워.' : GRADES[grade].line;
+  const line = best ? '오늘이 우리 카페 최고 기록이야! 별자리가 다 같이 웃어 준 날이네, 다들 고마워.' : past.length === 0 ? '우리 카페 첫 영업 끝! 첫 점괘처럼 좋은 시작이야, 같이 해 줘서 고마워.' : GRADES[grade].line;
   return { rate, grade, ...GRADES[grade], best, first: past.length === 0, crew, mvp, tips, income, monthEnd, line };
 }
 

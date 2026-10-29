@@ -21,7 +21,7 @@ export const SEASON_STORIES = Object.freeze([
     { s: 'luna_sis', t: '오늘은 팔다 남은 게 아니라, 처음부터 우리 몫으로 구웠어요.' },
     { s: 'neo', t: '바구니는 내가 들게. 연이는 자리만 골라.', r: 'neo:smile' },
     { s: 'yun', t: '꽃잎이 찻잔에 떨어졌네. 점술가 말로는, 이번 봄 손님 복이 좋다는 뜻이야.', r: 'yun:smile', need: 'yun' },
-    { s: 'yeoni', t: '꽃잎 하나에 손님 열 명이면 벌써 백 명은 넘겠다. 꿀악, 장부가 모자라!', l: 'yeoni:surprised' },
+    { s: 'yeoni', t: '꽃잎 하나에 손님 열 명이면 벌써 백 명은 넘겠다. 이번 봄 재물운이면 장부가 모자라겠어!', l: 'yeoni:surprised' },
     { s: 'yeoni', t: '(벚꽃 도시락 별 다섯. 오늘 장부에는 꽃잎 칸을 하나 더 그렸다.)', l: 'yeoni:smile' },
   ],
   // 2 · 1년차 5월

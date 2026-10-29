@@ -158,7 +158,7 @@ export const ENDINGS = Object.freeze({
       { s: 'luna', t: '모카가 별 다섯 줬어! 언니, 우리 카페 이제 진짜 우리 거야!', c: 'luna:cry' },
       { s: 'luna_sis', t: '괜찮아요. 아니, 오늘은 괜찮은 정도가 아니라… 행복해요.', c: 'luna_sis:smile' },
       { s: 'neo', t: '연이, 두 해 동안 가게를 함께 지켰는데 다들 웃고 있어. 신기하지.', r: 'neo:smile' },
-      { s: 'yeoni', t: '계산대가 가게의 심장이거든! 꿀악, 오늘 평점은 별 다섯 개 만점!', l: 'yeoni:smile', fx: 'glow' },
+      { s: 'yeoni', t: '계산대가 가게의 심장이거든! 오늘 재물운도 평점도 별 다섯 개 만점!', l: 'yeoni:smile', fx: 'glow' },
       { s: 'yeoni', t: '(그리고 이 장부의 마지막 줄은, 값을 매기지 않기로 했다.)', l: 'yeoni:normal' },
       { s: 'impact', t: 'THE END · 그리고 아틀리에는 계속된다', bg: 'atelier_lit' },
     ],
