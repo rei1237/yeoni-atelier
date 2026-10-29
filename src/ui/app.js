@@ -18,7 +18,8 @@ import { worldScreenHtml, WORLD_PLACES } from './world-screen.js';
 import { tableBadgesHtml, tablePopHtml } from './table-ui.js';
 import { bondQuestion } from '../data/bond-dialogues.js';
 import { talkCheck } from '../game/bonds.js';
-import {CAFE_LINES,selectLine} from '../data/cafe-dialogue.js';
+import {CAFE_LINES,PATRON_TIP_LINES,selectLine} from '../data/cafe-dialogue.js';
+import {ELDER_LOOKS} from '../data/customer-looks.js';
 import {newTalk,guestTalk,staffTalk,sayTalk,syncTalk,prepTalk} from './cafe-talk.js';
 import {newCraft,mixCraft,craftHeat,craftQuality,craftShortage,deliverable} from './crafting.js';
 import {findRecipe} from '../game/recipe.js';
@@ -674,6 +675,9 @@ function handleEvents(events) {
       case 'paidAtCounter': sound('coin'); floater(cssW/2,cssH*.78,`계산 +${ev.amount}G`,'#b07a12');break;
       case 'cafeLevelUp': sound('bond'); toast(`카페 Lv.${ev.level}! ${ev.apGain>0?`다음 순부터 마을 행동력 +${ev.apGain}`:'더 많은 손님과 새로운 취향이 찾아와요'}`,'good');break;
       case 'counterDemand': sound('bond'); break;
+      case 'patronTip': {sound('coin');const c=state.customers?.[ev.customerId],pool=ELDER_LOOKS.includes(c?.look)&&ev.wealthId==='tycoon'?PATRON_TIP_LINES.elder:PATRON_TIP_LINES[ev.wealthId]||PATRON_TIP_LINES.generous;
+        if(c&&state.mode==='shift')guestTalk(ui.talk??=newTalk(),state,{customerId:c.id,line:selectLine(pool,Math.random()),topic:'patronTip'},performance.now(),Math.random());
+        floater(cssW/2,cssH*.72,`${ev.wealthId==='tycoon'?'대부호':'통큰'} 손님 팁 +${ev.tip}G`,'#c9962e');break;}
       case 'counterDemandDone': {const k=DEMAND_KINDS[ev.kind];sound('coin');toast(`${k.icon} ${k.done}${ev.tip?` · 팁 +${ev.tip}G`:''}`,'good',2400);break;}
       case 'takeawayDone': toast('포장 완료 · 손님이 계산대에서 받아 갔어요','good');break;
       case 'farmAction': ui.farmFeedback=ev.text;ui.farmMotion={kind:ev.kind,index:ev.index,cropId:ev.cropId,at:performance.now()};ui.farmAnimUntil=performance.now()+1800;toast(ev.text,'good');break;

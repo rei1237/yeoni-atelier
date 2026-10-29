@@ -663,6 +663,12 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 | service/elder_transition_clothes_mask | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
 | actors/customer_transition@look3 | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
 | actors/customer_transition@look7 | 512×640 | 완료 | 정확 rect·공통 스케일·발64,122 |
+| actors/customer@look8 | 512×512 | 완료 | 10-29 남자 손님 · 할아버지 시트 참조 생성·발 정규화 |
+| actors/customer_seated@look8 | 512×512 | 완료 | 10-29 남자 손님 · 할아버지 시트 참조 생성·발 정규화 |
+| actors/customer_transition@look8 | 512×640 | 완료 | 10-29 남자 손님 · 할아버지 시트 참조 생성·발 정규화 |
+| actors/customer@look9 | 512×512 | 완료 | 10-29 남자 손님 · 할아버지 시트 참조 생성·발 정규화 |
+| actors/customer_seated@look9 | 512×512 | 완료 | 10-29 남자 손님 · 할아버지 시트 참조 생성·발 정규화 |
+| actors/customer_transition@look9 | 512×640 | 완료 | 10-29 남자 손님 · 할아버지 시트 참조 생성·발 정규화 |
 
 앉기 4방향×4프레임, 일어서기는 역순, 오른쪽 결제4프레임(현재 왼쪽 결제는 좌우 반전). 옷 마스크는 기존4유형의 색 기준을 재사용한다. 기존 정지 착석과 연결되는 몸 크기/골반 접점은 실제 화면에서 별도로 검수한다. 전환 시트 끝자세의 골반은 셀 y105 부근이므로 기존 정지 시트의 y93과 같은 좌석에 맞추도록 렌더 발 위치를 보간한다.
 

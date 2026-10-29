@@ -10132,3 +10132,11 @@ ASSET_UPDATES.actors.raven_stage={"kind":"actor","label":"레이븐 카페 무�
 ASSET_UPDATES.actors.yeoni_cheer={"kind":"actor","label":"연이 무대 응원(박수·응원봉·금화 받기)","path":"assets/illustrated/actors/yeoni_cheer.webp","dimensions":[512,384],"frame":{"w":128,"h":128},"anchor":{"x":64,"y":122},"columns":4,"directionRows":0,"directions":["down"],"stateRows":{"clap":0,"cheer":1,"count":2},"states":{"clap":{"frames":4,"fps":5,"loop":true,"directional":false},"cheer":{"frames":4,"fps":5,"loop":true,"directional":false},"count":{"frames":4,"fps":5,"loop":true,"directional":false}}};
 ASSET_UPDATES.effects.stage_fx={"kind":"ui","label":"무대 꽃잎 지폐·금화·벚꽃잎","path":"assets/illustrated/effects/stage_fx.webp","dimensions":[512,384],"frames":4};
 ASSET_UPDATES.ui.debt_ledger={kind:"ui",label:"빚 상환 장부(장미·세이지·금화·초승달 책갈피)",path:"assets/illustrated/ui/debt_ledger.webp",dimensions:[720,328]};
+
+// 10-29 남자 손님 2종(look8 후드티 청년·look9 정장 신사). 기존 할아버지 시트와 같은 셀·기준점이며 옷색 변형은 없다. 원본 D:/yeoni-qa/art/male-customers-v1
+for(const [look,id] of [[8,'hoodie'],[9,'suit']]){
+ ASSET_UPDATES.actors['customer@look'+look]={...ASSET_UPDATES.actors.customer_elder,label:'손님 '+id,path:`assets/illustrated/actors/customer_${id}.webp`};
+ ASSET_UPDATES.actors['customer_seated@look'+look]={...ASSET_UPDATES.actors.customer_elder_seated,label:'손님 '+id+' 착석',path:`assets/illustrated/actors/customer_${id}_seated.webp`};
+ const t={...ASSET_UPDATES.actors['customer_transition@look3'],path:`assets/illustrated/actors/customer_${id}_transition.webp`};delete t.clothesHue;delete t.clothesMask;
+ ASSET_UPDATES.actors['customer_transition@look'+look]=t;
+}

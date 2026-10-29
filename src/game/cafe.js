@@ -7,7 +7,7 @@ import {activeSlotNames,heldKey,runningJobs,queuedJobs,stationJobs,stationItems}
 export {stationJobs,stationItems} from './station-slots.js';
 import { HALL_ABILITIES, ABILITIES, hallAutomationOn } from './permissions.js';
 import {qualityForTiming,qualityOf,foodScore} from '../data/cooking-quality.js';
-import { customerLook } from '../data/customer-looks.js';
+import { customerLook, pickLook } from '../data/customer-looks.js';
 import {wealthEligible} from './cafe-growth.js';
 import {changePopularity,guestChatter,waitingSatisfaction,reviewVisit} from './reputation.js';
 import {cafeProgress,customerWealth,atmosphere,menuWeight,menuPrice} from './cafe-growth.js';
@@ -689,6 +689,7 @@ export function spawnCustomer(state, spec) {
   };
   c.nominationGuest=spec.kind==='nomination';
   if(takeaway)c.takeawaySpot={...t.chair};
+  if(!c.nominationGuest)c.look=pickLook(TEMP.PATRON,wealthId,nextRandom(state.rng),nextRandom(state.rng));
   c.look = customerLook(c);
   const visit = {
     id: vid, customerId: cid, tableNo: t.no, kind: spec.kind, motive:spec.motive || (spec.kind==='regular' && nextRandom(state.rng)<Math.min(.55,.1+atmosphere(state)/140)?'atmosphere':'menu'), wealthId, profileId: profile.id, prefs: { ...profile.prefs },
@@ -805,10 +806,19 @@ export function checkout(state,visit){
  if(!visit || visit.paid)return false;
  state.ledger.checkouts ||= {};
  if(state.ledger.checkouts[visit.id]!=null){visit.paid=true;return false;}
- const amount=Math.max(0,visit.bill||0);state.ledger.checkouts[visit.id]=amount;visit.paid=true;state.gold+=amount;
+ const tip=patronTip(state,visit),amount=Math.max(0,visit.bill||0)+tip;state.ledger.checkouts[visit.id]=amount;visit.paid=true;state.gold+=amount;
  const yeoni=state.staff.yeoni;if(yeoni){yeoni.action='react';yeoni.actionUntil=state.shift.elapsedMs+650;yeoni.facing=cafeLayout(state).yeoniFacing;}
  state.cafeGesture={kind:'bow',at:state.shift.elapsedMs};
  if(amount)emit('paidAtCounter',{amount});return true;
+}
+// 통큰·대부호 일반 손님은 계산할 때 가끔 팁을 둔다. 결산 카드의 팁 줄(baseTips)로 들어가고 원장(ledger.patronTips)에 방문마다 한 번
+function patronTip(state,visit){
+ const rule=TEMP.PATRON.tip[visit.wealthId];
+ if(!rule||visit.kind==='nomination'||!(visit.bill>0)||state.ledger.patronTips?.[visit.id]!=null||!state.shift)return 0;
+ if(nextRandom(state.rng)>=rule.chance)return 0;
+ const tip=Math.max(1,Math.min(rule.cap,Math.round(visit.bill*rule.rate)));
+ (state.ledger.patronTips||={})[visit.id]=tip;state.shift.baseTips+=tip;
+ emit('patronTip',{visitId:visit.id,customerId:visit.customerId,wealthId:visit.wealthId,tip});return tip;
 }
 
 // 이전 영업 저장의 계산 동선만 새 고정 설비 위치로 연결한다.

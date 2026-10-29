@@ -207,6 +207,12 @@ export const TEMP = Object.freeze({
   // 기술 단련(윤달 공방). 단련 단계가 사냥 중 오를 수 있는 레벨 상한을 정한다. 가격은 월정석, 모두 임시
   // 10-29 손님 요구 · 계산대 한마디(docs/WORLD.md). 사용자 결정: 좋음은 골드 팁 + 연이 경험치, 보통은 경험치만. 모두 TEMP
   DEMAND: Object.freeze({ chance: 0.35, windowMs: 6000, goodBefore: 0.5, tipRate: 0.08, tipCap: 30, closeMs: 30000 }),
+  // 10-29 사용자 요청: 남자 손님을 늘리고, 할아버지 손님은 대부호가 많게, 통큰·대부호는 계산할 때 가끔 팁을 둔다. 모두 TEMP
+  PATRON: Object.freeze({
+    elderLook: Object.freeze({ frugal: 0.03, ordinary: 0.03, generous: 0.06, tycoon: 0.6 }), // 부유도별 할아버지 외형 확률(부유도 분포는 그대로)
+    maleLook: 0.42,                                                                         // 할아버지가 아닌 일반 손님 중 남자 손님(후드티 청년·정장 신사) 비율
+    tip: Object.freeze({ generous: Object.freeze({ chance: 0.2, rate: 0.12, cap: 40 }), tycoon: Object.freeze({ chance: 0.5, rate: 0.25, cap: 150 }) }), // 계산서 대비 팁
+  }),
   HUNT_SKILLS: Object.freeze({
     START: Object.freeze(['bolt', 'orbit', 'paw', 'fish_stock']), // 처음부터 1단계
     // 10-28 사용자 요청: 기술마다 사던 상한 해방을 공용 상한 한 줄로 합치고 월정석을 낮춘다(TEMP)

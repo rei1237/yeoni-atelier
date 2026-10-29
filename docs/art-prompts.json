@@ -4152,5 +4152,35 @@
     "references": [],
     "prompt": "Wide horizontal banner illustration for a cozy fantasy cafe game UI. An open antique ledger book lying on an ivory linen desk, its pages covered only with faint abstract ruled lines (no readable writing, no numbers, no letters). A small stack of gold coins beside it, a crescent-moon brass bookmark ribbon, scattered dusty-rose petals and sage-green leaves, a tiny sprig of white blossoms. Soft warm morning light, gentle painterly anime illustration style with fine linework, matching a palette of dusty rose, sage green, warm ivory and antique gold. Composition centered, objects occupy the middle band, plain warm ivory background (#fbf4e8) all around with generous empty margins. No people, no animals, no text, no watermark, no frame.",
     "normalization": "1536×1024에서 가운데 띠(0,160)-(1536,860) 자르기 → 720×328, 타원 가장자리 알파 페더(62%→100%), WebP q82"
+  },
+  {
+    "id": "actors/customer@look8",
+    "prompt": "20대 청년 남자 손님(세이지 그린 후드티·청바지·흰 운동화) 걷기 4방향×4프레임. 기존 할아버지 손님 시트(customer_elder*)를 -i 참조로 같은 화풍·셀 배치·비율로 생성(gpt-image-2, 투명 배경). 프롬프트·원본·정규화 리포트는 D:/yeoni-qa/art/male-customers-v1 보존.",
+    "normalization": "연결 성분→4열 격자, 할아버지 기준 셀 높이에 맞춘 공통 스케일, 발 y(걷기122·착석117~119·전환121), 다리 bbox 중심 x63, 알파<40 제거, WebP q84"
+  },
+  {
+    "id": "actors/customer_seated@look8",
+    "prompt": "20대 청년 남자 손님(세이지 그린 후드티·청바지·흰 운동화) 착석 4방향×4프레임(기본·디저트·음료·만족). 기존 할아버지 손님 시트(customer_elder*)를 -i 참조로 같은 화풍·셀 배치·비율로 생성(gpt-image-2, 투명 배경). 프롬프트·원본·정규화 리포트는 D:/yeoni-qa/art/male-customers-v1 보존.",
+    "normalization": "연결 성분→4열 격자, 할아버지 기준 셀 높이에 맞춘 공통 스케일, 발 y(걷기122·착석117~119·전환121), 다리 bbox 중심 x63, 알파<40 제거, WebP q84"
+  },
+  {
+    "id": "actors/customer_transition@look8",
+    "prompt": "20대 청년 남자 손님(세이지 그린 후드티·청바지·흰 운동화) 앉기 4방향×4프레임+결제 4프레임. 기존 할아버지 손님 시트(customer_elder*)를 -i 참조로 같은 화풍·셀 배치·비율로 생성(gpt-image-2, 투명 배경). 프롬프트·원본·정규화 리포트는 D:/yeoni-qa/art/male-customers-v1 보존.",
+    "normalization": "연결 성분→4열 격자, 할아버지 기준 셀 높이에 맞춘 공통 스케일, 발 y(걷기122·착석117~119·전환121), 다리 bbox 중심 x63, 알파<40 제거, WebP q84"
+  },
+  {
+    "id": "actors/customer@look9",
+    "prompt": "30대 남자 손님(단정한 검은 머리·금테 원형 안경·네이비 블레이저·더스티 로즈 넥타이·차콜 슬랙스) 걷기 4방향×4프레임. 기존 할아버지 손님 시트(customer_elder*)를 -i 참조로 같은 화풍·셀 배치·비율로 생성(gpt-image-2, 투명 배경). 프롬프트·원본·정규화 리포트는 D:/yeoni-qa/art/male-customers-v1 보존.",
+    "normalization": "연결 성분→4열 격자, 할아버지 기준 셀 높이에 맞춘 공통 스케일, 발 y(걷기122·착석117~119·전환121), 다리 bbox 중심 x63, 알파<40 제거, WebP q84"
+  },
+  {
+    "id": "actors/customer_seated@look9",
+    "prompt": "30대 남자 손님(단정한 검은 머리·금테 원형 안경·네이비 블레이저·더스티 로즈 넥타이·차콜 슬랙스) 착석 4방향×4프레임(기본·디저트·음료·만족). 기존 할아버지 손님 시트(customer_elder*)를 -i 참조로 같은 화풍·셀 배치·비율로 생성(gpt-image-2, 투명 배경). 프롬프트·원본·정규화 리포트는 D:/yeoni-qa/art/male-customers-v1 보존.",
+    "normalization": "연결 성분→4열 격자, 할아버지 기준 셀 높이에 맞춘 공통 스케일, 발 y(걷기122·착석117~119·전환121), 다리 bbox 중심 x63, 알파<40 제거, WebP q84"
+  },
+  {
+    "id": "actors/customer_transition@look9",
+    "prompt": "30대 남자 손님(단정한 검은 머리·금테 원형 안경·네이비 블레이저·더스티 로즈 넥타이·차콜 슬랙스) 앉기 4방향×4프레임+결제 4프레임. 기존 할아버지 손님 시트(customer_elder*)를 -i 참조로 같은 화풍·셀 배치·비율로 생성(gpt-image-2, 투명 배경). 프롬프트·원본·정규화 리포트는 D:/yeoni-qa/art/male-customers-v1 보존.",
+    "normalization": "연결 성분→4열 격자, 할아버지 기준 셀 높이에 맞춘 공통 스케일, 발 y(걷기122·착석117~119·전환121), 다리 bbox 중심 x63, 알파<40 제거, WebP q84"
   }
 ]

@@ -508,6 +508,12 @@
     "actors/lune_stage",
     "actors/raven_stage",
     "actors/yeoni_cheer",
-    "ui/debt_ledger"
+    "ui/debt_ledger",
+    "actors/customer@look8",
+    "actors/customer_seated@look8",
+    "actors/customer_transition@look8",
+    "actors/customer@look9",
+    "actors/customer_seated@look9",
+    "actors/customer_transition@look9"
   ]
 }
