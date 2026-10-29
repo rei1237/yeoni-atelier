@@ -35,3 +35,17 @@ test('쟁반 보행은 실제 이동량을 따르고 정지·저장복원·줄�
  assert.equal(staffMotion('neo',{...o,state:'idle'}).frame,0);
  assert.equal(staffMotion('neo',{...o,reducedMotion:true}).frame,0);
 });
+
+test('접시를 내려놓는 동안 막 전한 메뉴가 그 프레임의 접시 위에 있고 끝에는 손을 비운다',async()=>{
+ const {loadAssetImages}=await import('../src/render/assets.js'),{drawActor}=await import('../src/render/sprite-renderer.js');
+ const originalFetch=globalThis.fetch,originalImage=globalThis.Image;
+ try{
+  globalThis.fetch=async()=>({ok:true,json:async()=>({ready:['actors/neo','actors/neo_place_plate','icons/americano']})});
+  globalThis.Image=class{set src(p){this.src_=p;this.width=this.height=512;queueMicrotask(()=>this.onload());}get src(){return this.src_;}};
+  await loadAssetImages('assets/manifest.json',{keys:['actors/neo','actors/neo_place_plate','icons/americano']});
+  const food=progress=>{const calls=[];drawActor({drawImage(img,...a){if(img.src?.includes('americano'))calls.push(a);},getTransform:()=>({a:1})},'neo',{x:200,y:300,size:128,facing:'left',state:'serve',t:0,servicePose:{kind:'serve',menuId:'americano',progress}});return calls;};
+  const [x,y]=ASSETS.actors.neo_place_plate.trayFrames.left[1];
+  assert.deepEqual(food(.3)[0].slice(0,3),[200+x-64-8,300+y-122-16*.88,16]);
+  assert.equal(food(.8).length,0);
+ }finally{globalThis.fetch=originalFetch;globalThis.Image=originalImage;}
+});

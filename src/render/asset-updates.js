@@ -10077,6 +10077,10 @@ for(const id of ['luna','neo'])for(const kind of ['tray_walk','place_plate']){
  const def=ASSET_UPDATES.actors[id+'_'+kind],ratio=id==='luna'?(0.28205128205128205/.34):1;
  def.traySockets=Object.fromEntries(Object.entries(def.traySockets).map(([dir,[x,y]])=>[dir,[64+(x-64)*ratio,121+(y-122)*ratio]]));
 }
+// 10-29 프레임별 쟁반·접시 윗면(출고 셀 좌표 실측). null 은 손이 비었거나 몸에 가려 음식을 그리지 않는다
+ASSET_UPDATES.actors.neo_tray_walk.trayFrames={left:[[36,80],[48,80],[52,80],[47,80]],right:[[76,80],[84,80],[95,80],[84,80]]};
+ASSET_UPDATES.actors.neo_place_plate.trayFrames={down:[[63,78],[56,83],[51,95],null],left:[[54,74],[36,77],[31,87],null],right:[[77,73],[93,71],[97,85],null],up:[null,[92,63],[90,77],null]};
+ASSET_UPDATES.actors.luna_place_plate.trayFrames={down:[[61,99],[56,99],null,null],left:[[41,94],[30,95],[24,109],null],right:[[92,91],[96,93],[110,109],null],up:[null,null,null,null]};
 
 // 연이 개인 조리와 성장 레시피. 원본 실루엣 분리 후 128px 고정 발 기준점으로 패킹.
 ASSET_UPDATES.actors.yeoni_cook={"kind": "actor", "label": "연이 직접 조리", "path": "assets/illustrated/actors/yeoni_cook.webp", "dimensions": [512, 384], "frame": {"w": 128, "h": 128}, "anchor": {"x": 64, "y": 122}, "columns": 4, "directionRows": 0, "directions": ["left"], "stateRows": {"prepare": 0, "extract": 1, "bake": 1, "plate": 2}, "states": {"prepare": {"frames": 4, "fps": 6.25, "loop": true}, "extract": {"frames": 4, "fps": 6.25, "loop": true}, "bake": {"frames": 4, "fps": 6.25, "loop": true}, "plate": {"frames": 4, "fps": 6.25, "loop": true}}};

@@ -71,8 +71,10 @@ function drawFromSheet(ctx, def, img, st, o) {
   if(o.flipX)ctx.restore();
   ctx.imageSmoothingEnabled = prev;
   drawCookingProps(ctx,def,o,scale,'front');
-  const tray=def.traySockets?.[o.facing];
-  if(tray&&o.carry?.menuId&&!o.cleaning){(o.carryMore||[]).slice(0,2).forEach((m,i)=>drawFood(ctx,m,o.x+(tray[0]-def.anchor.x+(i?-9:9))*scale,o.y+(tray[1]-def.anchor.y-3)*scale,15*scale));drawFood(ctx,o.carry.menuId,o.x+(tray[0]-def.anchor.x)*scale,o.y+(tray[1]-def.anchor.y)*scale,18*scale);} // 같은 테이블 접시는 한 쟁반에 함께
+  // 쟁반은 걸음마다, 접시는 내려놓는 동작마다 움직인다. 내려놓는 동안에는 막 전한 메뉴를 접시 위에 둔다
+  const frames=def.traySockets&&def.trayFrames?.[o.facing],tray=frames?frames[frame]:def.traySockets?.[o.facing];
+  const placing=o.servicePose?.kind==='serve'&&!o.carry&&(o.servicePose.progress||0)<.75?o.servicePose.menuId:null;
+  if(tray&&(o.carry?.menuId||placing)&&!o.cleaning){if(o.carry)(o.carryMore||[]).slice(0,2).forEach((m,i)=>drawFood(ctx,m,o.x+(tray[0]-def.anchor.x+(i?-9:9))*scale,o.y+(tray[1]-def.anchor.y-3)*scale,15*scale));drawFood(ctx,o.carry?.menuId||placing,o.x+(tray[0]-def.anchor.x)*scale,o.y+(tray[1]-def.anchor.y)*scale,(placing?16:18)*scale);} // 같은 테이블 접시는 한 쟁반에 함께
   if (sock && (sock.layer !== 'back' || o.cleaning)) drawWorkProps(ctx, o, sock, scale, frame);
   if (o.name) nameTag(ctx, o.name, o.x, o.y + 4 + (o.nameOffsetY || 0), o.size, o.tagColor);
 }

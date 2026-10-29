@@ -287,7 +287,12 @@ function drawTable(ctx, state, p, T, f, tb, t) {
   }
   // 서빙된 음식 접시
   if (visit) {
-    const served = visit.orderIds.map(id => state.orders[id]).filter(o => o && o.status === 'served').slice(-2);
+    // 직원이 접시를 내려놓는 중이면 그 메뉴는 손에 있다. 동작 끝(¾)부터 테이블에 놓는다
+    const pose = Object.values(state.staff || {}).filter(s => !(s.id === 'neo' && catCafeActive(state))).map(s => s.servicePose).find(sp => sp?.kind === 'serve' && sp.tableNo === f.tableNo && state.shift.elapsedMs < sp.at + (sp.until - sp.at) * .75);
+    let served = visit.orderIds.map(id => state.orders[id]).filter(o => o && o.status === 'served');
+    const held = pose ? served.map(o => o.menuId).lastIndexOf(pose.menuId) : -1;
+    if (held >= 0) served = served.filter((_, i) => i !== held);
+    served = served.slice(-2);
     served.forEach((o, i) => {
       const cx = p.x + T * (served.length === 1 ? 0.5 : 0.33 + i * 0.34), cy = p.y + T * 0.55;
       ctx.fillStyle = '#fffaf2'; ctx.beginPath(); ctx.arc(cx, cy, T * 0.15, 0, Math.PI * 2); ctx.fill();
