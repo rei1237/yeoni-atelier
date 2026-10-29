@@ -2,6 +2,7 @@ import {pixelIcon,pxBtn} from './pixel-icons.js';
 import { creditsScreen } from './credits.js';
 import {titleGameRoom,gameRoomSheet} from './game-room.js';
 import {fortuneSheet} from './fortune-sheet.js';
+import { ASSETS } from '../render/assets.js';
 import {hostFeeQuote} from '../game/host-fees.js';
 import {catCafeActive} from '../game/cat-cafe-rules.js';
 import {worldCastSheet} from './world-cast.js';
@@ -593,7 +594,7 @@ const ENDING_HINT = {
 function endingDialog(state, id) {
   const e = ENDINGS[id];
   const bonds = Object.entries(state.affinity || {}).map(([k, v]) => `${BOND_NAMES[k] || k} ${v}`).join(' · ');
-  return `<div class="dialog ending" role="dialog" aria-modal="true"><p class="small muted">꿀꿀 운세 외전 · 게임 오리지널 결말</p><h2>📜 ${esc(e.title)}</h2>
+  return `<div class="dialog ending" role="dialog" aria-modal="true" aria-labelledby="ending-title"><h2 id="ending-title">${esc(e.title)}</h2><img class="ending-art" src="${esc(ASSETS.backgrounds['ending_'+id].path)}" alt="${esc(e.title)}의 마지막 풍경" width="960" height="640"><p class="small muted">꿀꿀 운세 외전 · 게임 오리지널 결말</p>
     <div class="kv"><span>마지막 결산 남은 빚</span><b>${won(state.calendar.endedDebt ?? state.debt)}</b><span>갚은 총액</span><b>${won(state.repaidTotal)}</b><span>동료 친밀도</span><b>${esc(bonds)}</b></div>
     <p class="small">${esc(ENDING_HINT[id] || '')}</p>
     <div class="stack">${id === 'bad' ? '' : btn({ action: 'ending.close', cls: 'primary', label: '☕ 후일담 영업 계속하기' })}${btn({ action: 'credits.open', cls: id === 'bad' ? 'primary' : '', label: '🎬 크레딧 보기' })}${btn({ action: 'story.replay', label: '📖 결말 다시 보기' })}${btn({ action: 'game.new', label: '🌱 새 게임' })}</div></div>`;

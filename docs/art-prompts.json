@@ -4212,5 +4212,54 @@
     "id": "actors/customer_transition@look9",
     "prompt": "30대 남자 손님(단정한 검은 머리·금테 원형 안경·네이비 블레이저·더스티 로즈 넥타이·차콜 슬랙스) 앉기 4방향×4프레임+결제 4프레임. 기존 할아버지 손님 시트(customer_elder*)를 -i 참조로 같은 화풍·셀 배치·비율로 생성(gpt-image-2, 투명 배경). 프롬프트·원본·정규화 리포트는 D:/yeoni-qa/art/male-customers-v1 보존.",
     "normalization": "연결 성분→4열 격자, 할아버지 기준 셀 높이에 맞춘 공통 스케일, 발 y(걷기122·착석117~119·전환121), 다리 bbox 중심 x63, 알파<40 제거, WebP q84"
+  },
+  {
+    "id": "backgrounds/host_opening",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-53f0fd97-731d-4509-a89a-651b0fb70454.png",
+    "prompt": "Standalone light-novel game illustration, landscape 3:2. Architecture/style reference: atelier_lit.webp; ivory arched windows, lavender curtains, antique gold, roses, warm painterly detail. Two cups at an intimate rose cafe opening, piano and stage, blue hour. No characters, lettering, numbers or watermark. Central still life readable on mobile; simple lower dialogue area.",
+    "normalization": "960×640 WebP quality82; original PNG preserved outside shipping assets"
+  },
+  {
+    "id": "backgrounds/ending_grand",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-5c1c5beb-d8e2-4b44-b543-c8358c2a2f2d.png",
+    "prompt": "Standalone light-novel game illustration, landscape 3:2. Architecture/style reference: atelier_lit.webp; ivory arched windows, lavender curtains, antique gold, roses, warm painterly detail. Celebratory sunset, five teacups and star biscuits, closed ledger and brass key. No characters, lettering, numbers or watermark. Central still life readable on mobile; simple lower dialogue area.",
+    "normalization": "960×640 WebP quality82; original PNG preserved outside shipping assets"
+  },
+  {
+    "id": "backgrounds/ending_clear",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-23bdabf7-1b7f-4604-aa55-e969740fe7c0.png",
+    "prompt": "Standalone light-novel game illustration, landscape 3:2. Architecture/style reference: atelier_lit.webp; ivory arched windows, lavender curtains, antique gold, roses, warm painterly detail. Quiet dawn cafe counter, closed ledger, blank receipt, brass key and steaming cup. No characters, lettering, numbers or watermark. Central still life readable on mobile; simple lower dialogue area.",
+    "normalization": "960×640 WebP quality82; original PNG preserved outside shipping assets"
+  },
+  {
+    "id": "backgrounds/ending_close",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-e472274a-711c-4aa1-8f3b-80737e6c5c17.png",
+    "prompt": "Standalone light-novel game illustration, landscape 3:2. Architecture/style reference: atelier_lit.webp; ivory arched windows, lavender curtains, antique gold, roses, warm painterly detail. Early spring cafe window, budding roses, open blank ledger and pencil, two cups. No characters, lettering, numbers or watermark. Central still life readable on mobile; simple lower dialogue area.",
+    "normalization": "960×640 WebP quality82; original PNG preserved outside shipping assets"
+  },
+  {
+    "id": "backgrounds/ending_extend",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-075f22c3-f30a-4cc5-843c-750ebd440d82.png",
+    "prompt": "Standalone light-novel game illustration, landscape 3:2. Architecture/style reference: atelier_lit.webp; ivory arched windows, lavender curtains, antique gold, roses, warm painterly detail. Warm late evening cafe, two thick ledgers, lamp, steaming cup and glowing oven. No characters, lettering, numbers or watermark. Central still life readable on mobile; simple lower dialogue area.",
+    "normalization": "960×640 WebP quality82; original PNG preserved outside shipping assets"
+  },
+  {
+    "id": "backgrounds/ending_bad",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-80650a5a-d312-40f0-bad9-eff0efcf8b59.png",
+    "prompt": "Standalone light-novel game illustration, landscape 3:2. Architecture/style reference: atelier_lit.webp; ivory arched windows, lavender curtains, antique gold, roses, warm painterly detail. Closed cafe at night, unlit counter, closed ledger and brass key, bittersweet moonlight. No characters, lettering, numbers or watermark. Central still life readable on mobile; simple lower dialogue area.",
+    "normalization": "960×640 WebP quality82; original PNG preserved outside shipping assets"
+  },
+  {
+    "id": "talking/yeoni_pig:eyebrow-fix-20261029",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-ce6a5174-0cae-4070-ac81-916a27b4dcf8.png",
+    "prompt": "Fix ONLY the duplicated left eyebrow in second closed-eye frame. Exactly one soft small eyebrow above each eye. Preserve four cells, pink lotus, scarf, character identity and all other pixels.",
+    "normalization": "Generated eyebrow patch only, 33×30 at (420,186), feathered 3px; lossless WebP. 865 visible pixels changed, zero outside patch."
   }
 ]

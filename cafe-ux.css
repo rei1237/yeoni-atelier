@@ -149,3 +149,12 @@ button.fortune-card{position:relative}button.fortune-card>span{position:absolute
 .fortune-row{padding:8px 0}.fortune-row+.fortune-row{border-top:1px dashed #e4d7c5}.fortune-row small{display:block;font-size:11px;color:var(--ml-muted,#7a6670)}.fortune-row b{display:block;margin:2px 0 4px;word-break:keep-all}.fortune-row p{margin:0;line-height:1.65;word-break:keep-all}
 .fortune-hint{font-size:13px;color:var(--ml-muted,#7a6670);padding:10px 0}
 .fortune-more p{line-height:1.7;word-break:keep-all}.fortune-cta{display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:8px;border-radius:12px;background:#754355;color:#fff8ed;font-weight:700;text-decoration:none}
+/* 호스트·운세·엔딩: 원화 비율과 작은 화면의 읽기 공간 유지 */
+.fortune-cover{display:block;width:min(100%,498px);height:auto;max-height:180px;object-fit:contain;margin:8px auto 16px}
+.ending-art{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:contain;margin:12px 0}
+.dialog.ending{max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;padding-bottom:max(20px,env(safe-area-inset-bottom))}
+.dialog.ending .kv b{overflow-wrap:anywhere;min-width:0}
+.fortune-birth input{width:100%;min-width:0;box-sizing:border-box}
+.fortune-section p,.fortune-row b{overflow-wrap:anywhere}
+.fortune-basis,.fortune-hint,.fortune-row small{color:#66515e}
+@media(max-height:500px){.fortune-cover{max-height:110px}.ending-art{max-height:200px}}

@@ -56,6 +56,7 @@ export const GAG_MOKA_BUY = Object.freeze([
   { who: '모카', text: '현금 박치기 좋아. 이 손님 별 넷.' },
 ]);
 export const GAG_MOKA_DELIVERY = Object.freeze([
+  { who: '모카', text: '배달 완료. 다음번엔 미리 시켜. 식기 전에 먹고.' },
   { who: '모카', text: '영업 중 긴급 배달? 수달 발 출장비 붙는다.' },
   { who: '모카', text: '헉헉… 강 건너 뛰어왔어. 배달비는 정직하게.' },
 ]);
@@ -76,6 +77,8 @@ export const GAG_GEAR_STALL = Object.freeze([
 
 // 빚 상환할 때 청토끼
 export const GAG_CHEONGTOKKI_REPAY = Object.freeze([
+  { who: '청토끼', text: '후후.. 저는 최약체랍니다~ 그래도 영수증 계산은 빈틈없죠.' },
+  { who: '연이', text: '영수증부터 줘! 1골드까지 장부랑 맞춰 볼 거야.' },
   { who: '청토끼', text: '어머~ 성실하셔라! 이자는 아주아주 조금 더 줄었어요~' },
   { who: '청토끼', text: '총총~ 다음 상환일도 기대할게요!' },
   { who: '루나', text: '저 토끼 귀 접어 버리고 싶어!' },

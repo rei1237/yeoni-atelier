@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.29.8",
-  "name": "연이의 아틀리에 · 두 해 빚과 무대",
+  "version": "2026.10.29.9",
+  "name": "연이의 아틀리에 · 달빛 수첩과 다섯 결말",
   "musicTracks": 103,
-  "assetBytes": 16742082,
+  "assetBytes": 17740484,
   "channel": "production",
-  "baseCommit": "2ebd90810608a45034f6462147f930f1b59501d8",
+  "baseCommit": "611cd5b",
   "newTitleArt": true
 }

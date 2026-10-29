@@ -44,7 +44,7 @@ export const MONTH_STORIES = Object.freeze([
     { s: 'neo', t: '갑자기 칭찬하면 더 무섭다. 사냥이라면 오늘 두 번 다녀올게.', c: 'neo:flustered' },
     { s: 'luna', t: '네오 오빠 뒷걸음질 친다! 언니, 문 쪽 막을까?', r: 'luna:surprised' },
     { s: 'yeoni', t: '도망 금지. 너는 우리 가게의 마지막 비장의 한 수야.', l: 'yeoni:determined' },
-    { s: 'yeoni', t: '오늘부터 호스트 카페! 좋은 커피에, 손님이 고른 동료와 1분 대화를 곁들이는 거야.', l: 'yeoni:smile' },
+    { s: 'yeoni', bg: 'host_opening', t: '오늘부터 호스트 카페! 좋은 커피에, 손님이 고른 동료와 1분 대화를 곁들이는 거야.', l: 'yeoni:smile' },
     { s: 'luna', t: '그럼 메뉴판에 네오 오빠도 적어? 따뜻한 네오, 차가운 네오?', r: 'luna:surprised' },
     { s: 'neo', t: '메뉴판에는 커피만 적자. 나는 데우지도 얼리지도 말고.', c: 'neo:flustered' },
     { s: 'yeoni', t: '좋아, 네오 보관법은 상온! 대화는 손님도 동료도 원할 때만.', l: 'yeoni:smile' },
@@ -147,7 +147,7 @@ export const ENDINGS = Object.freeze({
   grand: {
     title: '별 다섯 개의 아틀리에',
     beats: [
-      { chapter: ['EPILOGUE', '별 다섯 개의 아틀리에'], bg: 'atelier_lit', l: 'yeoni:smile', c: 'cheongtokki:smile', r: null },
+      { chapter: ['EPILOGUE', '별 다섯 개의 아틀리에'], bg: 'ending_grand', l: 'yeoni:smile', c: 'cheongtokki:smile', r: null },
       ENDING_HEAD,
       { s: 'rab', t: '어머~ 남은 빚 0골드. 계산이 딱 맞네요~ 이런 결산은 오랜만이랍니다.' },
       { s: 'yeoni', t: '영수증도 줘. 0이라고 크게, 개미 말고 코끼리만 한 글씨로.', l: 'yeoni:determined' },
@@ -160,14 +160,14 @@ export const ENDINGS = Object.freeze({
       { s: 'neo', t: '연이, 두 해 동안 가게를 함께 지켰는데 다들 웃고 있어. 신기하지.', r: 'neo:smile' },
       { s: 'yeoni', t: '계산대가 가게의 심장이거든! 오늘 재물운도 평점도 별 다섯 개 만점!', l: 'yeoni:smile', fx: 'glow' },
       { s: 'yeoni', t: '(그리고 이 장부의 마지막 줄은, 값을 매기지 않기로 했다.)', l: 'yeoni:normal' },
-      { s: 'impact', t: 'THE END · 그리고 아틀리에는 계속된다', bg: 'atelier_lit' },
+      { s: 'impact', t: 'THE END · 그리고 아틀리에는 계속된다', bg: 'ending_grand' },
     ],
   },
   // 빚 완납
   clear: {
     title: '0골드의 아침',
     beats: [
-      { chapter: ['EPILOGUE', '0골드의 아침'], bg: 'atelier_lit', l: 'yeoni:smile', c: 'cheongtokki:normal', r: null },
+      { chapter: ['EPILOGUE', '0골드의 아침'], bg: 'ending_clear', l: 'yeoni:smile', c: 'cheongtokki:normal', r: null },
       ENDING_HEAD,
       { s: 'rab', t: '어머~ 다 갚으셨네요. 이자 계산할 게 없으니 조금 심심하답니다~' },
       { s: 'yeoni', t: '심심하면 계약서 글씨나 키워. 다음 손님을 위해서.', l: 'yeoni:determined' },
@@ -175,14 +175,14 @@ export const ENDINGS = Object.freeze({
       { s: 'luna_sis', t: '연이 씨, 네오 씨. 고양이 모습으로 오셔도 빵값은 안 받을게요.', c: 'luna_sis:smile' },
       { s: 'neo_cat', t: '평생이면, 꽤 많이 먹을 것이다.', r: 'neo_cat:smug' },
       { s: 'yeoni', t: '(빚 0골드. 아직 다 못 나눈 이야기는 많지만, 오늘 평점은 별 넷 반.)', l: 'yeoni:smile' },
-      { s: 'impact', t: 'THE END · 다음 회차에는 더 많은 인연을', bg: 'atelier_lit' },
+      { s: 'impact', t: 'THE END · 다음 회차에는 더 많은 인연을', bg: 'ending_clear' },
     ],
   },
   // 빚 40% 이하 남음
   close: {
     title: '조금 모자란 봄',
     beats: [
-      { chapter: ['EPILOGUE', '조금 모자란 봄'], bg: 'atelier_lit', l: 'yeoni:sulky', c: 'cheongtokki:smile', r: null },
+      { chapter: ['EPILOGUE', '조금 모자란 봄'], bg: 'ending_close', l: 'yeoni:sulky', c: 'cheongtokki:smile', r: null },
       ENDING_HEAD,
       { s: 'rab', t: '어머~ 아깝네요! 조금만 더 하면 됐을 텐데~ 계약은 일 년 연장이에요.' },
       { s: 'yeoni', t: '이자율은? 혹시 또 아주아주 조금이야?', l: 'yeoni:sulky' },
@@ -190,14 +190,14 @@ export const ENDINGS = Object.freeze({
       { s: 'luna', t: '그래도 처음보다 엄청 줄었어! 연이 언니가 계산해 줬잖아!', c: 'luna:smile' },
       { s: 'luna_sis', t: '괜찮아요. 이제는 어떻게 갚는지 아니까요.', r: 'luna_sis:smile' },
       { s: 'yeoni', t: '(완납은 못 했지만 길은 보인다. 올해 평점 별 셋 반, 내년 목표 별 다섯.)', l: 'yeoni:determined' },
-      { s: 'impact', t: 'THE END · 봄이 다시 오면', bg: 'atelier_lit' },
+      { s: 'impact', t: 'THE END · 봄이 다시 오면', bg: 'ending_close' },
     ],
   },
   // 빚이 많이 남음
   extend: {
     title: '계약서 2권',
     beats: [
-      { chapter: ['EPILOGUE', '계약서 2권'], bg: 'atelier_dark', l: 'yeoni:surprised', c: 'cheongtokki:smile', r: null },
+      { chapter: ['EPILOGUE', '계약서 2권'], bg: 'ending_extend', l: 'yeoni:surprised', c: 'cheongtokki:smile', r: null },
       ENDING_HEAD,
       { s: 'rab', t: '어머~ 많이 남았네요! 걱정 마세요, 새 계약서를 준비해 왔답니다~' },
       { s: 'sys', t: '[ 새 계약서: 두께 3cm ]' },
@@ -207,14 +207,14 @@ export const ENDINGS = Object.freeze({
       { s: 'luna_sis', t: '네. 오븐도 따뜻하고, 계산대엔 연이 씨가 있어요.', c: 'luna_sis:tired'  },
       { s: 'luna_sis', t: '괜찮아요.' },
       { s: 'yeoni', t: '(1권 평점 별 하나. 하지만 2권은 주인공이 조금 더 강하다.)', l: 'yeoni:determined' },
-      { s: 'impact', t: 'TO BE CONTINUED · 다시 한번, 영업 시작', bg: 'atelier_lit' },
+      { s: 'impact', t: 'TO BE CONTINUED · 다시 한번, 영업 시작', bg: 'ending_extend' },
     ],
   },
   // 청토끼 통첩 기한 초과(6-1). 가게를 내주는 결말이며 청토끼 자신의 결말은 쓰지 않는다
   bad: {
     title: '불 꺼진 계산대',
     beats: [
-      { chapter: ['EPILOGUE', '불 꺼진 계산대'], bg: 'atelier_dark', l: 'yeoni:sulky', c: 'cheongtokki:normal', r: 'neo:serious' },
+      { chapter: ['EPILOGUE', '불 꺼진 계산대'], bg: 'ending_bad', l: 'yeoni:sulky', c: 'cheongtokki:normal', r: 'neo:serious' },
       ENDING_HEAD,
       { s: 'nar', t: '통첩 기한의 마지막 하순, 마감 종이 울리고도 장부의 숫자는 끝내 맞지 않았다.' },
       { s: 'rab', t: '어머~ 약속한 날이 지났네요. 계약대로 가게 열쇠는 오늘 돌려받을게요~' },
@@ -226,7 +226,7 @@ export const ENDINGS = Object.freeze({
       { s: 'neo', t: '연이 탓 아니야. 다음엔 내가 더 오래 버틸게.' },
       { s: 'yeoni', t: '(이번 장부 평점은 별 하나.) 그래도 다음 장부 첫 줄엔 우리 이름부터 적을 거야.', l: 'yeoni:determined' },
       { s: 'nar', t: '문에 걸린 팻말이 「영업 종료」로 뒤집혔다. 달빛만이 빈 가게를 오래 비추었다.' },
-      { s: 'impact', t: 'BAD END · 다시, 첫날의 계산대에서', bg: 'atelier_dark' },
+      { s: 'impact', t: 'BAD END · 다시, 첫날의 계산대에서', bg: 'ending_bad' },
     ],
   },
 });

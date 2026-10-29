@@ -10154,3 +10154,11 @@ for(const [look,id] of [[8,'hoodie'],[9,'suit']]){
  const t={...ASSET_UPDATES.actors['customer_transition@look3'],path:`assets/illustrated/actors/customer_${id}_transition.webp`};delete t.clothesHue;delete t.clothesMask;
  ASSET_UPDATES.actors['customer_transition@look'+look]=t;
 }
+
+// 10-29: 호스트 개업과 다섯 결말의 독립 원화. 장면에서만 불러온다.
+ASSET_UPDATES.backgrounds.host_opening={"kind":"background","label":"호스트 카페의 첫 저녁","path":"assets/illustrated/backgrounds/host_opening.webp","dimensions":[960,640],"opaque":true};
+ASSET_UPDATES.backgrounds.ending_grand={"kind":"background","label":"별 다섯 개의 아틀리에","path":"assets/illustrated/backgrounds/ending_grand.webp","dimensions":[960,640],"opaque":true};
+ASSET_UPDATES.backgrounds.ending_clear={"kind":"background","label":"0골드의 아침","path":"assets/illustrated/backgrounds/ending_clear.webp","dimensions":[960,640],"opaque":true};
+ASSET_UPDATES.backgrounds.ending_close={"kind":"background","label":"조금 모자란 봄","path":"assets/illustrated/backgrounds/ending_close.webp","dimensions":[960,640],"opaque":true};
+ASSET_UPDATES.backgrounds.ending_extend={"kind":"background","label":"계약서 2권","path":"assets/illustrated/backgrounds/ending_extend.webp","dimensions":[960,640],"opaque":true};
+ASSET_UPDATES.backgrounds.ending_bad={"kind":"background","label":"불 꺼진 계산대","path":"assets/illustrated/backgrounds/ending_bad.webp","dimensions":[960,640],"opaque":true};

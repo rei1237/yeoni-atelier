@@ -733,3 +733,14 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 - 대상: 2026-10-29 사용자 결정으로 모든 배우·적 시트(연이·루나 언니·루나·네오 전 상태, 조연 의상, 손님 후드·정장·노인 전 상태와 모든 손님의 앉기·전환, 무대·사냥터 적). 95장, 장당 약 150~400KB(품질 82)로 assets/ 약 40.0MB, assets/ 전체 예산은 45MB로 올렸다(런타임 등록 에셋 20MB·파일당 1.5MB는 그대로). 휴대폰은 _hd 를 받지 않아 전송량이 그대로다.
 - 제외: 걷는 손님(기본·학생·직장인)과 흑월 조각은 셀 대부분이 원본과 맞지 않아(수작업·합성 셀) 2배를 만들지 않았다.
 2026-10-29 게임방 비행 카드: 연이와 영냥이가 함께 나는 원화로 교체. 연이의 양쪽 앞발과 날개를 분리해 보이게 그렸다. 원본 PNG는 로컬 scratch/art-originals/game-flying-duo.png에 보존하며 배포에는 480×270 WebP만 포함한다. 카드 링크와 게임 판정은 유지한다.
+
+## 2026-10-29 호스트·결말 전용 원화
+
+| backgrounds/host_opening | assets/illustrated/backgrounds/host_opening.webp | 960×640 | 완료 |
+| backgrounds/ending_grand | assets/illustrated/backgrounds/ending_grand.webp | 960×640 | 완료 |
+| backgrounds/ending_clear | assets/illustrated/backgrounds/ending_clear.webp | 960×640 | 완료 |
+| backgrounds/ending_close | assets/illustrated/backgrounds/ending_close.webp | 960×640 | 완료 |
+| backgrounds/ending_extend | assets/illustrated/backgrounds/ending_extend.webp | 960×640 | 완료 |
+| backgrounds/ending_bad | assets/illustrated/backgrounds/ending_bad.webp | 960×640 | 완료 |
+
+꽃돼지 대화 시트는 두 번째 셀의 눈썹 33×30 영역만 수정했다. 외부 가시 픽셀 변경 0, 크기·알파·다른 프레임 유지.

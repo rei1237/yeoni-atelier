@@ -9,7 +9,9 @@ export const todayParts=(now=new Date())=>({y:now.getFullYear(),m:now.getMonth()
 const row=(label,value,line,basis='')=>`<div class="fortune-row"><small>${esc(label)}</small><b>${esc(value)}</b><p>${esc(line)}</p>${basis?`<p class="fortune-basis">네오: ${esc(basis)}</p>`:''}</div>`;
 
 export function fortuneSheet(ui,now=new Date()){
- const birth=parseDate(ui.fortuneBirth),f=readFortune(todayParts(now),birth),c=f.card,b=f.birth;
+ const today=todayParts(now),todayKey=`${today.y}-${String(today.m).padStart(2,'0')}-${String(today.d).padStart(2,'0')}`;
+ const parsed=parseDate(ui.fortuneBirth),invalid=!!ui.fortuneBirth&&(!parsed||ui.fortuneBirth>todayKey);
+ const birth=invalid?null:parsed,f=readFortune(today,birth),c=f.card,b=f.birth;
  const card=ui.fortuneFlip
   ?`<div class="fortune-card is-open" aria-live="polite"><span>${esc(c.num)}</span><b>${esc(c.name)}</b><small>${esc(c.en)}</small></div><p class="fortune-say">연이: ${esc(c.line)}</p>`
   :`${btn({action:'fortune.flip',cls:'fortune-card',label:'<img src="assets/ui/island-card-back.webp" alt="" width="120" height="200"><span>눌러서 뒤집기</span>',title:'오늘의 카드 뒤집기'})}<p class="fortune-say">연이: 마음속으로 오늘 궁금한 걸 하나 떠올려 봐. 준비됐으면 카드를 눌러!</p>`;
@@ -19,12 +21,14 @@ export function fortuneSheet(ui,now=new Date()){
   ${row('서양 별자리',b.sign.name,b.sign.trait,b.sign.edge?'경계일 근처라 태어난 해·시각에 따라 옆 별자리일 수 있어.':'태양이 지나는 황도 12궁 날짜 기준이야.')}
  </section>`:`<p class="fortune-hint">생년월일을 넣으면 사주 일간·띠·별자리 풀이가 더해져요.</p>`;
  return `<h2>달빛 운세 수첩${btn({action:'sheet.close',cls:'close ghost',label:'✕',title:'닫기'})}</h2>
- <p class="fortune-date">${esc(f.dateKey)} · 오늘 일진 ${esc(f.day.hanja)}(${esc(f.day.hangul)})일 · ${esc(f.day.elementName)} 기운 · 행운 색 ${esc(f.day.color)}</p>
+ <img class="fortune-cover" src="assets/illustrated/guides/fortune.webp" alt="연이와 함께 펼치는 달빛 운세 수첩" width="498" height="318">
+ <p class="fortune-date">${esc(f.dateKey)} · 오늘 일진 ${esc(f.day.hanja)}(${esc(f.day.hangul)})일 · ${esc(f.day.elementName)} 기운 · 오행의 상징색 ${esc(f.day.color)}</p>
  <section class="fortune-section fortune-tarot fortune-step"><h3>오늘의 타로 한 장</h3>${card}<p class="fortune-basis">네오: 같은 날, 같은 생일이면 몇 번을 열어도 같은 카드야. 다시 뽑기는 없어.</p></section>
- <section class="fortune-section fortune-step"><h3>나의 생일</h3><label class="fortune-birth">생년월일(양력, 선택)<input type="date" id="fortune-birth" min="1900-01-01" max="2100-12-31" value="${esc(birth?ui.fortuneBirth:'')}"></label>
+ <section class="fortune-section fortune-step"><h3>나의 생일</h3><label class="fortune-birth">생년월일(양력, 선택)<input type="date" id="fortune-birth" min="1900-01-01" max="${todayKey}" aria-describedby="fortune-birth-help" aria-invalid="${invalid}" value="${esc(parsed?ui.fortuneBirth:'')}"></label>
+ <p id="fortune-birth-help" class="fortune-hint" role="status">${invalid?'1900년 이후부터 오늘까지의 생년월일을 확인해 주세요.':'생일 없이도 오늘의 카드와 일진을 볼 수 있어요.'}</p>
  <label class="fortune-remember"><input type="checkbox" id="fortune-remember" ${ui.fortuneRemember?'checked':''}> 이 기기에 기억하기</label>
  <p class="small muted">생일은 서버나 게임 저장으로 보내지 않아요. 기억하기를 끄면 이 기기에서도 지워요.</p></section>
  ${mine}
- <section class="fortune-section fortune-more"><p>네오: 여기서는 날짜만으로 계산되는 부분만 봤어. 사주 여덟 글자·자미두수·베다 점성은 태어난 시간과 장소가 있어야 제대로 나와.</p>
+ <section class="fortune-section fortune-more"><h3>이 수첩의 풀이 기준</h3><p>네오: 날짜를 바탕으로 돌아볼 거리를 정리했다. 타로는 오늘의 성찰을 위한 한 장이며, 미래를 확정하는 결과는 아니다.</p><p>일주는 입력한 양력 날짜의 자정을 기준으로 계산한다. 출생 시각·지역·자시 기준은 반영하지 않는다. 띠와 태양 별자리는 경계일에 달라질 수 있다.</p><p>사주 여덟 글자·자미두수·베다 점성의 전체 명반은 이 수첩에서 계산하지 않는다. 각 체계의 자세한 풀이는 꿀꿀 운세에서 확인해라.</p>
  <a class="fortune-cta" href="${FORTUNE_SITE}" target="_blank" rel="noopener noreferrer">꿀꿀 운세에서 자세히 보기 ↗</a></section>`;
 }

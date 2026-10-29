@@ -518,7 +518,13 @@
     "actors/customer_transition@look8",
     "actors/customer@look9",
     "actors/customer_seated@look9",
-    "actors/customer_transition@look9"
+    "actors/customer_transition@look9",
+    "backgrounds/host_opening",
+    "backgrounds/ending_grand",
+    "backgrounds/ending_clear",
+    "backgrounds/ending_close",
+    "backgrounds/ending_extend",
+    "backgrounds/ending_bad"
   ],
   "hd": [
     "assets/illustrated/actors/bambi@bambi_formal.webp",
