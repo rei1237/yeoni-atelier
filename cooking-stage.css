@@ -9,10 +9,25 @@
 .cook-sheet .ingredient-basket{width:100%;justify-items:center}
 .cook-sheet .heat-track{width:calc(100% - 8px)}
 .cook-sheet .craft-production{width:min(420px,100%)}
-.cook-sheet .craft-steps{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
-.cook-sheet .craft-steps li{padding:4px 10px;border-radius:999px;background:#f6ebda;color:#76665c;font-size:12px}
-.cook-sheet .craft-steps li.current{background:#944b60;color:#fff}
-.cook-sheet .craft-steps li.done{background:#e3eadb;color:#42674e}
+/* 단계 표시는 버튼이 아니라 진행 막대: 한 줄, 번호 원 + 이름, 단계 사이를 선으로 잇는다 */
+.cook-sheet .craft-steps{display:flex;justify-content:center;align-items:center;gap:0;width:100%;margin:2px 0 0;padding:0;list-style:none}
+.cook-sheet .craft-steps li{display:flex;align-items:center;gap:5px;flex:0 1 auto;min-width:0;padding:0;margin:0;background:none;border:0;box-shadow:none;color:#8a786b;font-size:13px;font-weight:700;white-space:nowrap}
+.cook-sheet .craft-steps li+li::before{content:"";display:block;width:clamp(10px,4vw,28px);height:2px;margin:0 6px;border-radius:2px;background:#e4d3bd}
+.cook-sheet .craft-steps li i{display:inline-grid;place-items:center;flex:none;width:22px;height:22px;border-radius:50%;background:#f3e6d3;color:#7a6658;font-style:normal;font-size:12px;font-weight:800}
+.cook-sheet .craft-steps li.current{color:#7d3550}.cook-sheet .craft-steps li.current i{background:#944b60;color:#fff;box-shadow:0 0 0 3px #944b6029}
+.cook-sheet .craft-steps li.done{color:#3f6a4b}.cook-sheet .craft-steps li.done i{background:#dcebd6;color:#2f6a3f}
+.cook-sheet .craft-steps li.done::before,.cook-sheet .craft-steps li.current::before{background:#a9c79d}
+@media (max-width:440px){.cook-sheet .craft-steps li{font-size:12px;gap:4px}.cook-sheet .craft-steps li:not(.current) span{display:none}.cook-sheet .craft-steps li+li::before{margin:0 4px}}
+/* 재료 카드: 가운데 모아 두고 필요·보유를 글로 */
+.cook-sheet .ingredient-basket{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.cook-sheet .ingredient-basket .ing{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:92px;padding:8px 12px;border-radius:14px;background:#fff8ee;box-shadow:inset 0 0 0 1px #ecd9bf}
+.cook-sheet .ingredient-basket .ing b{font-size:14px;color:#4a3530}.cook-sheet .ingredient-basket .ing small{font-size:12px;color:#6f5d50;font-weight:700}
+.cook-sheet .ingredient-basket .ing.lack{background:#fff0ee;box-shadow:inset 0 0 0 1.5px #d9817a}.cook-sheet .ingredient-basket .ing.lack small{color:#b2443b}
+/* 주 버튼은 크게, 타이밍 도움은 그 아래 작은 보조 버튼 */
+.cook-sheet>.btn.primary.big,.cook-sheet>button.primary.big{min-height:54px;font-size:17px;font-weight:800;letter-spacing:.02em;border-radius:16px;box-shadow:0 4px 0 #6f3346,0 8px 18px #944b6033}
+.cook-sheet>.btn.primary.big:active,.cook-sheet>button.primary.big:active{transform:translateY(2px);box-shadow:0 2px 0 #6f3346}
+.cook-sheet>.craft-assist{width:auto;min-height:38px;padding:6px 16px;font-size:13px;font-weight:700;color:#6f4c5a;background:#f7ede4;border:1px solid #e3cfc0;border-radius:999px;box-shadow:none}
+.cook-sheet .heat-track{height:30px;border-radius:15px;box-shadow:inset 0 1px 3px #6a4a3a33}.cook-sheet .heat-track i{top:-1px;bottom:-1px;width:8px;border-radius:5px;background:#5b3442;box-shadow:0 0 0 2px #fff}
 .cook-sheet .batch-progress{width:100%;padding:8px 10px;border-radius:12px;background:#fbf2e3;box-sizing:border-box}
 
 .craft-worktop.cook-stage{position:relative;display:block;width:100%;height:auto;min-height:0;aspect-ratio:auto;padding:0;overflow:hidden;border-radius:22px;
