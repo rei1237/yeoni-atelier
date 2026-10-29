@@ -87,7 +87,11 @@ const storageOk = !!storage;
 if (!storage) storage = memoryStorage();
 
 let state = null;
-const ui = { playSpeed:1, camera:{zoom:1,x:0,y:0}, dev: DEV, hostDemo:HOST_DEMO, speed: 1, sheet: null, confirm: null, selectedSlot: null, recruitEvent: null, combo: [], discovery: null, ending: null, storageOk, hasSave: hasSave(storage, SAVE_KEY) };
+// 영업 배속은 기기 설정으로 남긴다(10-29 사용자 요청: 배속 유지). 저장 게임과 별개다.
+const SPEED_KEY='yeoni-atelier.play-speed.v1';
+const savedSpeed=()=>{try{const v=Number(storage.getItem(SPEED_KEY));return [1,2,3].includes(v)?v:1;}catch{return 1;}};
+function setPlaySpeed(v){ui.playSpeed=[1,2,3].includes(v)?v:1;try{storage.setItem(SPEED_KEY,String(ui.playSpeed));}catch{}}
+const ui = { playSpeed:savedSpeed(), camera:{zoom:1,x:0,y:0}, dev: DEV, hostDemo:HOST_DEMO, speed: 1, sheet: null, confirm: null, selectedSlot: null, recruitEvent: null, combo: [], discovery: null, ending: null, storageOk, hasSave: hasSave(storage, SAVE_KEY) };
 if (DEV) document.documentElement.classList.add('dev');
 
 const el = { topbar: $('#topbar'), panel: $('#panel'), stage: $('#stage'), canvas: $('#view'), hits: $('#hits'), bubbles: $('#bubbles'), talk: $('#talk'),
@@ -474,8 +478,8 @@ const ACTIONS = {
   'cook.cancel': d=>run({type:'cook.cancel',jobId:d.job}),
   'cook.cancelNext': d => run({ type: 'cook.cancelNext', station: d.station }),
   'shop.buy': d => run({ type: 'shop.buy', ingredientId: d.id, qty: n(d.qty) }),
-  'play.cycle':()=>{ui.playSpeed=ui.playSpeed===3?1:ui.playSpeed+1;},
-  'play.speed': d => {ui.playSpeed=[1,2,3].includes(n(d.speed))?n(d.speed):1;},
+  'play.cycle':()=>setPlaySpeed(ui.playSpeed===3?1:ui.playSpeed+1),
+  'play.speed': d => setPlaySpeed(n(d.speed)),
   'finance.borrow': d => {const amount=n(d.amount);ui.confirm={title:`${amount.toLocaleString('ko-KR')}G를 빌릴까요?`,text:`월 이자 ${GAME_TEMP.LOAN_RATE*100}% · 다음 하순 이자 ${Math.ceil(amount*GAME_TEMP.LOAN_RATE).toLocaleString('ko-KR')}G가 추가됩니다. 미납 이자는 대출 원금에 더해져요.`,yesLabel:'조건 확인하고 빌리기',onYes:()=>run({type:'finance.borrow',amount,requestId:`loan-${Date.now()}-${++repaySeq}`})};},
   'finance.repay': d => run({type:'finance.repay',target:d.target,amount:n(d.amount),currency:d.currency}),
   'debt.repay': d => run({ type: 'debt.repay', amount: n(d.amount), requestId: `repay-${Date.now()}-${++repaySeq}` }),
@@ -675,7 +679,7 @@ function handleEvents(events) {
       case 'nominationAccepted': toast(`🫖 ${ev.tableNo}번 접대 시작 · 60초 전담`, 'good'); gagLines(ev.gag); break;
       case 'nominationConverted': toast(`${ev.tableNo}번: ${ev.why}`); break;
       case 'nominationProposed': toast(`${ev.tableNo}번에 ${personName(state, ev.personId)} 추천`); break;
-      case 'helpOpen': ui.playSpeed=1; navigator.vibrate?.([70, 40, 70]); toast(`❗ ${ev.tableNo}번: ${ev.label} — 테이블을 눌러 응답`, '', 3200); break;
+      case 'helpOpen': navigator.vibrate?.([70, 40, 70]); toast(`❗ ${ev.tableNo}번: ${ev.label} — 테이블을 눌러 응답`, '', 3200); break;
       case 'helpDone': showHelpFeedback(ev); floater(p.x, p.y - 20, ev.gain > 0 ? `대화 +${ev.gain}` : `대화 ${ev.gain}`, '#3f74c9'); break;
       case 'helpMissed': showHelpFeedback({...ev,quality:'missed',gain:-1}); break;
       case 'feverOn': toast(ev.tycoon ? `대부호의 앙코르! 팁 ${ev.tip}G · 데스티노바 피버` : `🔥 피버! ${ev.tables.join('·')}번 테이블 정산 팁 2배`, 'good', 3200); shake(el.panel); break;
@@ -826,7 +830,7 @@ const loop = createFrameLoop({
       if (!huntOn && joystick.state.enabled) joystick.disable();
       const running = !ui.gameRoom && !state.paused && !['tutorial','kfp','trail'].includes(ui.sheet?.kind) && !novelActive() && (state.mode === 'shift' || state.mode === 'hunt'||state.mode==='prep'&&state.foodGifts?.job);
       if (running && raw > 0) {
-        const dt = raw * (DEV && ui.speed!==1 ? ui.speed : state.mode==='shift'?ui.playSpeed:1);
+        const dt = raw * (DEV && ui.speed!==1 ? ui.speed : state.mode==='shift'&&ui.sheet?.kind!=='craft'?ui.playSpeed:1); // 요리 타이밍 창이 열린 동안만 1배, 닫으면 고른 배속으로
         handleEvents(tick(state, dt, { input: joystick.state.move }));
         autosaveAcc += raw;
         if (autosaveAcc >= TEMP.AUTOSAVE_MS) { autosaveAcc = 0; recordWallClock(state, Date.now()); save(); }
@@ -864,7 +868,7 @@ const endTouch=e=>{touches.delete(e.pointerId);if(touches.size<2)pinch=null;};el
 function beginCraft(menuId,orderId=null){
  if(automationOn(state,'kitchen')){run(orderId?{type:'order.quick',orderId}:{type:'cook',menuId});return;}
  const order=state.orders[orderId];if(order&&Object.values(state.stations).some(st=>stationJobs(st).some(j=>j?.orderId===orderId))){toast('이 주문은 조리 중이에요.');return;}
- ui.cafeDrawer=null;ui.tablePop=null;ui.playSpeed=1;ui.craft=newCraft(menuId,orderId);ui.craft.assist=motionPreference.matches;ui.sheet={kind:'craft'};
+ ui.cafeDrawer=null;ui.tablePop=null;ui.craft=newCraft(menuId,orderId);ui.craft.assist=motionPreference.matches;ui.sheet={kind:'craft'};
 }
 
 function finishGuide(proceed=false){const back=ui.guideReturn,action=ui.guideAction;ui.guideReturn=null;ui.guideAction=null;run({type:'tutorial.seen',id:ui.guideId==='firstday'?'firstdayintro':ui.guideId||'cook'});ui.sheet=back?.kind?back:null;if(proceed&&action)ACTIONS[action]();}
