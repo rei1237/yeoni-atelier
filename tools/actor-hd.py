@@ -6,7 +6,7 @@
 """
 import importlib.util, json, pathlib, sys
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('pack', ROOT/'tools'/'pack-sprites.py'); pack = importlib.util.module_from_spec(spec); spec.loader.exec_module(pack)
@@ -77,6 +77,21 @@ def fit_cell(cell, figs):
     hd.putalpha(Image.fromarray(np.minimum(np.asarray(hd.getchannel('A')), np.asarray(mask))))
     return err, hd
 
+def tidy(hd, cell):
+    """check-sprites 기준: 1배 셀 인물 상자의 2배 밖 알파와 본체에서 떨어진 조각을 지운다."""
+    b = cell.getchannel('A').getbbox()
+    if not b: return hd
+    a = np.array(hd.getchannel('A')); keep = np.zeros_like(a); keep[b[1]*K:b[3]*K, b[0]*K:b[2]*K] = 1; a *= keep
+    parts = pack.components(a >= 24)
+    if len(parts) > 1:
+        m = Image.new('L', hd.size); d = ImageDraw.Draw(m)
+        for y, x0, x1 in parts[0]: d.line((x0, y, x1-1, y), fill=255)
+        reach = np.asarray(m.filter(ImageFilter.MaxFilter(13)))
+        for part in parts[1:]:
+            if not any(reach[y, x0:x1].any() for y, x0, x1 in part):
+                for y, x0, x1 in part: a[y, x0:x1] = 0
+    hd.putalpha(Image.fromarray(a)); return hd
+
 def build(item, limit):
     group, key = item['id'].split('/'); path = ROOT/'assets'/'illustrated'/group/(key+'.webp')
     sheet = Image.open(path).convert('RGBA'); fw, fh = item.get('frame', [128, 128])
@@ -86,7 +101,7 @@ def build(item, limit):
             cell = sheet.crop((x*fw, y*fh, (x+1)*fw, (y+1)*fh)); r = fit_cell(cell, figs) if figs else None
             ok = r is not None and r[0] <= limit
             hd = r[1] if ok else cell.resize((fw*K, fh*K), Image.Resampling.LANCZOS)
-            out.paste(hd, (x*fw*K, y*fh*K)); report.append(round(r[0], 1) if r else None)
+            out.paste(tidy(hd, cell), (x*fw*K, y*fh*K)); report.append(round(r[0], 1) if r else None)
     good = sum(1 for e in report if e is not None and e <= limit)
     # 맞은 셀이 절반도 안 되면 늘린 그림뿐이라 내보내지 않는다. 2배 시트는 원본의 약 4배라 품질 82로 assets/ 45MB 예산(10-29)을 지킨다
     if good*2 >= len(report): out.save(path.with_name(key+'_hd.webp'), 'WEBP', quality=82, method=6)
