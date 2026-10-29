@@ -91,6 +91,6 @@ C:\Users\user 에서 세션을 열고:
    - 원인: 준비 화면에서는 리본이 나올 경로가 없다. ① `src/ui/app.js` render가 `#bubbles`(리본)를 `shift`·`hunt`에서만 그린다 ② `cafe-play.css:15`의 `data-cafe-focus=true`는 `prep`에서도 true라 그려도 숨는다 ③ 준비 중에는 `showCafeLine`을 부르는 사건이 없다(`guestChatter`는 영업 방문에서만, 나머지는 사냥 사건). 영업 중 고객 잡담은 `guestTalk` 말풍선이 맡고, 손님 id 없는 잡담만 리본으로 가지만 CSS로 숨는다. 결국 카페 쪽 리본은 지금 보이지 않고 사냥에서만 쓰인다
    - 고치려면 준비 화면 잡담의 화자·문장·주기(새 내용)를 정해야 한다 → 사람 결정 대기로 남긴다. 정해지면 ①의 조건에 `prep`을 넣고 ②를 `[data-mode=shift]`로 좁히고 준비 화면 잡담 발생원을 더한다
 3. 농장 일괄 수확(설계 3) → 테스트 추가 → 농장 창 QA → 커밋 — 미착수
-4. 손님 요구 게이지 설계 초안(설계 4) → WORLD.md·TUNING.md → 커밋(구현 안 함) — 미착수
+4. 손님 요구 게이지 설계 초안(설계 4) → WORLD.md·TUNING.md → 커밋(구현 안 함) — 완료(설계 초안만: WORLD.md "손님 요구: 계산대 한마디"·TUNING.md TEMP 후보와 구현 조건. 보상 종류는 사람 결정 대기)
 5. UI 그림(설계 5) → 하나씩 만들고 등록·비교 → `node tools/check-assets.mjs`·`PYTHONIOENCODING=utf-8 py tools/check-sprites.py` → 하나씩 커밋 — 미착수
 6. `npm test`·`node tools/check-assets.mjs`·`PYTHONIOENCODING=utf-8 py tools/check-sprites.py`·`git diff --check` → release.json 올림(version·baseCommit, 에셋이 바뀌면 assetBytes) → `git push origin HEAD:main` → `gh run list --limit 6 --json name,headSha,status,conclusion`(Game checks), `gh api repos/rei1237/yeoni-atelier/commits/<sha>/statuses`(Vercel), `curl https://rei1237.github.io/yeoni-atelier/release.json`(Pages) → 이 문서에 SHA 기록·`status: done` → 한국어 보고(실기기는 "미검증") — 미착수
