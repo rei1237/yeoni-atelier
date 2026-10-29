@@ -1,0 +1,26 @@
+/* 10-29 카페 무대 키우기(인계 2026-10-29-cafe-stage-size): 상단 바·명령줄·옆 패널 배치만 정한다.
+   색·테두리·글꼴은 main-pixel.css가 그린다. #topbar를 앞머리에 둬 main-pixel의 :is(#topbar…) 규칙보다 특이도가 높다. */
+
+/* A. 상단 바: 상태 칩은 아이콘+값만 보이고 이름은 title·화면 읽기용으로 남긴다 */
+body[data-mode][data-cafe-focus=true] #topbar .status-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details button{flex-direction:row;justify-content:center;align-items:center;gap:4px;min-height:44px;padding:0 4px}
+body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details small{gap:0}
+body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details b{font-size:14px;line-height:1}
+@media(min-width:900px){
+ body[data-mode][data-cafe-focus=true] #topbar{display:flex;align-items:center;gap:8px;min-height:0;padding:6px 14px}
+ body[data-mode][data-cafe-focus=true] #topbar .cafe-status-main{display:contents}
+ body[data-mode][data-cafe-focus=true] #topbar .cafe-clock{flex:0 0 auto;margin-right:6px}
+ body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details{order:1;display:flex;flex:1;justify-content:center;gap:6px;margin:0;padding:0;border:0}
+ body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details button{flex:0 1 128px;padding:0 10px}
+ body[data-mode][data-cafe-focus=true] #topbar :is(.cafe-gold,.cafe-status-main>button){order:2}
+}
+@media(min-width:1100px){
+ body[data-mode][data-cafe-focus=true] #topbar .status-label{position:static;width:auto;height:auto;overflow:visible;clip-path:none;margin-left:4px;font-size:11px}
+ body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details small{margin-right:2px}
+}
+@media(max-width:899px) and (min-height:501px){
+ body[data-mode][data-cafe-focus=true] #topbar{padding:2px 8px;padding-top:max(2px,env(safe-area-inset-top))}
+ body[data-mode][data-cafe-focus=true] #topbar .cafe-clock :is(b,small){line-height:1.25}
+ body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details{margin-top:2px;padding-top:0;border-top:0;gap:4px}
+ body[data-mode][data-cafe-focus=true] #topbar .cafe-status-details button{margin-block:0}
+}
