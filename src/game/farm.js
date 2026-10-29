@@ -89,6 +89,15 @@ export function harvest(state, index, cropInstanceId) {
   emit('farmAction', { kind:'harvest',index,cropId:p.cropId,text: `${crop.name} 수확 · 요리 재료 ${qty}개${farmLevel(f) > level ? ` · 농장 레벨 ${farmLevel(f)}!` : ''}` });
   return { ok: true, ingredient: crop.ingredient, qty, xp: crop.xp };
 }
+// 다 자란 밭을 한 번에 수확한다. 밭마다 harvest를 그대로 불러 원장·보상은 단건과 같고, 행동력도 밭마다 1
+export function harvestAll(state) {
+  const chk=farmCheck(state);if(!chk.ok)return chk;
+  const ripe=[];state.farm.plots.forEach((p,i)=>{if(p&&p.growth>=CROPS[p.cropId].turns)ripe.push([i,p.id]);});
+  if(!ripe.length)return fail('다 자란 작물이 없어요');
+  const ap=farmEnergyCheck(state,ripe.length);if(!ap.ok)return ap;
+  let count=0;for(const [i,id] of ripe){if(harvest(state,i,id).ok){count++;gainYeoni(state,'farm');}}
+  spendFarmEnergy(state,count);return {ok:true,count};
+}
 export function expansion(state, greenhouse = false) {
   const chk = farmCheck(state); if (!chk.ok) return chk;
   const f = state.farm, level = farmLevel(f);

@@ -72,3 +72,17 @@ test('농장 레벨 작물·확장·일괄 돌봄·온실, 수확 레시피와 �
   const migrated = deserialize(JSON.stringify(old)).state;
   assert.equal(migrated.farm.plots.length, 4); assert.equal(migrated.farm.lastAdvancedDay, 28);
 });
+
+test('다 자란 밭 두 곳을 한 번에 수확하면 단건 두 번과 수확물·행동력이 같다', () => {
+  const ready = () => { const s = createGame(); s.ledger.story.m1 = true; s.farm.energy = 10; // 테스트 준비: 농장 개방·행동력
+    for (const i of [0, 1]) { assert.ok(cmd(s, 'farm.plant', { cropId: 'wheat', index: i }).ok); s.farm.plots[i].growth = CROPS.wheat.turns; }
+    return s; };
+  const a = ready(), b = ready(), flour = a.stock.flour, energy = a.farm.energy;
+  for (const i of [0, 1]) assert.ok(cmd(a, 'farm.harvest', { index: i, cropInstanceId: a.farm.plots[i].id }).ok);
+  const r = cmd(b, 'farm.harvestAll');
+  assert.ok(r.ok); assert.equal(r.count, 2);
+  assert.equal(b.stock.flour, a.stock.flour); assert.ok(b.stock.flour > flour);
+  assert.equal(b.farm.energy, a.farm.energy); assert.equal(b.farm.energy, energy - 2);
+  assert.equal(b.farm.xp, a.farm.xp); assert.deepEqual(b.ledger.rewards, a.ledger.rewards);
+  assert.equal(cmd(b, 'farm.harvestAll').ok, false);
+});

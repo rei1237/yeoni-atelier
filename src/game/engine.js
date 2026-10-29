@@ -59,7 +59,7 @@ function route(state, cmd) {
 function execute(state, cmd) {
   const t = cmd?.type;
   if(state.interior.draft?.checkoutPreview&&!t?.startsWith('interior.')&&t!=='tutorial.seen')return {ok:false,reason:'계산대 미리보기를 적용하거나 취소한 뒤 이용해 주세요'};
-  if(state.foodGifts?.job&&['shift.start','hunt.start','branch.switch','interior.begin','farm.plant','farm.water','farm.tend','farm.harvest','farm.careAll','bond.talk'].includes(t))return {ok:false,reason:'진행 중인 여분 조리를 마치거나 취소해 주세요'};
+  if(state.foodGifts?.job&&['shift.start','hunt.start','branch.switch','interior.begin','farm.plant','farm.water','farm.tend','farm.harvest','farm.careAll','farm.harvestAll','bond.talk'].includes(t))return {ok:false,reason:'진행 중인 여분 조리를 마치거나 취소해 주세요'};
   if (state.paused && !ALLOWED_WHILE_PAUSED.has(t) && !(t==='hunt.finish' && state.mode==='hunt' && state.hunt && state.hunt.status!=='running')) return { ok: false, reason: '일시정지 중입니다 — 계속하기를 눌러 주세요' };
   if (state.calendar?.endingId === 'bad' && !AFTER_BAD_END.has(t)) return { ok: false, reason: '가게를 내준 뒤에는 영업할 수 없어요 · 새 게임이나 결말 다시 보기를 골라 주세요' };
   if (SHIFT_ONLY.has(t) && state.mode !== 'shift') return { ok: false, reason: '정규 영업 중에만 할 수 있습니다' };
@@ -114,6 +114,7 @@ function execute(state, cmd) {
     case 'farm.water': return farm.care(state, cmd.index, 'water');
     case 'farm.tend': return farm.care(state, cmd.index, 'tend');
     case 'farm.careAll': return farm.careAll(state);
+    case 'farm.harvestAll': return farm.harvestAll(state);
     case 'farm.harvest': return farm.harvest(state, cmd.index, cmd.cropInstanceId);
     case 'farm.delegate': return delegateFarm(state);
     case 'farm.expand': return farm.expansion(state);

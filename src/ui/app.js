@@ -336,6 +336,7 @@ const ACTIONS = {
   'farm.tend': d => run({ type: 'farm.tend', index: n(d.index) }),
   'farm.harvest': d => run({ type: 'farm.harvest', index: n(d.index), cropInstanceId: d.id }),
   'farm.careAll': () => run({ type: 'farm.careAll' }),
+  'farm.harvestAll': () => run({ type: 'farm.harvestAll' }),
   'farm.expand': () => run({ type: 'farm.expand' }),
   'farm.greenhouse': () => run({ type: 'farm.greenhouse' }),
   // 화면 전용
