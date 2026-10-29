@@ -1,7 +1,7 @@
 ---
-status: todo
+status: done
 updated: 2026-10-29
-next: "1 이름표 회피 보완 → 2 준비 화면 잡담 리본 → 3 농장 일괄 수확 → 4 손님 요구 게이지(설계 먼저) → 5 UI 그림 다시 그리기 → 6 검사·release·push·배포 확인"
+next: "없음 — 남은 일은 사람 결정 대기(준비 화면 잡담 내용, 손님 요구 보상 종류, 결산 카드 도트 테마, 손대지 말 것 목록)"
 ---
 # 인수인계 — 경제 0.6 이후 남은 일 (2026-10-29)
 
@@ -30,8 +30,14 @@ C:\Users\user 에서 세션을 열고:
 | 메인 화면·창 틀 도트 테마(`main-pixel.css`, 도트 아이콘 9개 추가) | 완료 | 72443b8 |
 | 연이 "꿀악" → 운세 대사(22곳) + 운세 잡담 15문장 | 완료 | ed13439 |
 | 게임방 그림·카드 2장 도트 그림(원본 `D:/yeoni-qa/art/pixel-v1/`) | 완료 | 269f77d |
-| 위 다섯 건 push·release | 안 함(요청 대기). 단계 6에서 함께 올린다 | — |
-| 단계 1~6 | 미착수 | — |
+| 위 다섯 건 push·release | 완료(단계 6) | ff6ed62 |
+| 추가 요청: 사냥터 수염 자석 → 개다래 열매(12초 공격력 +30%·이동 +20% 버프) | 완료 | 95c4a27 |
+| 단계 1 이름표 회피(실제 DOM 말풍선·확대 버튼 크기 사용) | 완료 | 93062e0 |
+| 단계 2 준비 화면 잡담 리본(원인 기록, 코드 변경 없음) | 완료 | a74db97 |
+| 단계 3 농장 일괄 수확(`farm.harvestAll`) | 완료 | d7b11a9 |
+| 단계 4 손님 요구 게이지 설계 초안(미구현) | 완료 | e11e98a |
+| 단계 5 UI 그림(도트 테마로 대체됨, 비교만) | 완료 | b462976 |
+| 단계 6 release 2026.10.29.3 · push(76987c7..ff6ed62) · Vercel·Pages 확인 · 실기기 미검증 | 완료 | ff6ed62 |
 
 ## 작업 규칙(요약, 원문은 AGENTS.md·CLAUDE.md)
 - 상태 변경은 `dispatch`(src/game/engine.js)·`tick`에서만. 보상은 원장 키로 한 번. 난수는 `state.rng`만
@@ -86,14 +92,14 @@ C:\Users\user 에서 세션을 열고:
 - 함정: `node -e`에 `${}`가 있으면 bash가 깨진다(`<<'EOF'` 헤어독으로 파일에 쓴다). 따옴표 없는 헤어독은 `\\n`을 줄바꿈으로 바꾼다. `python` 대신 `py`. CRLF 파일 경고는 무시
 
 ## 단계
-1. 이름표 회피 보완(설계 1) → `npm test` + `VP=390x844`·`VP=360x640` qa-tags로 말풍선·확대 버튼 아래 이름표 확인 → 커밋 — 미착수
+1. 이름표 회피 보완(설계 1) → `npm test` + `VP=390x844`·`VP=360x640` qa-tags로 말풍선·확대 버튼 아래 이름표 확인 → 커밋 — 완료(93062e0)
 2. 준비 화면 잡담 리본(설계 2) → 원인 확인 후 수정 또는 재현 조건 기록 → 커밋 — 완료(코드 변경 없음, 원인 기록)
    - 원인: 준비 화면에서는 리본이 나올 경로가 없다. ① `src/ui/app.js` render가 `#bubbles`(리본)를 `shift`·`hunt`에서만 그린다 ② `cafe-play.css:15`의 `data-cafe-focus=true`는 `prep`에서도 true라 그려도 숨는다 ③ 준비 중에는 `showCafeLine`을 부르는 사건이 없다(`guestChatter`는 영업 방문에서만, 나머지는 사냥 사건). 영업 중 고객 잡담은 `guestTalk` 말풍선이 맡고, 손님 id 없는 잡담만 리본으로 가지만 CSS로 숨는다. 결국 카페 쪽 리본은 지금 보이지 않고 사냥에서만 쓰인다
    - 고치려면 준비 화면 잡담의 화자·문장·주기(새 내용)를 정해야 한다 → 사람 결정 대기로 남긴다. 정해지면 ①의 조건에 `prep`을 넣고 ②를 `[data-mode=shift]`로 좁히고 준비 화면 잡담 발생원을 더한다
-3. 농장 일괄 수확(설계 3) → 테스트 추가 → 농장 창 QA → 커밋 — 미착수
+3. 농장 일괄 수확(설계 3) → 테스트 추가 → 농장 창 QA → 커밋 — 완료(d7b11a9, 390×844에서 밭 3곳 한 번에 수확·행동력 6→3 확인)
 4. 손님 요구 게이지 설계 초안(설계 4) → WORLD.md·TUNING.md → 커밋(구현 안 함) — 완료(설계 초안만: WORLD.md "손님 요구: 계산대 한마디"·TUNING.md TEMP 후보와 구현 조건. 보상 종류는 사람 결정 대기)
 5. UI 그림(설계 5) → 하나씩 만들고 등록·비교 → `node tools/check-assets.mjs`·`PYTHONIOENCODING=utf-8 py tools/check-sprites.py` → 하나씩 커밋 — 완료(새 그림 없음, 비교만)
    - 이 후보 목록은 09:03에 썼고, 09:21에 72443b8이 메인 화면·창 틀을 도트 테마로 바꿨다. ① 하단 명령줄 아이콘(12×12 도트 아이콘) ② 상점 공통 틀 ④ 준비 화면 패널 틀은 그 커밋에서 이미 다시 그려졌다. 여기에 손그림 일러스트를 올리면 도트 방향과 부딪힌다
    - ③ 결산 카드 ⑤ 농장 밭 타일은 390×844에서 찍어 봤다. 어색한 그림이 없어서 "원본보다 어색하면 넣지 않는다"에 따라 넣지 않았다. 찍은 화면은 `D:/yeoni-qa/art/ui-v2/compare/ui-before-{prep,shop,settle,farm}-390.png`
    - 사람 결정 대기: 결산 카드도 도트 테마(`main-pixel.css`)로 맞출지. 지금은 둥근 카드라 메인 화면 도트 틀과 결이 다르다. 이건 그림이 아니라 CSS 일이다
-6. `npm test`·`node tools/check-assets.mjs`·`PYTHONIOENCODING=utf-8 py tools/check-sprites.py`·`git diff --check` → release.json 올림(version·baseCommit, 에셋이 바뀌면 assetBytes) → `git push origin HEAD:main` → `gh run list --limit 6 --json name,headSha,status,conclusion`(Game checks), `gh api repos/rei1237/yeoni-atelier/commits/<sha>/statuses`(Vercel), `curl https://rei1237.github.io/yeoni-atelier/release.json`(Pages) → 이 문서에 SHA 기록·`status: done` → 한국어 보고(실기기는 "미검증") — 미착수
+6. `npm test`·`node tools/check-assets.mjs`·`PYTHONIOENCODING=utf-8 py tools/check-sprites.py`·`git diff --check` → release.json 올림(version·baseCommit, 에셋이 바뀌면 assetBytes) → `git push origin HEAD:main` → `gh run list --limit 6 --json name,headSha,status,conclusion`(Game checks), `gh api repos/rei1237/yeoni-atelier/commits/<sha>/statuses`(Vercel), `curl https://rei1237.github.io/yeoni-atelier/release.json`(Pages) → 이 문서에 SHA 기록·`status: done` → 한국어 보고(실기기는 "미검증") — 완료(ff6ed62: 테스트 388/388·에셋 508/508·스프라이트 오류 0·Game checks·Vercel·Pages 모두 성공)
