@@ -63,3 +63,10 @@ test('영업 전 🎵 켜기는 지금 재생하지 않고 다음 영업 예약�
  a.audioAction('shiftMusic','on');await new Promise(setImmediate);assert.equal(p.paused,true);assert.equal(a.audioStatus().shiftMusic,true);
  a.startShiftMusic();await new Promise(setImmediate);assert.equal(p.paused,false);assert.equal(a.audioStatus().current,'destinycafe-06');
 });
+test('음악실은 또렷한 닫기와 이름 붙은 재생 버튼을 달밤 카드 안에 둔다',async()=>{
+ const {audio:a}=await fixture();const html=a.audioSheet();
+ assert.match(html,/class="close ghost" data-action="sheet.close" title="닫기" aria-label="닫기"/);
+ const now=html.slice(html.indexOf('class="music-now"'),html.indexOf('</section>',html.indexOf('class="music-now"')));
+ for(const name of ['이전 곡','재생','다음 곡'])assert.match(now,new RegExp(`aria-label="${name}"`));
+ assert.match(now,/data-audio-input="seek"/,'탐색 막대도 재생 카드 안에 있다');
+});

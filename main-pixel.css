@@ -125,3 +125,44 @@ body[data-mode]:is([data-mode=prep],[data-mode=shift],[data-mode=title]) :is(.sh
 .exit-farewell>button:active{transform:translateY(var(--dp))}
 .exit-fortune{display:flex;align-items:center;min-height:44px;font-size:12px;color:var(--dp-rose);text-underline-offset:3px}
 @media(prefers-reduced-motion:reduce){.exit-pig .pixel-icon{animation:none}}
+
+/* 10-29 달빛 음악실: 아이보리 종이 + 달밤 재생 카드. 닫기는 진한 잉크 테두리로 또렷하게 */
+body[data-mode] .music-room{color:var(--ml-ink);background:var(--ml-paper);padding:4px 2px 8px;margin:0;border-radius:0}
+body[data-mode] .music-room h2{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#67415a;font-size:21px;margin:0 0 4px}
+body[data-mode] .music-room h2 .close.close{order:2;flex:none;width:44px;height:44px;min-width:44px;padding:0;display:grid;place-items:center;font-size:20px;font-weight:800;line-height:1;color:var(--ml-ink);background:#fff;border:2px solid var(--ml-ink);border-radius:7px;box-shadow:0 2px 0 #46324833;float:none}
+body[data-mode] .music-room h2 .close.close:hover{background:var(--ml-soft);color:#703c58;border-color:#703c58}
+body[data-mode] .music-room h2 .close.close:focus-visible{outline:3px solid #d9a0b4;outline-offset:2px}
+body[data-mode] .music-room .music-tagline{color:var(--ml-muted);font-size:12px;margin:0 0 12px;padding-bottom:10px;background:url('assets/illustrated/ui/botanical_divider.webp') center bottom/120px auto no-repeat;padding-bottom:22px}
+body[data-mode] .music-room .music-now{position:relative;display:block;padding:16px;border-radius:14px;color:#fff7ea;overflow:hidden;background:radial-gradient(circle at 88% 14%,#fff4d6 0 15px,#fff4d655 16px,transparent 46px),linear-gradient(160deg,#3b2c47,#5b3a58);box-shadow:0 6px 18px #3b2c4730}
+body[data-mode] .music-room .music-now::after{content:'';position:absolute;right:-6px;bottom:-4px;width:84px;height:84px;background:url('assets/illustrated/ui/botanical_right.webp') right bottom/contain no-repeat;opacity:.35;pointer-events:none}
+body[data-mode] .music-room .music-now-head{display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;align-items:center;padding-right:28px}
+body[data-mode] .music-room .music-cover{width:76px;height:76px;border:1px solid #e8d2a8;border-radius:10px;background:#4a3550}
+body[data-mode] .music-room .music-cover span{font-size:36px;color:#fff4d6}
+body[data-mode] .music-room .music-now small{color:#e8d2a8;font-size:12px}
+body[data-mode] .music-room .music-now h3{color:#fff7ea;font-size:18px;margin:4px 0;word-break:keep-all}
+body[data-mode] .music-room .music-now p{color:#e9dbe6;font-size:12px;margin:0}
+body[data-mode] .music-room .music-seek{position:relative;z-index:1;display:flex;gap:10px;align-items:center;margin:12px 0 4px;min-height:36px;color:#e9dbe6}
+body[data-mode] .music-room .music-seek input{accent-color:#f0c2d0}
+body[data-mode] .music-room .music-transport{position:relative;z-index:1;display:flex;justify-content:center;align-items:center;gap:18px;margin:4px 0 0}
+body[data-mode] .music-room .music-transport button{flex:none;width:48px;height:48px;min-height:48px;padding:0;display:grid;place-items:center;border-radius:50%;color:#fff7ea;background:#ffffff14;border:1px solid #fff7ea66;box-shadow:none}
+body[data-mode] .music-room .music-transport button.primary{width:64px;height:64px;background:var(--ml-rose);border:2px solid #f6d9e1;box-shadow:0 4px 12px #1d122440}
+body[data-mode] .music-room .music-transport svg{width:22px;height:22px}
+body[data-mode] .music-room .music-transport .primary svg{width:28px;height:28px}
+body[data-mode] .music-room .music-transport button:hover{background:#ffffff2a}body[data-mode] .music-room .music-transport button.primary:hover{background:#734158}
+body[data-mode] .music-room .music-options{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 6px}
+body[data-mode] .music-room button{color:var(--ml-ink);background:var(--ml-paper);border:1px solid var(--ml-line);border-radius:7px;box-shadow:none;background-image:none;font-family:inherit}
+body[data-mode] .music-room .music-options button,body[data-mode] .music-room .music-filters button{flex:none;min-height:44px;padding:6px 12px;border-radius:999px;font-size:12px}
+body[data-mode] .music-room :is(.music-options,.music-filters) .on{background:var(--ml-soft);color:#703c58;border-color:#c99aab}
+body[data-mode] .music-room .music-volume{display:flex;gap:10px;align-items:center;min-height:44px;font-size:12px;color:var(--ml-muted)}
+body[data-mode] .music-room input{accent-color:var(--ml-rose)}
+body[data-mode] .music-room .music-library{border-top:1px solid var(--ml-line);margin-top:10px;padding-top:12px}
+body[data-mode] .music-room .music-library>label{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ml-muted)}
+body[data-mode] .music-room input[type=search]{flex:1;min-height:44px;background:#fff;color:var(--ml-ink);border:1px solid var(--ml-line);border-radius:7px;padding:8px}
+body[data-mode] .music-room .music-library .small{color:var(--ml-muted);margin:8px 0 4px}
+body[data-mode] .music-room .music-tracks{max-height:300px;border:1px solid var(--ml-line);border-radius:8px;background:#fff}
+body[data-mode] .music-room .music-tracks li{border-bottom:1px solid #eee3d3}
+body[data-mode] .music-room .music-tracks button{border:0;border-radius:0;background:transparent;padding:10px 12px}
+body[data-mode] .music-room .music-tracks button[aria-pressed=true]{background:var(--ml-soft);border-left:3px solid var(--ml-rose)}
+body[data-mode] .music-room .music-tracks small{color:var(--ml-muted)}body[data-mode] .music-room .music-tracks em{color:var(--ml-rose);font-style:normal;font-weight:700}
+body[data-mode] .music-room .music-row-mark{color:var(--ml-gold)}
+body[data-mode] .music-room .music-sfx summary{color:var(--ml-ink)}body[data-mode] .music-room .music-note{color:var(--ml-muted)}
