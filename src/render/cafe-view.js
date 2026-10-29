@@ -23,14 +23,18 @@ import { furnitureCells } from '../game/space.js';
 import { drawActor, roundRect, drawObjectImage, drawFood, nameTag } from './sprite-renderer.js';
 
 export function cafeBounds(state){const a=state?.interior?.areas||[];return {cols:a.includes('east_wing')||a.includes('garden_wing')?20:12,rows:Math.max(a.includes('garden_wing')?24:16,...AREAS.filter(x=>x.branchMin&&a.includes(x.id)).map(x=>x.rect[3]+1))};}
+// 10-29 무대 키우기: 배우는 발 위치는 그대로 두고 10% 크게 그린다.
+const ACTOR_SCALE=1.1;
 export function computeView(w,h,camera={}){
  const cols=camera.cols||12,rows=camera.rows||16;
  // 벽과 테두리는 논리 바닥 밖에 둔다. 모든 터치·배지·배우는 같은 바닥 좌표를 쓴다.
- const fit=Math.max(8,Math.floor(Math.min(w/(cols+2.2),h/(rows+3))*100)/100),expanded=cols>12||rows>16;
+ // 여백은 좌우 벽 0.7칸씩·윗벽 2.2칸만 잡는다(방 그림 14.2×19칸 가장자리는 조금 잘려도 바닥 12×16은 다 보인다).
+ // 높이가 남으면 윗벽을 3칸까지 되살려 방 그림을 가운데 둔다.
+ const mx=1.4,my=2.2,fit=Math.max(8,Math.floor(Math.min(w/(cols+mx),h/(rows+my))*100)/100),expanded=cols>12||rows>16;
  const readable=!camera.overview&&expanded;
  const tile=(readable?Math.max(fit,w<600?28:38):fit)*(camera.zoom||1);
- const clamp=(n,min,max)=>Math.max(min,Math.min(max,n)),extraX=Math.max(0,tile*(cols+2.2)-w),extraY=Math.max(0,tile*(rows+3)-h);
- const baseX=Math.round((w-tile*cols)/2),baseY=Math.round((h-tile*(rows+3))/2)+tile*3;
+ const clamp=(n,min,max)=>Math.max(min,Math.min(max,n)),extraX=Math.max(0,tile*(cols+mx)-w),extraY=Math.max(0,tile*(rows+my)-h);
+ const wall=Math.min(3,Math.max(my,h/tile-rows)),baseX=Math.round((w-tile*cols)/2),baseY=Math.round((h-tile*(rows+wall))/2)+tile*wall;
  const focusX=readable?w/2-tile*6-baseX:0,focusY=readable?h/2-tile*(expanded?8:5)-baseY:0;
  return {tile,ox:baseX+clamp(focusX+(camera.x||0),-extraX/2,extraX/2),oy:baseY+clamp(focusY+(camera.y||0),-extraY/2,extraY/2),w,h,cols,rows};
 }
@@ -204,7 +208,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   }
   actors.sort((a, b) => a.y - b.y);
   const tags = [];
-  for(const a of actors){const p=P(a.x,a.y),blend=a.seatBlend,actorSize=blend==null?(a.seated?2.2:1.8):1.8+.4*blend,foot=p.y+T*(blend==null?(a.seated?-.10:.32):.32+(-.10+17/128*2.2-.32)*blend);pieces.push({depth:a.cashierFront?SPOTS.yeoniHome.y+1.1:a.y+(a.seated?.28:.32),paint:()=>drawActor(ctx,a.key,{...a.o,name:null,x:p.x,y:foot,size:T*actorSize,idleMotion:!a.seated&&!editing&&!state.paused,reducedMotion:opts.reducedMotion,t})});if(a.o.name)tags.push({text:a.o.name,x:p.x,up:foot-T*1.65-24,y:['serve','clean'].includes(a.o.state)?foot-T*1.65-24:foot+4+(a.o.state==='host'?Math.max(20,T*.65):0),color:a.o.tagColor});}
+  for(const a of actors){const p=P(a.x,a.y),blend=a.seatBlend,actorSize=(blend==null?(a.seated?2.2:1.8):1.8+.4*blend)*ACTOR_SCALE,foot=p.y+T*(blend==null?(a.seated?-.10:.32):.32+(-.10+17/128*2.2*ACTOR_SCALE-.32)*blend);pieces.push({depth:a.cashierFront?SPOTS.yeoniHome.y+1.1:a.y+(a.seated?.28:.32),paint:()=>drawActor(ctx,a.key,{...a.o,name:null,x:p.x,y:foot,size:T*actorSize,idleMotion:!a.seated&&!editing&&!state.paused,reducedMotion:opts.reducedMotion,t})});if(a.o.name)tags.push({text:a.o.name,x:p.x,up:foot-T*1.65*ACTOR_SCALE-24,y:['serve','clean'].includes(a.o.state)?foot-T*1.65*ACTOR_SCALE-24:foot+4+(a.o.state==='host'?Math.max(20,T*.65):0),color:a.o.tagColor});}
   pieces.sort((a,b)=>a.depth-b.depth);for(const piece of pieces)piece.paint();
   for (const paint of stageRain.splice(0)) paint(); // 손님 위, 주문 말풍선 아래
   if(state.mode==='shift')drawStations(ctx,state,v);
