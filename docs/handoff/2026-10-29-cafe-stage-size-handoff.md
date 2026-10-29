@@ -1,13 +1,15 @@
 ---
 status: done
 updated: 2026-10-29
-next: "완료 — push·배포는 사용자 요청 때 단계 8대로"
+next: "완료 — release 2026.10.29.5 배포됨"
 ---
 # 인수인계 — 카페 무대를 크게, 캐릭터가 잘 보이게 (2026-10-29)
 
 앞 인계 [2026-10-29-remaining-work-handoff.md](2026-10-29-remaining-work-handoff.md)는 `status: done`(release 2026.10.29.4, 54ee6ef 배포·Game checks·Vercel·Pages 성공).
 
-## 결과 (2026-10-29, 브랜치 fix/yeoni-counter-cooking-20261028, 미push)
+## 결과 (2026-10-29, 브랜치 fix/yeoni-counter-cooking-20261028)
+- 배포: release 2026.10.29.5(2024b6e, baseCommit b859cb0) main push → Game checks·pages-build-deployment·Vercel 성공, Pages release.json 2026.10.29.5 확인
+
 | 단계 | SHA | 내용 |
 |---|---|---|
 | A | 5d83708 | 상단 바 한 줄·칩 아이콘+값(이름은 title·화면 읽기용, ≥1100에서 이름 표시). 데스크톱 61px, 모바일 94px |
