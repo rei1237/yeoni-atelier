@@ -130,11 +130,14 @@ function save(quiet = true) {
 }
 
 // 독립 화면의 주소 이력은 UI만 바꾸며 게임 저장과 분리한다.
+// 10-29 영업 중에는 가게를 비울 수 없어 재성의 섬 지도도 열지 않는다
+const ISLAND_SHIFT_LOCK='영업 중에는 재성의 섬에 갈 수 없어요. 마감한 뒤 다녀와요';
 function navigateScreen(screen, replace=false) {
+  if(screen==='world'&&state?.mode==='shift'){toast(ISLAND_SHIFT_LOCK);return false;}
   ui.worldTrip=null; ui.worldMarker=null; ui.worldCardOpen=false; ui.screen=screen; ui.sheet=null; ui.tablePop=null; ui.cafeDrawer=null;
   history[replace?'replaceState':'pushState']({yeoniScreen:screen},'',screen?'#'+screen:location.pathname+location.search);
 }
-window.addEventListener('popstate',e=>{ui.worldTrip=null;ui.worldMarker=null;ui.worldCardOpen=false;if(state?.interior.draft&&decorBack(true))return;ui.screen=state?(e.state?.yeoniScreen||null):null;ui.sheet=null;ui.tablePop=null;ui.cafeDrawer=null;render(true);});
+window.addEventListener('popstate',e=>{ui.worldTrip=null;ui.worldMarker=null;ui.worldCardOpen=false;if(state?.interior.draft&&decorBack(true))return;ui.screen=state?(e.state?.yeoniScreen||null):null;if(ui.screen==='world'&&state?.mode==='shift')ui.screen=null;ui.sheet=null;ui.tablePop=null;ui.cafeDrawer=null;render(true);});
 document.addEventListener('keydown',e=>{if(e.defaultPrevented||e.key!=='Escape'||novelActive())return;if(ui.worldTrip){ui.worldTrip=null;ui.worldMarker=null;render(true);return;}if(ui.worldCardOpen){ui.worldCardOpen=false;render(true);return;}if(state?.interior.draft&&!ui.sheet&&!ui.confirm){decorBack(false);render(true);return;}if(ui.cafeDrawer){ui.cafeDrawer=null;render(true);}else if(ui.tablePop){ui.tablePop=null;render(true);}else if(ui.screen&&!ui.sheet){navigateScreen(null,true);render(true);}});
 // 꾸미기 뒤로: 고른 가구는 선택만 풀고, 적용 전 변경이 있으면 묻고, 없으면 닫는다. 화면을 유지하면 true.
 function decorBack(fromHistory){
@@ -255,7 +258,7 @@ function maybeStory() {
 
 // 이야기가 가리킨 마을 장소로 바로 데려간다(도착 처리는 world.arrive). 공방은 강화 탭을 연다.
 function goStoryPlace(id){
-  navigateScreen('world');
+  if(navigateScreen('world')===false)return;
   if(id==='gear')run({type:'town.visit',place:'gear'},{keepQuiet:true}); // 첫 강화 이야기가 공방 소개를 대신한다
   enterWorldPlace(id);
   if(id==='gear'&&ui.worldAt==='gear'){ui.sheet={kind:'armory'};ui.armoryTab='upgrade';}
@@ -342,7 +345,7 @@ const ACTIONS = {
   'farm.expand': () => run({ type: 'farm.expand' }),
   'farm.greenhouse': () => run({ type: 'farm.greenhouse' }),
   // 화면 전용
-  'sheet.open': d => { if(d.sheet==='worldcast'&&!worldMeetingAccess(state).unlocked){toast(worldMeetingAccess(state).hint);return;} if(d.sheet==='interior'||d.sheet==='grounds'){ACTIONS['decor.open']({space:d.sheet==='grounds'?'outdoor':''});return;}if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
+  'sheet.open': d => { if(d.sheet==='worldcast'&&!worldMeetingAccess(state).unlocked){toast(worldMeetingAccess(state).hint);return;} if(d.sheet==='interior'||d.sheet==='grounds'){ACTIONS['decor.open']({space:d.sheet==='grounds'?'outdoor':''});return;}if(d.sheet==='town'&&state?.mode==='shift'){toast(ISLAND_SHIFT_LOCK);return;}if(d.sheet==='town'&&!d.tab){navigateScreen('world');return;}if(d.sheet==='quests'){ui.questReturn=ui.screen==='world'?'world':null;ui.questDetail=false;navigateScreen('quests');return;}ui.tablePop=null;ui.sheet = { kind: d.sheet, tab: d.tab, no:n(d.no) }; if (d.sheet === 'hunt') ui.huntMenu = d.menu || 'title'; if (d.sheet === 'town' && d.tab) maybeVisit(d.tab); },
   'town.tab': d => { if (ui.sheet) ui.sheet.tab = d.tab; maybeVisit(d.tab); },
   'sheet.close': () => { if(ui.sheet?.kind==='tutorial')finishGuide();else ui.sheet = ui.sheet?.kind==='rankup'?ui.sheet.back:null; },
   'overlay.settlement': () => {},
