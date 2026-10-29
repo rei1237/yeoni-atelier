@@ -23,6 +23,7 @@ test('마감 화면은 실제 영업 결과·서빙률·동료별 홀 일 건수
   const crew = Object.values(st.crew);
   assert.ok(crew.length >= 1 && crew.reduce((a, b) => a + b, 0) > 0, JSON.stringify(st.crew));
   assert.ok(!('yeoni' in st.crew), '계산 담당 연이는 홀 일 집계에서 뺀다');
+  assert.ok(st.kitchen?.luna_sis > 0, '루나 언니가 구운 접시는 주방 집계로 남는다');
   const html = overlayHtml(s, { dev: false });
   assert.match(html, /영업 마감/);
   assert.ok(html.includes(`data-countup="${st.result}"`));
@@ -49,8 +50,10 @@ test('이전 결산보다 결과가 높을 때만 최고 기록, 서빙률로 �
   assert.equal(grade(6, 4), 'good');
   assert.equal(grade(1, 4), 'tough');
   assert.equal(grade(0, 0), 'quiet');
-  s.lastSettlement = { ...st, crew: { neo: 5, luna: 5 } };
-  assert.equal(settlementView(s).mvp, null, '같은 건수면 MVP 없음');
-  s.lastSettlement = { ...st, crew: { neo: 4, luna: 6 } };
-  assert.equal(settlementView(s).mvp, 'luna');
+  s.lastSettlement = { ...st, crew: { neo: 5, luna: 5, luna_sis: 0 }, kitchen: { luna_sis: 12 }, hostings: [] };
+  assert.deepEqual(settlementView(s).mvps, { hall: null, kitchen: 'luna_sis', host: null }, '같은 건수면 홀 MVP 없음, 주방은 루나 언니가 굽기로');
+  s.lastSettlement = { ...st, crew: { neo: 4, luna: 6, luna_sis: 0 }, kitchen: { luna_sis: 9 }, hostings: [{ nominee: 'neo' }, { nominee: 'neo' }] };
+  const v = settlementView(s);
+  assert.deepEqual(v.mvps, { hall: 'luna', kitchen: 'luna_sis', host: 'neo' }, '분야마다 가장 많이 한 사람');
+  assert.equal(v.crew.find(c => c.id === 'luna_sis').field, 'kitchen', '루나 언니는 홀 일 집계에 넣지 않는다');
 });

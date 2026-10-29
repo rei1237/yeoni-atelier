@@ -8,6 +8,7 @@ import {nominateChance,pickNominee,stageArrivalMultiplier,stepStage,endStage} fr
 
 import {arrivalMultiplier,takeawayChance} from './cafe-growth.js';
 import { RULES } from '../config/rules.js';
+import { PEOPLE } from '../data/companions.js';
 import { TEMP } from '../config/balance.temp.js';
 import { emit, usableHosts, emptyStations, shiftDuration, lastAcceptAt } from './state.js';
 import { checkout, setupWorld, stepStations, stepStaff, stepCustomers, spawnCustomer, customerLeave, settleClosingOrders } from './cafe.js';
@@ -137,6 +138,7 @@ export function closeShift(state) {
     servedCount: sh.servedCount, lostOrders: sh.lostOrders, wasted,
     regularVisits: sh.regularVisits, nominationVisits: sh.nominationVisits, hostings: sh.hostings,
     crew: Object.fromEntries(Object.entries(state.staff).filter(([id]) => id !== 'yeoni').map(([id, s]) => [id, s.jobsTaken || 0])), // 마감 화면용: 홀 일을 맡은 횟수
+    kitchen: Object.fromEntries(Object.entries(state.staff).filter(([id]) => PEOPLE[id]?.work === 'baker').map(([id, s]) => [id, s.cooked || 0])), // 주방(굽기) 완성 접시 수
   };
   if (!state.ledger.settlements[sh.id]) {
     // 하순이면 이달 이자가 나간다(한 번만)

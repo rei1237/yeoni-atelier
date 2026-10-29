@@ -218,6 +218,7 @@ export function stepStations(state, dt) {
       const pickup=order?.status==='waiting'&&state.visits[order.visitId]?.kind==='takeaway'&&state.visits[order.visitId].status==='active';
       st[slot]=null;
       if(state.staff.luna_sis&&!isResting(state,'luna_sis'))changeStress(state,'cook','luna_sis');
+      const baker=Object.values(state.staff).find(b=>PEOPLE[b.id]?.work==='baker');if(baker)baker.cooked=(baker.cooked||0)+1; // 마감 화면 주방 MVP용
       if(pickup){recordServe(state,order,item);emit('takeawayDone',{price:order.price});}
       else if(placeInTray(state,item))emit('cooked',{station:sid,menuId:item.menuId});
       else{st[heldKey(slot)]=item;emit('trayFull',{station:sid,menuId:item.menuId});}
