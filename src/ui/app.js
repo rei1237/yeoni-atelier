@@ -667,7 +667,7 @@ function handleEvents(events) {
       case 'huntCritical': ui.critLine=(ui.critLine||0)+1;showCafeLine(CAFE_LINES.critical[ui.critLine%CAFE_LINES.critical.length],'영냥이','neo_cat');sound('level');break;
       case 'huntStageClear': if(ev.tired)showCafeLine(tiredLine(ev.hunterId),ev.hunterId==='seohanbi'?'서한비':'영냥이',ev.hunterId==='seohanbi'?'seohanbi':'neo_cat');break;
       case 'huntTreasureFound': toast('✦ 보물 상자 발견! 부수면 월정석이 쏟아져요','good',2600);if(state.hunt?.hunterId==='neo'){ui.chatter=null;ui.lastHuntChatter=0;showCafeLine('오늘은 일진이 좋군!','영냥이','neo_cat');}break;
-      case 'huntObjectBroken': sound('gem');floater(cssW/2,cssH*.34,ev.treasure?`✦ 보물 상자! 월정석 ×${ev.reward}${ev.heal?' · 구운 생선':''}`:`✦ 월정석 ×${ev.reward} 발견!`,'#6f63c9');if(ev.treasure)break;ui.lootLine=(ui.lootLine||0)+1;if(state.hunt?.hunterId==='neo'&&ui.lootLine%2===1)showCafeLine(CAFE_LINES.moonloot[(ui.lootLine>>1)%CAFE_LINES.moonloot.length],'영냥이','neo_cat');break;
+      case 'huntObjectBroken': sound('gem');floater(cssW/2,cssH*.34,ev.treasure?`✦ 보물 상자! 월정석 ×${ev.reward}${ev.heal?' · 구운 생선':''}`:`✦ 월정석 ×${ev.reward} 발견!${ev.snack?' · 구운 생선 조각':''}`,'#6f63c9');if(ev.treasure)break;ui.lootLine=(ui.lootLine||0)+1;if(state.hunt?.hunterId==='neo'&&ui.lootLine%2===1)showCafeLine(CAFE_LINES.moonloot[(ui.lootLine>>1)%CAFE_LINES.moonloot.length],'영냥이','neo_cat');break;
       case 'huntEliteDown': if(state.hunt?.hunterId==='neo'){ui.eliteLine=(ui.eliteLine||0)+1;showCafeLine(CAFE_LINES.elitedown[ui.eliteLine%CAFE_LINES.elitedown.length],'영냥이','neo_cat');}break;
       case 'supplyGift': toast(ev.label,'good',3600);break;
       case 'neoGrowth': toast(`🌙 네오 성장 · 공감·대화·재미·외모가 오르고 사냥 체력 +${TEMP.CALENDAR.HIKE_NEO.huntHp}`,'good',3600);break;

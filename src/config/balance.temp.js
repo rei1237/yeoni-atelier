@@ -98,7 +98,7 @@ export const TEMP = Object.freeze({
     HEAL_FISH: 24,
     BOMB_RADIUS: 280,
     BOMB_DAMAGE: 200,
-    POWER_DROP: Object.freeze([ // 일반 적 처치 시 확률. 10-28: 회복 생선은 보물 상자에서만 나온다
+    POWER_DROP: Object.freeze([ // 일반 적 처치 시 확률. 10-28: 큰 회복 생선은 보물 상자에서만(10-29: 항아리는 작은 조각)
       { id: 'catnip', chance: 0.005 }, // 10-29: 수염 자석(별조각 끌어오기, 수집 종과 겹침) → 개다래 열매 버프
     ]),
     CATNIP: Object.freeze({ ms: 12000, dmg: 0.3, speed: 0.2 }), // 개다래 열매: 이 시간 동안 공격력·이동 속도 +비율, 다시 주우면 시간만 새로
@@ -111,6 +111,9 @@ export const TEMP = Object.freeze({
     TREASURE_PER_MIL: 15,     // 기물 자리 1000곳 중 보물 상자 수(약 1.5%)
     TREASURE_REWARD: 10,      // 보물 상자 월정석 = 같은 자리 기물 보상 × 이 값
     TREASURE_HEAL_CHANCE: 0.35, // 보물 상자에서 구운 생선이 함께 나올 확률
+    // TEMP 사용자 요청 2026-10-29: 항아리를 부수면 드물게 작은 회복(생선 조각 HP +10)이 나온다
+    URN_HEAL_CHANCE: 0.08,
+    URN_HEAL: 10,
     TREASURE_SPOT_RADIUS: 320,  // 이 거리 안에 들어오면 발견으로 친다
     FIELD_W: 1400,
     FIELD_H: 1800,

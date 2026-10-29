@@ -305,7 +305,7 @@ export function spawnEnemy(state, w, type, x, y) {
   const e = w.enemies.spawn();
   Object.assign(e, {
     kfpBleed:0,kfpBleedUntil:0,kfpBleedAt:0,kfpSlow:0,kfpSlowUntil:0,kfpStunUntil:0,kfpStunImmune:0,
-    rolePhase:'approach',roleUntil:0,nextAttack:hs.elapsedMs+1500,aimX:0,aimY:1,motionX:0,motionY:0,warningR:0,facing:'down',
+    rolePhase:'approach',roleUntil:0,nextAttack:hs.elapsedMs+1500,aimX:0,aimY:1,motionX:0,motionY:0,warningR:0,facing:'down',faceX:null,
     uid: ++w.uidSeq, type, hp: Math.round(def.hp * hs.scale.hp), speed: def.speed * (def.boss ? 1 : randRange(state.rng, 0.85, 1.15)),
     kx: 0, ky: 0, hitAt: 0, orbitAt: 0, cresAt: 0, vx: 0, vy: 0, life: 0, phase: nextRandom(state.rng) * 6.28,
     x, y,
@@ -561,7 +561,7 @@ function stepShots(state, w, t, m, dt) {
 export function resolveMelee(state,w,t,m){
  const a=w.player.swing;if(!a||a.hit||t<a.hitAt)return;a.hit=true;emit('huntAttack',{weapon:'bolt'});
  for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(withinMeleeArc(a.x,a.y,a.angle,a.radius,a.halfArc,e,ENEMIES[e.type].r))hurt(state,w,i,a.damage,m,e.x-a.x,e.y-a.y,true);}
- for(const prop of w.props||[]){if(!withinMeleeArc(a.x,a.y,a.angle,a.radius,a.halfArc,prop,prop.r))continue;const reward=hitFieldProp(state.hunt,prop,a.damage);addBattleFx(w,{kind:'hit',x:prop.x,y:prop.y,r:30,at:t,until:t+250});if(reward){addDrop(w,'moon','moonstone',reward,prop.x,prop.y);const heal=!!prop.treasure&&nextRandom(state.rng)<H.TREASURE_HEAL_CHANCE;if(heal)addDrop(w,'fish','fish',0,prop.x+18,prop.y+6);emit('huntObjectBroken',{reward,kind:prop.kind,treasure:!!prop.treasure,heal});}}
+ for(const prop of w.props||[]){if(!withinMeleeArc(a.x,a.y,a.angle,a.radius,a.halfArc,prop,prop.r))continue;const reward=hitFieldProp(state.hunt,prop,a.damage);addBattleFx(w,{kind:'hit',x:prop.x,y:prop.y,r:30,at:t,until:t+250});if(reward){addDrop(w,'moon','moonstone',reward,prop.x,prop.y);const heal=!!prop.treasure&&nextRandom(state.rng)<H.TREASURE_HEAL_CHANCE,snack=prop.kind==='urn'&&nextRandom(state.rng)<H.URN_HEAL_CHANCE;if(heal)addDrop(w,'fish','fish',0,prop.x+18,prop.y+6);if(snack)addDrop(w,'fish','fish_bit',H.URN_HEAL,prop.x+18,prop.y+6);emit('huntObjectBroken',{reward,kind:prop.kind,treasure:!!prop.treasure,heal,snack});}}
 }
 
 function collect(state, w, t, m, dt) {
@@ -587,8 +587,9 @@ function collect(state, w, t, m, dt) {
       hs.bag[it.id] = (hs.bag[it.id] || 0) + 1;
       emit('huntPickup', { id: it.id, name: INGREDIENTS[it.id].name });
     } else if (it.kind === 'fish') {
-      hs.hp = Math.min(hs.maxHp, hs.hp + H.HEAL_FISH);
-      emit('huntPower', { kind: 'fish', label: `${POWER_NAMES.fish} · HP +${H.HEAL_FISH}` });
+      const heal = it.v || H.HEAL_FISH; // v가 있으면 항아리에서 나온 작은 조각
+      hs.hp = Math.min(hs.maxHp, hs.hp + heal);
+      emit('huntPower', { kind: 'fish', label: `${POWER_NAMES.fish}${it.v ? ' 조각' : ''} · HP +${heal}` });
     } else if (it.kind === 'catnip') {
       hs.catnipUntil = t + H.CATNIP.ms;
       emit('huntPower', { kind: 'catnip', label: `${POWER_NAMES.catnip} · ${H.CATNIP.ms / 1000}초 공격력 +${Math.round(H.CATNIP.dmg * 100)}% · 이동 +${Math.round(H.CATNIP.speed * 100)}%` });

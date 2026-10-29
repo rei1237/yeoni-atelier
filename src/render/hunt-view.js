@@ -10,7 +10,13 @@ import { TEMP } from '../config/balance.temp.js';
 import { ENEMIES } from '../data/hunt-kit.js';
 import { gemTier, mods, catnipLeft, weaponStats, findBoss } from '../game/hunt.js';
 import { drawActor, drawIcon } from './sprite-renderer.js';
-import { imageFor } from './assets.js';
+import { imageFor, actorDef } from './assets.js';
+
+// 적 그림은 대부분 오른쪽을 보는 옆모습 한 줄이라 왼쪽으로 갈 때 뒤집는다. 왼쪽 행이 따로 있는 시트(검은 호랑이)는 그 행을 쓰고 뒤집지 않는다.
+export function enemyFlipX(e,def){
+  if(actorDef(def.art||e.type)?.directions?.includes('left'))return false;
+  return (e.faceX??(e.facing==='left'?-1:1))<0;
+}
 
 const H = TEMP.HUNT;
 const GEM_KEYS = ['gem_s', 'gem_m', 'gem_l'];
@@ -156,7 +162,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
     if (d.kind === 'gem') drawIcon(ctx, GEM_KEYS[gemTier(d.v)], d.x, d.y + bob, [12, 16, 22][gemTier(d.v)]);
     else {
       ctx.fillStyle = 'rgba(255,255,255,0.16)'; ctx.beginPath(); ctx.arc(d.x, d.y, 13, 0, Math.PI * 2); ctx.fill();
-      drawIcon(ctx, d.kind === 'ing' || d.kind === 'moon' ? d.id : d.kind, d.x, d.y + bob, d.kind === 'chest' ? 24 : 18);
+      drawIcon(ctx, d.kind === 'ing' || d.kind === 'moon' ? d.id : d.kind, d.x, d.y + bob, d.kind === 'chest' ? 24 : d.kind === 'fish' && d.v ? 14 : 18);
     }
   }
 
@@ -169,7 +175,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
     const hit = e.hitAt > 0 && now - e.hitAt < 90;
     const visualSize=enemyVisualSize(def,scale);ctx.save();
     if(!def.boss&&def.size<48){ctx.fillStyle='rgba(13,19,35,.5)';ctx.beginPath();ctx.ellipse(e.x,e.y+def.r*.6,def.r,def.r*.45,0,0,Math.PI*2);ctx.fill();ctx.shadowColor=hit?'#fff2b5':'#b3a5ce';ctx.shadowBlur=2;}
-    drawActor(ctx, def.art || e.type, { x: e.x, y: e.y + visualSize * 0.3, size: visualSize, state:e.rolePhase==='warning'||e.rolePhase==='fuse'?'attack':hit?'hurt':'walk', facing:e.facing||'down', t:now+e.uid*73, seed:e.uid, flash:hit&&!opts.reducedMotion, flipX:e.facing==='left' });ctx.restore();
+    drawActor(ctx, def.art || e.type, { x: e.x, y: e.y + visualSize * 0.3, size: visualSize, state:e.rolePhase==='warning'||e.rolePhase==='fuse'?'attack':hit?'hurt':'walk', facing:e.facing||'down', t:now+e.uid*73, seed:e.uid, flash:hit&&!opts.reducedMotion, flipX:enemyFlipX(e,def) });ctx.restore();
     if (def.elite && !def.boss) {
       const bw = visualSize * 0.8, k = Math.max(0, e.hp / e.maxHp);
       ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(e.x - bw / 2, e.y - visualSize * 0.62, bw, 5);

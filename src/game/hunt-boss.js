@@ -153,6 +153,7 @@ export function stepBoss(state, w, e, t, dt, spawnMinion) {
   e.x += vx * sec; e.y += vy * sec;
   const fx = vx || dx, fy = vy || dy;
   e.facing = Math.abs(fx) > Math.abs(fy) ? (fx > 0 ? 'right' : 'left') : (fy > 0 ? 'down' : 'up');
+  if (Math.abs(fx) > .1 * Math.hypot(fx, fy)) e.faceX = fx > 0 ? 1 : -1; // 돌진 중에도 가는 쪽을 본다
   e.rolePhase = e.taskPhase === 'warn' ? 'warning' : 'approach'; // 그리기용
   if (d < def.r + 14) damageHunter(state, w, def.dmg * (charging ? BOSS_TASKS[e.task].mult : 1), t);
   return changed;

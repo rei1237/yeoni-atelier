@@ -36,6 +36,7 @@ export function stepEnemyBehaviors(state,w,t,dt){
   }
   if(!planted){e.x+=e.kx*sec;e.y+=e.ky*sec;}e.kx*=decay;e.ky*=decay;
   e.facing=Math.abs(mx)>Math.abs(my)?(mx>0?'right':'left'):(my>0?'down':'up');
+  if(Math.abs(mx)>.1)e.faceX=mx>0?1:-1; // 옆모습 그림의 좌우 시선: 세로로 비스듬히 갈 때도 가는 쪽을 본다
   if(def.role!=='bomber'&&d<def.r+14)damageHunter(state,w,def.dmg,t);
   if(!planted&&((e.uid+Math.floor(t/34))%2===0)){const gx=Math.floor(e.x/cell),gy=Math.floor(e.y/cell);for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)for(const o of grid.get(`${gx+a},${gy+b}`)||[]){if(o===e)continue;const ox=e.x-o.x,oy=e.y-o.y,rr=(def.r+ENEMIES[o.type].r)*.8,dd=Math.hypot(ox,oy);if(dd>0&&dd<rr){const push=(rr-dd)*.2;e.x+=ox/dd*push;e.y+=oy/dd*push;}}}
  }
