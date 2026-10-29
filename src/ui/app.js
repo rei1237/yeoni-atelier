@@ -579,9 +579,8 @@ ACTIONS['rankup.close']=()=>{ui.sheet=ui.sheet?.kind==='rankup'?ui.sheet.back:nu
 ACTIONS['gift.back']=()=>{ui.companionId=ui.giftRecipient;ui.sheet={kind:'companions'};};
 ACTIONS['gift.open']=d=>{ui.giftRecipient=d.id;ui.foodFilter='all';ui.sheet={kind:'foodgift'};};
 ACTIONS['gift.filter']=d=>{ui.foodFilter=d.id;};
-ACTIONS['gift.prepare']=d=>{ui.craft={...newCraft(d.menu),purpose:'gift',requestId:'gift-'+Date.now()+'-'+(++giftRequestSeq)};ui.sheet={kind:'craft'};if(!Object.keys(craftShortage(state,d.menu)).length)ACTIONS['craft.giftStart']();};
+ACTIONS['gift.prepare']=d=>{ui.craft={...newCraft(d.menu),purpose:'gift',requestId:'gift-'+Date.now()+'-'+(++giftRequestSeq)};ui.sheet={kind:'craft'};};
 // 선물 요리는 타이밍 단계 없이 바로 조리 장면으로 간다(품질은 언제나 가운데 값)
-ACTIONS['craft.giftStart']=()=>{const c=ui.craft;if(!c||c.purpose!=='gift'||c.step===2)return;const r=run({type:'gift.cook',menuId:c.menuId,timing:50,requestId:c.requestId});if(r.ok){sound('cook');c.step=2;c.jobId=r.jobId;c.timing=50;c.quality=craftQuality(50,c.menuId);}};
 ACTIONS['gift.watch']=()=>{const j=state.foodGifts?.job;if(j){ui.craft={...newCraft(j.menuId),purpose:'gift',step:2,jobId:j.id,quality:({normal:'보통',good:'좋음',perfect:'완벽'})[j.quality],timing:null};ui.sheet={kind:'craft'};}};
 ACTIONS['gift.confirm']=d=>{const it=state.foodGifts?.items.find(i=>i.id===d.item);if(!it)return;const taste=foodPreference(d.id,it.menuId);ui.confirm={title:GIFT_BONDS[d.id].name+'에게 선물할까요?',text:MENUS[it.menuId].name+' 1개 · '+taste.label+' · 인연 +'+taste.gain,yesLabel:'선물 전하기',noLabel:'고르던 음식 유지',onYes:()=>{const r=run({type:'gift.food',id:d.id,itemId:d.item});if(r.ok){toast(r.line,'good',4500);}}};};
 ACTIONS['gift.cancelConfirm']=d=>{ui.confirm={title:'선물 조리를 취소할까요?',text:'사용한 재료는 한 번 돌려받고 음식은 완성되지 않아요.',yesLabel:'조리 취소',onYes:()=>run({type:'gift.cancel',id:d.id})};};
