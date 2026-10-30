@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.30.2",
-  "name": "연이의 아틀리에 · 함께하는 카페",
+  "version": "2026.10.30.3",
+  "name": "연이의 아틀리에 · 달빛 운세와 사냥 지도",
   "musicTracks": 103,
   "assetBytes": 17879958,
   "channel": "production",
-  "baseCommit": "6a85f82",
+  "baseCommit": "f3dc186",
   "newTitleArt": true
 }
