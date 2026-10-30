@@ -25,7 +25,7 @@ export function borrow(state,amount,requestId){
  emit('loanReceived',{amount,balance:f.balance});return {ok:true,amount};
 }
 export function chargeLoanInterest(state,sh){
- const f=ensure(state),c=calendarOf(sh.day);if(c.part!==2)return null;
+ const f=ensure(state),c=calendarOf(sh.day, state.calendar?.turnsPerMonth || 3);if(c.part!==(state.calendar?.turnsPerMonth || 3)-1)return null;
  const key=String(c.monthIdx);if(f.interest[key])return f.interest[key];
  const due=Math.ceil(f.balance*TEMP.LOAN_RATE),paid=Math.min(state.gold,due);state.gold-=paid;f.balance+=due-paid;
  const rec={due,paid,added:due-paid,balance:f.balance};f.interest[key]=rec;return rec;

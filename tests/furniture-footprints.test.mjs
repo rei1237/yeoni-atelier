@@ -28,13 +28,13 @@ test('다중 셀 테이블의 첫 칸이 아닌 가장자리 의자와 서빙 �
 test('면적 보너스는 같은 등급 단품 합보다 크고 보관·초안·중복 UID는 가산하지 않는다',()=>{
  const scores=[1,2,4,6].map(n=>furnitureMetrics({baseAmbience:2,cells:Array.from({length:n},(_,dx)=>({dx,dy:0,kind:'block'}))}));
  assert.deepEqual(scores.map(x=>x.ambience),[2,5,12,18]);
- const s=createGame();s.interior.furniture=s.interior.furniture.filter(f=>f.defId!=='record_player');s.day=7;assert.equal(atmosphere(s),16);const before=atmosphere(s);s.gold=1e6;assert.ok(dispatch(s,{type:'expand.decor',defId:'grand_planter'}).ok);const f=s.interior.furniture.at(-1);assert.equal(atmosphere(s),before);
+ const s=createGame();s.interior.furniture=s.interior.furniture.filter(f=>f.defId!=='record_player');s.day=9;assert.equal(atmosphere(s),16);const before=atmosphere(s);s.gold=1e6;assert.ok(dispatch(s,{type:'expand.decor',defId:'grand_planter'}).ok);const f=s.interior.furniture.at(-1);assert.equal(atmosphere(s),before);
  dispatch(s,{type:'interior.begin'});assert.ok(dispatch(s,{type:'interior.place',uid:f.uid,x:0,y:6}).ok);assert.equal(atmosphere(s),before);dispatch(s,{type:'interior.apply'});assert.equal(atmosphere(s),before+18);
  s.interior.furniture.push({...f,x:0,y:6});assert.equal(atmosphere(s),before+18);
 });
 
 test('편집 중 구매는 취소해도 보관하며 기존 저장의 위치·비용과 점수는 로드로 중복되지 않는다',()=>{
- const s=createGame(),initial=structuredClone(s.interior.furniture);s.day=7;s.gold=1e6;dispatch(s,{type:'interior.begin'});const cost=decorPrice(s,'grand_table');assert.ok(dispatch(s,{type:'expand.decor',defId:'grand_table'}).ok);
+ const s=createGame(),initial=structuredClone(s.interior.furniture);s.day=9;s.gold=1e6;dispatch(s,{type:'interior.begin'});const cost=decorPrice(s,'grand_table');assert.ok(dispatch(s,{type:'expand.decor',defId:'grand_table'}).ok);
  const bought=s.interior.furniture.at(-1);assert.ok(bought.tableNo);assert.ok(s.interior.draft.furniture.some(f=>f.uid===bought.uid));assert.equal(s.gold,1e6-cost);dispatch(s,{type:'interior.cancel'});
  assert.equal(s.interior.furniture.at(-1).x,null);assert.deepEqual(s.interior.furniture.slice(0,initial.length),initial);
  const loaded=deserialize(serialize(s)).state;assert.deepEqual(loaded.interior.furniture,s.interior.furniture);assert.equal(atmosphere(loaded),atmosphere(s));assert.equal(loaded.gold,s.gold);

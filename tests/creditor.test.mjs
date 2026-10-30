@@ -1,9 +1,17 @@
 // 청토끼 금융: 이자율 인상 일정·인상 장면·네오 성장(게임 오리지널, 수치 TEMP)
 import test from 'node:test';
+import { creditorStory } from '../src/story/creditor.js';
 import assert from 'node:assert/strict';
+
+test('첫 독촉에서 루나 자매는 사과하고 연이와 네오는 함께하자고 말한다',()=>{
+ const ledger={creditor:{m5:{month:5,scene:'warn:5'}}};const first=creditorStory('warn:5',ledger);
+ for(const id of ['luna','luna_sis','yeoni','neo'])assert.ok(first.some(b=>b.s===id));
+ const later=creditorStory('warn:7',{creditor:{...ledger.creditor,m7:{month:7,scene:'warn:7'}}});
+ assert.equal(later.some(b=>b.s==='luna_sis'),false);
+});
 import { RULES } from '../src/config/rules.js';
 import { TEMP } from '../src/config/balance.temp.js';
-import { createGame, hostStats } from '../src/game/state.js';
+import { createGame as newGame, hostStats } from '../src/game/state.js';
 import { dispatch, tick } from '../src/game/engine.js';
 import { pendingStory } from '../src/game/calendar.js';
 import { interestRate, nextHike, neoHikeBonus, interestDue, checkCreditor, creditorView, pendingCreditorStory } from '../src/game/creditor.js';
@@ -12,7 +20,8 @@ import { tickTo } from './helpers.mjs';
 import { ENDINGS } from '../src/story/months.js';
 import { creditsScreen } from '../src/ui/credits.js';
 
-const C = TEMP.CALENDAR;
+const C = {...TEMP.CALENDAR,TURNS_PER_MONTH:3,TOTAL_TURNS:72};
+const createGame = (...args) => {const s=newGame(...args);s.calendar.turnsPerMonth=3;s.calendar.totalTurns=72;return s;};
 
 function quietTurn(s) {
   assert.ok(dispatch(s, { type: 'shift.start' }).ok);

@@ -124,7 +124,7 @@ export const stageArrivalMultiplier = state => stageActive(state) ? S.ARRIVAL_MU
 export const stageTipExtra = (visit, base) => visit.staged ? Math.floor(base * (visit.staged - 1) * S.HOST_TIP_RATE) : 0;
 
 // ── 정기 콘서트: 멤버가 합류한 뒤 영업 준비에서 한 달에 한 번. 티켓 수입 + 멤버 전원 팬.
-export const concertMonth = state => calendarOf(state.day).monthIdx;
+export const concertMonth = state => calendarOf(state.day, state.calendar?.turnsPerMonth || 3).monthIdx;
 export const concertSeats = state => C.SEATS_BASE + tableCount(state) * C.SEATS_PER_TABLE;
 export function concertQuote(state) {
   const members = DEST1NOVA_IDS.filter(id => id === 'neo' || state.roster[id]);

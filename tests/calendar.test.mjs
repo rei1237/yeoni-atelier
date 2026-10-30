@@ -3,13 +3,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { RULES } from '../src/config/rules.js';
 import { TEMP } from '../src/config/balance.temp.js';
-import { createGame } from '../src/game/state.js';
+import { createGame as newGame } from '../src/game/state.js';
 import { dispatch } from '../src/game/engine.js';
-import { calendarOf, dateLabel, decideEnding, pendingStory } from '../src/game/calendar.js';
+import { calendarOf as newCalendarOf, dateLabel, decideEnding, pendingStory } from '../src/game/calendar.js';
 import { serialize, deserialize } from '../src/core/save.js';
 import { tickTo } from './helpers.mjs';
 
-const C = TEMP.CALENDAR;
+const C = {...TEMP.CALENDAR,TURNS_PER_MONTH:3,TOTAL_TURNS:72};
+const createGame = (...args) => {const s=newGame(...args);s.calendar.turnsPerMonth=3;s.calendar.totalTurns=72;return s;};
+const calendarOf = day => newCalendarOf(day,3);
 
 // 손님 없이 한 순을 끝까지 돌리고 결산을 닫는다
 function quietTurn(s) {

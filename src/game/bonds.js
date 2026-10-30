@@ -23,9 +23,10 @@ export function gainBond(state, id, v) {
   return after - before;
 }
 
-// 랭크 업: 문턱을 채운 동료와 시간을 보냈을 때 하나만 오른다(한 사람당 한 달에 한 번). 능력이 해방되면 그 이름을 돌려준다.
-export function rankUp(state, id) {
+// 랭크 업: 점수 문턱과 대화 답변 조건을 채우면 한 번에 한 랭크 오른다.
+export function rankUp(state, id, answerGain = 0) {
   if (!bondReady(state, id) || rankWaits(state, id)) return null;
+  if (answerGain < (id === 'neo' ? 2 : 6)) return null;
   const rank = bondRank(state, id) + 1, b = BONDS[id];
   state.bondRank = { ...state.bondRank, [id]: rank };
   state.bondRankAt = { ...state.bondRankAt, [id]: bondMonth(state) };
@@ -56,7 +57,7 @@ export function talk(state, id, choiceId, token) {
   changeStress(state, 'talk', id);
   state.ap.talked = { ...state.ap.talked, [id]: true };
   const v = gainBond(state, id, answer.gain);
-  const up = rankUp(state, id);
+  const up = rankUp(state, id, answer.gain);
   const speaker=bondMasked(state,id)?'shadow_tiger':id, line=answer.response;
   gainYeoni(state,'talk');emit('bondTalk', { id, speaker, line, gain: v });
   return { ok: true, gain: v, speaker, line, rankUp: up };

@@ -26,7 +26,7 @@ test('새 게임 프롤로그 완료는 한 번 기록하고 첫 달 이야기�
  assert.equal(s.gold,before.gold);assert.deepEqual(s.ledger.rewards,before.ledger.rewards);
 });
 test('구형 저장 이어하기·재로드는 프롤로그만 생략하며 미완료 이야기와 퀘스트를 보존한다',()=>{
- const s=createGame();s.day=4;s.ledger.story.m0=true;s.quests.claimed.q_first_serve=true;
+ const s=createGame();s.calendar.turnsPerMonth=3;s.calendar.totalTurns=72;s.day=4;s.ledger.story.m0=true;s.quests.claimed.q_first_serve=true;
  s.storyProgress={id:'m1',index:3};
  const storage=memoryStorage();saveGame(storage,SAVE_KEYS.normal,s);
  const a=loadGame(storage,SAVE_KEYS.normal);assert.ok(a.ok);assert.equal(a.state.ledger.story.prologue,true);

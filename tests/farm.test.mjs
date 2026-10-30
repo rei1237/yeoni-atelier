@@ -35,7 +35,7 @@ test('연이 농사 → 마감 성장 → 재고 → 실제 조리, 수확 중�
 
 test('날씨는 저장 후 동일, 비 자동 급수·건조 돌봄·방치 성장 보류와 중복 마감 방지', () => {
   for (const weather of ['sun', 'rain', 'dry', 'frost']) {
-    const s = createGame(); s.day = weather === 'frost' ? 28 : 1; s.ledger.story.m1 = true; // 테스트 준비: 농장 개방
+    const s = createGame(); s.day = weather === 'frost' ? 37 : 1; s.ledger.story.m1 = true; // 테스트 준비: 농장 개방
     while (farmWeather(s.farm, s.day) !== weather) s.farm.seed++;
     assert.equal(farmWeather(deserialize(serialize(s)).state.farm, s.day), weather);
     assert.ok(cmd(s, 'farm.plant', { cropId: 'wheat', index: 0 }).ok);
@@ -62,7 +62,7 @@ test('농장 레벨 작물·확장·일괄 돌봄·온실, 수확 레시피와 �
   for (let i = 0; i < 2; i++) { tend(s, 0); s.day++; advanceFarm(s); }
   assert.ok(cmd(s, 'farm.harvest', { index: 0, cropInstanceId: s.farm.plots[0].id }).ok);
   assert.equal(s.learned.lotus_berry_tart, true); assert.ok(s.stock.berry > 0);
-  s.day = 28; assert.equal(farmSeason(s.day), 'winter');
+  s.day = 37; assert.equal(farmSeason(s.day), 'winter');
   assert.equal(cmd(s, 'farm.plant', { cropId: 'berry', index: 0 }).ok, false);
   s.farm.xp = 960; s.gold = 2000;
   assert.ok(cmd(s, 'farm.greenhouse').ok);
@@ -70,7 +70,7 @@ test('농장 레벨 작물·확장·일괄 돌봄·온실, 수확 레시피와 �
   assert.ok(cmd(s, 'farm.careAll').ok);
   const old = JSON.parse(serialize(s)); delete old.farm;
   const migrated = deserialize(JSON.stringify(old)).state;
-  assert.equal(migrated.farm.plots.length, 4); assert.equal(migrated.farm.lastAdvancedDay, 28);
+  assert.equal(migrated.farm.plots.length, 4); assert.equal(migrated.farm.lastAdvancedDay, 37);
 });
 
 test('다 자란 밭 두 곳을 한 번에 수확하면 단건 두 번과 수확물·행동력이 같다', () => {

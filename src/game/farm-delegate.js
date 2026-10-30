@@ -34,7 +34,7 @@ export function delegateFarm(state) {
     if (plantCheck(state, p.cropId, i).ok && plant(state, p.cropId, i, '네오').ok) { spendFarmEnergy(state); done.planted++; }
     else if (state.gold < CROPS[p.cropId].seedCost) done.stopped ??= '씨앗값이 모자라 다시 심지 못했어요';
   }
-  const rain = farmWeather(state.farm, state.day) === 'rain';
+  const rain = farmWeather(state.farm, state.day, state.calendar?.turnsPerMonth || 3) === 'rain';
   for (let i = 0; i < plots.length && !done.stopped; i++) {
     const p = plots[i];
     if (!p || p.growth >= CROPS[p.cropId].turns) continue;

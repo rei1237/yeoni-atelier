@@ -136,8 +136,8 @@ export const TEMP = Object.freeze({
   // 10-28 이전 저장 중 첫 6개월(18순)을 넘긴 저장은 옛 5년 180순을 그대로 쓴다(save.js, calendar.totalTurns).
   CALENDAR: Object.freeze({
     START_MONTH: 3,
-    TURNS_PER_MONTH: 3,
-    TOTAL_TURNS: 72,
+    TURNS_PER_MONTH: 4,
+    TOTAL_TURNS: 96,
     LEGACY_TOTAL_TURNS: 180,
     LEGACY_CUTOFF_DAY: 18,    // 이 순까지 진행한 옛 저장만 2년 규칙으로 옮긴다
     RECRUIT_RETRY_MONTHS: 3,  // 놓친 영입 초대는 이 개월 수마다 다시 온다(2년 안에 전원 합류)
@@ -165,15 +165,14 @@ export const TEMP = Object.freeze({
 
   // ── 친밀도(임시). 단계 문턱을 넘을 때마다 능력이 열린다(data/bonds.js).
   BONDS: Object.freeze({
-    TIERS: Object.freeze([70, 190, 295, 420]), // 능력 해방 랭크 3·6·8·10의 점수(=RANKS[2·5·7·9])
+    TIERS: Object.freeze([90, 245, 380, 540]), // 능력 해방 랭크 3·6·8·10의 점수
     // 페르소나식 인연 랭크: 점수는 다음 랭크의 문턱만 채우고, 랭크는 대화(함께 보내는 시간)에서 하나씩 오른다.
-    // RANKS[r]는 랭크 r+1에 필요한 점수. 10-28: 2년 운영에 맞춰 문턱을 올리고, 랭크는 한 사람당 한 달(3순)에 하나만 오른다.
-    // 목표: 네오를 꾸준히(순마다 ~6점) 챙기면 2년차 말 랭크 10, 일과 가끔의 대화로 만난 동료는 6~8.
-    RANKS: Object.freeze([15, 40, 70, 105, 145, 190, 240, 295, 355, 420]),
+    // RANKS[r]는 랭크 r+1에 필요한 점수. 랭크는 월 제한 없이 대화 조건으로 오른다.
+    RANKS: Object.freeze([20, 50, 90, 135, 185, 245, 310, 380, 455, 540]),
     LEGACY_RANKS: Object.freeze([10, 25, 40, 60, 80, 100, 140, 180, 230, 280]), // 랭크 기록이 없는 옛 저장 이전용
     PERK_RANKS: Object.freeze([3, 6, 8, 10]),
     COOK_SLOT_CAP: 9,         // TEMP: 구역 확장(최대 6) + 루나 언니 인연(최대 +5) 합의 설비당 동시 조리 상한
-    MAX: 450,
+    MAX: 600,
     TALK: 6, TALK_RAND: 2,    // 기존 저장 호환 상수. 현재 선택지 대화는 bond-dialogues.js의 +12/+6/+2
     GIFT_LIKED: 14,           // 좋아하는 선물 (순마다 한 사람 한 번)
     GIFT_COMMON: 6,           // 달빵

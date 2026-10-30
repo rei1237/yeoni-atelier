@@ -36,7 +36,7 @@ test('카페 및 보행 지도에서 상점 상세를 열어도 구형 지도가
   if(tab==='expand')assert.match(html,/5월부터/);
  }
  assert.equal(serialize(s),before);
- s.day=7;
+ s.day=9;
  const html=sheetHtml(s,{sheet:{kind:'town',tab:'expand'}});
  assert.match(html,/expand.area/);assert.match(html,/expand.decor/);
 });

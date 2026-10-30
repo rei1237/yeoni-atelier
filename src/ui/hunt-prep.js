@@ -40,7 +40,7 @@ function titleView(state,ui){
 
 function departView(state,ui){
  const hunterId=pickHunter(state,ui),p=hunterProgress(state.hunter.xp),max=maxHuntDepth(state),chk=huntCheck(state,hunterId);
- const selected=Math.min(max,Math.max(1,Number(ui.huntStage)||state.hunter.builds?.[hunterId]?.stage||state.hunter.lastStage||1)),scale=depthScale(selected,monthScale(state.day),calendarOf(state.day).monthIdx);
+ const selected=Math.min(max,Math.max(1,Number(ui.huntStage)||state.hunter.builds?.[hunterId]?.stage||state.hunter.lastStage||1)),scale=depthScale(selected,monthScale(state.day, state.calendar?.turnsPerMonth || 3),calendarOf(state.day, state.calendar?.turnsPerMonth || 3).monthIdx);
  return `${head('출발 준비')}<div class="hunter-select">${HUNT_CAST.map(id=>{const open=hunterUnlocked(state,id);return btn({action:'hunt.hunter',args:open?{id}:{},disabled:!open,title:open?hunterName(id):'잠긴 동료',cls:open?(id===hunterId?'on':''):'hunter-locked',label:`<canvas data-talking-portrait="${hunterPortrait(id)}" width="256" height="320" aria-hidden="true"></canvas><b>${open?hunterName(id):'🔒 잠긴 동료'}</b>`});}).join('')}</div>
  <div class="card"><b>탐사 성장 Lv.${p.level}</b>${p.level>TEMP.HUNT_CAREER.statCap?`<span class="small"> · 체력·피해 보너스는 Lv${TEMP.HUNT_CAREER.statCap}까지</span>`:''}<progress value="${p.xp}" max="${p.xpNext}" aria-label="지속 성장 경험치"></progress><p>경험치 ${p.xp}/${p.xpNext} · 사냥 레벨·선택한 무기와 보조 능력·마지막 단계는 사냥꾼별로 유지돼요. 공방 강화와 물품은 별도로 적용돼요. 성장 보너스는 Lv${TEMP.HUNT_CAREER.statCap}에서 멈추고, 기술 레벨 상한은 윤달 공방의 상한 해방으로 풀어요.</p></div>
  <p class="small note-heal">폭탄은 윤달의 무기 공방에서 1개까지 구매해요 · 사냥터에는 회복 아이템이 없어요 · 모카의 회복 수프를 챙겨 가세요(최대 ${SUPPLIES.tonic.limit}개 · 보유 ${state.armory?.supplies?.tonic||0}개)</p>

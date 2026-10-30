@@ -16,7 +16,7 @@ test('윤달은 공방이, 무성은 가구·꽃 상점이 열리면 영입 전�
   const s = createGame(); s.huntUnlocked = true;
   assert.equal(bondOpen(s, 'yun'), false); assert.equal(bondOpen(s, 'museong'), false);
   assert.equal(talkTo(s, 'yun').ok, false);
-  s.hunter.maxStage = 7; s.day = 7; // 테스트 준비: 6단계 클리어, 5월(가구·꽃 상점 개방)
+  s.hunter.maxStage = 7; s.day = 9; // 테스트 준비: 6단계 클리어, 5월(가구·꽃 상점 개방)
   assert.equal(placeLock(s, 'gear'), ''); assert.equal(placeLock(s, 'expand'), '');
   for (const id of ['yun', 'museong']) {
     assert.ok(!s.roster[id] && bondOpen(s, id), id);

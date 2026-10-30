@@ -21,7 +21,7 @@ test('의상은 골드로 정확히 1회 해금하고 준비 중만 올바른 �
   assert.equal(dispatch(s, { type: 'outfit.equip', who: 'neo', slot: 'outfit', itemId: null }).ok, false);
 });
 test('이야기 지급은 중복 없이 저장되며 말하기 프레임은 종료·쉼표·모션 축소를 존중', () => {
-  const s = createGame(); s.day = 13;
+  const s = createGame(); s.day = 17;
   assert.ok(dispatch(s, { type: 'story.seen', id: 'm4' }).ok);
   dispatch(s, { type: 'story.seen', id: 'm4' });
   assert.equal(s.outfits.owned.filter(id => id === 'rain_coat').length, 1);

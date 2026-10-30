@@ -460,4 +460,4 @@ export const PROLOGUE = Object.freeze([
     "s": "yeoni",
     "t": "어서 오세요. 연이의 아틀리에입니다."
   }
-].map(b=>b.debtNotice?{...b,t:`인수 빚 ${(TEMP.INITIAL_DEBT/100000000).toLocaleString('ko-KR')}억 골드 · 현실의 약 10억 원에 해당하는 규모라는 외전 설정입니다.`}:b.campaignNotice?{...b,t:`앞으로 ${TEMP.CALENDAR.TOTAL_TURNS/TEMP.CALENDAR.TURNS_PER_MONTH}개월 동안 카페를 운영합니다. 하루의 매출과 지출을 살피며 동료들과 빚을 갚아 가세요.`}:b));
+].map(b=>b.debtNotice?{...b,t:`인수 빚 ${(TEMP.INITIAL_DEBT/100000000).toLocaleString('ko-KR')}억 골드 · 현실의 약 10억 원에 해당하는 규모라는 외전 설정입니다.`}:b.campaignNotice?{...b,t:`앞으로 ${TEMP.CALENDAR.TOTAL_TURNS/TEMP.CALENDAR.TURNS_PER_MONTH}개월 동안 카페를 운영합니다. 영업의 매출과 지출을 살피며 동료들과 빚을 갚아 가세요.`}:b));

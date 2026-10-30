@@ -13,8 +13,8 @@ test('윤달·모카·서한비·무성의 지정 월 이벤트는 1회 영입, 
   for (const c of [...MONTHLY_CAST, ...DEST1NOVA_CAST]) {
     let s = createGame();
     assert.equal(dispatch(s, { type: 'recruit.complete', id: c.id }).ok, false);
-    const day = 1 + ((c.month + 9) % 12) * 3;
-    s.day = day + 36*((c.condition.year||1)-1); unlock(s);
+    const day = 1 + ((c.month + 9) % 12) * 4;
+    s.day = day + 48*((c.condition.year||1)-1); unlock(s);
     assert.equal(recruitView(s).find(v => v.id === c.id).status, 'available');
     assert.ok(dispatch(s, { type: 'recruit.complete', id: c.id }).ok);
     const stock = structuredClone(s.stock);
@@ -25,17 +25,17 @@ test('윤달·모카·서한비·무성의 지정 월 이벤트는 1회 영입, 
     assert.ok(dispatch(s, { type: 'cast.story', id: c.id }).ok);
     s = deserialize(serialize(s)).state;
     assert.ok(s.roster[c.id]); assert.ok(s.ledger.story[`cast:${c.id}`]);
-    const later = createGame(); later.day = day + 36*((c.condition.year||1)-1) + 3; unlock(later);
+    const later = createGame(); later.day = day + 48*((c.condition.year||1)-1) + 4; unlock(later);
     // 윤달·무성·서한비는 퀘스트·조우로 열리므로 달과 무관하다
     if (!['yun', 'museong', 'seohanbi'].includes(c.id)) assert.equal(recruitView(later).find(v => v.id === c.id).status, 'locked', '다음 달에는 오지 않는다');
-    later.day += 6; unlock(later);
+    later.day += 8; unlock(later);
     assert.equal(recruitView(later).find(v => v.id === c.id).status, 'available', '3개월 뒤 다시 온다');
   }
 });
 test('영입된 접대 동료는 3명씩 배치해 가게 안의 통로에서 출근한다', () => {
   const s = createGame();
   for (const c of [...MONTHLY_CAST, ...DEST1NOVA_CAST]) {
-    s.day = 1 + ((c.month + 9) % 12) * 3 + 36*((c.condition.year||1)-1);unlock(s);
+    s.day = 1 + ((c.month + 9) % 12) * 4 + 48*((c.condition.year||1)-1);unlock(s);
     assert.ok(dispatch(s, { type: 'recruit.complete', id: c.id }).ok);
   }
   s.day = 180; s.hostbar.open = true;

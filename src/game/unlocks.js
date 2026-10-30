@@ -7,7 +7,7 @@ export const GEAR_OPEN_STAGE = 6;
 
 export const PLACE_NAMES = Object.freeze({ hunt:'영냥이의 사냥터', gear:'윤달의 무기 공방', farm:'꽃돼지 연이의 농장' });
 export function placeLock(state, id) {
-  if (id === 'expand' && state.day < 1 + 2 * TEMP.CALENDAR.TURNS_PER_MONTH) return '5월부터 가구와 꽃을 만나볼 수 있어요';
+  if (id === 'expand' && state.day < 1 + 2 * (state.calendar?.turnsPerMonth || 3)) return '5월부터 가구와 꽃을 만나볼 수 있어요';
   if (id === 'hunt') return state.huntUnlocked ? '' : state.stats.shiftsCompleted >= 1 ? '「돈 벌어 와, 네오!」 이야기를 보면 열려요' : '첫 영업을 마치면 사냥터 이야기가 열려요';
   // 기존 저장: 공방 이야기·장비·강화 기록이 있으면 열린 것으로 본다
   if (id === 'gear') return (state.hunter?.maxStage || 1) > GEAR_OPEN_STAGE || state.ledger?.story?.['ev:forge'] || state.gear?.owned?.length || Object.keys(state.armory?.upgrades || {}).length ? '' : `네오가 영냥이의 사냥터 ${GEAR_OPEN_STAGE}단계를 클리어하면 열려요`;

@@ -101,9 +101,9 @@ export const pointsRank = (v, ranks = TEMP.BONDS.RANKS) => ranks.filter(x => v >
 export const bondRank = (state, id) => Math.min(MAX_RANK, state.bondRank?.[id] || 0);
 // 다음 랭크 문턱을 채웠다: 다음 대화에서 랭크 업(인연이 깊어질 것 같다)
 export const bondReady = (state, id) => bondRank(state, id) < MAX_RANK && (state.affinity?.[id] || 0) >= TEMP.BONDS.RANKS[bondRank(state, id)];
-// 한 사람당 한 달(3순)에 랭크는 하나만: 이번 달에 이미 올랐으면 문턱을 채워도 다음 달 대화까지 기다린다
+// 기존 호출부 호환: 월별 대기 제한은 더 이상 없다.
 export const bondMonth = state => Math.floor(((state.day || 1) - 1) / TEMP.CALENDAR.TURNS_PER_MONTH);
-export const rankWaits = (state, id) => bondReady(state, id) && state.bondRankAt?.[id] === bondMonth(state);
+export const rankWaits = () => false;
 // 해방된 능력 수(0~4)
 export const perkTier = (state, id) => TEMP.BONDS.PERK_RANKS.filter(r => r <= bondRank(state, id)).length;
 

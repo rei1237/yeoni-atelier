@@ -32,17 +32,17 @@ for (const seed of seeds) {
  const s = createGame({seed}); const sum={purchases:0,sales:0,hostFees:0,tips:0,stageTips:0,stages:0,concertGold:0,concerts:0,hostings:0,interest:0,payroll:0,huntGold:0,borrowed:0,loanInterest:0,expansions:0,demands:0,answered:0};let clearedDay=null;const seen=new Set();
  for(let turn=1;turn<=TEMP.CALENDAR.TOTAL_TURNS && !s.calendar.endingId;turn++) {
   for(let id;(id=pendingStory(s));) dispatch(s,{type:'story.seen',id});
-  const month=Math.floor((turn-1)/3);
+  const month=Math.floor((turn-1)/TEMP.CALENDAR.TURNS_PER_MONTH);
   if(P.concert(month)&&concertCheck(s).ok){const r=dispatch(s,{type:'concert.hold'});if(r.ok){sum.concertGold+=r.gold;sum.concerts++;}}
   // 사냥터는 첫 영업 뒤 「돈 벌어 와, 네오!」로 열리므로 2순부터 3순마다
-  if(P.hunt && s.huntUnlocked && turn%3===2){botHunt(s,maxHuntDepth(s));if(s.moonstone){const ex=dispatch(s,{type:'moonstone.exchange',qty:s.moonstone});sum.huntGold+=ex.gold||0;}}
+  if(P.hunt && s.huntUnlocked && turn%TEMP.CALENDAR.TURNS_PER_MONTH===2){botHunt(s,maxHuntDepth(s));if(s.moonstone){const ex=dispatch(s,{type:'moonstone.exchange',qty:s.moonstone});sum.huntGold+=ex.gold||0;}}
   if(P.talk(turn)&&s.ap.left>0)talk(s,'neo');
   if(P.talkAll)for(const id of Object.keys(s.roster).filter(id=>id!=='neo'))if(s.ap.left>0)talk(s,id);
   for(const c of recruitView(s).filter(c=>c.status==='available')) dispatch(s,{type:'recruit.complete',id:c.id});
   for(const [index,p] of s.farm.plots.entries()) {
    if(p && p.growth>=CROPS[p.cropId].turns) dispatch(s,{type:'farm.harvest',index,cropInstanceId:p.id});
    if(!s.farm.plots[index]) {
-    const cropId=Object.keys(CROPS).find(id=>CROPS[id].level<=farmLevel(s.farm)&&CROPS[id].seasons.includes(farmSeason(s.day)));
+    const cropId=Object.keys(CROPS).find(id=>CROPS[id].level<=farmLevel(s.farm)&&CROPS[id].seasons.includes(farmSeason(s.day, s.calendar?.turnsPerMonth || 3)));
     dispatch(s,{type:'farm.plant',index,cropId});
    }
    dispatch(s,{type:'farm.water',index}); dispatch(s,{type:'farm.tend',index});
@@ -76,4 +76,4 @@ for (const seed of seeds) {
  }
  rows.push({seed,turns:s.stats.shiftsCompleted,clearedDay,yeoniLevel:yeoniProgress(s).level,yeoniXp:yeoniProgress(s).xp,debt:s.debt,gold:s.gold,ending:s.calendar.endingId,fans:s.fans,tables:tableCount(s),...sum,repaid:s.repaidTotal,loanLeft:s.finance?.balance||0,dun:Object.values(s.ledger.creditor||{}).map(r=>r.scene).filter(Boolean)});
 }
-console.log(JSON.stringify({method:`72순 자동 시계 봇(${bot}) / 인간 플레이테스트 아님`,bot,rows},null,2));
+console.log(JSON.stringify({method:`${TEMP.CALENDAR.TOTAL_TURNS}주 자동 시계 봇(${bot}) / 인간 플레이테스트 아님`,bot,rows},null,2));

@@ -50,7 +50,7 @@ export const CHEST_FALLBACK = 25; // 올릴 무기·보조 능력이 없으면 �
 
 export const xpNeeded = level => Math.round(H.XP_BASE + (level - 1) * H.XP_STEP + (level - 1) ** 2 * H.XP_CURVE);
 // 달력이 흐를수록 그늘이 짙어진다: 사냥 시작 때 정해 사냥 내내 쓴다
-export const monthScale = day => { const m = Math.min(calendarOf(day).monthIdx, 11); return { hp: 1 + H.MONTH_HP * m, dmg: 1 + H.MONTH_DMG * m }; };
+export const monthScale = (day, turns = 4) => { const m = Math.min(calendarOf(day, turns).monthIdx, 11); return { hp: 1 + H.MONTH_HP * m, dmg: 1 + H.MONTH_DMG * m }; };
 export const gemTier = v => (v < 4 ? 0 : v < 20 ? 1 : 2);
 
 export function huntCheck(state, hunterId = 'neo') {
@@ -102,7 +102,7 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
     bag: { moonstone: 0 }, kills: 0, status: 'running', depth, careerLevel, careerXP: 0,
     caps: Object.fromEntries(SKILL_IDS.map(id => [id, skillCap(id, skillRank(state, id), capLevels(state))])), // 출발 때 고정한 공용 상한
     evoOk: Object.fromEntries(Object.keys(WEAPONS).map(id => [id, evoKnown(state, id)])), // 출발 때 고정한 진화 비전(옛 진행 중 사냥은 없음 = 허용)
-    scale: depthScale(depth, monthScale(state.day), calendarOf(state.day).monthIdx),
+    scale: depthScale(depth, monthScale(state.day, state.calendar?.turnsPerMonth || 3), calendarOf(state.day, state.calendar?.turnsPerMonth || 3).monthIdx),
     fieldSeed:Math.floor(nextRandom(state.rng)*2147483647),brokenProps:{},propDamage:{},foundTreasure:{},
     ...(saved?{kfp:saved.kfp?structuredClone(saved.kfp):undefined,level:saved.level,xp:saved.xp,weapons:structuredClone(saved.weapons),passives:{...saved.passives},picks:structuredClone(saved.picks||[])}:{}),
   });
@@ -725,7 +725,7 @@ export function nextStage(state) {
   if (hs.depth >= 100 || hs.depth >= maxHuntDepth(state)) return { ok: false, reason: '더 깊은 단계가 없어요 · 귀환해 정산해 주세요' };
   if (hs.picks.length || hs.chests.length) return { ok: false, reason: '레벨업 카드와 상자를 먼저 정리해 주세요' };
   hs.depth += 1; hs.trail=null; hs.stageMs = 0; hs.boss = null; hs.bossSpawned = false; hs.bossDown = false; hs.fired = []; hs.stageChoice = null;
-  hs.scale = depthScale(hs.depth, monthScale(state.day), calendarOf(state.day).monthIdx);
+  hs.scale = depthScale(hs.depth, monthScale(state.day, state.calendar?.turnsPerMonth || 3), calendarOf(state.day, state.calendar?.turnsPerMonth || 3).monthIdx);
   const w = getHuntWorld(state);
   w.enemies.clear(); clearBossAttacks(w); w.spawnAcc = 0;
   w.banner = { label: `${hs.depth}단계 · ${trailDef(hs.depth).name}`, warn: false, until: hs.elapsedMs + 2200 };

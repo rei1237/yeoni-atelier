@@ -14,7 +14,7 @@ test('호스트 개업과 다섯 결말은 서로 다른 등록 원화를 사용
   assert.equal(ending.beats.at(-1).bg,key);
   const asset=ASSETS.backgrounds[key];assert.ok(asset);paths.add(asset.path);
   const s=createGame();s.calendar.endingId=id;s.calendar.ended=true;
-  assert.ok(overlayHtml(s,{ending:id}).includes(asset.path));
+  assert.ok(overlayHtml(s,{ending:id}).includes(id==='bad'?'assets/illustrated/backgrounds/ending_bad_cast.webp':asset.path));
  }
  assert.equal(paths.size,5);
 });

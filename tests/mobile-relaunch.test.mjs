@@ -40,7 +40,7 @@ test('드레스룸은 개업 이벤트 뒤에만 열리고 튜토리얼 기록�
  let s=createGame();s.moonstone=100000;s.gold=100000;
  assert.equal(cmd(s,'outfit.unlock',{id:'crescent_tailcoat'}).ok,false);
  assert.equal(cmd(s,'outfit.equip',{who:'neo',slot:'outfit',itemId:null}).ok,false);
- s.day=7;assert.ok(cmd(s,'story.seen',{id:'m2'}).ok);assert.ok(s.hostbar.open);
+ s.day=9;assert.ok(cmd(s,'story.seen',{id:'m2'}).ok);assert.ok(s.hostbar.open);
  assert.ok(cmd(s,'outfit.unlock',{id:'crescent_tailcoat'}).ok);
  cmd(s,'tutorial.seen',{id:'outfits'});s=deserialize(serialize(s)).state;assert.equal(s.tutorials.outfits,true);
 });

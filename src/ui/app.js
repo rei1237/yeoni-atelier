@@ -283,7 +283,7 @@ function maybeVisit(place) {
 
 function replayStory() {
   if (!state) return;
-  const id = isEnded(state) ? `ending:${state.calendar.endingId}` : `m${calendarOf(state.day).monthIdx}`;
+  const id = isEnded(state) ? `ending:${state.calendar.endingId}` : `m${calendarOf(state.day, state.calendar?.turnsPerMonth || 3).monthIdx}`;
   const beats = storyBeats(id);
   if (beats) { ui.sheet = null; playNovel(beats, { onEnd: () => render(true) }); }
 }
@@ -504,7 +504,7 @@ const ACTIONS = {
   'shop.buy': d => run({ type: 'shop.buy', ingredientId: d.id, qty: n(d.qty) }),
   'play.cycle':()=>setPlaySpeed(ui.playSpeed===3?1:ui.playSpeed+1),
   'play.speed': d => setPlaySpeed(n(d.speed)),
-  'finance.borrow': d => {const amount=n(d.amount);ui.confirm={title:`${amount.toLocaleString('ko-KR')}G를 빌릴까요?`,text:`월 이자 ${GAME_TEMP.LOAN_RATE*100}% · 다음 하순 이자 ${Math.ceil(amount*GAME_TEMP.LOAN_RATE).toLocaleString('ko-KR')}G가 추가됩니다. 미납 이자는 대출 원금에 더해져요.`,yesLabel:'조건 확인하고 빌리기',onYes:()=>run({type:'finance.borrow',amount,requestId:`loan-${Date.now()}-${++repaySeq}`})};},
+  'finance.borrow': d => {const amount=n(d.amount);ui.confirm={title:`${amount.toLocaleString('ko-KR')}G를 빌릴까요?`,text:`월 이자 ${GAME_TEMP.LOAN_RATE*100}% · 다음 월말 이자 ${Math.ceil(amount*GAME_TEMP.LOAN_RATE).toLocaleString('ko-KR')}G가 추가됩니다. 미납 이자는 대출 원금에 더해져요.`,yesLabel:'조건 확인하고 빌리기',onYes:()=>run({type:'finance.borrow',amount,requestId:`loan-${Date.now()}-${++repaySeq}`})};},
   'finance.repay': d => run({type:'finance.repay',target:d.target,amount:n(d.amount),currency:d.currency}),
   'debt.repay': d => run({ type: 'debt.repay', amount: n(d.amount), requestId: `repay-${Date.now()}-${++repaySeq}` }),
   'quest.claim': d => run({ type: 'quest.claim', questId: d.id }),
@@ -578,8 +578,7 @@ ACTIONS['bond.talk'] = d => {
     onChoose:choiceId=>{const r=run({type:'bond.talk',id:d.id,choiceId,token:q.token},{keepQuiet:true});if(!r.ok)return r;
       up=r.rankUp;const beats=[{bg:'atelier_lit',l:'yeoni:smile',c:face||d.id+':smile',s:who,t:r.line},{s:'sys',t:'인연 +'+r.gain+' · 오늘의 대화가 마음에 남았습니다.'}];
       if(up)beats.push({s:'sys',t:'✦ RANK UP · '+withWa(name)+'의 인연이 깊어졌다 · Rank '+up.rank+(up.perk?' · 능력 해방: '+up.perk:'')});
-      else if(rankWaits(state,d.id))beats.push({s:'sys',t:'✦ 이번 달에는 이미 인연이 깊어졌어요 · 다음 달 대화에서 랭크가 오릅니다.'});
-      else if(bondReady(state,d.id))beats.push({s:'sys',t:'✦ 인연이 깊어질 것 같다 · 다음 대화에서 랭크가 오릅니다.'});
+      else if(bondReady(state,d.id))beats.push({s:'sys',t:'✦ 다음 대화에서 마음이 통하는 답을 고르면 인연 랭크가 오릅니다.'});
       return {ok:true,beats};},
     onEnd:reopen,
     onCancel:()=>{reopen();toast('대화를 다음으로 미뤘어요 · 행동력은 쓰지 않았어요');}});
@@ -762,6 +761,7 @@ function handleEvents(events) {
       case 'gameEnded': toast(ev.endingId === 'bad' ? '📜 청토끼 통첩 기한이 지났어요 · 결말이 열립니다' : '📜 마지막 결산 완료 · 결말이 열립니다', ev.endingId === 'bad' ? 'bad' : 'good', 3200); break;
       case 'milestoneMet': toast(`🤝 청토끼와의 약속 달성 · 원금의 ${Math.round(ev.share * 100)}% 상환 · 다음 달 이자 ${Math.round(ev.cut * 100)}% 감면`, 'good', 3600); break;
       case 'creditorWarning': toast(ev.milestone ? '✉️ 청토끼 경고 · 약속한 상환에 못 미쳤어요' : '✉️ 청토끼 경고 · 이번 달 상환이 이자보다 적었어요', 'bad', 3600); break;
+      case 'creditorNotice': toast(ev.need ? '✉️ 청토끼 · 다음 달 분기 상환을 확인해 주세요' : '✉️ 청토끼 · 이번 분기 상환 목표를 채웠어요', ev.need ? 'bad' : 'good', 3600); break;
       case 'creditorUltimatum': toast(`🟥 청토끼 통첩 · ${ev.need.toLocaleString('ko-KR')}G 더 갚기 · ${ev.turns}순 안에`, 'bad', 4200); break;
       case 'ultimatumCleared': toast('🕊️ 청토끼 통첩 해제 · 경고가 0회로 돌아갔어요', 'good', 3600); break;
       case 'shiftClosed': ui.sheet = null; ui.selectedSlot = null; ui.chatter = null; save(); break; // 마감 화면을 가리는 영업 중 대사는 내린다

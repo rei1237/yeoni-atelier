@@ -19,29 +19,30 @@ import { interestDue, pendingRateStory, grantHikeGrowth, pendingCreditorStory, u
 const C = TEMP.CALENDAR;
 // 계절 소품은 2년 24달치(src/story/seasons.js 편 수와 같다 · tests/seasons.test.mjs)
 export const SEASON_MONTHS = 24;
-export const PARTS = Object.freeze(['상순', '중순', '하순']);
+export const PARTS = Object.freeze(['1주차', '2주차', '3주차', '4주차']);
+export const turnsPerMonth = state => state?.calendar?.turnsPerMonth || 3;
 // 양력 달의 대략적인 월지(절기 기준 근사). 사주 세계관 분위기용 표시.
 const BRANCH = Object.freeze({ 1: '축', 2: '인', 3: '묘', 4: '진', 5: '사', 6: '오', 7: '미', 8: '신', 9: '유', 10: '술', 11: '해', 12: '자' });
 
 // day(1부터) → 달력 위치
-export function calendarOf(day) {
+export function calendarOf(day, turns = C.TURNS_PER_MONTH) {
   const i = Math.max(0, day - 1);
-  const monthIdx = Math.floor(i / C.TURNS_PER_MONTH);
+  const monthIdx = Math.floor(i / turns);
   const m0 = C.START_MONTH - 1 + monthIdx;
-  return { turn: i, monthIdx, part: i % C.TURNS_PER_MONTH, month: (m0 % 12) + 1, year: 1 + Math.floor(m0 / 12) };
+  return { turn: i, monthIdx, part: i % turns, month: (m0 % 12) + 1, year: 1 + Math.floor(m0 / 12) };
 }
 
 // 운영 기간은 저장마다 기록한다(새 게임 2년 72순, 옛 저장은 180순일 수 있다)
 export const totalTurns = state => state?.calendar?.totalTurns || C.TOTAL_TURNS;
-export const totalMonths = state => Math.ceil(totalTurns(state) / C.TURNS_PER_MONTH);
+export const totalMonths = state => Math.ceil(totalTurns(state) / turnsPerMonth(state));
 export const turnsLeft = state => Math.max(0, totalTurns(state) - (state.day - 1));
 export const isEnded = state => !!state.calendar?.ended;
 
 export function dateLabel(state, day = state.day) {
   if (state.calendar?.endingId === 'bad') return '가게를 내준 뒤'; // 배드 엔딩은 마지막 순 전에 끝날 수 있다
   if (isEnded(state)) return `후일담 ${day - totalTurns(state)}일째`;
-  const c = calendarOf(day);
-  return `운영 ${1 + Math.floor(c.monthIdx / 12)}년차 ${c.month}월(${BRANCH[c.month]}월) ${PARTS[c.part]}`;
+  const c = calendarOf(day, turnsPerMonth(state));
+  return `운영 ${1 + Math.floor(c.monthIdx / 12)}년차 ${c.month}월(${BRANCH[c.month]}월) ${turnsPerMonth(state) === 3 ? ['상순','중순','하순'][c.part] : PARTS[c.part]}`;
 }
 
 export function monthName(monthIdx) {
@@ -63,8 +64,8 @@ export function spendAp(state, cost = 1) {
 // ── 하순 영업 마감 때 한 번: 이자 = 남은 빚 × 이자율(올림). 골드로 내고 모자라면 빚에 붙는다.
 export function chargeInterest(state, sh) {
   if (isEnded(state)) return null;
-  const c = calendarOf(sh.day);
-  if (c.part !== C.TURNS_PER_MONTH - 1) return null;
+  const c = calendarOf(sh.day, turnsPerMonth(state));
+  if (c.part !== turnsPerMonth(state) - 1) return null;
   const key = `m${c.monthIdx}`;
   if (state.ledger.interest[key]) return state.ledger.interest[key];
   // 이자율은 청토끼 인상 일정(creditor.js)을 따르고, 루나의 검산(친밀도 능력)만큼 줄어든다
@@ -84,6 +85,7 @@ export function decideEnding(state) {
   const start = state.startingDebt || PDF.INITIAL_DEBT;
   const bonds = Object.values(state.affinity || {}).reduce((a, b) => a + b, 0);
   if (state.debt <= 0 && !(state.payroll?.arrears>0) && !(state.finance?.balance>0)) return bonds >= C.ENDING_BOND_BEST ? 'grand' : 'clear';
+  if (state.calendar?.turnsPerMonth === 4 && state.debt > 0) return 'bad';
   if (ultimatumUnmet(state)) return 'bad'; // 통첩을 못 채운 채 마지막 순을 넘기면 배드 엔딩
   if (state.debt <= start * 0.4) return 'close';
   return 'extend';
@@ -114,7 +116,7 @@ export function pendingStory(state) {
   // 후일담: 결말을 본 뒤에도 인연 이야기는 이어진다
   // 배드 엔딩(가게를 내줌)에는 후일담이 없다
   if (isEnded(state)) return state.calendar.endingId && !state.ledger.story[`ending:${state.calendar.endingId}`] ? `ending:${state.calendar.endingId}` : state.calendar.endingId === 'bad' ? null : pendingHanbiStory(state) || pendingBloomStory(state) || pendingBondStory(state) || pendingBranchStory(state);
-  const c = calendarOf(state.day);
+  const c = calendarOf(state.day, turnsPerMonth(state));
   const id = `m${c.monthIdx}`;
   if (!state.ledger.story[id]) return id;
   const rate = pendingRateStory(state); // 청토끼 이자율 인상은 그달 이야기 바로 다음

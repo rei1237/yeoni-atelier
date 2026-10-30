@@ -18,7 +18,7 @@ export function plantCheck(state, cropId, index) {
   if (!crop || !Number.isInteger(index) || index < 0 || index >= state.farm.plots.length) return fail('작물과 밭을 골라 주세요');
   if (state.farm.plots[index]) return fail('이미 작물이 자라는 밭이에요');
   if (farmLevel(state.farm) < crop.level) return fail(`농장 레벨 ${crop.level}에 열려요`);
-  if (!state.farm.greenhouse && !crop.seasons.includes(farmSeason(state.day))) return fail('이 계절에는 온실이 필요해요');
+  if (!state.farm.greenhouse && !crop.seasons.includes(farmSeason(state.day, state.calendar?.turnsPerMonth || 3))) return fail('이 계절에는 온실이 필요해요');
   if (state.gold < crop.seedCost) return fail(`씨앗값 ${crop.seedCost}G가 필요해요`);
   if (!farmEnergyCheck(state).ok) return farmEnergyCheck(state);
   return { ok: true };
@@ -36,7 +36,7 @@ export function care(state, index, kind, by = '연이') {
   if (!p || !['water', 'tend'].includes(kind)) return fail('돌볼 작물이 없어요');
   if (p.growth >= CROPS[p.cropId].turns) return fail('다 자랐어요. 수확해 주세요');
   const key = kind === 'water' ? 'wateredDay' : 'caredDay';
-  if (p[key] === state.day || (kind === 'water' && farmWeather(state.farm, state.day) === 'rain')) return fail('이번 순에는 이미 물이나 손길이 충분해요');
+  if (p[key] === state.day || (kind === 'water' && farmWeather(state.farm, state.day, state.calendar?.turnsPerMonth || 3) === 'rain')) return fail('이번 순에는 이미 물이나 손길이 충분해요');
   p[key] = state.day;
   emit('farmAction', { kind,index,cropId:p.cropId,text: kind === 'water' ? `${by}가 물을 주었어요` : `${by}가 잡초를 뽑고 흙을 덮었어요` });
   return { ok: true };
@@ -45,15 +45,15 @@ export function careAll(state) {
   const chk=farmCheck(state);if(!chk.ok)return chk;
   if(farmLevel(state.farm)<3)return fail('농장 레벨 3부터 한 번에 돌볼 수 있어요');
   const tasks=[];
-  state.farm.plots.forEach((p,i)=>{if(!p||p.growth>=CROPS[p.cropId].turns)return; if(p.wateredDay!==state.day&&farmWeather(state.farm,state.day)!=='rain')tasks.push([i,'water']);if(p.caredDay!==state.day)tasks.push([i,'tend']);});
+  state.farm.plots.forEach((p,i)=>{if(!p||p.growth>=CROPS[p.cropId].turns)return; if(p.wateredDay!==state.day&&farmWeather(state.farm,state.day,state.calendar?.turnsPerMonth || 3)!=='rain')tasks.push([i,'water']);if(p.caredDay!==state.day)tasks.push([i,'tend']);});
   if(!tasks.length)return fail('모든 밭을 돌봤어요');
   const ap=farmEnergyCheck(state,tasks.length);if(!ap.ok)return ap;
   for(const [i,kind] of tasks){if(care(state,i,kind).ok)gainYeoni(state,'farm');}
   spendFarmEnergy(state,tasks.length);return {ok:true,count:tasks.length};
 }
 export function farmForecast(state,p){
- const c=CROPS[p.cropId],wet=p.wateredDay===state.day||farmWeather(state.farm,state.day)==='rain',tended=p.caredDay===state.day;
- const harsh=['dry','frost'].includes(farmWeather(state.farm,state.day))&&!state.farm.greenhouse;
+ const c=CROPS[p.cropId],wet=p.wateredDay===state.day||farmWeather(state.farm,state.day,state.calendar?.turnsPerMonth || 3)==='rain',tended=p.caredDay===state.day;
+ const harsh=['dry','frost'].includes(farmWeather(state.farm,state.day,state.calendar?.turnsPerMonth || 3))&&!state.farm.greenhouse;
  const growth=(harsh&&!tended?.1:.25)+(wet?.75:0)+(tended?1:0);
  return {growth,remaining:Math.max(0,Math.ceil((c.turns-p.growth)/growth)),qty:c.yield+Math.min(3,(p.careTurns||0)+(tended?1:0))+Math.floor((farmLevel(state.farm)-1)/FARM.levelYieldEvery)};
 }

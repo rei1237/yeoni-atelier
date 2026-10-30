@@ -17,7 +17,7 @@ function neoFarmRow(state){
  <div class="row automation-row"><span class="grow small"><b>영업 전 자동으로 맡기기</b> · ${st.on?'켜짐':'꺼짐'}</span>${btn({action:'automation.toggle',args:{ability:'farm'},cls:st.on?'on':'',label:st.on?'자동 켜짐':'자동 꺼짐'})}</div>`;
 }
 export function farmSheet(state,ui){
- const f=state.farm,level=farmLevel(f),season=farmSeason(state.day),weatherId=farmWeather(f,state.day),weather=WEATHER[weatherId];
+ const f=state.farm,level=farmLevel(f),season=farmSeason(state.day, state.calendar?.turnsPerMonth || 3),weatherId=farmWeather(f,state.day,state.calendar?.turnsPerMonth || 3),weather=WEATHER[weatherId];
  const selected=CROPS[ui.farmCrop]?ui.farmCrop:'wheat',index=Math.max(0,Math.min(f.plots.length-1,ui.farmPlot||0)),p=f.plots[index],c=p?CROPS[p.cropId]:CROPS[selected],check=farmCheck(state),ready=p&&p.growth>=c.turns;
  const wet=p&&(p.wateredDay===state.day||weatherId==='rain'),tended=p?.caredDay===state.day,forecast=p?farmForecast(state,p):null;
  const action=(type,label,disabled=false)=>btn({action:type,args:{index,id:p?.id||selected},cls:type==='farm.harvest'?'primary':'',disabled:!check.ok||disabled,title:f.energy<1?'농장 행동력이 없어요. 영업을 마치면 채워져요':'농장 행동력 1',label});

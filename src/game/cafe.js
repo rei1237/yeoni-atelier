@@ -9,7 +9,7 @@ import { HALL_ABILITIES, ABILITIES, hallAutomationOn, museongKitchenActive } fro
 import {qualityForTiming,qualityOf,foodScore} from '../data/cooking-quality.js';
 import { customerLook, pickLook } from '../data/customer-looks.js';
 import {wealthEligible} from './cafe-growth.js';
-import {changePopularity,guestChatter,waitingSatisfaction,reviewVisit} from './reputation.js';
+import {popularity,changePopularity,guestChatter,waitingSatisfaction,reviewVisit} from './reputation.js';
 import {cafeProgress,customerWealth,atmosphere,menuWeight,menuPrice} from './cafe-growth.js';
 import {CUSTOMER_WEALTH,wealthAt,hostRevenueMultiplier} from '../data/customer-wealth.js';
 // 카페 영업 루프: 입장 → 착석 → 주문 → 조리 → 완성 → 트레이 → 직원 운반 → 서빙 → 식사 → 퇴장 → 정리 → 빈 테이블
@@ -819,9 +819,11 @@ export function checkout(state,visit){
 }
 // 매우 만족한 통큰·대부호 일반 손님은 계산할 때 팁을 둔다(자동). 결산 카드의 팁 줄(baseTips)로 들어가고 원장(ledger.patronTips)에 방문마다 한 번
 function patronTip(state,visit){
- const rule=TEMP.PATRON.tip[visit.wealthId];
+ const ordinary=visit.wealthId==='ordinary';
+ const rule=TEMP.PATRON.tip[visit.wealthId]||(ordinary?{rate:.05,cap:25}:null);
  if(!rule||visit.kind==='nomination'||!(visit.bill>0)||state.ledger.patronTips?.[visit.id]!=null||!state.shift)return 0;
  if(!(visit.reviewScore>=PDF.GRADE.great))return 0;
+ if(ordinary&&nextRandom(state.rng)>=Math.min(.55,.05+popularity(state)/2500+atmosphere(state)/500))return 0;
  const tip=Math.max(1,Math.min(rule.cap,Math.round(visit.bill*rule.rate)));
  (state.ledger.patronTips||={})[visit.id]=tip;state.shift.baseTips+=tip;
  emit('patronTip',{visitId:visit.id,customerId:visit.customerId,wealthId:visit.wealthId,tip});return tip;

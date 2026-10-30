@@ -43,7 +43,7 @@ export function mapScreenHtml(state,ui) {
   const meeting=worldMeetingAccess(state);
   const chosen=WORLD_PLACES.find(p=>p.id===ui.worldPlace);
   const lock=chosen?(placeLock(state,chosen.id)||(chosen.id!=='atelier'&&!townCheck(state).ok?townCheck(state).reason:'')):'';
-  const mapStyle=worldMapStyle('ui/town-map-'+season(calendarOf(state.day).month));
+  const mapStyle=worldMapStyle('ui/town-map-'+season(calendarOf(state.day, state.calendar?.turnsPerMonth || 3).month));
   const nodes=WORLD_PLACES.map(p=>{
     const pin=WORLD_NAV.destinations.find(d=>d.id===p.id).pin, why=placeLock(state,p.id);
     const name=why?(p.id==='expand'?'가구와 꽃 상점':'잠긴 장소'):p.name;
@@ -54,7 +54,7 @@ export function mapScreenHtml(state,ui) {
     const pin=WORLD_NAV.destinations.find(d=>d.id===chosen.id).pin;
     const name=lock?(chosen.id==='expand'?'가구와 꽃 상점':'아직 닫힌 장소'):chosen.name;
     const actor=chosen.id==='expand'?'museong@museong_garden':chosen.who;
-    const portrait=lock?'':`<span class="world-card-character" style="${assetStyle('actors/'+actor)}" aria-hidden="true"></span>`;
+    const portrait=lock?'':`<span class="world-card-character${chosen.id==='finance'?' finance-portrait':''}" style="${assetStyle(chosen.id==='finance'?'ui/town-node-finance':'actors/'+actor)}" aria-hidden="true"></span>`;
     const back=`<div class="world-card-back" aria-hidden="true"><span>☾</span><small>✿</small></div>`;
     const face=`<div class="world-card-front"><div class="world-card-heading"><span>${['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ','Ⅶ','Ⅷ'][WORLD_PLACES.indexOf(chosen)]}</span><small>DESTINY ISLAND</small></div><div class="world-card-art ${lock?'concealed':''}" style="${lock?'':mapStyle+';background-position:'+(pin[0]*100)+'% '+(pin[1]*100)+'%'}">${portrait}${lock?uiIcon('lock'):''}</div><div class="world-card-copy"><small>✧ &nbsp; 재성의 섬 &nbsp; ✧</small><h2 id="world-card-name">${esc(name)}</h2><p>${esc(lock||(chosen.id==='hunt'&&huntVisitReason(state))||chosen.desc)}</p></div></div>`;
     const at=ui.worldAt||state.worldLocation||'atelier',here=chosen.id===at;

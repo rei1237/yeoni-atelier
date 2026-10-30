@@ -321,8 +321,7 @@ function bondCard(state, id) {
   const wait = rankWaits(state, id), ready = bondReady(state, id) && !wait, lo = r ? R[r - 1] : 0, hi = R[r], [num, arc] = ARCANA[id] || ['?', ''];
   const n = P.findIndex(x => x > r);
   const status = r >= MAX_RANK ? '인연 MAX · 모든 능력이 해방됐어요'
-    : wait ? '✦ 이번 달에는 이미 인연이 깊어졌어요 · 다음 달 대화에서 랭크 업'
-    : ready ? '✦ 인연이 깊어질 것 같다 · 다음 대화에서 랭크 업'
+    : ready ? (id==='neo' ? '✦ 다음 대화의 답을 고르면 랭크 업' : '✦ 다음 대화에서 마음이 통하는 답을 고르면 랭크 업')
     : `다음 랭크까지 ${hi - v}점 · 대화·선물·함께 일하기로 쌓여요`;
   const pips = Array.from({ length: MAX_RANK }, (_, i) => `<i class="${i < r ? 'on' : ''}${P.includes(i + 1) ? ' perk' : ''}"></i>`).join('');
   const perks = b.perks.map((p, i) => `<li class="${r >= P[i] ? 'open' : i === n ? 'next' : ''}"><b>Rank ${P[i]}</b><span>${esc(p.label)}</span><small>${r >= P[i] ? '해방' : i === n ? '다음' : '잠김'}</small></li>`).join('');
@@ -361,21 +360,22 @@ function gearStall(state) {
 
 // 인수 빚 이자율: 지금 이율·이번 달 예상 이자·다음 인상(청토끼 일정, creditor.js)
 function interestCard(state) {
-  const m = monthOfDay(state.day), next = isEnded(state) ? null : nextHike(state, m);
+  const m = monthOfDay(state.day, state.calendar?.turnsPerMonth || 3), next = isEnded(state) ? null : nextHike(state, m);
   const pct = r => `${Math.round(r * 100)}%`;
   const when = next ? `${1 + Math.floor(next.monthIdx / 12)}년차 ${monthName(next.monthIdx)} → ${pct(next.rate)}` : '더 오르지 않아요';
-  return `<section class="card kv interest-card" aria-label="인수 빚 이자율"><span>인수 빚 월 이자</span><b>${pct(interestRate(state, m))}</b><span>이번 달 하순 예상</span><b>${won(interestDue(state, m))}</b><span>다음 인상</span><b>${esc(when)}</b></section>`;
+  return `<section class="card kv interest-card" aria-label="인수 빚 이자율"><span>인수 빚 월 이자</span><b>${pct(interestRate(state, m))}</b><span>이번 달 말 예상</span><b>${won(interestDue(state, m))}</b><span>다음 인상</span><b>${esc(when)}</b></section>`;
 }
 
 // 청토끼 약속·경고·통첩(6-1). 옛 180순 저장·결말 뒤에는 없다
 function creditorCard(state) {
   const v = creditorView(state);
   if (!v) return '';
-  const when = m => `${1 + Math.floor(m / 12)}년차 ${monthName(m)} 하순`;
+  const weekly=state.calendar?.turnsPerMonth===4;
+  const when = m => `${1 + Math.floor(m / 12)}년차 ${monthName(m)} ${weekly?'말':'하순'}`;
   const head = v.ultimatum
     ? `<span>청토끼 통첩</span><b class="bad">${won(v.ultimatum.need)} 더 갚기 · ${v.ultimatum.turnsLeft}순 남음</b>`
-    : `<span>청토끼 경고</span><b${v.warnings ? ' class="warn"' : ''}>${v.warnings ? `${v.warnings}회 · 다음 하순엔 붙은 이자보다 더 갚아 주세요` : '없음'}</b>`;
-  const ms = v.milestone ? `<span>다음 약속</span><b>${esc(when(v.milestone.monthIdx))}까지 누적 상환 ${Math.round(v.milestone.share * 100)}% · ${v.milestone.need ? `${won(v.milestone.need)} 남음` : '달성'}</b>` : '';
+    : weekly ? '<span>분기 상환</span><b>기한에 부족하면 가게를 내줘요</b>' : `<span>청토끼 경고</span><b${v.warnings ? ' class="warn"' : ''}>${v.warnings ? `${v.warnings}회 · 다음 하순엔 붙은 이자보다 더 갚아 주세요` : '없음'}</b>`;
+  const ms = v.milestone ? `<span>다음 약속</span><b>${esc(when(v.milestone.monthIdx))}까지 누적 상환 ${Number((v.milestone.share * 100).toFixed(2))}% · ${v.milestone.need ? `${won(v.milestone.need)} 남음` : '달성'}</b>${weekly?'<span>기한 상환</span><b>부족분은 보유 골드에서 자동 상환</b>':''}` : '';
   return `<section class="card kv creditor-card" aria-label="청토끼 약속과 통첩">${head}${ms}</section>`;
 }
 
@@ -598,10 +598,11 @@ const ENDING_HINT = {
 };
 function endingDialog(state, id) {
   const e = ENDINGS[id];
-  const bonds = Object.entries(state.affinity || {}).map(([k, v]) => `${BOND_NAMES[k] || k} ${v}`).join(' · ');
-  return `<div class="dialog ending" role="dialog" aria-modal="true" aria-labelledby="ending-title"><h2 id="ending-title">${esc(e.title)}</h2><img class="ending-art" src="${esc(ASSETS.backgrounds['ending_'+id].path)}" alt="${esc(e.title)}의 마지막 풍경" width="960" height="640"><p class="small muted">꿀꿀 운세 외전 · 게임 오리지널 결말</p>
+  const bonds = Object.entries(state.affinity || {}).map(([k, v]) => `${BONDS[k] ? bondName(state,k) : BOND_NAMES[k] || k} ${v}`).join(' · ');
+  const endingHint=id==='bad'&&state.calendar?.turnsPerMonth===4?'분기 상환 기한까지 약속을 채우지 못해 가게를 내줬습니다. 다음에는 분기 목표와 남은 빚을 살피며 차근차근 갚아 보세요.':ENDING_HINT[id] || '';
+  return `<div class="dialog ending" role="dialog" aria-modal="true" aria-labelledby="ending-title"><h2 id="ending-title">${esc(e.title)}</h2><img class="ending-art" src="${esc(id==='bad'?'assets/illustrated/backgrounds/ending_bad_cast.webp':ASSETS.backgrounds['ending_'+id].path)}" alt="${esc(e.title)}의 마지막 풍경" width="960" height="640"><p class="small muted">꿀꿀 운세 외전 · 게임 오리지널 결말</p>
     <div class="kv"><span>마지막 결산 남은 빚</span><b>${won(state.calendar.endedDebt ?? state.debt)}</b><span>갚은 총액</span><b>${won(state.repaidTotal)}</b><span>동료 친밀도</span><b>${esc(bonds)}</b></div>
-    <p class="small">${esc(ENDING_HINT[id] || '')}</p>
+    <p class="small">${esc(endingHint)}</p>
     <div class="stack">${id === 'bad' ? '' : btn({ action: 'ending.close', cls: 'primary', label: '☕ 후일담 영업 계속하기' })}${btn({ action: 'credits.open', cls: id === 'bad' ? 'primary' : '', label: '🎬 크레딧 보기' })}${btn({ action: 'story.replay', label: '📖 결말 다시 보기' })}${btn({ action: 'game.new', label: '🌱 새 게임' })}</div></div>`;
 }
 
@@ -682,7 +683,7 @@ function recruitDialog(state, id) {
 }
 
 function financeLoanHtml(state,c){
- return `<h3>확장을 앞당기는 운영 대출</h3><p class="small">청토끼: “기회는 빌려줄게. 이자까지 챙기는 건 네 몫이지!”</p><div class="kv"><span>대출 한도 / 사용 중</span><b>${won(c.limit)} / ${won(c.balance)}</b><span>월 이율</span><b>${c.rate*100}% · 복리</b><span>다음 하순 예상 이자</span><b>${won(c.nextInterest)}</b></div><p class="small muted">월말 하순에 이자를 내며, 못 낸 이자는 대출 잔액에 더해져요. 마감 직전 빌려도 한 달 이자가 발생해요. 본래 인수 빚은 별도이며 지금 월 ${Math.round(interestRate(state)*100)}%입니다. 시설 확장 후 늘어날 수익과 비교하세요.</p><div class="btns">${[10000,50000,200000,1000000].map(amount=>btn({action:'finance.borrow',args:{amount},disabled:c.available<amount,label:`${won(amount)} 빌리기`})).join('')}</div><h3>골드 · 월정석으로 상환</h3>${[['inheritance','인수 빚',state.debt],['loan','운영 대출',c.balance]].map(([target,name,debt])=>`<div class="card"><b>${name} ${won(debt)}</b><div class="btns">${btn({action:'finance.repay',args:{target,currency:'gold',amount:Math.min(debt,state.gold)},disabled:!debt||!state.gold,label:'가진 골드로 갚기'})}${btn({action:'finance.repay',args:{target,currency:'moonstone',amount:Math.min(state.moonstone,Math.ceil(debt/exchangeRate(state)))},disabled:!debt||!state.moonstone,label:'월정석으로 갚기'})}</div></div>`).join('')}<p class="small muted">월정석은 우대 환율까지 동일하게 적용해요. 빚보다 많이 환산된 잔액은 골드로 돌려드려요.</p>`;
+ return `<h3>확장을 앞당기는 운영 대출</h3><p class="small">청토끼: “기회는 빌려줄게. 이자까지 챙기는 건 네 몫이지!”</p><div class="kv"><span>대출 한도 / 사용 중</span><b>${won(c.limit)} / ${won(c.balance)}</b><span>월 이율</span><b>${c.rate*100}% · 복리</b><span>다음 월말 예상 이자</span><b>${won(c.nextInterest)}</b></div><p class="small muted">월말에 이자를 내며, 못 낸 이자는 대출 잔액에 더해져요. 마감 직전 빌려도 한 달 이자가 발생해요. 본래 인수 빚은 별도이며 지금 월 ${Math.round(interestRate(state)*100)}%입니다. 시설 확장 후 늘어날 수익과 비교하세요.</p><div class="btns">${[10000,50000,200000,1000000].map(amount=>btn({action:'finance.borrow',args:{amount},disabled:c.available<amount,label:`${won(amount)} 빌리기`})).join('')}</div><h3>골드 · 월정석으로 상환</h3>${[['inheritance','인수 빚',state.debt],['loan','운영 대출',c.balance]].map(([target,name,debt])=>`<div class="card"><b>${name} ${won(debt)}</b><div class="btns">${btn({action:'finance.repay',args:{target,currency:'gold',amount:Math.min(debt,state.gold)},disabled:!debt||!state.gold,label:'가진 골드로 갚기'})}${btn({action:'finance.repay',args:{target,currency:'moonstone',amount:Math.min(state.moonstone,Math.ceil(debt/exchangeRate(state)))},disabled:!debt||!state.moonstone,label:'월정석으로 갚기'})}</div></div>`).join('')}<p class="small muted">월정석은 우대 환율까지 동일하게 적용해요. 빚보다 많이 환산된 잔액은 골드로 돌려드려요.</p>`;
 }
 
 // 10-29 카페 수첩: 묶음별 2열 도트 타일. 잠긴 칸은 흐리게 두고 열리는 조건을 적는다

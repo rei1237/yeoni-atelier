@@ -1,8 +1,8 @@
 import {personName,emit} from './state.js';
 import {yeoniEffects} from './yeoni-growth.js';
 import {CAFE_LINES,selectLine} from '../data/cafe-dialogue.js';
-export const popularity=state=>Math.max(0,Math.min(100,state.reputation??25));
-export function changePopularity(state,n){state.reputation=Math.max(0,Math.min(100,Math.round((popularity(state)+n)*10)/10));}
+export const popularity=state=>Math.max(0,Math.min(999,state.reputation??25));
+export function changePopularity(state,n){state.reputation=Math.max(0,Math.min(999,Math.round((popularity(state)+n)*10)/10));}
 export function waitingSatisfaction(state,visit){
  const open=visit.orderIds.map(id=>state.orders[id]).filter(o=>o&&['waiting','assigned'].includes(o.status));
  if(!open.length)return visit.foodScores.length?Math.round(visit.foodScores.reduce((a,b)=>a+b,0)/visit.foodScores.length):100;

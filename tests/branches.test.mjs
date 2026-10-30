@@ -31,7 +31,7 @@ test('청토끼 제안은 정상 이야기 원장에서 완료되고 로드 뒤 
 });
 
 test('후속 지점 별관은 앞 구역부터만 열리며 본점 최대 면적과 저장 배치를 보존한다',()=>{
- const s=createGame();s.day=7;s.gold=1e8;s.hostbar.open=true;s.huntUnlocked=true;
+ const s=createGame();s.day=9;s.gold=1e8;s.hostbar.open=true;s.huntUnlocked=true;
  assert.equal(dispatch(s,{type:'expand.area',id:'branch_annex_1'}).ok,false);
  for(const id of ['east_wing','garden_wing','window','salon','terrace'])assert.ok(dispatch(s,{type:'expand.area',id}).ok);
  assert.deepEqual(cafeBounds(s),{cols:20,rows:24});

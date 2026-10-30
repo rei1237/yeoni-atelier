@@ -6,27 +6,27 @@ import { emit } from './state.js';
 
 const C = TEMP.CALENDAR;
 const STAT_KEYS = ['empathy', 'talk', 'fun', 'looks'];
-export const monthOfDay = day => Math.floor(Math.max(0, day - 1) / C.TURNS_PER_MONTH);
+export const monthOfDay = (day, turns = C.TURNS_PER_MONTH) => Math.floor(Math.max(0, day - 1) / turns);
 export const isLegacyTerm = state => (state?.calendar?.totalTurns || C.TOTAL_TURNS) === C.LEGACY_TOTAL_TURNS;
 export const rateHikes = state => isLegacyTerm(state) ? [] : C.RATE_HIKES;
 
 // 그 달 하순에 걷는 인수 빚 이자율
-export function interestRate(state, monthIdx = monthOfDay(state.day)) {
+export function interestRate(state, monthIdx = monthOfDay(state.day, state.calendar?.turnsPerMonth || 3)) {
   let rate = C.INTEREST_RATE;
   for (const h of rateHikes(state)) if (h.monthIdx <= monthIdx) rate = h.rate;
   return rate;
 }
 
-export const nextHike = (state, monthIdx = monthOfDay(state.day)) => rateHikes(state).find(h => h.monthIdx > monthIdx) || null;
+export const nextHike = (state, monthIdx = monthOfDay(state.day, state.calendar?.turnsPerMonth || 3)) => rateHikes(state).find(h => h.monthIdx > monthIdx) || null;
 
 // 이번 달 하순 이자(루나의 검산 등 인연 감면 포함, 올림)
-export function interestDue(state, monthIdx = monthOfDay(state.day)) {
+export function interestDue(state, monthIdx = monthOfDay(state.day, state.calendar?.turnsPerMonth || 3)) {
   return state.debt > 0 ? Math.ceil(state.debt * interestRate(state, monthIdx) * (1 - bondFx(state).interestCut) * (1 - milestoneCut(state, monthIdx))) : 0;
 }
 
 // 이미 지난(또는 이번) 인상 중 아직 안 본 장면. 달 이야기 다음에 하나씩 튼다.
 export function pendingRateStory(state) {
-  const m = monthOfDay(state.day);
+  const m = monthOfDay(state.day, state.calendar?.turnsPerMonth || 3);
   const h = rateHikes(state).find(x => x.monthIdx <= m && !state.ledger.story[`rate:${x.monthIdx}`]);
   return h ? `rate:${h.monthIdx}` : null;
 }
@@ -57,7 +57,10 @@ export function withHikeStats(state, base) {
 // ── 6-1 청토끼 독촉(게임 오리지널): 약속(마일스톤)·경고·통첩·배드 엔딩. 수치는 TEMP.CALENDAR(임시).
 // 하순 마감 때 이자를 걷은 직후 한 번(ledger.creditor['m<달>']) 본다. 옛 180순 저장은 보지 않는다.
 const principal = state => state.startingDebt || TEMP.INITIAL_DEBT;
-const lastMonth = () => C.TOTAL_TURNS / C.TURNS_PER_MONTH - 1;
+const QUARTER_SHARES = [0.002,0.01,0.025,0.05,0.10,0.20,0.40,1];
+const quarterMilestones = QUARTER_SHARES.map((share,i)=>({monthIdx:i*3+2,share}));
+const milestonesFor = state => state.calendar?.turnsPerMonth === 4 ? quarterMilestones : C.MILESTONES;
+const lastMonth = state => Math.ceil((state.calendar?.totalTurns || C.TOTAL_TURNS) / (state.calendar?.turnsPerMonth || 3)) - 1;
 export const milestoneAt = monthIdx => C.MILESTONES.find(x => x.monthIdx === monthIdx) || null;
 export const milestoneTarget = (state, ms) => Math.ceil(principal(state) * ms.share);
 const milestoneMet = (state, ms) => state.debt <= 0 || state.repaidTotal >= milestoneTarget(state, ms);
@@ -71,6 +74,28 @@ export function checkCreditor(state, monthIdx, rec) {
   const key = `m${monthIdx}`;
   if (book[key]) return book[key];
   const cr = state.creditor ??= { warnings: 0, ultimatum: null, lastRepaid: state.repaidTotal, lastCheck: null };
+  if (state.calendar?.turnsPerMonth === 4) {
+    if (monthIdx % 3 === 1) {
+      const ms=milestonesFor(state).find(x=>x.monthIdx===monthIdx+1);
+      if(ms && state.debt>0){
+        const out={month:monthIdx,milestone:milestoneMet(state,ms),quarter:true,need:Math.max(0,milestoneTarget(state,ms)-state.repaidTotal),dueMonth:ms.monthIdx,scene:`warn:${monthIdx}`};
+        book[key]=out;emit('creditorNotice',{monthIdx,need:out.need});return out;
+      }
+    }
+    if (monthIdx % 3 !== 2) return null;
+    const ms=milestonesFor(state).find(x=>x.monthIdx===monthIdx);
+    if(!ms)return null;
+    const target=milestoneTarget(state,ms);
+    // 결산에서 확보한 골드도 기한에 사용할 수 있도록 부족분만 자동 상환한다.
+    const need=Math.max(0,target-state.repaidTotal);
+    const paid=Math.min(need,Math.max(0,state.gold),Math.max(0,state.debt));
+    if(paid){state.gold-=paid;state.debt-=paid;state.repaidTotal+=paid;state.stats.repayCount++;(state.ledger.repay||={})[`quarter:${monthIdx}`]=paid;emit('repaid',{amount:paid,debt:state.debt});}
+    const met=milestoneMet(state,ms);
+    const out={month:monthIdx,milestone:met,target,paid,shortfall:Math.max(0,target-state.repaidTotal),scene:null};
+    book[key]=out;cr.lastRepaid=state.repaidTotal;cr.lastCheck=monthIdx;
+    if(!met){out.bad=true;endBad(state);} else emit('milestoneMet',{monthIdx,share:ms.share,cut:0});
+    return out;
+  }
   // 그달 원금 상환이 빚에 붙은 미납 이자를 메우지 못했으면 모자란 달이다
   const repaid = state.repaidTotal - (cr.lastRepaid ?? state.repaidTotal);
   cr.lastRepaid = state.repaidTotal; cr.lastCheck = monthIdx;
@@ -92,12 +117,12 @@ export function checkCreditor(state, monthIdx, rec) {
   }
   if (monthIdx < C.MILESTONES[0].monthIdx) return out; // 첫 약속 달까지는 지켜본다
   if (!(out.shortfall > 0 || out.milestone === false)) { cr.warnings = 0; return out; }
-  if (cr.warnings >= 1 && monthIdx < lastMonth()) {
+  if (cr.warnings >= 1 && monthIdx < lastMonth(state)) {
     const target = state.repaidTotal + Math.ceil(principal(state) * C.ULTIMATUM_SHARE);
-    cr.ultimatum = { fromMonth: monthIdx, dueMonth: Math.min(monthIdx + C.ULTIMATUM_MONTHS, lastMonth()), target, startRepaid: state.repaidTotal };
+    cr.ultimatum = { fromMonth: monthIdx, dueMonth: Math.min(monthIdx + C.ULTIMATUM_MONTHS, lastMonth(state)), target, startRepaid: state.repaidTotal };
     cr.warnings = 2;
     out.scene = `ultimatum:${monthIdx}`; out.need = target - state.repaidTotal; out.dueMonth = cr.ultimatum.dueMonth;
-    emit('creditorUltimatum', { monthIdx, need: out.need, dueMonth: cr.ultimatum.dueMonth, turns: (cr.ultimatum.dueMonth - monthIdx) * C.TURNS_PER_MONTH });
+    emit('creditorUltimatum', { monthIdx, need: out.need, dueMonth: cr.ultimatum.dueMonth, turns: (cr.ultimatum.dueMonth - monthIdx) * (state.calendar?.turnsPerMonth || 3) });
   } else {
     cr.warnings = 1;
     out.scene = `warn:${monthIdx}`;
@@ -133,12 +158,12 @@ export function pendingCreditorStory(state) {
 // 금융 창·상단 표시용
 export function creditorView(state) {
   if (isLegacyTerm(state) || state.calendar?.ended) return null;
-  const m = monthOfDay(state.day), cr = state.creditor || {}, u = cr.ultimatum;
-  const ms = C.MILESTONES.find(x => x.monthIdx >= m && !state.ledger.creditor?.[`m${x.monthIdx}`]);
+  const m = monthOfDay(state.day, state.calendar?.turnsPerMonth || 3), cr = state.creditor || {}, u = cr.ultimatum;
+  const ms = milestonesFor(state).find(x => x.monthIdx >= m && !state.ledger.creditor?.[`m${x.monthIdx}`]);
   const msTarget = ms && milestoneTarget(state, ms);
   return {
     warnings: cr.warnings || 0,
-    ultimatum: u ? { need: state.debt <= 0 ? 0 : Math.max(0, u.target - state.repaidTotal), dueMonth: u.dueMonth, turnsLeft: Math.max(1, (u.dueMonth + 1) * C.TURNS_PER_MONTH - state.day + 1) } : null,
+    ultimatum: u ? { need: state.debt <= 0 ? 0 : Math.max(0, u.target - state.repaidTotal), dueMonth: u.dueMonth, turnsLeft: Math.max(1, (u.dueMonth + 1) * (state.calendar?.turnsPerMonth || 3) - state.day + 1) } : null,
     milestone: ms ? { monthIdx: ms.monthIdx, share: ms.share, target: msTarget, need: state.debt <= 0 ? 0 : Math.max(0, msTarget - state.repaidTotal) } : null,
   };
 }

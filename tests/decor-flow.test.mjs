@@ -7,7 +7,7 @@ import { serialize, deserialize } from '../src/core/save.js';
 import { AREAS } from '../src/data/layout.js';
 import { decorDirty, purchaseGate, decorPanel } from '../src/ui/decor-screen.js';
 
-const ready = () => { const s = createGame(); s.day = 7; s.hostbar.open = true; s.huntUnlocked = true; s.gold = 100000; return s; }; // 테스트 준비: 꾸미기 개시 후
+const ready = () => { const s = createGame(); s.day = 9; s.hostbar.open = true; s.huntUnlocked = true; s.gold = 100000; return s; }; // 테스트 준비: 꾸미기 개시 후
 const ui = (o = {}) => ({ decorSpace: 'indoor', decorTab: 'owned', camera: {}, ...o });
 
 test('구매→자동 선택→추천 자리→놓기→적용이 저장 후에도 남는다', () => {

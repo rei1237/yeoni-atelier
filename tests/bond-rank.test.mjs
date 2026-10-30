@@ -55,19 +55,24 @@ test('인연 카드는 아르카나·랭크·다음 랭크까지 남은 점수·
   assert.equal(withWa('윤달'), '윤달과'); assert.equal(withWa('루나'), '루나와');
 });
 
-test('랭크는 한 사람당 한 달(3순)에 하나만 오르고, 저장해도 그 달 기록이 남으며 이미 오른 랭크는 내리지 않는다', () => {
+test('조건을 채우면 같은 달에도 랭크가 오르고 저장해도 이미 오른 랭크는 내리지 않는다', () => {
   let s = createGame();
   const talkOnce = (st, id) => { st.ap.left = 4; st.ap.talked = {}; const q = bondQuestion(st, id); return dispatch(st, { type: 'bond.talk', id, choiceId: q.answers[0].id, token: q.token }); }; // 테스트 준비: 순마다 한 번 제한만 푼다
   s.affinity.neo = R[5]; // 테스트 준비: 랭크 6까지 채울 점수
   assert.equal(talkOnce(s, 'neo').rankUp.rank, 1);
   s = deserialize(serialize(s)).state;
   const same = talkOnce(s, 'neo');
-  assert.equal(same.rankUp, null, '같은 달 두 번째 대화는 점수만'); assert.equal(bondRank(s, 'neo'), 1);
-  assert.match(sheetHtml(s, { sheet: { kind: 'companions' }, companionId: 'neo' }), /다음 달 대화에서 랭크 업/);
-  s.affinity.luna = R[0]; assert.equal(talkOnce(s, 'luna').rankUp.rank, 1, '다른 동료의 랭크는 따로 센다'); // 테스트 준비: 문턱 점수
-  s.day += TEMP.CALENDAR.TURNS_PER_MONTH; // 테스트 준비: 다음 달
-  assert.equal(talkOnce(s, 'neo').rankUp.rank, 2);
+  assert.equal(same.rankUp.rank, 2); assert.equal(bondRank(s, 'neo'), 2);
+  assert.doesNotMatch(sheetHtml(s, { sheet: { kind: 'companions' }, companionId: 'neo' }), /다음 달 대화에서 랭크 업/);
   const old = createGame(); old.affinity.neo = 300; old.bondRank.neo = 10; // 옛 상한 300에서 이미 랭크 10
   const back = deserialize(serialize(old)).state;
   assert.equal(bondRank(back, 'neo'), 10); assert.equal(perkTier(back, 'neo'), 4);
+});
+
+test('네오는 어떤 답도 가능하고 다른 동료는 마음이 통하는 답이 랭크 조건이다',()=>{
+  const s=createGame();s.affinity.neo=R[0];s.affinity.luna=R[0];
+  const choose=(id,gain)=>{s.ap.left=4;s.ap.talked={};const q=bondQuestion(s,id),a=q.answers.find(x=>x.gain===gain);return dispatch(s,{type:'bond.talk',id,choiceId:a.id,token:q.token});};
+  assert.equal(choose('neo',2).rankUp.rank,1);
+  assert.equal(choose('luna',2).rankUp,null);
+  assert.equal(choose('luna',6).rankUp.rank,1);
 });

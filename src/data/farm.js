@@ -15,14 +15,14 @@ export const WEATHER = Object.freeze({ sun: { name: '맑음', icon: '☀', hint:
 export const farmLevel = farm => 1 + Math.floor(Math.sqrt(Math.max(0, farm.xp) / FARM.xpStep));
 export const maxFarmEnergy = farm => FARM.baseEnergy + (farmLevel(farm) - 1) * FARM.energyPerLevel;
 export const farmNextXp = farm => farmLevel(farm) ** 2 * FARM.xpStep;
-export const farmSeason = day => ['winter', 'winter', 'spring', 'spring', 'spring', 'summer', 'summer', 'summer', 'autumn', 'autumn', 'autumn', 'winter'][((2 + Math.floor((day - 1) / 3)) % 12)];
+export const farmSeason = (day, turns = 4) => ['winter', 'winter', 'spring', 'spring', 'spring', 'summer', 'summer', 'summer', 'autumn', 'autumn', 'autumn', 'winter'][((2 + Math.floor((day - 1) / turns)) % 12)];
 export function newFarm(seed = 20261025) {
   return { energy: FARM.baseEnergy, xp: 0, seed: seed >>> 0, greenhouse: false, lastAdvancedDay: 1, harvests: 0, plots: Array.from({ length: FARM.startPlots }, () => null) };
 }
 // 날씨는 날짜와 별도 농장 시드로 결정한다. 화면 열기·저장·다른 활동으로 다시 추첨되지 않는다.
-export function farmWeather(farm, day) {
+export function farmWeather(farm, day, turns = 4) {
   let n = (farm.seed ^ Math.imul(day, 0x45d9f3b)) >>> 0;
   n = Math.imul(n ^ (n >>> 16), 0x45d9f3b) >>> 0;
   const v = (n ^ (n >>> 16)) >>> 0;
-  return v % 10 < 3 ? 'rain' : v % 10 < 5 ? (farmSeason(day) === 'winter' ? 'frost' : 'dry') : 'sun';
+  return v % 10 < 3 ? 'rain' : v % 10 < 5 ? (farmSeason(day, turns) === 'winter' ? 'frost' : 'dry') : 'sun';
 }

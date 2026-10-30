@@ -61,11 +61,17 @@ const gold = n => `${Math.floor(n).toLocaleString('ko-KR')}G`;
 const SET = { l: 'yeoni:normal', c: 'cheongtokki:normal', r: 'neo:normal' };
 
 export const CREDITOR_STORIES = Object.freeze({
-  warn: (m, rec) => [
+  warn: (m, rec, first = false) => [
     { chapter: [monthLabel(m), '어머~ 하늘색 독촉장'], bg: 'atelier_dark', ...SET },
-    { s: 'nar', t: '하순 마감 뒤, 계산대 위에 하늘색 봉투 하나가 반듯하게 놓여 있었다.' },
-    { s: 'rab', t: '어머~ 이번 달 장부가 조금 아쉽네요. 오늘은 안내만 드리고 갈게요~', c: 'cheongtokki:smile' },
-    { s: 'sys', t: rec?.milestone === false ? '[ 청토끼 경고 1회 · 약속한 누적 상환에 못 미쳤어요 · 다음 하순에도 그대로면 통첩이 옵니다 ]' : '[ 청토끼 경고 1회 · 이번 달 상환이 빚에 붙은 이자보다 적었어요 · 다음 하순에도 그대로면 통첩이 옵니다 ]' },
+    { s: 'nar', t: '월말 마감 뒤, 계산대 위에 하늘색 봉투 하나가 반듯하게 놓여 있었다.' },
+    { s: 'rab', t: rec?.quarter ? (rec.need ? '어머~ 다음 달은 분기 상환일이에요. 약속한 금액을 준비해 주세요~' : '어머~ 이번 약속은 벌써 채우셨네요. 다음 장부도 기대할게요~') : '어머~ 이번 달 장부가 조금 아쉽네요. 오늘은 안내만 드리고 갈게요~', c: 'cheongtokki:smile' },
+    { s: 'sys', t: rec?.quarter ? (rec.need ? `[ 분기 상환 · ${monthLabel(rec.dueMonth)} 말까지 ${gold(rec.need)} 더 갚아야 해요 · 마감 때 보유 골드로 부족분을 자동 상환하며, 그래도 미달하면 가게를 내줘야 합니다 ]` : `[ ${monthLabel(rec.dueMonth)} 분기 상환 목표 달성 · 남은 빚을 계속 갚아 주세요 ]`) : rec?.milestone === false ? '[ 청토끼 경고 1회 · 약속한 누적 상환에 못 미쳤어요 · 다음 하순에도 그대로면 통첩이 옵니다 ]' : '[ 청토끼 경고 1회 · 이번 달 상환이 빚에 붙은 이자보다 적었어요 · 다음 하순에도 그대로면 통첩이 옵니다 ]' },
+    ...(first ? [
+      { s:'luna', t:'미안해, 연이 언니. 내가 더 잘했어야 했는데.', c:'luna:cry' },
+      { s:'luna_sis', t:'저희 빵집 때문에 시작된 빚인데, 짐을 나눠 드리지 못했어요. 죄송해요.', c:'luna_sis:tired' },
+      { s:'yeoni', t:'언니, 루나야, 괜찮아. 우리 함께 열어 온 가게잖아.', l:'yeoni:smile' },
+      { s:'neo', t:'너희 탓 아니야. 다음 수는 우리 넷이 같이 찾으면 돼.', r:'neo:serious' },
+    ] : []),
     { s: 'yeoni', t: '(봉투는 얇은데 무게는 별 다섯 개.) 다음 달엔 숫자로 보여 줄게.', l: 'yeoni:determined' },
     { s: 'neo', t: '손님은 내가 더 붙잡을게. 연이는 장부만 지켜.', r: 'neo:serious' },
   ],
@@ -93,5 +99,6 @@ export const CREDITOR_STORIES = Object.freeze({
 export function creditorStory(id, ledger) {
   const [kind, m] = id.split(':');
   const make = CREDITOR_STORIES[kind];
-  return make ? make(Number(m), ledger?.creditor?.[`m${m}`]) : null;
+  const first = kind === 'warn' && !Object.values(ledger?.creditor || {}).some(r => r?.scene?.startsWith('warn:') && r.month < Number(m));
+  return make ? make(Number(m), ledger?.creditor?.[`m${m}`], first) : null;
 }

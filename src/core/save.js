@@ -67,7 +67,8 @@ function migrate(data) {
   if (data.bondRank === undefined) data.bondRank = Object.fromEntries(Object.entries(data.affinity || {}).map(([id, v]) => [id, pointsRank(v || 0, TEMP.BONDS.LEGACY_RANKS)]));
   // 10-28 2년 운영: 첫 6개월 안의 옛 저장만 72순으로 옮기고, 그 뒤 저장은 옛 180순을 유지한다(결말·벌칙 소급 없음)
   data.calendar ||= {};
-  if (data.calendar.totalTurns == null) data.calendar.totalTurns = !data.calendar.ended && data.day <= TEMP.CALENDAR.LEGACY_CUTOFF_DAY ? TEMP.CALENDAR.TOTAL_TURNS : TEMP.CALENDAR.LEGACY_TOTAL_TURNS;
+  data.calendar.turnsPerMonth ??= 3; // 기존 저장은 원래 달력과 기록을 보존한다
+  if (data.calendar.totalTurns == null) data.calendar.totalTurns = !data.calendar.ended && data.day <= TEMP.CALENDAR.LEGACY_CUTOFF_DAY ? 72 : TEMP.CALENDAR.LEGACY_TOTAL_TURNS;
   for (const k of Object.keys(base)) if (data[k] === undefined) data[k] = base[k];
   for (const k of ['ledger', 'stats', 'seq', 'quests', 'outfits', 'fever', 'offline', 'gear', 'calendar', 'ap', 'affinity']) data[k] = { ...base[k], ...data[k] };
   // 네오 전용 스트레스 → 전 직원 스트레스. 예전 자동 켜짐은 권한이 아니므로 모두 끈다(인연으로 다시 연다).

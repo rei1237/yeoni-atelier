@@ -27,7 +27,7 @@ test('개장 전 HUD·결산은 일반 카페이며 5월 이벤트 뒤 지명 �
   assert.match(sheetHtml(s,{sheet:{kind:'companions'}}), /손님맞이 담당/);
   tick(s,RULES.SHIFT_MS);
   assert.doesNotMatch(overlayHtml(s,ui), /지명|피버|스트레스/);
-  dispatch(s,{type:'settlement.close'});s.day=7;
+  dispatch(s,{type:'settlement.close'});s.day=9;
   assert.equal(s.hostbar.open,false);
   dispatch(s,{type:'story.seen',id:'m2'});
   dispatch(s,{type:'shift.start'});
@@ -62,14 +62,14 @@ test('새 게임 이야기 순서 m0 → 첫 영업 → ev:hunt, 사냥 잠금·
 });
 
 test('3·4월 일반 영업만, 5월 이야기 완료/건너뛰기 명령이 지명과 정장을 1회 해금', () => {
-  for (const day of [1, 4]) {
+  for (const day of [1, 5]) {
     const s = createGame(); s.day = day;
     dispatch(s, { type: 'shift.start' }); dispatch(s, { type: 'auto.toggle', on: true, sim: true });
     tick(s, RULES.SHIFT_MS);
     assert.equal(s.lastSettlement.nominationVisits, 0);
     assert.equal(s.lastSettlement.hostings.length, 0);
   }
-  const s = createGame(); s.day = 7;
+  const s = createGame(); s.day = 9;
   assert.equal(dispatch(s, { type: 'story.seen', id: 'm999' }).ok, false);
   assert.ok(dispatch(s, { type: 'story.seen', id: 'm2' }).ok);
   assert.equal(s.hostbar.open, true);
@@ -106,7 +106,7 @@ test('3월에는 드레스룸이 닫혀 있고, 5월 이야기 뒤에야 받은 
   assert.match(dispatch(s, { type: 'outfit.unlock', id: 'crescent_tailcoat' }).reason, /5월/);
   assert.match(dispatch(s, { type: 'outfit.equip', who: 'neo', slot: 'outfit', itemId: 'host_first' }).reason, /5월/);
   assert.match(sheetHtml(s, { sheet: { kind: 'outfits' } }), /닫힌 드레스룸/);
-  s.day = 7;
+  s.day = 9;
   assert.ok(dispatch(s, { type: 'story.seen', id: 'm2' }).ok);
   assert.ok(dispatch(s, { type: 'outfit.equip', who: 'neo', slot: 'outfit', itemId: 'host_first' }).ok);
 });

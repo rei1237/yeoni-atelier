@@ -56,7 +56,7 @@ const won = n => n === 100_000_000 ? '1억 골드' : `${Math.floor(n).toLocaleSt
 
 function scoreChip(kind,value){
  const d=scoreStage(kind,value),label=kind==='reputation'?'평판':'분위기';
- const detail=`${label} 점수 ${d.value}${kind==='reputation'?'/100':''} · ${d.next==null?'최고 단계':`${d.nextName}까지 ${Math.ceil(d.remaining)}점`}`;
+ const detail=`${label} 점수 ${d.value}${kind==='reputation'?'/999':'/100'} · ${d.next==null?'최고 단계':`${d.nextName}까지 ${Math.ceil(d.remaining)}점`}`;
  return `<span class="score-stage ${kind}-score" tabindex="0" title="${esc(detail)}" aria-label="${esc(label+' '+d.level+'단계 · '+d.name+' · '+detail)}"><small>${label} ${d.level}단계</small><b>${esc(d.name)}</b><progress value="${d.progress}" max="1" aria-label="${esc(detail)}"></progress></span>`;
 }
 
@@ -102,8 +102,8 @@ function huntTopbar(state,ui){
 // 상단 바용 짧은 날짜: '3월 상순' / '후일담 2일째'
 function shortDate(state) {
   if (isEnded(state)) return dateLabel(state);
-  const c = calendarOf(state.day);
-  return `${c.month}월 ${PARTS[c.part]}`;
+  const c = calendarOf(state.day, state.calendar?.turnsPerMonth || 3);
+  return `${c.month}월 ${(state.calendar?.turnsPerMonth || 3) === 3 ? ['상순','중순','하순'][c.part] : PARTS[c.part]}`;
 }
 
 // 달력 띠: 연차·남은 순·이번 달 이자 예고·행동력(글자와 점으로 함께 보인다)
@@ -112,10 +112,10 @@ function calendarStrip(state) {
   const left = state.ap?.left ?? 0;
   const pips = `<span class="pips" role="img" aria-label="행동력 ${left}/${apMax}">${'●'.repeat(left)}${'○'.repeat(Math.max(0, apMax - left))}</span>`;
   if (isEnded(state)) return `<div class="calstrip"><span>📅 ${esc(dateLabel(state))}${state.calendar.endingId === 'bad' ? '' : ' · 자유 영업'}</span><span>행동력 ${pips}</span></div>`;
-  const c = calendarOf(state.day);
+  const c = calendarOf(state.day, state.calendar?.turnsPerMonth || 3);
   const due = interestDue(state, c.monthIdx);
-  const when = c.part === 2 ? '이번 영업 뒤' : `${PARTS[2]} 영업 뒤`;
-  return `<div class="calstrip"><span>📅 ${esc(dateLabel(state))} · 남은 ${turnsLeft(state)}순</span><span title="하순 영업을 마치면 이자가 나갑니다">💸 ${when} 이자(월 ${Math.round(interestRate(state, c.monthIdx)*100)}%) 약 ${won(due)}</span><span>행동력 ${pips}</span></div>`;
+  const last=(state.calendar?.turnsPerMonth || 3)-1; const when = c.part === last ? '이번 영업 뒤' : `${last===2?'하순':PARTS[last]} 영업 뒤`;
+  return `<div class="calstrip"><span>📅 ${esc(dateLabel(state))} · 남은 ${turnsLeft(state)}순</span><span title="월말 영업을 마치면 이자가 나갑니다">💸 ${when} 이자(월 ${Math.round(interestRate(state, c.monthIdx)*100)}%) 약 ${won(due)}</span><span>행동력 ${pips}</span></div>`;
 }
 
 // ── 하단 패널

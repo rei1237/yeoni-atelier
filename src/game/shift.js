@@ -149,7 +149,7 @@ export function closeShift(state) {
     settlement.payroll = structuredClone(accruePayroll(state,sh));
     settlement.loanInterest=chargeLoanInterest(state,sh);
     settlement.interest = chargeInterest(state, sh);
-    settlement.creditor = checkCreditor(state, calendarOf(sh.day).monthIdx, settlement.interest);
+    settlement.creditor = checkCreditor(state, calendarOf(sh.day, state.calendar?.turnsPerMonth || 3).monthIdx, settlement.interest);
     settlement.gold = state.gold; settlement.debt = state.debt;
     state.ledger.settlements[sh.id] = settlement;
     state.stats.shiftsCompleted += 1;

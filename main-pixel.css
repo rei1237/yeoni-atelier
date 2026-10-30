@@ -260,3 +260,14 @@ body[data-mode] .lore-dialog h2 .lore-close.lore-close{flex:none;width:40px;heig
 .world-map-screen .world-social-footer{height:auto;min-height:64px;display:flex;justify-content:space-between;gap:10px;padding:8px max(14px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));box-sizing:border-box;background:#334d42;border-top:1px solid #bfa57b}
 .world-map-screen .world-social-footer:before,.world-map-screen .world-social-footer:after{display:none}
 .world-event-copy{display:grid;gap:3px;min-width:0}.world-event-copy b{font-size:13px;color:#fff5e4}.world-map-screen .world-event-copy span{max-width:none;color:#f0dfd3;font-size:11px;line-height:1.4}.world-map-screen .world-event-button{flex:none;min-height:44px;padding:6px 11px;font-size:12px;white-space:nowrap}
+/* 꽃잎빛 종이와 식물 장식은 조작 영역을 가리지 않는다. */
+.sheet{background-color:#fff8f7;background-image:radial-gradient(ellipse at 0 0,#f7dce5 0,transparent 150px),radial-gradient(ellipse at 100% 0,#edf0dc 0,transparent 140px)}
+.sheet h2{color:#704458}
+.sheet .card,.sheet .exchange-card{background-color:#fffafa;border-color:#e6c7cd}
+.sheet:has(.finance-host) .finance-host{position:relative;overflow:hidden;background:#f9e8ec;border:1px solid #ecced6}
+.sheet:has(.finance-host) .finance-host::after{content:'✿';position:absolute;right:12px;top:5px;color:#d19da9;font-size:28px;opacity:.6;pointer-events:none}
+.sheet:has(.finance-host) .exchange-card{background:linear-gradient(145deg,#fffafa,#fff3f4);box-shadow:0 4px 14px #af6b7b12}
+.sheet:has(.finance-host) .exchange-preview,.sheet:has(.finance-host) .exchange-debt{background:#f8e9eb}
+.sheet:has(.finance-host) .exchange-rate{background:#f4dce6;color:#79435e}
+.dialog.ending .kv{display:grid;grid-template-columns:minmax(85px,auto) minmax(0,1fr);gap:8px 12px;align-items:start}
+.dialog.ending .kv>*{min-width:0;overflow-wrap:anywhere;word-break:normal}

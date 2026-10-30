@@ -111,7 +111,7 @@ export function recruitView(state) {
   return recruitables(state).map(c => {
     const r = state.recruitment[c.id] || { status: 'locked' };
     const cond = c.condition;
-    const monthIdx = calendarOf(state.day).monthIdx;
+    const monthIdx = calendarOf(state.day, state.calendar?.turnsPerMonth || 3).monthIdx;
     // 첫 초대 달에 등장, 놓친 경우 3개월 뒤 다시 만난다. 영입 후에는 계속 함께한다.
     const met = c.id === 'yun' ? yunQuestView(state).ready : c.id === 'museong' ? !!state.museongEncounter : (!cond.hostOpen || state.hostbar?.open) && (!cond.debtFree || state.debt <= 0) && state.gold >= (cond.wealth || 0) && (state.affinity?.neo || 0) >= (cond.neoAffinity || 0) && (c.id !== 'seohanbi' || hiddenGuestQuest(state).ready) && state.stats.shiftsCompleted >= cond.shiftsCompleted && state.stats.repayCount >= cond.repaidAtLeast && (c.id === 'seohanbi' || inviteOpen(cond, monthIdx));
     const status = r.status === 'recruited' ? 'recruited' : met ? 'available' : 'locked';
