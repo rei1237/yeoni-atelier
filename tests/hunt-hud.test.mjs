@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createGame} from '../src/game/state.js';
 import {dispatch} from '../src/game/engine.js';
-import {topbarHtml} from '../src/ui/hud.js';
+import {topbarHtml,huntFullscreenEnds} from '../src/ui/hud.js';
 
 test('사냥 상단은 실제 체력·원정 경험치·획득량을 읽고 상태를 변경하지 않는다',()=>{
  const s=createGame();s.huntUnlocked=true;assert.ok(dispatch(s,{type:'hunt.start',depth:1}).ok);
@@ -19,4 +19,13 @@ test('전체화면 단추는 지원하는 브라우저에서만 보이고, 켜�
  assert.doesNotMatch(topbarHtml(s,{}),/hunt\.fullscreen/);
  assert.match(topbarHtml(s,{canFullscreen:true}),/data-action="hunt\.fullscreen"[^>]*aria-label="전체화면으로 보기" aria-pressed="false"/);
  assert.match(topbarHtml(s,{canFullscreen:true,fullscreen:true}),/aria-label="전체화면 끝내기" aria-pressed="true"/);
+});
+
+test('사냥터 단추로 켠 전체화면은 사냥을 마치고 나오면 끄고, 그 밖의 전체화면은 그대로 둔다',()=>{
+ const s=createGame();s.huntUnlocked=true;assert.ok(dispatch(s,{type:'hunt.start',depth:1}).ok);
+ assert.equal(huntFullscreenEnds(s,{huntFullscreen:true},true),false);
+ assert.ok(dispatch(s,{type:'hunt.retreat'}).ok);if(s.mode==='hunt')dispatch(s,{type:'hunt.finish'});assert.notEqual(s.mode,'hunt');
+ assert.equal(huntFullscreenEnds(s,{huntFullscreen:true},true),true);
+ assert.equal(huntFullscreenEnds(s,{huntFullscreen:false},true),false);
+ assert.equal(huntFullscreenEnds(s,{huntFullscreen:true},false),false);
 });

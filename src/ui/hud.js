@@ -237,6 +237,8 @@ function cafeTodoHtml(state){
 }
 
 export function bubblesHtml(ui){return chatterRibbon(ui);}
+// 사냥터 단추로 켠 전체화면은 사냥을 마치고 나오면 끈다(브라우저가 직접 켠 전체화면은 건드리지 않음)
+export const huntFullscreenEnds=(state,ui,fullscreenOn)=>!!(ui.huntFullscreen&&fullscreenOn&&state?.mode!=='hunt');
 
 function bubbleOf(state, t, now) {
   const c = t.customerId ? state.customers[t.customerId] : null;

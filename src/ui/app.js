@@ -53,7 +53,7 @@ import { gardenItem } from '../game/grounds.js';
 import { decorDirty, purchaseGate, placedNote } from './decor-screen.js';
 import { drawHunt } from '../render/hunt-view.js';
 import { $, morph, toast, floater, shake } from './dom.js';
-import { topbarHtml, panelHtml, bubblesHtml, hitsHtml, won } from './hud.js';
+import { topbarHtml, panelHtml, bubblesHtml, hitsHtml, won, huntFullscreenEnds } from './hud.js';
 import { DEMAND_KINDS } from '../game/counter-demand.js';
 import { sheetHtml, overlayHtml, tiredLine } from './sheets.js';
 import { drawDressroom, drawInlinePortraits } from './dressroom.js';
@@ -97,7 +97,7 @@ const savedSpeed=()=>{try{const v=Number(storage.getItem(SPEED_KEY));return [1,2
 function setPlaySpeed(v){ui.playSpeed=[1,2,3].includes(v)?v:1;try{storage.setItem(SPEED_KEY,String(ui.playSpeed));}catch{}}
 const ui = { playSpeed:savedSpeed(), camera:{zoom:1,x:0,y:0}, dev: DEV, hostDemo:HOST_DEMO, speed: 1, sheet: null, confirm: null, selectedSlot: null, recruitEvent: null, combo: [], discovery: null, ending: null, storageOk, hasSave: hasSave(storage, SAVE_KEY) };
 ui.canFullscreen=!!document.fullscreenEnabled&&typeof document.documentElement.requestFullscreen==='function';
-document.addEventListener('fullscreenchange',()=>{ui.fullscreen=!!document.fullscreenElement;render(true);});
+document.addEventListener('fullscreenchange',()=>{ui.fullscreen=!!document.fullscreenElement;if(!ui.fullscreen)ui.huntFullscreen=false;render(true);});
 if (DEV) document.documentElement.classList.add('dev');
 
 const el = { topbar: $('#topbar'), panel: $('#panel'), stage: $('#stage'), canvas: $('#view'), hits: $('#hits'), bubbles: $('#bubbles'), talk: $('#talk'),
@@ -342,7 +342,7 @@ const ACTIONS = {
   'fortune.flip':()=>{ui.fortuneFlip=true;},
   'hunt.start': () => { ui.sheet = { kind: 'hunt' }; },
   // 10-29 사냥터 전체화면: 페이지 전체를 띄우고, 다시 누르면 창 모드로
-  'hunt.fullscreen': () => { const p=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen({navigationUI:'hide'});p?.catch?.(()=>toast('이 브라우저에서는 전체화면을 열 수 없어요.','bad')); },
+  'hunt.fullscreen': () => { const on=!document.fullscreenElement;const p=on?document.documentElement.requestFullscreen({navigationUI:'hide'}):document.exitFullscreen();ui.huntFullscreen=on;p?.catch?.(()=>toast('이 브라우저에서는 전체화면을 열 수 없어요.','bad')); },
   'hunt.depart': async d => { if(ui.huntLoading)return;ui.huntLoading=true;const departing=state;try{const keys=[...Object.keys(ASSETS.enemies).map(id=>'enemies/'+id),'actors/neo_cat','actors/seohanbi'];await loadAssetImages(undefined,{keys});if(state!==departing||ui.sheet?.kind!=='hunt')return;if(keys.some(id=>!imageFor(id))){toast('사냥터 그림을 불러오지 못했어요. 연결을 확인하고 다시 출발해 주세요.');return;}if (run({ type: 'hunt.start', depth: n(d.depth), hunterId:ui.hunterId||'neo' }).ok) ui.sheet = null;}finally{ui.huntLoading=false;render(true);} },
   'farm.select': d => { ui.farmCrop = d.id; },
   'farm.plot': d => { ui.farmPlot = n(d.index); },
@@ -785,6 +785,7 @@ function render(force = false) {
   document.body.dataset.editing=state?.interior?.draft?'true':'false';
   document.body.dataset.cafeFocus=['prep','shift'].includes(state?.mode)&&!state.interior.draft?'true':'false';
   if(!state||state.mode==='hunt')ui.screen=null;
+  if(huntFullscreenEnds(state,ui,!!document.fullscreenElement)){ui.huntFullscreen=false;document.exitFullscreen?.()?.catch?.(()=>{});}
   document.getElementById('app').hidden=!!ui.screen;
   const world=document.getElementById('world-screen');world.hidden=!ui.screen;
   if (!force && now - lastUi < 200) return;
