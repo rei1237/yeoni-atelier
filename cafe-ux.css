@@ -158,3 +158,16 @@ button.fortune-card{position:relative}button.fortune-card>span{position:absolute
 .fortune-section p,.fortune-row b{overflow-wrap:anywhere}
 .fortune-basis,.fortune-hint,.fortune-row small{color:#66515e}
 @media(max-height:500px){.fortune-cover{max-height:110px}.ending-art{max-height:200px}}
+/* 운세 수첩: 실제 찻집 카드와 모바일에서 읽기 쉬운 해설 */
+.sheet .fortune-cover{width:100%;max-width:498px;max-height:220px;aspect-ratio:16/9;object-fit:cover;object-position:center;border-radius:8px}
+.sheet .fortune-card.is-open{padding:8px;width:146px;gap:5px}
+.sheet .fortune-card.is-open img{width:120px;height:180px;object-fit:contain;image-rendering:auto}
+.fortune-reading{text-align:left;max-width:38rem;margin:14px auto 4px;line-height:1.75}
+.fortune-reading h4{margin:14px 0 5px;color:#70465f;font-size:15px}
+.fortune-reading p{margin:8px 0}
+.fortune-guide-list{display:grid;gap:8px;text-align:left}
+.fortune-guide{background:#fffaf2;border:1px solid #e5d4c8;border-radius:8px;padding:0 12px}
+.fortune-guide summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;font-weight:700;color:#67415a}
+.fortune-guide summary::after{content:'+';font-size:19px}.fortune-guide[open] summary::after{content:'−'}
+.fortune-guide p{font-size:14px;line-height:1.7;margin:5px 0 10px}.fortune-guide .fortune-question{color:#795266}
+.fortune-guide a{display:inline-block;margin:2px 0 13px;color:#78506b;font-weight:700;text-decoration:underline;text-underline-offset:3px}

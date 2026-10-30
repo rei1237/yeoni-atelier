@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {enemyVisualSize,sajuPhase} from '../src/render/hunt-visuals.js';
 import {ENEMIES,WEAPONS} from '../src/data/hunt-kit.js';
 test('소형 적 시인성은 화면 배율에 맞게 보정하되 원래 전투 데이터와 보스 크기는 보존한다',()=>{
- const before=JSON.stringify(ENEMIES);for(const scale of [.5,.75,.93,1.4,2]){const size=enemyVisualSize(ENEMIES.shade_bat,scale);assert.ok(size>=34*1.25&&size<=34*1.65);assert.equal(enemyVisualSize(ENEMIES.boss_hand,scale),ENEMIES.boss_hand.size);}
+ const before=JSON.stringify(ENEMIES);for(const scale of [.5,.75,.93,1.4,2]){const size=enemyVisualSize(ENEMIES.shade_bat,scale);assert.ok(size>=34*1.25&&size<=34*1.8);assert.equal(enemyVisualSize(ENEMIES.boss_hand,scale),ENEMIES.boss_hand.size);}
  assert.equal(JSON.stringify(ENEMIES),before);assert.equal(ENEMIES.shade_bat.r,11);assert.equal(WEAPONS.bolt.base.cooldown,850);
 });
 test('성광 준비·절정·소멸은 실제 swing 시간에서 파생하고 감소 동작은 입자를 없앤다',()=>{

@@ -38,3 +38,15 @@ test('두 번째 영업을 마치면 운세 이야기가 나오고, 본 뒤에 �
   assert.match(html, /쥐띠/);
   assert.match(html, /code-destiny\.com/);
 });
+
+test('실제 찻집 카드 22장의 그림과 해설, 다른 운세의 체계별 안내를 보여 준다', async () => {
+  const {TAROT_NOTES,FORTUNE_GUIDES} = await import('../src/data/fortune-guide.js');
+  const {TAROT} = await import('../src/data/fortune.js');
+  const {readFile} = await import('node:fs/promises');
+  assert.equal(TAROT_NOTES.length,TAROT.length);
+  for(let i=0;i<TAROT.length;i++) assert.ok((await readFile(new URL(`../assets/illustrated/tarot/${String(i).padStart(2,'0')}.webp`,import.meta.url))).length>0);
+  for(const name of ['사주','자미두수','베다 점성술','서양 점성술','숙요점','타로','주역','룬','화투점','이파 오라클','케멧 오라클','지오맨시','찻잎 점','해몽'])assert.ok(FORTUNE_GUIDES.some(g=>g.name===name));
+  const s=createGame();s.ledger.story['ev:fortune']=true;
+  const html=sheetHtml(s,{sheet:{kind:'fortune'},fortuneBirth:'1996-08-01',fortuneFlip:true});
+  assert.match(html,/assets\/illustrated\/tarot\/\d\d\.webp/);assert.match(html,/오늘의 작은 실천/);assert.match(html,/개인 명반|전체 명반/);assert.match(html,/fortune-yeoni-v2\.webp/);
+});

@@ -26,7 +26,7 @@ export const BOSS_TASKS = Object.freeze({
   fan: { warn: 1200, act: 200, recover: 1800, mult: .8, slots: 9, gaps: 2, arc: 1.15, speed: 190 }, // 플레이어 쪽 9칸 중 7발, 빈틈 2칸
   barrage: { warn: 1500, act: 200, recover: 2100, mult: .6, slots: 24, gaps: 3, speed: 120 },
   // 10-29 순간 도약: range 밖에 farMs 넘게 있다가 회복 차례가 오면 플레이어 자리에 예고 원을 깔고 그 자리로 뛰어내린다(끝없는 거리 두기 파밍 방지)
-  blink: { warn: 1000, act: 300, recover: 1400, mult: 1.4, r: 110, range: 300, farMs: 1500 },
+  blink: { warn: 2400, act: 300, recover: 2600, mult: .8, r: 80, range: 600, farMs: 7000 },
 });
 
 export const bossPhaseOf = (def, ratio) => {

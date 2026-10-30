@@ -29,3 +29,30 @@ body[data-mode=hunt] .hunt-dock>small:has(button){display:flex;gap:6px;align-ite
 @media(max-width:350px){.cafe-status-details small{gap:2px;font-size:10px}.cafe-status-details .status-symbol{width:18px;height:18px}.cafe-status-details .status-symbol .ml-icon{width:14px;height:14px}}
 /* 가로 모바일: 상단 상태·하단 명령을 각각 한 줄로 접어 무대 높이를 확보(설명 줄·지점명은 숨김) */
 @media(max-height:500px) and (orientation:landscape){body[data-mode][data-cafe-focus=true] #topbar{display:flex;align-items:center;gap:8px;min-height:0;padding:2px 10px}.cafe-status-main{flex:0 0 auto;gap:6px}.cafe-status-main .cafe-seal,.cafe-status-main .cafe-clock small{display:none}.cafe-status-details{flex:1;margin-top:0;border-top:0;padding-top:0;gap:2px}.cafe-status-details button{flex-direction:row;justify-content:center;gap:4px;min-height:44px}.cafe-status-details small{font-size:0;gap:0}.cafe-commandbar{display:flex;align-items:center;gap:6px;padding:2px 10px calc(2px + env(safe-area-inset-bottom))}.cafe-utility-line{flex:0 0 auto}.cafe-utility-line .cafe-live-line{display:none}.cafe-actions{flex:1;width:auto;padding:0;margin:0;border:0}.cafe-actions .cafe-nav-item{min-height:44px;gap:2px;padding:2px 1px}}
+/* 작고 선명한 달밤 도트 HUD */
+.hunt-tools{display:flex;gap:6px;align-items:center;justify-content:flex-end;min-width:0}
+.hunt-tools .hunt-map-toggle,.hunt-audio-menu summary{display:flex;align-items:center;justify-content:center;min-height:44px;padding:4px 12px;border:1px solid #a58a71;border-radius:3px;background:#2a304a;color:#fff0d2;font-size:12px;cursor:pointer}
+.hunt-audio-menu{position:relative}.hunt-audio-menu summary{list-style:none}.hunt-audio-menu summary::-webkit-details-marker{display:none}
+.hunt-audio-controls{position:absolute;bottom:calc(100% + 6px);right:0;z-index:35;display:flex;padding:6px;background:#20243a;border:2px solid #a58a71;box-shadow:3px 3px 0 #111426;white-space:nowrap}
+.hunt-map-pop{position:fixed;right:12px;bottom:calc(130px + env(safe-area-inset-bottom));z-index:35;width:204px;padding:9px;background:#22283d;color:#fff2d8;border:2px solid #c1a47b;box-shadow:4px 4px 0 #111426;text-align:left;box-sizing:border-box}
+.hunt-map-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;font-size:13px}.hunt-map-head button{min-height:36px;padding:3px 9px;border-radius:2px}
+.hunt-map-canvas{display:block;width:180px;height:180px;max-width:100%;image-rendering:pixelated;border:1px solid #68607a}
+.hunt-map-pop p,.hunt-map-pop small{margin:6px 0 0;font-size:10px;line-height:1.5;color:#fff2d8}.hunt-map-pop p span{color:#f08595}.hunt-map-pop p em{color:#ffbd79;font-style:normal}.hunt-map-pop p strong{color:#8fe7d6}.hunt-map-pop p i{color:#edc66b;font-style:normal}
+@media(max-width:899px){
+ body[data-mode=hunt] #topbar,body[data-mode=hunt] #topbar:has(.hunt-full){gap:3px 7px;padding:5px 9px;padding-top:max(5px,env(safe-area-inset-top))}
+ body[data-mode=hunt] .hunt-identity{gap:6px}.hunt-face{width:31px;height:34px;border-radius:3px}.hunt-face .pixel-icon{width:30px;height:32px}.hunt-identity>div{gap:1px}.hunt-identity b{font-size:12px}.hunt-identity span:not(.hunt-face){font-size:10px}
+ body[data-mode=hunt] .hunt-clock{gap:0}.hunt-clock small{font-size:10px}.hunt-clock b{font-size:14px}
+ body[data-mode=hunt] .hunt-vitals{gap:8px}.hunt-vitals>div>div{margin-bottom:1px;font-size:10px}.hunt-vitals b{font-size:11px}.hunt-vitals small{font-size:10px}.hunt-vitals meter,.hunt-vitals progress{height:5px}
+ body[data-mode=hunt] .hunt-wallet{position:absolute;right:10px;top:77px;padding:2px 5px;border-radius:2px;background:#20263a;font-size:10px}.hunt-wallet span{display:none}.hunt-wallet .pixel-icon{width:15px;height:15px}
+ body[data-mode=hunt] #panel{padding:4px 8px calc(4px + env(safe-area-inset-bottom));max-height:38dvh}
+ body[data-mode=hunt] .hunt-dock{padding:0;gap:3px;grid-template-columns:minmax(0,1fr) auto}
+ body[data-mode=hunt] .hunt-dock>.row{grid-column:1/-1;gap:4px;font-size:10px;flex-wrap:nowrap}.hunt-dock>.row b{flex-basis:auto}.hunt-dock>.row .grow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hunt-dock>.row button{min-height:44px;padding:3px 8px}
+ body[data-mode=hunt] .hunt-tools{grid-column:2;grid-row:2}.hunt-kit-details{grid-column:1;grid-row:2}.hunt-kit-details summary{min-height:44px;display:flex;align-items:center}
+ body[data-mode=hunt] .hunt-dock>.hunt-quickslots{grid-column:1/-1}.hunt-map-pop{bottom:calc(150px + env(safe-area-inset-bottom))}
+}
+body[data-mode=hunt] .hunt-tools{min-width:0}
+body[data-mode=hunt] .hunt-tools .hunt-kit-details{position:relative;order:-1}
+body[data-mode=hunt] .hunt-kit-details summary{min-height:44px;display:flex;align-items:center;white-space:nowrap}
+body[data-mode=hunt] .hunt-kit-details[open] .hunt-kit{position:absolute;bottom:100%;left:0;z-index:34;min-width:220px;padding:8px;background:#20243a;border:2px solid #a58a71;box-shadow:3px 3px 0 #111426;overflow:auto}
+@media(max-width:899px){body[data-mode=hunt] .hunt-tools{grid-column:1/-1;grid-row:2;justify-content:space-between}.hunt-tools .hunt-kit-details{flex:1}}
+@media(min-width:900px){body[data-mode=hunt] .hunt-dock{grid-template-columns:minmax(220px,1fr) minmax(320px,560px) auto;gap:6px 12px}body[data-mode=hunt] .hunt-dock>.hunt-tools{grid-column:3;grid-row:1}body[data-mode=hunt] .hunt-dock>small{grid-column:1/-1;grid-row:2}body[data-mode=hunt] #panel{padding:5px 14px calc(5px + env(safe-area-inset-bottom))}}

@@ -94,7 +94,7 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
   const fx=(key,x,y,size)=>{const img=imageFor(`effects/${key}`);if(!img)return false;const frame=Math.floor((opts.reducedMotion?0:t)/100)%4;ctx.drawImage(img,frame*128,0,128,128,x-size/2,y-size/2,size,size);return true;};
   const hs = state.hunt;
   // 10-29 넓은 데스크톱은 보이는 폭을 760 안쪽으로 당겨 크게 본다(적이 330~430 밖에서 나오므로)
-  const scale = w >= 900 ? Math.max(Math.min(w / 420, h / 600), Math.min(w / 760, h / 360)) : Math.min(w / 420, h / 600);
+  const scale = w >= 900 ? Math.max(Math.min(w / 420, h / 600), Math.min(w / 760, h / 360), w / 950) : Math.min(w / 420, h / 600);
   const vw = w / scale, vh = h / scale;
   const p = world.player;
   const now = hs.elapsedMs;

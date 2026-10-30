@@ -33,3 +33,10 @@ test('꽃돼지의 산탄·꽃잎포는 실제 적을 공격하며 저장 복원
  assert.ok(dispatch(s,{type:'hunt.petal'}).ok);assert.equal(w.enemies.count,0);assert.equal(s.hunt.petal.charge,0);assert.equal(dispatch(s,{type:'hunt.petal'}).ok,false);
  dispatch(s,{type:'hunt.retreat'});assert.ok(dispatch(s,{type:'hunt.finish'}).ok);assert.equal(s.people.yeoni.form,'human');assert.equal(s.people.yeoni.activity,'idle');assert.equal(dispatch(s,{type:'hunt.start',hunterId:'yeoni_pig'}).ok,false);
 });
+
+test('서한비의 기본 참격은 초승달 일섬으로 표시되고 실제 적을 공격한다',()=>{
+ const s=ready();s.roster.seohanbi={usableFrom:1};s.people.seohanbi={activity:'idle'};
+ assert.match(huntPrepSheet(s,{huntMenu:'depart',hunterId:'seohanbi'}),/초승달 일섬/);
+ assert.ok(dispatch(s,{type:'hunt.start',hunterId:'seohanbi'}).ok);const w=getHuntWorld(s),e=w.enemies.spawn();Object.assign(e,{uid:999,type:'shade_hand',x:w.player.x+55,y:w.player.y,hp:9999,maxHp:9999,speed:0,kx:0,ky:0,motionX:0,motionY:0,phase:0,orbitAt:0});
+ tick(s,50);assert.equal(w.player.swing.skill,'초승달 일섬');for(let i=0;i<10&&e.hp===9999;i++)tick(s,50);assert.ok(e.hp<9999);
+});

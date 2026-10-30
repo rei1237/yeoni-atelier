@@ -22,7 +22,7 @@ export function branchRelation(mine,today){if(mine===today)return 'same';if(HARM
 
 // FNV-1a: 같은 날·같은 생일이면 언제 다시 열어도 같은 카드
 function hash(text){let h=2166136261;for(const ch of text){h^=ch.codePointAt(0);h=Math.imul(h,16777619)>>>0;}return h;}
-export function dailyCard(dateKey,birthKey=''){const [num,name,en,line]=TAROT[hash(`${dateKey}|${birthKey}`)%TAROT.length];return {num,name,en,line};}
+export function dailyCard(dateKey,birthKey=''){const index=hash(`${dateKey}|${birthKey}`)%TAROT.length;const [num,name,en,line]=TAROT[index];return {num,name,en,line,index};}
 
 export function parseDate(text){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(text||'');if(!m)return null;const y=+m[1],mo=+m[2],d=+m[3],t=new Date(Date.UTC(y,mo-1,d));return y>=1900&&y<=2100&&t.getUTCMonth()===mo-1&&t.getUTCDate()===d?{y,m:mo,d}:null;}
 export const dateKey=({y,m,d})=>`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;

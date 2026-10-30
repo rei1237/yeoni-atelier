@@ -486,7 +486,7 @@ function fireWeapons(state, w, t, m, sec) {
       const prop=(w.props||[]).filter(o=>Math.hypot(o.x-p.x,o.y-p.y)<s.radius+22).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
       const e=target>=0?w.enemies.items[target]:prop;if(!e)continue;
       const angle=Math.atan2(e.y-p.y,e.x-p.x);
-      p.swing={at:t,hitAt:t+90,until:t+360,hit:false,x:p.x,y:p.y,angle,radius:s.radius,halfArc:s.halfArc,damage:s.damage,evo:wp.evo};
+      p.swing={at:t,hitAt:t+90,until:t+360,hit:false,x:p.x,y:p.y,angle,radius:s.radius,halfArc:s.halfArc,damage:s.damage,evo:wp.evo,skill:hs.hunterId==='seohanbi'?'초승달 일섬':null};
       p.attackFacing=facingAngle(angle);p.action='attack';p.actionUntil=t+360;
     } else if (wp.id === 'crescent') {
       for (let k = 0; k < s.count; k++) {

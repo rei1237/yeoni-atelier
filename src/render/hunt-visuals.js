@@ -1,7 +1,7 @@
 // 시각적 크기만 보정한다. 실제 충돌·공격 반경과 전투 수치는 읽기 전용이다.
 export function enemyVisualSize(def,scale){
  if(def.boss||def.size>=48)return def.size;
- return Math.min(def.size*1.65,Math.max(def.size*1.25,40/(Math.max(.5,scale)*.75)));
+ return Math.min(def.size*1.8,Math.max(def.size*1.5,40/(Math.max(.5,scale)*.75)));
 }
 export function sajuPhase(swing,now,still=false){
  if(!swing||now<swing.at||now>=swing.until)return null;

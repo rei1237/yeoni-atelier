@@ -360,14 +360,18 @@ test('개다래 열매: 주우면 정해진 시간 동안 공격력·이동 속�
 
 test('멀리 달아난 플레이어에게 보스는 예고 원 뒤 순간 도약해 거리를 없앤다', () => {
   const s = start(1);
-  const w = { player: { x: 0, y: 900, hurtUntil: 0 }, hostile: [], zones: [], fx: [], enemies: { count: 0, items: [] } };
+  const w = { player: { x: 0, y: 3000, hurtUntil: 0 }, hostile: [], zones: [], fx: [], enemies: { count: 0, items: [] } };
   const e = { type: 'boss_core', x: 0, y: 0, hp: 100, maxHp: 100, uid: 1 };
   initBoss(e, 0); e.taskPhase = 'recover'; e.taskUntil = 9e9;
   let t = 0;
   for (; t < BOSS_TASKS.blink.farMs; t += 50) stepBoss(s, w, e, t, 50, () => {});
   assert.equal(e.task, 'blink');
-  assert.ok(w.zones.some(z => z.kind === 'circle' && z.x === 0 && z.y === 900 && z.dmg > 0), '착지 자리에 피해 예고 원');
+  assert.ok(w.zones.some(z => z.kind === 'circle' && z.x === 0 && z.y === 3000 && z.dmg > 0), '착지 자리에 피해 예고 원');
   assert.ok(warnMs(ENEMIES.boss_core, 0, 'blink') >= 1000, '피할 시간은 남긴다');
   stepBoss(s, w, e, e.taskUntil, 16, () => {});
-  assert.ok(Math.hypot(e.x - 0, e.y - 900) < 1, '한순간에 플레이어 자리로');
+  assert.ok(Math.hypot(e.x - 0, e.y - 3000) < 1, '한순간에 플레이어 자리로');
+});
+
+test('보스 순간 도약은 충분히 떨어진 뒤 길게 예고하고 회복 시간도 남긴다',()=>{
+ const T=BOSS_TASKS.blink;assert.ok(T.range>=600);assert.ok(T.farMs>=7000);assert.ok(T.warn>=2400);assert.ok(T.recover>=2500);assert.ok(T.r<=80);assert.ok(T.mult<1);
 });

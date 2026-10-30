@@ -252,3 +252,5 @@ body[data-mode] .lore-dialog h2 .lore-close.lore-close{flex:none;width:40px;heig
  body[data-mode=prep][data-cafe-focus=true] #panel .cafe-opening{flex:1 0 100%;min-width:0}
  body[data-mode=prep][data-cafe-focus=true] #panel .cafe-opening .cafe-open{min-width:0;width:100%}
 }
+/* 찻집 카드 원화는 픽셀 아이콘과 달리 부드럽게 축소한다. */
+.sheet .fortune-card.is-open img{image-rendering:auto;object-fit:contain;width:120px;height:180px}

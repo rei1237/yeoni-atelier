@@ -38,6 +38,7 @@ import { createGame, personName, personDef } from '../game/state.js';
 import { dispatch, tick, helperAvailable, HELPERS } from '../game/engine.js';
 import { findServeTarget } from '../game/cafe.js';
 import { bundleItems } from '../game/delivery.js';
+import { drawHuntMap } from './hunt-map.js';
 import { getHuntWorld, paused as huntPaused } from '../game/hunt.js';
 import { preview as interiorPreview } from '../game/interior.js';
 import { furnitureCells } from '../game/space.js';
@@ -326,6 +327,7 @@ const ACTIONS = {
   'hunt.fuse.confirm':d=>{const p=kfpFusionPreview(state.hunt,d.id);if(!p.ok)return toast(p.reason);ui.confirm={title:KFP_WEAPONS[p.output].name+' 조합',text:p.inputs.map(i=>KFP_WEAPONS[i.id].evolve.name).join(' + ')+'를 소모해요. 재료의 진화 공격도 함께 이어져요.',yesLabel:'조합 확정',onYes:()=>run({type:'hunt.fuse',id:d.id,revision:n(d.revision)})};},
   'hunt.trail':d=>{const r=run({type:'hunt.trail',choice:d.choice});if(r?.ok)ui.sheet=null;},
   'hunt.petal':()=>run({type:'hunt.petal'}),
+  'hunt.map':()=>{ui.huntMap=!ui.huntMap;},
   'hunt.stage': d => {ui.huntStage=n(d.depth);},
   'hunt.menu': d => {ui.huntMenu=d.menu;},
   'armory.enhance': d => run({type:'armory.enhance',who:d.who,id:d.id}),
@@ -786,6 +788,7 @@ function render(force = false) {
   document.body.dataset.editing=state?.interior?.draft?'true':'false';
   document.body.dataset.cafeFocus=['prep','shift'].includes(state?.mode)&&!state.interior.draft?'true':'false';
   if(!state||state.mode==='hunt')ui.screen=null;
+  if(state?.mode!=='hunt')ui.huntMap=false;
   if(huntFullscreenEnds(state,ui,!!document.fullscreenElement)){ui.huntFullscreen=false;document.exitFullscreen?.()?.catch?.(()=>{});}
   document.getElementById('app').hidden=!!ui.screen;
   const world=document.getElementById('world-screen');world.hidden=!ui.screen;
@@ -820,6 +823,7 @@ function render(force = false) {
   if (state?.mode === 'prep') maybeStory();
 }
 
+let lastHuntMapDraw = 0;
 const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');
 function draw(t) {
   drawNumbers(t);
@@ -831,6 +835,7 @@ function draw(t) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.imageSmoothingEnabled = true; // 고해상도 일러스트 축소
   if (state?.mode === 'hunt' && state.hunt) {
+    if (ui.huntMap && t-lastHuntMapDraw>=250) { drawHuntMap(document.querySelector('.hunt-map-canvas'),getHuntWorld(state)); lastHuntMapDraw=t; }
     drawHunt(ctx, state, getHuntWorld(state), cssW, cssH, { t, reducedMotion:motionPreference.matches, joy: joystick.state.joy, rect: el.canvas.getBoundingClientRect() });
     return;
   }
