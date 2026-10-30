@@ -532,7 +532,7 @@ const ACTIONS = {
   'decor.undo':()=>run({type:ui.decorSpace==='outdoor'?'grounds.undo':'interior.undo'}),
   'decor.skipGuide':()=>run({type:'tutorial.seen',id:'decorate'},{keepQuiet:true}),
   'decor.apply':()=>{const dr=state.interior.draft;if(!dr)return;if(dr.itemBefore||!interiorPreview(state).ok){run({type:'interior.apply'});return;}if(state.outdoor?.draft&&!run({type:'grounds.apply'}).ok)return;if(run({type:'interior.apply'}).ok){if(!state.tutorials?.decorate)run({type:'tutorial.seen',id:'decorate'},{keepQuiet:true});ui.decorSpace='indoor';ui.groundItem=null;ui.decorArea=null;ui.groundExpand=false;resize();toast('🌸 꾸민 배치를 카페에 적용했어요','good');}},
-  'decor.buy':d=>{if(!purchaseGate(ui,performance.now()))return;const r=run({type:'expand.decor',defId:d.def});if(r.ok)afterDecorBuy(r.uid);},
+  'decor.buy':d=>{if(!purchaseGate(ui,performance.now()))return;const r=run({type:'expand.decor',defId:d.def,currency:d.currency});if(r.ok)afterDecorBuy(r.uid);},
   'decor.buyTable':()=>{if(!purchaseGate(ui,performance.now()))return;const r=run({type:'expand.table'});if(r.ok)afterDecorBuy(r.uid);},
   'decor.area':d=>{ui.decorArea=ui.decorArea===d.id?null:d.id;resize();const a=AREAS.find(x=>x.id===ui.decorArea);if(a)focusCell((a.rect[0]+a.rect[2])/2,(a.rect[1]+a.rect[3])/2);},
   'decor.buyArea':d=>{if(!purchaseGate(ui,performance.now()))return;if(run({type:'expand.area',id:d.id}).ok){const a=AREAS.find(x=>x.id===d.id);ui.decorArea=null;ui.decorTab='owned';ui.editTab='stored';resize();if(a)focusCell((a.rect[0]+a.rect[2])/2,(a.rect[1]+a.rect[3])/2);}},
@@ -547,7 +547,7 @@ const ACTIONS = {
   'exchange.step': d => setExchangeQty(Math.max(1, Math.min(state.moonstone || 0, exchangeQty() + n(d.d)))),
   'gear.buy': d => run({ type: 'gear.buy', id: d.id }),
   'gear.equip': d => run({ type: 'gear.equip', slot: d.slot, id: d.id || null }),
-  'expand.decor': d => run({ type: 'expand.decor', defId: d.def }),
+  'expand.decor': d => run({ type: 'expand.decor', defId: d.def, currency: d.currency }),
   'expand.area': d => run({ type: 'expand.area', id: d.id }),
   // 자동화는 인연으로 열린 것만 켜진다(엔진이 거절하면 사유 토스트). 전체 자동은 플레이어 화면에 없다(시뮬 전용).
   'automation.toggle': d => { const r = run({ type: 'automation.toggle', ability: d.ability }); if (r.ok) toast(r.on ? `${ABILITIES[r.ability].label} 켬` : `${ABILITIES[r.ability].label} 끔 · 직접 할게요`, r.on ? 'good' : ''); },

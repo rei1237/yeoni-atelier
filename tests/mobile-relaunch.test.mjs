@@ -37,7 +37,7 @@ test('농장 행동력 저장·이전 저장 이전·마감 회복은 마을 행
  cmd(s,'shift.start');tick(s,600000);cmd(s,'settlement.close');assert.equal(s.farm.energy,6);assert.equal(s.ap.left,3);
 });
 test('드레스룸은 개업 이벤트 뒤에만 열리고 튜토리얼 기록은 저장된다',()=>{
- let s=createGame();s.moonstone=100000;
+ let s=createGame();s.moonstone=100000;s.gold=100000;
  assert.equal(cmd(s,'outfit.unlock',{id:'crescent_tailcoat'}).ok,false);
  assert.equal(cmd(s,'outfit.equip',{who:'neo',slot:'outfit',itemId:null}).ok,false);
  s.day=7;assert.ok(cmd(s,'story.seen',{id:'m2'}).ok);assert.ok(s.hostbar.open);

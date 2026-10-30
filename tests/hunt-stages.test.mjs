@@ -269,7 +269,7 @@ test('기술 단련 이전 저장: 빌드에 있던 기술·레벨은 그만큼 
 });
 
 test('모카의 회복 수프는 3개까지만 챙긴다', () => {
-  const s = createGame({ seed: 8 }); s.moonstone = 1000;
+  const s = createGame({ seed: 8 }); s.gold = 100000; s.moonstone = 1000;
   for (let i = 0; i < 3; i++) assert.ok(dispatch(s, { type: 'armory.buy', id: 'tonic' }).ok);
   const m = s.moonstone, r = dispatch(s, { type: 'armory.buy', id: 'tonic' });
   assert.equal(r.ok, false); assert.equal(r.reason, '회복 수프는 3개까지만 챙길 수 있어요');

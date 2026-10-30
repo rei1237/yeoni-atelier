@@ -129,6 +129,7 @@ export const TEMP = Object.freeze({
   MAX_TABLES: 24,
   AREA_COSTS: Object.freeze([6000, 18000, 40000, 85000, 160000]), // 공방 증축: 연 구역 수에 따라 오른다
   SPAWN_TABLE_BASE: 5,        // 시작 5테이블은 기본 입장 간격. 증축 이후에만 비례 단축(임시)
+  DECOR_MOONSTONE: Object.freeze({ moon_lamp:2, record_shelf:4, grand_planter:5 }), // 무성 상점 일부 장식은 골드 또는 월정석 선택
   DECOR_PRICES: Object.freeze({ chair:600, plant: 400, lamp: 700, bookshelf: 1200, rug: 1500, ...Object.fromEntries([...DECOR_CATALOG,...LARGE_CATALOG].map(d => [d.id, d.price])) }),
 
   // ── 달력·이자·행동력(임시). 영업 1회 = 한 순, 3순 = 한 달. 3월부터 24개월(72순), 2년 운영 뒤 결말.

@@ -9,7 +9,7 @@ import {huntSuppliesHtml} from '../src/ui/hunt-supplies.js';
 function ready(){const s=createGame();s.huntUnlocked=true;s.ledger.story.m0=true;s.stats.huntsCompleted=1;s.hunter.maxStage=7;s.moonstone=10000;s.affinity.moka=10000;s.bondRank.moka=10;return s;}
 function use(s,id){return dispatch(s,{type:'hunt.supply',id});}
 test('모카 구매 → 간편 사용 → 재고·HP·재사용 대기 저장, 연타와 가득 찬 체력은 무효',()=>{
- let s=ready();for(let i=0;i<3;i++)assert.ok(dispatch(s,{type:'armory.buy',id:'tonic'}).ok);assert.equal(dispatch(s,{type:'armory.buy',id:'tonic'}).ok,false);assert.equal(s.moonstone,9892);dispatch(s,{type:'hunt.start'});
+ let s=ready();s.gold=100000;for(let i=0;i<3;i++)assert.ok(dispatch(s,{type:'armory.buy',id:'tonic'}).ok);assert.equal(dispatch(s,{type:'armory.buy',id:'tonic'}).ok,false);assert.equal(s.moonstone,10000);assert.equal(s.gold,46000);dispatch(s,{type:'hunt.start'});
  assert.equal(use(s,'tonic').ok,false);assert.equal(s.armory.supplies.tonic,3);s.hunt.hp=10;assert.ok(use(s,'tonic').ok);assert.equal(s.hunt.hp,45);assert.equal(s.armory.supplies.tonic,2);assert.equal(use(s,'tonic').ok,false);
  s=deserialize(serialize(s)).state;assert.equal(use(s,'tonic').ok,false);dispatch(s,{type:'resume'});assert.equal(use(s,'tonic').ok,false);s.hunt.elapsedMs=SUPPLY_TEMP.cooldownMs.tonic;assert.ok(use(s,'tonic').ok);assert.equal(s.hunt.hp,80);assert.equal(s.armory.supplies.tonic,1);
  const html=huntSuppliesHtml(s);assert.match(html,/회복 수프/);assert.match(html,/8초/);assert.match(html,/aria-describedby/);assert.equal((html.match(/data-action="hunt.supply"/g)||[]).length,5);

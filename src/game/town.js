@@ -146,15 +146,18 @@ export function buyArea(state, id) {
 
 // 장식 들이기: 보관함으로 들어온다(인테리어에서 놓으면 분위기 보너스)
 export function decorPrice(state,defId){const d=FURNITURE[defId],base=TEMP.DECOR_PRICES[defId];return d?.table?Math.max(base||0,tablePrice(tableCount(state))*d.area):base;}
-export function buyDecor(state, defId) {
+export function buyDecor(state, defId, currency='gold') {
   const chk = townCheck(state);
   if (!chk.ok) return chk;
   const lock = placeLock(state, 'expand'); if (lock) return { ok:false, reason:lock };
   const price = decorPrice(state,defId);
   if (!price || !FURNITURE[defId]) return { ok: false, reason: '팔지 않는 장식입니다' };
-  if (state.gold < price) return { ok: false, reason: `골드가 부족합니다 (${price}G 필요)` };
+  const moonPrice=TEMP.DECOR_MOONSTONE[defId];
+  if (!['gold','moonstone'].includes(currency) || (currency==='moonstone' && !moonPrice)) return {ok:false,reason:'이 가구에는 사용할 수 없는 재화예요'};
+  const cost=currency==='moonstone'?moonPrice:price;
+  if ((state[currency]||0) < cost) return { ok: false, reason: currency==='moonstone'?`월정석이 부족합니다 (${cost}개 필요)`:`골드가 부족합니다 (${cost}G 필요)` };
   const table=FURNITURE[defId].table,ex=table?nextExpansion(state):null;if(table&&!ex)return {ok:false,reason:'이 지점의 테이블 수용 한도예요'};
-  state.gold -= price;
+  state[currency] -= cost;
   const bought={uid:nextId(state,'decor'),defId,x:null,y:null,rot:0,...(table?{tableNo:ex.tableNo}:{})};
   state.interior.furniture.push(bought);if(state.interior.draft)state.interior.draft.furniture.push({...bought});
   if(table)state.stats.expansions+=1;

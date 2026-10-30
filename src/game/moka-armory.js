@@ -8,7 +8,7 @@ import { TEMP } from '../config/balance.temp.js';
 import { WEAPONS, PASSIVES, WEAPON_MAX_LV, PASSIVE_MAX_LV } from '../data/hunt-kit.js';
 const SK = TEMP.HUNT_SKILLS;
 export const HUNTERS = ['neo', 'seohanbi'];
-// 강화·소모품 월정석 값은 임시(TEMP). 10-26: 단계 사냥 월정석 수급에 맞춰 두 배로 올림
+// 윤달 공방은 월정석, 모카 보급품은 기존 기본 환율을 기준으로 환산한 골드를 사용한다.
 export const UPGRADES = Object.freeze({
   power: { name:'무기 연마', base:320, step:60, value:.045, detail:'피해 배율 +4.5%p' },
   vitality: { name:'수호 부적', base:260, step:50, value:7, detail:'최대 체력 +7' },
@@ -21,6 +21,7 @@ export const SUPPLIES = Object.freeze({
   shield:{name:'검은 밤의 방패', cost:90, tier:2, icon:'hat', detail:'8초 동안 접촉 피해 방지'},
   nova:{name:'모카의 비밀 향신료', cost:130, tier:3, icon:'tarot', detail:'주변 적에게 현재 공격력 기준 큰 피해'},
 });
+export const supplyPrice = item => (item.shop || 'moka') === 'gear' ? {currency:'moonstone', amount:item.cost} : {currency:'gold', amount:item.cost * TEMP.MOONSTONE_GOLD};
 export function armory(state) { return state.armory || { upgrades:{}, supplies:{}, skills:{} }; }
 // ── 기술: 0 = 못 배움, 1 이상 = 배움(옛 저장의 기술별 해방 단계는 숫자 그대로 남는다).
 // 10-29 공방 연구(armory.tech): 무기 상한(forge)·보조 상한(charm)은 배운 기술 모두에 공용, 진화 비전(evo)은 무기마다 따로 연다
@@ -125,6 +126,7 @@ export function buySupply(state,id) {
   if(item?.shop==='gear'){const lock=placeLock(state,'gear');if(lock)return {ok:false,reason:lock};}
   if(!item || perkTier(state,'moka')<item.tier)return {ok:false,reason:'모카와 인연을 쌓으면 새 물품이 열려요'};
   if(item?.limit && (armory(state).supplies?.[id]||0)>=item.limit)return {ok:false,reason:id==='tonic'?'회복 수프는 3개까지만 챙길 수 있어요':`${item.name} 최대 보유 ${item.limit}개 · 사용한 뒤 다시 구매할 수 있어요`};
-  if(state.moonstone<item.cost)return {ok:false,reason:`월정석 ${item.cost}개가 필요해요`};
-  const a=ensure(state);state.moonstone-=item.cost;a.supplies[id]=(a.supplies[id]||0)+1;workShop(state);emit('supplyBought',{id});return {ok:true};
+  const price=supplyPrice(item);
+  if((state[price.currency]||0)<price.amount)return {ok:false,reason:price.currency==='gold'?`골드 ${price.amount.toLocaleString()}G가 필요해요`:`월정석 ${price.amount}개가 필요해요`};
+  const a=ensure(state);state[price.currency]-=price.amount;a.supplies[id]=(a.supplies[id]||0)+1;workShop(state);emit('supplyBought',{id});return {ok:true};
 }

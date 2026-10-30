@@ -98,3 +98,4 @@ body[data-editing=true] .toast{font-size:12px;padding:7px 10px}
 @media(max-width:360px){.decor-tools button{font-size:12px;padding:6px 2px}.decor-seg button,.decor-tabs button{font-size:12px}}
 /* 낮은 화면에서 배치 중이면 안내 줄을 접어 [여기에 놓기]가 잘리지 않게 */
 @media(max-height:700px){.decor-screen[data-moving=true] .decor-coach{display:none}.decor-coach p{font-size:11px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.decor-coach{margin-top:6px}.decor-body>.decor-hint{display:none}.decor-head{padding-block:6px}}
+.decor-price-actions{display:flex;flex-direction:column;gap:4px;align-items:stretch}.decor-price-actions button{white-space:nowrap;min-height:44px}
