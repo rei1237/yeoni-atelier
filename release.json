@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.30.6",
-  "name": "연이의 아틀리에 · 달빛 낙뢰와 인연 이야기",
+  "version": "2026.10.30.7",
+  "name": "연이의 아틀리에 · 인연의 카드와 달빛 질주",
   "musicTracks": 103,
   "assetBytes": 17879958,
   "channel": "production",
-  "baseCommit": "cce16e6",
+  "baseCommit": "1c64f73",
   "newTitleArt": true
 }
