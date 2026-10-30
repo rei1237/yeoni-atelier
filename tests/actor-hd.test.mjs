@@ -8,9 +8,9 @@ test('크게 그릴 때만 2배 시트를 받아 원본 셀 좌표를 두 배로
   const originalFetch=globalThis.fetch,originalImage=globalThis.Image;
   try {
     const requests=[],path=ASSETS.actors.neo.path;
-    globalThis.fetch=async()=>({ok:true,json:async()=>({ready:['actors/neo'],hd:[path]})});
+    globalThis.fetch=async()=>({ok:true,json:async()=>({ready:['actors/neo'],hd:[path],ultra:[path]})});
     globalThis.Image=class {
-      set src(p){requests.push(p);this.src_=p;this.width=this.height=p.endsWith('_hd.webp')?1024:512;queueMicrotask(()=>this.onload());}
+      set src(p){requests.push(p);this.src_=p;this.width=this.height=p.endsWith('_ultra.webp')?1536:p.endsWith('_hd.webp')?1024:512;queueMicrotask(()=>this.onload());}
       get src(){return this.src_;}
     };
     await loadAssetImages('assets/manifest.json',{keys:['actors/neo']});
@@ -25,5 +25,8 @@ test('크게 그릴 때만 2배 시트를 받아 원본 셀 좌표를 두 배로
     assert.equal(requests.filter(p=>p.endsWith('_hd.webp')).length,1);
     assert.deepEqual(calls[2].slice(1,5),[256,512,256,256]);
     assert.deepEqual(calls[2].slice(5),calls[1].slice(5),'화면 위치·크기는 그대로');
+    drawActor(ctx,'neo',{...o,size:384});await new Promise(r=>setTimeout(r));drawActor(ctx,'neo',{...o,size:384});
+    assert.equal(requests.filter(p=>p.endsWith('_ultra.webp')).length,1);
+    assert.deepEqual(calls.at(-1).slice(1,5),[384,768,384,384]);
   } finally {globalThis.fetch=originalFetch;globalThis.Image=originalImage;}
 });

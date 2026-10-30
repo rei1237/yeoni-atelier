@@ -11,7 +11,7 @@ export const BOND_IDS = Object.freeze(['neo', 'luna', 'luna_sis', 'moka', ...Obj
 //        patience(음식 기다림 +비율) interestCut(이자 −비율) cookSpeed(조리 시간 −비율)
 //        moonRate(환전 +비율) discount(재료값 −비율) feeCut(배달비 −비율) dailyDew(순마다 밤이슬)
 //        stressResist(직원 스트레스 증가 −비율) stressRecover(휴식·쉼터·결산 회복 +비율)
-//        cookSlots(설비마다 동시 조리 +건) traySlots(픽업 선반 +칸). feeCut 1이면 배달비 0G(무료 배달)
+//        cookSlots(설비마다 동시 조리 +건) queueSlots(설비마다 대기 +건) traySlots(픽업 선반 +칸). feeCut 1이면 배달비 0G(무료 배달)
 // 자동화(홀·주방·농장) 해금은 fx가 아니라 permissions.js 가 인연 단계 + 이야기 기록으로 확인한다.
 export const BONDS = Object.freeze({
   ...CAST_BONDS,
@@ -50,7 +50,7 @@ export const BONDS = Object.freeze({
   luna_sis: {
     name: '루나 언니', place: 'luna', speaker: 'luna_sis',
     // 랭크가 하나 오를 때마다 주문 대기가 조금씩 줄어든다(능력 해방 랭크와 별도로 매 랭크).
-    rankFx: { label: '랭크마다 조리 시간 −2%', fx: { cookSpeed: 0.02 } },
+    rankFx: { label: '랭크마다 조리 시간 −2% · 음료·오븐 대기 +1', fx: { cookSpeed: 0.02, queueSlots: 1 } },
     gift: { id: 'herb_tea', name: '꿀 허브티', cost: 200 },
     perks: [
       { label: '두 번째 냄비 · 설비마다 동시 조리 +1 · 조리 시간 −10% · 휴식 회복 +25%', fx: { cookSlots: 1, cookSpeed: 0.1, stressRecover: 0.25 } },
@@ -115,7 +115,7 @@ export function bondTier(v) {
 
 // 해방된 능력의 합(랭크 기준)
 export function bondFx(state) {
-  const fx = { huntHp: 0, huntDmg: 0, bossMoon: 0, ap: 0, patience: 0, interestCut: 0, cookSpeed: 0, moonRate: 0, discount: 0, feeCut: 0, dailyDew: 0, stressResist: 0, stressRecover: 0, cookSlots: 0, traySlots: 0 };
+  const fx = { huntHp: 0, huntDmg: 0, bossMoon: 0, ap: 0, patience: 0, interestCut: 0, cookSpeed: 0, moonRate: 0, discount: 0, feeCut: 0, dailyDew: 0, stressResist: 0, stressRecover: 0, cookSlots: 0, queueSlots: 0, traySlots: 0 };
   for (const id of BOND_IDS) {
     const t = perkTier(state, id);
     for (const p of BONDS[id].perks.slice(0, t)) for (const [k, v] of Object.entries(p.fx)) fx[k] += v;

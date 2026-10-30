@@ -8,7 +8,8 @@ import { pendingStory } from '../src/game/calendar.js';
 import { BONDS, bondFx } from '../src/data/bonds.js';
 import { cafeCapacity } from '../src/game/capacity.js';
 import { cook } from '../src/game/cafe.js';
-import { runningJobs } from '../src/game/station-slots.js';
+import { runningJobs,queuedJobs } from '../src/game/station-slots.js';
+import { serialize,deserialize } from '../src/core/save.js';
 import { deliveryQuote } from '../src/game/delivery.js';
 import { INGREDIENTS } from '../src/data/menus.js';
 import { quietShift } from './helpers.mjs';
@@ -88,4 +89,17 @@ test('루나 언니 인연은 설비마다 동시 조리를 늘리고, 모카 �
   assert.equal(bondFx(s).dailyDew, 2);
   const at = rank => { s.bondRank.luna_sis = rank; return bondFx(s).cookSpeed; }; // 테스트 준비
   for (const rank of [1, 2, 4, 5, 7, 9]) assert.ok(at(rank) > at(rank - 1), `Rank ${rank}에서도 조리가 빨라진다`);
+});
+
+test('루나 언니 인연 랭크가 오를 때 음료와 오븐 대기 공간이 늘고 저장과 순서를 보존한다',()=>{
+ let s=quietShift();for(const k of Object.keys(INGREDIENTS))s.stock[k]=99;s.learned.yeoni_rose_mille=true;
+ const caps=[];for(const rank of [0,1,3,10]){s.bondRank.luna_sis=rank;caps.push(cafeCapacity(s));}
+ for(let i=1;i<caps.length;i++)assert.ok(caps[i].queueSlots>caps[i-1].queueSlots);
+ s.bondRank.luna_sis=1;const cap=cafeCapacity(s);assert.equal(cap.queueSlots,cap.stationSlots+1);
+ for(const [station,menu] of [['drink','americano'],['oven','yeoni_rose_mille']]){
+  assert.ok(cook(s,menu).started);const before={...s.stock};const a=cook(s,menu),b=cook(s,menu);assert.ok(a.queued&&b.queued);assert.deepEqual(s.stock,before);assert.equal(queuedJobs(s.stations[station]).length,2);assert.equal(cook(s,menu).ok,false);
+  assert.ok(dispatch(s,{type:'cook.cancel',jobId:a.jobId}).ok);assert.equal(queuedJobs(s.stations[station])[0].id,b.jobId);
+  assert.ok(cook(s,menu).queued);assert.equal(queuedJobs(s.stations[station])[0].id,b.jobId);
+ }
+ const restored=deserialize(serialize(s));assert.ok(restored.ok);s=restored.state;assert.equal(cafeCapacity(s).queueSlots,cap.queueSlots);assert.equal(queuedJobs(s.stations.drink).length,2);assert.equal(queuedJobs(s.stations.oven).length,2);
 });

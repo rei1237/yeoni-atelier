@@ -12,7 +12,7 @@ import { PEOPLE } from '../data/companions.js';
 import { bestHelpChoice } from '../data/help.js';
 import { acceptCheck, hostingPreview, topPref, feverCheck, hostingVisits } from './nomination.js';
 import { findServeTarget, stockCheck, staffAvailable } from './cafe.js';
-import { ABILITIES, HALL_ABILITIES, abilityCheck, automationOn } from './permissions.js';
+import { ABILITIES, HALL_ABILITIES, abilityCheck, automationOn, museongKitchenActive } from './permissions.js';
 import { stageCheck } from './fans.js';
 
 // 화면 표시용(상태를 바꾸지 않는다): 잠김·꺼짐·멈춤 사유와 지금 돌아가는지
@@ -21,6 +21,7 @@ export function automationStatus(state, ability) {
   if (!chk.ok) return { locked: true, on: false, running: false, reason: chk.reason };
   const on = !!state.automation?.[ability];
   if (!on) return { locked: false, on, running: false, reason: '꺼져 있어요' };
+  if (ability === 'museong_kitchen') return {locked:false,on,running:museongKitchenActive(state),reason:state.mode !== 'shift' ? '영업 준비 중 · 직원 배치에서 무성을 출근시켜 주세요' : museongKitchenActive(state) ? '루나 언니의 조리를 돕고 있어요' : '출근과 휴무 상태를 확인해 주세요'};
   if (state.resting?.[a.id] || state.dayOff?.[a.id]) return { locked: false, on, running: false, reason: `${PEOPLE[a.id]?.name || a.id}이(가) 지쳐 쉬는 중이라 멈췄어요` };
   if(HALL_ABILITIES.includes(ability) && state.mode==='shift' && !staffAvailable(state,a.id))return {locked:false,on,running:false,reason:state.staff?.[a.id]?.job?.kind==='deliver'||state.staff?.[a.id]?.job?.kind==='clean'?'맡은 홀 일을 마치는 중이에요':'접대·다른 활동 중이거나 출근하지 않아 기다려요'};
   if (ability === 'kitchen' && state.mode === 'shift') {

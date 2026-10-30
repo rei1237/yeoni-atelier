@@ -30,7 +30,7 @@ import {deliverySheet} from './delivery.js';
 import {tableCookingOrders} from '../game/table-cooking.js';
 import { tutorialSheet } from './tutorials.js';
 import { automationStatus } from '../game/auto.js';
-import { ABILITIES, abilityCheck } from '../game/permissions.js';
+import { ABILITIES, abilityCheck, museongKitchenActive } from '../game/permissions.js';
 import { stressCrew, stressOf, stressStage, stressLabel, isResting } from '../game/stress.js';
 import { DEST1NOVA_IDS, fansOf, fanTierName, nextTierAt } from '../game/fans.js';
 import { audioSheet,audioQuickButton } from './audio.js';
@@ -184,7 +184,7 @@ function nominationCard(state, visit, c, now, foodText, ui) {
   out.push(`<div class="host-fee-quote"><span>완료 시 지명료</span><strong>${won(fee)}</strong><small>카페 레벨·인기도·분위기 반영 · 음식값·팁 별도<br>60초 동안 일반 업무를 쉬어요</small></div><p class="host-preview">예상 만족도 <b>${pv.H.toFixed(0)} · ${esc(pv.grade.label)}</b></p><p class="small">요청 대기 ${fmtTime(TEMP.NOMINATION_PATIENCE_MS-(now-visit.requestAt))}</p>`);
   if(!chk.ok)out.push(`<ul class="reasons">${chk.reasons.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`);
   out.push(`<div class="host-accept-actions">${btn({action:'nomination.accept',args:{no:visit.tableNo},cls:'primary',disabled:!chk.ok,label:`${won(fee)} 지명 수락`})}${btn({action:'nomination.decline',args:{no:visit.tableNo},label:'일반 식사로 안내'})}</div>`);
-  const others=usableHosts(state).filter(id=>id!==pid&&state.staff[id]);
+  const others=usableHosts(state).filter(id=>id!==pid&&state.staff[id]&&!(id==='museong'&&museongKitchenActive(state)));
   if(others.length)out.push(`<details class="host-score-details"><summary>다른 동료 추천</summary>${others.map(id=>btn({action:'nomination.propose',args:{no:visit.tableNo,person:id},label:`${esc(personName(state,id))} 추천 · 예상 ${hostingPreview(state,visit,id).H.toFixed(0)}`})).join('')}</details>`);
  }else{
   out.push(`<div class="host-running-summary"><b>완료 시 ${won(fee)} + 음식값·팁</b>${bar((now-visit.acceptAt)/(visit.endAt-visit.acceptAt)*100)}</div>`);
@@ -256,9 +256,9 @@ function kitchenSheet(state, ui) {
       ${state.mode !== 'shift' ? '' : btn({ action: 'cook', args: { menu: id }, cls: waitingBy[id] ? 'primary' : '', disabled: !sc.ok, title: sc.ok ? `${m.name} 만들기` : sc.reason, label: '만들기' })}</div>`;
   }).join('');
   const found = MENU_ORDER.filter(id => state.learned[id]).length;
-  const autoLine = automationRow(state, 'hall') + automationRow(state, 'hall_neo') + automationRow(state, 'kitchen');
-  if (state.mode !== 'shift') return `${head('주방 · 루나 언니')}<p class="small">설비당 동시 ${capacity.stationSlots}건${capacity.stationSlots===1?' · 같은 손님 2건은 병렬':''} · 픽업 ${capacity.traySlots}칸</p><p class="small">카페 Lv.${cafeProgress(state).level} · 레벨에 맞춰 메뉴 판매가가 올라가요.</p>${serviceBanner('kitchen','LUNA’S KITCHEN','따끈한 한 잔, 한 접시','재료를 고르면 제가 맛있게 준비할게요.')}${autoLine}${comboBench(state, ui)}<h3>레시피 노트 ${found}/${MENU_ORDER.length}</h3><div class="list">${menus}</div>`;
-  return `${head('주방 · 루나 언니')}<p class="small">설비당 동시 ${capacity.stationSlots}건${capacity.stationSlots===1?' · 같은 손님 2건은 병렬':''} · 픽업 ${capacity.traySlots}칸</p><p class="small">카페 Lv.${cafeProgress(state).level} · 레벨에 맞춰 메뉴 판매가가 올라가요.</p>${serviceBanner('kitchen','LUNA’S KITCHEN','따끈한 한 잔, 한 접시','포장 주문은 더 빠르게 준비해요.')}${autoLine}${comboBench(state, ui)}${stations}<h3>레시피 노트 ${found}/${MENU_ORDER.length} (재료는 조리 시작 때 사용)</h3><div class="list">${menus}</div>`;
+  const autoLine = automationRow(state, 'hall') + automationRow(state, 'hall_neo') + automationRow(state, 'kitchen') + automationRow(state, 'museong_kitchen');
+  if (state.mode !== 'shift') return `${head('주방 · 루나 언니')}<p class="small">설비당 동시 ${capacity.stationSlots}건${capacity.stationSlots===1?' · 같은 손님 2건은 병렬':''} · 설비별 대기 ${capacity.queueSlots}건 · 픽업 ${capacity.traySlots}칸</p><p class="small">카페 Lv.${cafeProgress(state).level} · 레벨에 맞춰 메뉴 판매가가 올라가요.</p>${serviceBanner('kitchen','LUNA’S KITCHEN','따끈한 한 잔, 한 접시','재료를 고르면 제가 맛있게 준비할게요.')}${autoLine}${comboBench(state, ui)}<h3>레시피 노트 ${found}/${MENU_ORDER.length}</h3><div class="list">${menus}</div>`;
+  return `${head('주방 · 루나 언니')}<p class="small">설비당 동시 ${capacity.stationSlots}건${capacity.stationSlots===1?' · 같은 손님 2건은 병렬':''} · 설비별 대기 ${capacity.queueSlots}건 · 픽업 ${capacity.traySlots}칸</p><p class="small">카페 Lv.${cafeProgress(state).level} · 레벨에 맞춰 메뉴 판매가가 올라가요.</p>${serviceBanner('kitchen','LUNA’S KITCHEN','따끈한 한 잔, 한 접시','포장 주문은 더 빠르게 준비해요.')}${autoLine}${comboBench(state, ui)}${stations}<h3>레시피 노트 ${found}/${MENU_ORDER.length} (재료는 조리 시작 때 사용)</h3><div class="list">${menus}</div>`;
 }
 
 // ── 재료: 모카 식재료점(마을) 또는 영업 중 모카 긴급 배달(배달비 포함). 값 계산은 economy.buy 와 같은 식.
@@ -490,7 +490,7 @@ export function automationRow(state, ability) {
   const st = automationStatus(state, ability), a = ABILITIES[ability], permission=abilityCheck(state,ability);
   const state_ = st.locked ? '🔒 잠김' : st.on ? (st.running ? '켜짐' : '멈춤') : '꺼짐';
   const control = st.locked ? '<span class="small muted">🔒</span>'
-    : btn({ action: 'automation.toggle', args: { ability }, cls: st.on ? 'on' : '', title: st.on ? '끄고 직접 하기' : '켜기', label: st.on ? '자동 켜짐' : '자동 꺼짐' });
+    : btn({ action: 'automation.toggle', args: { ability }, cls: st.on ? 'on' : '', disabled: ability === 'museong_kitchen' && state.mode !== 'prep', title: ability === 'museong_kitchen' ? '영업 준비 중에 변경할 수 있어요' : st.on ? '끄고 직접 하기' : '켜기', label: ability === 'museong_kitchen' ? (st.on ? '보조 켜짐' : '보조 꺼짐') : (st.on ? '자동 켜짐' : '자동 꺼짐') });
   return `<div class="row automation-row${st.locked ? ' locked' : ''}"><span class="grow small"><b>${esc(a.label)}</b> · 지금 Rank ${permission.current} / 필요 Rank ${permission.need} · ${state_}${st.reason && !(st.on && st.running && st.reason === '돌아가는 중') ? ` · ${esc(st.reason)}` : ''}</span>${control}</div>`;
 }
 
@@ -571,7 +571,7 @@ function confirmDialog(cf) {
 }
 
 function titleDialog(ui) {
- return `<section class="title-screen" role="dialog" aria-modal="true" aria-labelledby="game-title" style="${assetStyle('backgrounds/title')}"><div class="title-wordmark"><div class="title-emblem" aria-hidden="true">${pixelIcon("cup")}</div><h1 id="game-title"><span>연이의</span><strong>아틀리에</strong></h1><p>차 한 잔에서 시작되는 우리의 이야기</p></div><div class="title-cast" role="img" aria-label="인간형 연이와 네오, 루나 자매와 모카"><div class="title-friends">${['luna_sis','moka','luna'].map(id=>`<span class="title-friend ${id}">${assetIcon('portraits/'+id)}</span>`).join('')}</div><span class="title-lead neo">${assetIcon('portraits/neo')}</span><span class="title-lead yeoni">${assetIcon('portraits/yeoni')}</span><span class="title-flower left">${assetIcon('ui/botanical_left')}</span><span class="title-flower right">${assetIcon('ui/botanical_right')}</span></div><div class="title-menu px-menu">${ui.hasSave?pxBtn('game.continue','px-main','cup','이야기 이어하기','arrow'):pxBtn('game.new','px-main','cup','나의 카페 열기','arrow')}${ui.hasSave?pxBtn('game.new','px-sub','spark','새로운 이야기'):''}${pxBtn('game.prologue',ui.hasSave?'px-sub':'px-sub px-wide','book','처음 만나는 이야기')}${pxBtn('lore.open','px-sub px-wide px-lore','crew','등장인물 · 재성의 섬 이야기','arrow')}${titleGameRoom()}${pxBtn('game.install','px-sub px-sage','home','홈 화면에 추가')}${pxBtn('game.exit','px-sub','moon','종료하기')}<details class="title-options px-options"><summary>${pixelIcon('note')}<span>음악 · 저장 설정</span></summary><div class="px-options-row">${audioQuickButton()}${btn({action:'game.reset',disabled:!ui.hasSave,label:'저장 초기화'})}</div></details>${!ui.storageOk?'<p role="status">브라우저 저장이 제한되어 새로고침하면 진행이 사라져요.</p>':''}${ui.hostDemo?'<small>호스트 체험 · 5월 개업 완료 · 본편/개발 저장과 별도</small>':ui.dev?'<small>개발 모드 · 일반 저장과 분리</small>':''}</div></section>`;
+ return `<section class="title-screen" role="dialog" aria-modal="true" aria-labelledby="game-title" style="${assetStyle('backgrounds/title')}"><div class="title-wordmark"><div class="title-emblem" aria-hidden="true">${pixelIcon("cup")}</div><h1 id="game-title"><span>연이의</span><strong>아틀리에</strong></h1><p>차 한 잔에서 시작되는 우리의 이야기</p></div><div class="title-art" role="img" aria-label="꽃이 가득한 카페에 모인 연이와 친구들" style="${assetStyle('backgrounds/title')}"></div><div class="title-cast" role="img" aria-label="인간형 연이와 네오, 루나 자매와 모카"><div class="title-friends">${['luna_sis','moka','luna'].map(id=>`<span class="title-friend ${id}">${assetIcon('portraits/'+id)}</span>`).join('')}</div><span class="title-lead neo">${assetIcon('portraits/neo')}</span><span class="title-lead yeoni">${assetIcon('portraits/yeoni')}</span><span class="title-flower left">${assetIcon('ui/botanical_left')}</span><span class="title-flower right">${assetIcon('ui/botanical_right')}</span></div><div class="title-menu px-menu">${ui.hasSave?pxBtn('game.continue','px-main','cup','이야기 이어하기','arrow'):pxBtn('game.new','px-main','cup','나의 카페 열기','arrow')}${ui.hasSave?pxBtn('game.new','px-sub','spark','새로운 이야기'):''}${pxBtn('game.prologue',ui.hasSave?'px-sub':'px-sub px-wide','book','처음 만나는 이야기')}${pxBtn('lore.open','px-sub px-wide px-lore','crew','등장인물 · 재성의 섬 이야기','arrow')}${titleGameRoom()}${pxBtn('game.install','px-sub px-sage','home','홈 화면에 추가')}${pxBtn('game.exit','px-sub','moon','종료하기')}<details class="title-options px-options"><summary>${pixelIcon('note')}<span>음악 · 저장 설정</span></summary><div class="px-options-row">${audioQuickButton()}${btn({action:'game.reset',disabled:!ui.hasSave,label:'저장 초기화'})}</div></details>${!ui.storageOk?'<p role="status">브라우저 저장이 제한되어 새로고침하면 진행이 사라져요.</p>':''}${ui.hostDemo?'<small>호스트 체험 · 5월 개업 완료 · 본편/개발 저장과 별도</small>':ui.dev?'<small>개발 모드 · 일반 저장과 분리</small>':''}</div></section>`;
 }
 
 function pausedDialog(state) {

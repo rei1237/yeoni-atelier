@@ -622,5 +622,16 @@
     "assets/illustrated/enemies/shade_hand.webp",
     "assets/illustrated/enemies/shade_wisp.webp",
     "assets/illustrated/enemies/thorn.webp"
+  ],
+  "ultra": [
+    "assets/illustrated/actors/yeoni.webp",
+    "assets/illustrated/actors/yeoni_cheer.webp",
+    "assets/illustrated/actors/yeoni_cook_bake.webp",
+    "assets/illustrated/actors/yeoni_cook_drink.webp",
+    "assets/illustrated/actors/yeoni_farm.webp",
+    "assets/illustrated/actors/yeoni_idle.webp",
+    "assets/illustrated/actors/yeoni_idle_left.webp",
+    "assets/illustrated/actors/yeoni_idle_right.webp",
+    "assets/illustrated/actors/yeoni_pig.webp"
   ]
 }

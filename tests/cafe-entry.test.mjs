@@ -6,6 +6,7 @@ import {serialize,deserialize} from '../src/core/save.js';
 import {cafeLayout} from '../src/data/layout.js';
 import {validateLayout} from '../src/game/space.js';
 import {sheetHtml} from '../src/ui/sheets.js';
+import {prepSpots} from '../src/render/cafe-view.js';
 
 test('새 카페는 입구 계산대와 유효한 서빙 통로로 시작한다',()=>{
  const s=createGame(),layout=cafeLayout(s);
@@ -15,14 +16,15 @@ test('새 카페는 입구 계산대와 유효한 서빙 통로로 시작한다'
  assert.deepEqual(s.staff.yeoni.home,layout.spots.yeoniHome);
 });
 
-test('준비 중 옛 저장은 가구 충돌이 없을 때만 입구 계산대로 옮긴다',()=>{
- const s=createGame();delete s.interior.checkoutLayout;
- const furniture=structuredClone(s.interior.furniture),gold=s.gold;
- let n=deserialize(serialize(s)).state;
- assert.equal(cafeLayout(n).id,'entrance-left');assert.deepEqual(n.interior.furniture,furniture);assert.equal(n.gold,gold);
- s.interior.furniture.push({uid:'entrance-plant',defId:'plant',x:2,y:14,rot:0});
- n=deserialize(serialize(s)).state;
- assert.equal(cafeLayout(n).id,'legacy');assert.deepEqual(n.interior.furniture,s.interior.furniture);
+test('준비 중 저장은 다시 불러와도 계산대 배치와 가구를 보존한다',()=>{
+ for(const layout of [undefined,'legacy','entrance','entrance-left']){
+  const s=createGame();if(layout===undefined)delete s.interior.checkoutLayout;else s.interior.checkoutLayout=layout;
+  const furniture=structuredClone(s.interior.furniture),gold=s.gold,expected=cafeLayout(s).id;
+  const n=deserialize(serialize(s)).state;
+  assert.equal(cafeLayout(n).id,expected);assert.deepEqual(n.interior.furniture,furniture);assert.equal(n.gold,gold);
+  assert.deepEqual(cafeLayout(n).spots.yeoniHome,cafeLayout(s).spots.yeoniHome);
+  const home=cafeLayout(n).spots.yeoniHome;assert.deepEqual(prepSpots(n).yeoni,{x:home.x+.5,y:home.y+.5});
+ }
 });
 
 test('카페 및 보행 지도에서 상점 상세를 열어도 구형 지도가 재등장하지 않는다',()=>{

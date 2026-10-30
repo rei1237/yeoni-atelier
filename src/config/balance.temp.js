@@ -20,7 +20,8 @@ export const TEMP = Object.freeze({
   SPAWN_FIRST_MS: 4000,
   SPAWN_INTERVAL_MS: Object.freeze([16000, 30000]),
   CLOSING_MS: 30000,          // TEMP 사용자 요청 2026-10-28: 끝나기 30초 전부터 입장 마감, 직원은 설거지·청소로 마무리
-  NOMINATE_CHANCE: 0.38,
+  NOMINATE_CHANCE: 0.20,       // TEMP: 일반 손님이 중심인 호스트 카페
+  NOMINATE_OVERLAP_FACTOR: 0.2, // TEMP: 지명 요청·접대가 겹칠 확률을 낮춘다
   ORDER_THINK_MS: 3000,       // 착석 후 주문까지
   EAT_MS: 26000,              // 일반 손님 식사 시간
   FOOD_PATIENCE_MS: 150000,   // 주문 후 이 시간 안에 못 받으면 떠남(매출 없음)
@@ -46,6 +47,7 @@ export const TEMP = Object.freeze({
     hall: Object.freeze({ id: 'luna', tier: 2, label: '루나 홀 자동 · 서빙·정리' }),
     hall_neo: Object.freeze({ id: 'neo', tier: 2, label: '네오 홀 자동 · 서빙·정리' }), // TEMP: 홀 보조는 루나와 같은 ♥2, 농장 ♥3과 별개
     kitchen: Object.freeze({ id: 'luna_sis', tier: 2, label: '주방 자동 · 대기 주문 조리' }),
+    museong_kitchen: Object.freeze({ id: 'museong', tier: 1, label: '무성 주방 보조 · 조리 시간 −10%', requireRecruit: true }),
     farm: Object.freeze({ id: 'neo', tier: 3, label: '농장 맡기기 · 수확·재파종·물·돌봄' }),
   }),
   EXTRA_ORDER_AT_MS: 20000,  // 추가 주문 시점(수락 기준)
@@ -189,7 +191,7 @@ export const TEMP = Object.freeze({
     HOST_GREAT: 6, HOST_GOOD: 3,                 // 접대 정산 만족도 80+ / 60+ 팬
     TIP_PER_TIER: 0.15,                          // 단계당 팁·지명료 배율 +15%
     NOMINATE_WEIGHT_PER_TIER: 0.5,               // 지명 대상 가중치(단계당)
-    NOMINATE_CHANCE_PER_TIER: 0.01, NOMINATE_CHANCE_MAX: 0.55, // 지명 확률(접대 동료 단계 합당)
+    NOMINATE_CHANCE_PER_TIER: 0.01, NOMINATE_CHANCE_MAX: 0.30, // 지명 확률(접대 동료 단계 합당)
   }),
   STAGE: Object.freeze({
     DURATION_MS: 30 * 1000,                      // 영업 600초 안의 공연 구간

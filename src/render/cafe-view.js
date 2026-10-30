@@ -200,7 +200,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
     }
     if(state.stage?.activeUntil!=null)actors.push(...stageLineup(state,actors,opts.reducedMotion));
   } else if (state.mode === 'prep' || state.mode === 'settlement') {
-    const personalJob=state.foodGifts?.job?.maker==='yeoni'?state.foodGifts.job:null,spot=prepSpots(state);
+    const personalJob=state.foodGifts?.job?.maker==='yeoni'?state.foodGifts.job:null,spot=prepSpots(state,editing);
     actors.push({ key: 'yeoni', x: spot.yeoni.x, y: spot.yeoni.y, o: { cooking:personalJob?cookingPose(personalJob,MENUS[personalJob.menuId].station,opts.reducedMotion):null,state:personalJob?'cook':'idle', facing: personalJob?layout.yeoniFacing:'down', name: '연이', ...outfitLook(state, 'yeoni') } });
     for (const id of STAFF_CREW) {
       actors.push({ key: id, x: spot[id].x, y: spot[id].y, o: { state: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'cook':'idle',cooking:id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?cookingPose(state.foodGifts?.job,MENUS[state.foodGifts?.job?.menuId]?.station,opts.reducedMotion):null, facing: id==='luna_sis'&&state.foodGifts?.job?.maker==='luna_sis'?'up':'down', name: PEOPLE[id].name, ...outfitLook(state, id) } });
@@ -244,8 +244,8 @@ export function yeoniIdleFacing(state,s,layout=cafeLayout(state)){
 }
 
 // 준비·정산 화면에서 서 있는 자리(칸 가운데). 준비 시간 잡담 말풍선(cafe-talk.js)도 이 자리를 기준점으로 쓴다
-export function prepSpots(state){
-  const job=state.foodGifts?.job?.maker==='yeoni',y=job?SPOTS.drinkFront:SPOTS.yeoniHome,out={yeoni:{x:y.x+.5,y:y.y+.5}};
+export function prepSpots(state,preview=false){
+  const spots=cafeLayout(state,preview).spots,job=state.foodGifts?.job?.maker==='yeoni',y=job?spots.drinkFront:spots.yeoniHome,out={yeoni:{x:y.x+.5,y:y.y+.5}};
   for(const id of STAFF_CREW){const h=id==='luna'?SPOTS.lunaHome:SPOTS.sisHome;out[id]={x:h.x+.5,y:h.y+.5};}
   const hosts=assignedHosts(state);
   if(hosts.includes('neo')&&state.people.neo?.activity==='idle')out.neo={x:SPOTS.neoHome.x+.5,y:SPOTS.neoHome.y+.5};

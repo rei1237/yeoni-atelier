@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHostDemo,HOST_DEMO_SAVE_KEY} from '../src/game/host-demo.js';
 import {createGame} from '../src/game/state.js';
+import {assignedHosts} from '../src/game/capacity.js';
+import {nextSpec} from '../src/game/shift.js';
+import {prepSpots} from '../src/render/cafe-view.js';
 import {dispatch,tick} from '../src/game/engine.js';
 import {SAVE_KEYS,serialize,deserialize,memoryStorage,saveGame} from '../src/core/save.js';
 import {seat} from './helpers.mjs';
@@ -47,4 +50,23 @@ test('지명 손님은 여성 외형만 사용하고 일반 손님 다양성과 
  const s=createHostDemo();dispatch(s,{type:'shift.start'});s.shift.nextSpawnAt=Number.MAX_SAFE_INTEGER;const a=seat(s);assert.ok(NOMINATION_LOOKS.includes(s.customers[a.cid].look));
  s.customers[a.cid].look=7;delete s.customers[a.cid].nominationGuest;
  const loaded=deserialize(serialize(s));assert.ok(loaded.ok);assert.ok(NOMINATION_LOOKS.includes(loaded.state.customers[a.cid].look));assert.equal(loaded.state.visits[a.vid].kind,'nomination');
+});
+
+test('체험은 합류 멤버 전원을 선택할 수 있고 세 명이 출근한다',()=>{
+ const s=createHostDemo();for(const id of ['neo','solv','bambi','lune','raven'])assert.ok(s.roster[id]);
+ assert.deepEqual(assignedHosts(s),['neo','solv','bambi']);for(const id of assignedHosts(s))assert.ok(prepSpots(s)[id]);
+ assert.ok(dispatch(s,{type:'shift.start'}).ok);for(const id of ['neo','solv','bambi'])assert.ok(s.staff[id]);assert.equal(s.staff.lune,undefined);
+});
+test('기존 체험 저장은 한 번만 동료를 보강하고 사용자가 바꾼 배치는 유지한다',()=>{
+ const s=createHostDemo();delete s.meta.hostDemoCrewV1;delete s.roster.lune;delete s.people.lune;s.staffing={selected:['raven']};
+ assert.ok(dispatch(s,{type:'hostDemo.prepare'}).changed);assert.ok(s.roster.lune);assert.deepEqual(s.staffing.selected,['raven']);
+ assert.equal(dispatch(s,{type:'hostDemo.prepare'}).changed,false);
+ const normal=createGame();assert.equal(dispatch(normal,{type:'hostDemo.prepare'}).changed,false);assert.equal(normal.roster.solv,undefined);
+});
+test('일반 손님이 우세하고 요청 중인 지명의 중복은 드물다',()=>{
+ const s=createHostDemo();assert.ok(dispatch(s,{type:'shift.start'}).ok);s.shift.scriptIndex=99;s.shift.spawnCount=0;
+ const sample=()=>Array.from({length:5000},()=>nextSpec(s)).filter(x=>x.kind==='nomination').length;
+ const ordinary=sample();s.customers.example={state:'requesting',visitId:'v'};s.visits.v={kind:'nomination'};const overlap=sample();
+ assert.ok(ordinary>700&&ordinary<1300,`지명 ${ordinary}`);assert.ok(overlap<ordinary*.3,`겹침 ${overlap}/${ordinary}`);
+ s.people.neo.activity='hosting';for(let i=0;i<500;i++){const x=nextSpec(s);assert.notEqual(x.nominee,'neo');}
 });

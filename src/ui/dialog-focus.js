@@ -29,7 +29,7 @@ export function installDialogFocus() {
       else if(!e.shiftKey && (document.activeElement===last||!current.contains(document.activeElement))){e.preventDefault();first.focus();}
     }
     if(e.key==='Escape') {
-      const close=current.querySelector('[data-action="confirm.no"], [data-action="sheet.close"], [data-action="craft.cancel"]');
+      const close=current.querySelector('[data-action="confirm.no"], [data-action="lore.close"], [data-action="sheet.close"], [data-action="craft.cancel"]');
       if(close){e.preventDefault();close.click();}
     }
   },true);

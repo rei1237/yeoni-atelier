@@ -220,3 +220,35 @@ body[data-mode] .lore-dialog h2 .lore-close.lore-close{flex:none;width:40px;heig
 .lore-gaiden{margin-top:14px;padding:12px;background:var(--dp-sage);box-shadow:var(--dp-edge)}
 .lore-note{margin:12px 0 0;color:#6f5560}
 .lore-cta{display:block;margin-top:14px;padding:12px;text-align:center;text-decoration:none;background:var(--dp-blush);color:var(--dp-rose-lo);box-shadow:var(--dp-tile)}
+
+/* 인물 소개: 기존 카페 색을 유지하면서 소개와 외전 구분을 선명하게 한다. */
+.lore-dialog{max-height:min(86dvh,820px);overflow-y:auto;overscroll-behavior:contain;padding:20px;background:#fffaf0;border:1px solid #ddcdb4;border-radius:18px;box-shadow:0 14px 42px #48382e33}
+.lore-dialog h2{position:sticky;top:-20px;z-index:2;margin:-20px -20px 14px;padding:18px 20px 12px;background:#fffaf0;line-height:1.35}
+.lore-section{margin:22px 0 10px;color:#853d4d;font-size:16px}
+.lore-intro{margin:0 0 12px;color:#705762;font-size:13px;line-height:1.6;word-break:keep-all}
+.lore-cast{grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:10px}
+.lore-card{border:1px solid #e1cdb6;border-radius:12px;box-shadow:none;background:#fffdf7;gap:12px;padding:12px}
+.lore-face{border-radius:10px;background:#f7e5e6}.lore-story li{border-radius:10px;box-shadow:none;border:1px solid #e1cdb6}.lore-gaiden{border-radius:10px;box-shadow:none}.lore-cta{border-radius:10px;box-shadow:none;line-height:1.4}
+@media(max-width:360px){.lore-dialog{padding:16px}.lore-dialog h2{top:-16px;margin:-16px -16px 12px;padding:14px 16px 10px}.lore-card{grid-template-columns:60px 1fr}.lore-face,.lore-face img{width:60px;height:60px}}
+
+/* 모바일 메인: 그림과 메뉴를 별도 영역에 놓아 인물 위를 가리지 않는다. */
+.title-art{display:none}
+@media(max-width:700px){
+ .title-screen{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;align-content:start;gap:0;height:100dvh;overflow-y:auto;padding:0 0 max(20px,env(safe-area-inset-bottom));background:#fff9f0!important}
+ .title-screen::before{display:none}
+ .title-screen .title-wordmark{grid-column:1;grid-row:1;padding:20px 16px 14px;background:#fff9f0}.title-screen .title-emblem{margin-bottom:8px}.title-screen .title-wordmark h1{margin:0;font-size:clamp(28px,8vw,36px)}.title-screen .title-wordmark p{margin:6px 0 0}
+ .title-art{display:block;grid-column:1;grid-row:2;width:100%;aspect-ratio:2/3;background-position:center;background-size:contain;background-repeat:no-repeat;background-color:#f5e8dc}
+ .title-screen .title-menu.px-menu{grid-column:1;grid-row:3;justify-self:center;align-self:start;width:min(100% - 36px,390px);margin:18px 0 0;gap:10px 8px}
+ .title-screen .px-menu .px-btn{min-height:48px}.title-screen .px-menu .px-main{min-height:54px}.title-screen .px-menu .px-sub:not(.px-wide){min-height:52px;flex-direction:row}
+}
+
+/* 좁은 화면에서도 안내 시트와 닫기 버튼이 화면 밖으로 밀리지 않는다. */
+@media(max-width:700px){.sheet-wrap>.sheet{min-width:0;max-width:100vw}.sheet h2{min-width:0;overflow-wrap:anywhere}.sheet h2 .close{flex:none}.guide-picture{max-width:100%}}
+
+.sheet h2 .guide-title{flex:1;min-width:0;word-break:normal;overflow-wrap:anywhere}
+
+@media(max-width:480px) and (min-height:501px){
+ body[data-mode=prep][data-cafe-focus=true] #panel .cafe-utility-line{flex:1 0 100%}
+ body[data-mode=prep][data-cafe-focus=true] #panel .cafe-opening{flex:1 0 100%;min-width:0}
+ body[data-mode=prep][data-cafe-focus=true] #panel .cafe-opening .cafe-open{min-width:0;width:100%}
+}

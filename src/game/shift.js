@@ -17,8 +17,9 @@ import { nextRandom, randRange } from '../core/rng.js';
 import { chargeInterest, advanceTurn, calendarOf } from './calendar.js';
 import { checkCreditor } from './creditor.js';
 import { workShift } from './bonds.js';
-import { settleStress, stressOf } from './stress.js';
-import { canUse } from './permissions.js';
+import { settleStress, stressOf, isResting } from './stress.js';
+import { prepareHostDemo } from './host-demo-roster.js';
+import { canUse, museongKitchenActive } from './permissions.js';
 import { delegateCheck, delegateFarm } from './farm-delegate.js';
 
 // 첫 영업의 손님 순서(온보딩): 일반 손님 → 외모 중심 지명 → 재미 중심 지명
@@ -40,6 +41,7 @@ export function startCheck(state) {
 export function startShift(state) {
   const chk = startCheck(state);
   if (!chk.ok) return { ok: false, reason: chk.reasons[0], reasons: chk.reasons };
+  if(state.meta?.hostDemo)prepareHostDemo(state);
   // 농장 맡기기를 켜 두었으면 문을 열기 전에 네오가 밭을 한 번 돌보고 온다(사냥을 다녀온 순·이미 맡긴 순은 건너뜀)
   if (state.automation?.farm && canUse(state, 'farm')) {
     const d = delegateCheck(state);
@@ -64,20 +66,22 @@ export function startShift(state) {
   return { ok: true };
 }
 
-function nextSpec(state) {
+export function nextSpec(state) {
   const sh = state.shift;
   if(sh.spawnCount>=2 && nextRandom(state.rng)<takeawayChance(state))return {kind:'takeaway'};
   if (!state.hostbar.open) return { kind: 'regular' };
+  const hosts = usableHosts(state).filter(id => state.staff[id] && !(id === 'museong' && museongKitchenActive(state)) && !isResting(state,id) && stressOf(state,id)<100 && state.people[id]?.activity==='idle');
+  const overlap=Object.values(state.customers).some(c=>['entering','requesting','hosted'].includes(c.state) && state.visits[c.visitId]?.kind==='nomination' && !state.visits[c.visitId]?.settled);
+  const canNominate=hosts.length && sh.elapsedMs < lastAcceptAt(state)-20000;
   if (sh.scriptIndex < FIRST_SHIFT_SCRIPT.length) {
     const spec = { ...FIRST_SHIFT_SCRIPT[sh.scriptIndex++] };
-    if (spec.kind === 'nomination') spec.nominee = 'neo';
+    if(spec.kind!=='nomination')return spec;
+    if(!canNominate || overlap && nextRandom(state.rng)>=TEMP.NOMINATE_OVERLAP_FACTOR)return {kind:'regular'};
+    spec.nominee=hosts.includes('neo')?'neo':pickNominee(state,hosts);
     return spec;
   }
-  const hosts = usableHosts(state).filter(id => state.staff[id]);
-  // 지명 요청은 아직 수락할 시간이 남아 있을 때만 생긴다. 지명 대상은 접대 가능한 동료뿐이다.
-  const canNominate = hosts.length && sh.elapsedMs < lastAcceptAt(state) - 20000;
-  // 인기 단계가 높은 동료일수록 지명이 늘고 그 동료를 더 자주 찾는다(fans.js)
-  if (canNominate && nextRandom(state.rng) < nominateChance(state, hosts)) return { kind: 'nomination', nominee: pickNominee(state, hosts) };
+  const chance=nominateChance(state,hosts)*(overlap?TEMP.NOMINATE_OVERLAP_FACTOR:1);
+  if (canNominate && nextRandom(state.rng) < chance) return { kind: 'nomination', nominee: pickNominee(state, hosts) };
   return { kind: 'regular' };
 }
 
@@ -168,6 +172,7 @@ export function closeSettlement(state) {
   state.shift = null;
   state.day += 1;
   advanceTurn(state);
+  if(state.meta?.hostDemo)prepareHostDemo(state);
   ensureRecordPlayer(state);
   return { ok: true };
 }

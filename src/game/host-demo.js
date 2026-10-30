@@ -4,6 +4,7 @@ import {dispatch} from './engine.js';
 import {pendingStory} from './calendar.js';
 import {ABILITIES} from './permissions.js';
 import {TEMP} from '../config/balance.temp.js';
+import {prepareHostDemo} from './host-demo-roster.js';
 export const HOST_DEMO_SAVE_KEY='yeoni-atelier.host-demo.v1';
 export function createHostDemo(){
  const s=createGame({seed:20261028});
@@ -18,6 +19,7 @@ export function createHostDemo(){
   for(let tier=1;tier<=a.tier;tier++)s.ledger.story[`bond:${a.id}:${tier}`]=true;
   const r=dispatch(s,{type:'automation.toggle',ability,on:true});if(!r.ok)throw Error(r.reason);
  }
+ prepareHostDemo(s);
  s.tutorials={firstday:true,firstdayintro:true,opening:true,cook:true,serve:true};
  return s;
 }

@@ -27,7 +27,7 @@ for group,size,margin in [('actors',128,6),('wardrobe',256,8),('enemies',128,6)]
     previous=x+w
    if previous!=im.width:errors.append(path.name+': 원본 마지막 프레임 누락')
    continue
-  base=path.stem[:-3] if path.stem.endswith('_hd') else path.stem
+  base=path.stem[:-6] if path.stem.endswith('_ultra') else path.stem[:-3] if path.stem.endswith('_hd') else path.stem
   cw,ch=cells.get(f'{group}/{base}') or (size,size)
   k,m=1,margin
   if base!=path.stem: # 데스크톱 HD 시트는 같은 이름 원본 시트와 같은 격자를 배율만큼 키운 것

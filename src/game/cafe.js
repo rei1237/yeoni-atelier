@@ -5,7 +5,7 @@ import {maybeDemand} from './counter-demand.js';
 import {cafeCapacity,assignedHosts} from './capacity.js';
 import {activeSlotNames,heldKey,runningJobs,queuedJobs,stationJobs,stationItems} from './station-slots.js';
 export {stationJobs,stationItems} from './station-slots.js';
-import { HALL_ABILITIES, ABILITIES, hallAutomationOn } from './permissions.js';
+import { HALL_ABILITIES, ABILITIES, hallAutomationOn, museongKitchenActive } from './permissions.js';
 import {qualityForTiming,qualityOf,foodScore} from '../data/cooking-quality.js';
 import { customerLook, pickLook } from '../data/customer-looks.js';
 import {wealthEligible} from './cafe-growth.js';
@@ -177,16 +177,16 @@ export function cook(state, menuId, orderId=null, timing) {
   if (!chk.ok) return { ok: false, reason: chk.reason };
   // 루나 언니 친밀도 능력: 조리 시간 단축
   const takeaway=state.visits[state.orders[orderId]?.visitId]?.kind==='takeaway';
-  const job = { id: nextId(state, 'job'), menuId, orderId, quality:qualityForTiming(timing,menuId), durationMs: Math.round(m.cookMs * (1 - bondFx(state).cookSpeed)*(takeaway?.55:1)) };
+  const job = { id: nextId(state, 'job'), menuId, orderId, quality:qualityForTiming(timing,menuId), durationMs: Math.round(m.cookMs * (1 - bondFx(state).cookSpeed)*(museongKitchenActive(state)?0.9:1)*(takeaway?.55:1)) };
   const capacity=cafeCapacity(state);
   const slots=['current','parallel',...Array.from({length:Math.max(0,capacity.stationSlots-2)},(_,i)=>'slot'+(i+2))];
   if(capacity.stationSlots>1){for(const slot of slots){if(!st[slot]&&!st[heldKey(slot)]&&!queuedJobs(st).length){startJob(state,m.station,job,slot);return {ok:true,started:true,jobId:job.id};}}}
   if (!st.current && !st.held && !queuedJobs(st).length) { startJob(state, m.station, job); return { ok: true, started: true, jobId:job.id }; }
   // 같은 손님의 두 주문은 같은 설비에서도 별도 슬롯에서 함께 조리한다.
   if(orderId && st.current?.orderId && state.orders[st.current.orderId]?.visitId===state.orders[orderId].visitId && !st.parallel && !st.parallelHeld){startJob(state,m.station,job,'parallel');return {ok:true,started:true,parallel:true,jobId:job.id};}
-  if (!st.next) { st.next = job; emit('cookQueued', { station: m.station, menuId }); return { ok: true, queued: true, jobId:job.id }; }
-  if(queuedJobs(st).length<capacity.stationSlots){(st.queue??=[]).push(job);return {ok:true,queued:true,jobId:job.id};}
-  return { ok: false, reason: `${STATION_NAMES[m.station]} 대기열이 가득 찼습니다 (대기 ${capacity.stationSlots}건)` };
+  if (!st.next && !queuedJobs(st).length) { st.next = job; emit('cookQueued', { station: m.station, menuId }); return { ok: true, queued: true, jobId:job.id }; }
+  if(queuedJobs(st).length<capacity.queueSlots){(st.queue??=[]).push(job);return {ok:true,queued:true,jobId:job.id};}
+  return { ok: false, reason: `${STATION_NAMES[m.station]} 대기열이 가득 찼습니다 (대기 ${capacity.queueSlots}건)` };
 }
 
 // 시작 전인 다음 작업 취소: 재료를 아직 쓰지 않았으므로 돌려줄 것도 없다
@@ -194,7 +194,7 @@ export function cancelNext(state, sid) {
   const st = state.stations[sid];
   if (!st?.next) return { ok: false, reason: '취소할 다음 작업이 없습니다' };
   emit('cookCancelled', { station: sid, menuId: st.next.menuId, reason: '다음 작업 취소' });
-  st.next = null;
+  st.next = (st.queue||[]).shift()||null;
   return { ok: true };
 }
 
@@ -238,7 +238,7 @@ export function cancelCook(state,jobId){
    for(const [id,n] of Object.entries(MENUS[job.menuId].ingredients))state.stock[id]=(state.stock[id]||0)+n;
    state.shift.ingredientCost-=ingredientCostOf(job.menuId);state.ledger.cookRefunds[job.id]=true;
   }
-  st[slot]=null;emit('cookCancelled',{station:sid,menuId:job.menuId,reason:'선택한 조리 취소'});return {ok:true};
+  st[slot]=slot==='next'?(st.queue||[]).shift()||null:null;emit('cookCancelled',{station:sid,menuId:job.menuId,reason:'선택한 조리 취소'});return {ok:true};
  }
  return {ok:false,reason:'취소할 조리가 없습니다'};
 }
@@ -375,6 +375,7 @@ export function requestClean(state, tableNo, autoHall=false) {
 // ── 직원
 export function staffAvailable(state, id) {
   const s = state.staff[id];
+  if (id === 'museong' && museongKitchenActive(state)) return false;
   if (!s || (s.job && s.job.kind !== 'home') || s.actionUntil > state.shift.elapsedMs || isResting(state, id)) return false;
   const work = PEOPLE[id]?.work;
   if (work) return work === 'runner'; // 연이(계산)·루나 언니(굽기)는 운반하지 않는다
@@ -515,8 +516,12 @@ function stepBaker(state, s, dt) {
   }
   const recent=id=>Math.max(...runningJobs(state.stations[id]).map(j=>j.startedAt||0));
   const busy = STATION_IDS.filter(id => runningJobs(state.stations[id]).length).sort((a,b)=>recent(b)-recent(a));
-  const sid = busy[0] || null;
-  const goal = sid ? STATION_FRONT[sid] : s.home;
+  const sid = (s.id === 'museong' ? busy.find(id => id !== state.staff.luna_sis?.job?.sid) : null) || busy[0] || null;
+  let goal = sid ? STATION_FRONT[sid] : s.home;
+  if (sid && s.id === 'museong') {
+    const grid = getGrid(state), front = goal;
+    goal = [{x:front.x+1,y:front.y},{x:front.x-1,y:front.y},{x:front.x,y:front.y+1}].find(p => grid.walkable(p.x,p.y) && findPath(grid,{x:Math.floor(s.x),y:Math.floor(s.y)},p)) || s.home;
+  }
   const j = s.job;
   if (!j || j.kind !== 'station' || j.goal.x !== goal.x || j.goal.y !== goal.y) {
     s.job = { kind: 'station', sid, goal: { ...goal } };
@@ -530,7 +535,7 @@ export function stepStaff(state, dt) {
   const now = state.shift.elapsedMs;
   assignTasks(state);
   for (const s of Object.values(state.staff)) {
-    if (PEOPLE[s.id]?.work === 'baker') { stepBaker(state, s, dt); continue; }
+    if (PEOPLE[s.id]?.work === 'baker' || (s.id === 'museong' && museongKitchenActive(state))) { stepBaker(state, s, dt); continue; }
     if (isResting(state, s.id) && (s.job?.kind === 'deliver' || s.job?.kind === 'clean')) handOver(state, s);
     const arrived = moveAlong(state, s, dt, TEMP.WALK_TILES_PER_S);
     const j = s.job;

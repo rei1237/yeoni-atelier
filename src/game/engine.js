@@ -1,3 +1,4 @@
+import {prepareHostDemo} from './host-demo-roster.js';
 import {orderDelivery} from './delivery.js';
 import {cookTable} from './table-cooking.js';
 import {gainYeoni,equipYeoniTitle,registerYeoniMenu} from './yeoni-growth.js';
@@ -87,6 +88,7 @@ function execute(state, cmd) {
       if (cmd.sim !== true) return { ok: false, reason: '전체 자동은 시뮬레이션 전용이에요. 홀·주방 자동은 인연으로 열려요' };
       state.auto = cmd.on ?? !state.auto; state.autoFever = cmd.fever ?? 'stage'; // 시뮬 봇: 'stage'(무대 우선)·'fever'·'off'
       return { ok: true, auto: state.auto };
+    case 'hostDemo.prepare': return {ok:true,changed:prepareHostDemo(state)};
     case 'staffing.select': return selectStaff(state,cmd.id,cmd.on);
     case 'automation.toggle': return toggleAutomation(state, cmd.ability, cmd.on);
     case 'staff.dayOff': return setDayOff(state, cmd.id, cmd.on);

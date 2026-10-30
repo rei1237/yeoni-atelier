@@ -51,7 +51,7 @@ test('성장 매출은 실제 주문 서빙 원장에 한 번만 반영한다',(
 test('새 카운터와 이전 저장의 안전한 이전은 가구·지갑을 보존한다',()=>{
  const s=createGame();assert.equal(cafeLayout(s).id,'entrance-left');assert.ok(validateLayout(s.interior.furniture,[],cafeLayout(s)).ok);
  delete s.interior.checkoutLayout;const furniture=structuredClone(s.interior.furniture),gold=s.gold;const restored=deserialize(serialize(s)).state;
- assert.equal(cafeLayout(restored).id,'entrance-left');assert.deepEqual(restored.interior.furniture,furniture);assert.equal(restored.gold,gold);
+ assert.equal(cafeLayout(restored).id,'legacy');assert.deepEqual(restored.interior.furniture,furniture);assert.equal(restored.gold,gold);
  s.interior.furniture.find(f=>f.uid==='plant1').x=2;s.interior.furniture.find(f=>f.uid==='plant1').y=14;
  const blocked=deserialize(serialize(s)).state;assert.equal(cafeLayout(blocked).id,'legacy');assert.deepEqual(blocked.interior.furniture,s.interior.furniture);
 });

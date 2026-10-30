@@ -5,6 +5,7 @@ import {patronTipMultiplier,hostRevenueMultiplier} from '../data/customer-wealth
 // 지명 접대: 요청 → (수락 검사) → 수락 순간부터 해당 영업의 접대 시간 → 정산 1회 → 동료 해제.
 // 요청과 수락은 다른 상태다. 요청만으로는 동료를 예약하지 않고 타이머도 시작하지 않는다.
 
+import { museongKitchenActive } from './permissions.js';
 import { RULES, STAT_KEYS } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
 import { MENUS } from '../data/menus.js';
@@ -59,6 +60,7 @@ export function acceptCheck(state, tableNo) {
   if (c.state === 'entering') reasons.push('손님이 아직 자리에 앉는 중입니다');
   else if (c.state !== 'requesting') reasons.push(visit.acceptAt != null ? '이미 수락된 지명입니다' : '지명 요청 상태가 아닙니다');
   const pid = visit.nominee;
+  if (pid === 'museong' && museongKitchenActive(state)) reasons.push('무성이 주방을 돕고 있어 접대할 수 없어요');
   if (isResting(state, pid) || (stressOf(state, pid) >= 100 && !(pid==='neo'&&catCafeActive(state)))) reasons.push(`${personName(state, pid)}이(가) 한계에 닿아 이번 영업의 새 지명을 쉬고 있습니다`);
   if (!isUsableHost(state, pid)) reasons.push(`${personName(state, pid)}은(는) 아직 접대할 수 없는 동료입니다`);
   else if (!state.staff[pid]) reasons.push(`${personName(state, pid)}은(는) 이번 영업에 출근하지 않았습니다`);
@@ -129,6 +131,7 @@ export function propose(state, tableNo, personId) {
   const c = customerAt(state, tableNo);
   const visit = visitAt(state, tableNo);
   if (!visit || visit.kind !== 'nomination' || c.state !== 'requesting') return { ok: false, reason: '대기 중인 지명 요청이 없습니다' };
+  if (personId === 'museong' && museongKitchenActive(state)) return {ok:false, reason:'무성이 주방을 돕고 있어요'};
   if (personId === visit.nominee) return { ok: false, reason: '이미 지명된 동료입니다' };
   if (!isUsableHost(state, personId) || !state.staff[personId]) return { ok: false, reason: '추천할 수 있는 동료가 아닙니다' };
   visit.nominee = personId;

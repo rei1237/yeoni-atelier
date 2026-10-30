@@ -32,20 +32,23 @@ test('윤달·모카·서한비·무성의 지정 월 이벤트는 1회 영입, 
     assert.equal(recruitView(later).find(v => v.id === c.id).status, 'available', '3개월 뒤 다시 온다');
   }
 });
-test('아홉 접대 동료가 모두 영입되어도 가게 안의 통로에서 출근한다', () => {
+test('영입된 접대 동료는 3명씩 배치해 가게 안의 통로에서 출근한다', () => {
   const s = createGame();
   for (const c of [...MONTHLY_CAST, ...DEST1NOVA_CAST]) {
     s.day = 1 + ((c.month + 9) % 12) * 3 + 36*((c.condition.year||1)-1);unlock(s);
     assert.ok(dispatch(s, { type: 'recruit.complete', id: c.id }).ok);
   }
   s.day = 180; s.hostbar.open = true;
-  // 최대 지점 공간을 확보한 뒤 전원 출근·통로를 검증한다.
   s.interior.areas=AREAS.map(a=>a.id);
-  assert.ok(dispatch(s, { type: 'shift.start' }).ok);
-  assert.ok(validateLayout(s.interior.furniture, []).ok);
-  for (const id of Object.keys(s.roster)) {
-    assert.ok(s.staff[id]);
-    assert.ok(s.staff[id].x >= 0 && s.staff[id].x < 12 && s.staff[id].y >= 0 && s.staff[id].y < 16);
+  const ids=Object.keys(s.roster);
+  for(let i=0;i<ids.length;i+=3){
+    const selected=ids.slice(i,i+3),day=structuredClone(s);day.staffing={selected};
+    assert.ok(dispatch(day, { type: 'shift.start' }).ok);assert.ok(validateLayout(day.interior.furniture, []).ok);
+    for (const id of selected) {
+      assert.ok(day.staff[id]);
+      assert.ok(day.staff[id].x >= 0 && day.staff[id].x < 12 && day.staff[id].y >= 0 && day.staff[id].y < 16);
+    }
+    assert.equal(Object.keys(day.staff).length,selected.length+3);
   }
 });
 test('개별 능력치·이야기가 다르고 새 게임의 활동 명단은 네오만이다', () => {

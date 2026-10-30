@@ -121,7 +121,7 @@ function resize() {
 }
 new ResizeObserver(resize).observe(el.stage);
 resize();
-loadAssetImages(undefined,{onProgress:(done,total)=>{const p=document.getElementById('boot-progress');if(p){p.max=total||1;p.value=done;}const copy=document.getElementById('boot-copy');if(copy)copy.textContent=`찻잔과 친구들을 준비하고 있어요. ${done} / ${total}`;}}).then(()=>{document.getElementById('boot-screen')?.remove();applyAssetTheme();render(true);});
+loadAssetImages(undefined,{onProgress:(done,total)=>{const p=document.getElementById('boot-progress');if(p){p.max=total||1;p.value=done;}const count=document.getElementById('boot-count');if(count)count.textContent=total?`${Math.round(done/total*100)}%`:'';}}).then(()=>{document.getElementById('boot-screen')?.remove();applyAssetTheme();render(true);});
 
 const joystick = createJoystick(el.canvas, { radius: 56 });
 
@@ -408,6 +408,7 @@ const ACTIONS = {
     const r = loadGame(storage, SAVE_KEY);
     if (!r.ok) { toast(r.reason, 'bad'); return; }
     state = r.state;
+    if(HOST_DEMO&&state.meta?.hostDemo)dispatch(state,{type:'hostDemo.prepare'});
     ui.worldAt=WORLD_PLACES.some(x=>x.id===state.worldLocation)?state.worldLocation:'atelier';
     ui.sheet = null; ui.selectedSlot = null;
     save(); // 프롤로그 생략 마이그레이션을 다음 새로고침에도 유지한다.
@@ -619,7 +620,7 @@ document.addEventListener('click', e => {
   }
   const fn = ACTIONS[action];
   if (!fn) { console.warn('unknown action', action); return; }
-  if (!state && !action.startsWith('game.') && !action.startsWith('confirm.') && !action.startsWith('audio.')) return;
+  if (!state && !action.startsWith('game.') && !action.startsWith('confirm.') && !action.startsWith('audio.') && !action.startsWith('lore.')) return;
   unlockAudio(); sound('tap');
   fn(b.dataset);
   render(true);

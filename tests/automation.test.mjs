@@ -12,6 +12,7 @@ import { sendHome } from '../src/game/cafe.js';
 import { talkCheck } from '../src/game/bonds.js';
 import { bondQuestion } from '../src/data/bond-dialogues.js';
 import { BOND_STORIES } from '../src/story/bonds.js';
+import { castBondStory } from '../src/story/career.js';
 import { quietShift, seat, tickTo, unlockAutomation, enableAutomation } from './helpers.mjs';
 
 const cmd = (s, type, args = {}) => dispatch(s, { type, ...args });
@@ -156,7 +157,7 @@ test('인연 대화는 답을 고를 때만 행동력을 쓰고, 답 순서는 �
 
 test('자동화를 여는 인연 이야기는 그 해금을 알리고, 이야기 속 선택지마다 이어지는 대답이 있다', () => {
   for (const a of Object.values(TEMP.AUTOMATION)) {
-    const beats = BOND_STORIES[a.id][a.tier - 1];
+    const beats = BOND_STORIES[a.id]?.[a.tier - 1] || castBondStory(a.id, a.tier);
     assert.ok(beats.some(b => b.s === 'sys' && b.t.includes('해금')), `${a.id} ♥${a.tier} 해금 고지`);
   }
   for (const id of ['neo', 'luna', 'luna_sis']) for (const beats of BOND_STORIES[id]) {

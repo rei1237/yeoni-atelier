@@ -7,7 +7,7 @@ import {assetIcon} from './asset-html.js';
 import {btn,esc} from './dom.js';
 export function hostDeskHtml(s){
  if(!s.hostbar.open)return '';
- if(s.mode==='prep')return `<div class="host-desk host-prep"><b>${s.meta.hostDemo?'호스트 체험 카페':'호스트 카페'}</b><span>${s.meta.hostDemo?'홀·주방 자동 · 지명과 SOS에 집중해 보세요':'지명 손님을 맞을 동료를 준비해요'}</span>${btn({action:'sheet.open',args:{sheet:'staffing'},label:'배치'})}${btn({action:'sheet.open',args:{sheet:'outfits'},label:'의상'})}</div>`;
+ if(s.mode==='prep')return `<div class="host-desk host-prep"><b>${s.meta.hostDemo?'호스트 체험 카페':'호스트 카페'}</b><span>${s.meta.hostDemo?'멤버가 미리 합류한 체험 · 호스트 최대 3명':'지명 손님을 맞을 동료를 준비해요'}</span>${btn({action:'sheet.open',args:{sheet:'staffing'},label:'배치'})}${btn({action:'sheet.open',args:{sheet:'outfits'},label:'의상'})}</div>`;
  if(s.mode!=='shift')return '';
  const stage=stageCheck(s).ok||stageActive(s)?btn({action:'stage.perform',cls:'host-stage'+(stageActive(s)?' active':''),disabled:stageActive(s),label:`<span><b>${stageActive(s)?'무대 공연 중':'🎤 무대 공연'}</b><small>${stageActive(s)?`×${s.stage.power} · ${Math.max(0,Math.ceil((s.stage.activeUntil-s.shift.elapsedMs)/1000))}초`:'게이지 가득 · 30초 무대'}</small></span>`}):'';
  const visits=Object.values(s.visits).filter(v=>v.kind==='nomination'&&!v.settled&&Object.values(s.customers).some(c=>c.visitId===v.id&&['requesting','hosted'].includes(c.state)));

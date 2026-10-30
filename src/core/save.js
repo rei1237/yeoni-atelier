@@ -1,6 +1,4 @@
 import {ensureRecordPlayer} from '../game/music-furniture.js';
-import {validateLayout} from '../game/space.js';
-import {cafeLayout} from '../data/layout.js';
 import {normalizeKfp} from '../game/kfp-loadout.js';
 import {migrateFurniture} from '../data/layout.js';
 import {migrateHuntVisits} from '../game/hunt-visits.js';
@@ -54,10 +52,7 @@ function migrate(data) {
   if (data.ledger?.story?.['ev:hunt'] && (data.stats?.huntsCompleted || 0) >= 3) { data.ledger.story['ev:return'] ??= true; if ((data.hunter?.maxStage || 1) > 6) data.ledger.story['ev:forge'] ??= true; }
   ensureBranches(data);
   migrateFurniture(data);
-  if(data.mode==='prep'&&(!data.interior.checkoutLayout||data.interior.checkoutLayout==='entrance')){
-    const candidate={...data,interior:{...data.interior,checkoutLayout:'entrance-left'}};
-    if(validateLayout(data.interior.furniture,data.interior.areas||[],cafeLayout(candidate)).ok)data.interior.checkoutLayout='entrance-left';
-  }
+  // 불러올 때 사용자가 쓰던 계산대 배치를 바꾸지 않는다. 값이 없는 저장은 기존 배치다.
   migrateCounter(data);
   ensureRecordPlayer(data);
   data.startingDebt ??= 120000; // 이전 저장의 원금과 상환 진척은 보존

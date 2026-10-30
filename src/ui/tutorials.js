@@ -1,5 +1,5 @@
 import { btn,esc } from './dom.js';
-import { assetIcon } from './asset-html.js';
+import { ASSETS } from '../render/assets.js';
 import {firstDayStep} from '../game/first-day.js';
 import {shortIngredients} from '../game/delivery.js';
 export const GUIDES = Object.freeze({
@@ -13,7 +13,7 @@ export const GUIDES = Object.freeze({
  growth:{title:'레벨과 칭호',image:'bonds',steps:['연이 레벨과 카페 레벨은 따로 성장해요. 연이는 직접 활동으로, 카페는 영업으로 성장해요.','획득한 칭호를 눌러 달 수 있어요. 칭호는 꾸밈용이며 성장 효과를 중복해서 더하지 않아요. 행동력 증가는 다음 순부터 적용돼요.']},
  world:{title:'재성의 섬 산책',image:'shop',steps:['장소를 누르면 연이가 걸어가요. 도착한 장소의 버튼으로 가게나 농장에 들어가요.','아직 잠긴 장소에는 열리는 조건이 표시돼요. 카페로 돌아와 영업을 시작할 수 있어요.']},
  branches:{title:'카페 지점 관리',image:'interior',steps:['지점마다 개설 조건과 비용을 확인해요. 구매한 지점은 영업 준비 중에 이동할 수 있어요.','진행 중인 요리를 마치고 이동해 주세요. 새 지점을 열어도 기존 지점의 배치는 보존돼요.']},
- staffing:{title:'직원 배치',image:'host',steps:['함께하는 동료 중 카페에서 일할 직원을 선택해요. 배치 가능한 인원과 공간을 확인해요.','동료의 인연 능력과 휴무 상태를 함께 살펴보세요. 자동 운영은 필요한 인연 단계와 이야기를 마친 뒤 켤 수 있어요.']},
+ staffing:{title:'직원 배치',image:'host',steps:['함께하는 동료 중 카페에서 일할 직원을 선택해요. 배치 가능한 인원과 공간을 확인해요.','동료의 인연 능력과 휴무 상태를 함께 살펴보세요. 자동 운영은 필요한 인연 단계와 이야기를 마친 뒤 켤 수 있어요.','무성을 영입하고 인연 Rank 3 이야기를 보면 주방 보조를 켤 수 있어요. 영업 준비 중 출근 배치하면 루나 언니를 도와 조리가 10% 빨라지며, 그 영업에는 지명 접대를 쉬어요.']},
  recipe:{title:'레시피 수첩',image:'cook',steps:['메뉴별 재료와 배운 레시피를 확인해요. 손님 주문은 영업 중에 만들어요.','영업 전 여분 음식은 연이의 주방에서 만들어요. 특별 메뉴는 성장과 첫 완성 조건을 채워 등록해요.']},
  exchange:{title:'월정석 환전',image:'finance',steps:['사냥에서 가져온 월정석은 청토끼 금융 센터에서 골드로 바꿔요. 맨 위 환전 칸에 1개당 받을 골드가 적혀 있어요.','10·100·1000·전부 버튼이나 −·+로 개수를 골라요. 받을 골드와 환전 뒤 남는 월정석이 바로 아래에 미리 보여요.','개수 환전하기 버튼을 누르면 골드가 바로 들어와요. 환전·대출·상환에는 행동력이 들지 않아요. 월정석은 나중에 윤달 공방 강화에도 쓰니 조금 남겨 둬도 좋아요.']},
  finance:{title:'장부와 금융',image:'finance',steps:['보유 골드와 남은 빚, 상환 조건을 확인해요. 표시된 비용을 확인한 뒤 필요한 거래를 골라요.','금융 거래와 재료 구매에는 행동력이 들지 않아요. 월정석과 골드는 서로 다른 재화예요.']},
@@ -62,5 +62,5 @@ export function guideForContext(s,ui){
 export function journeyHtml(s){const step=firstDayStep(s);return step?`<section class="first-day-guide" aria-label="첫날 실습 안내"><div><small>연이의 첫날 · ${s.mode==='prep'?'영업 준비':'첫 영업'}</small><b>${esc(step.title)}</b><p>${esc(step.text)}</p></div>${btn({action:step.action,args:step.args||{},cls:'primary',label:step.label})}</section>`:'';}
 export function tutorialSheet(ui) {
  const id=GUIDES[ui.guideId]?ui.guideId:'cook',g=GUIDES[id],step=Math.min(ui.guideStep||0,g.steps.length-1);
- return `<h2>${ui.guideReturn?'처음 만나는 '+g.title:'튜토리얼'}${btn({action:'guide.close',cls:'close ghost',label:'✕',title:'안내 닫기'})}</h2>${ui.guideReturn?'':`<label class="guide-selector">다시 볼 기능<select id="guide-selector">${Object.entries(GUIDES).map(([key,x])=>`<option value="${key}" ${key===id?'selected':''}>${esc(x.title)}</option>`).join('')}</select></label>`}<div class="guide-picture">${assetIcon(`guides/${g.image}`)}</div><p class="eyebrow">${step+1} / ${g.steps.length}</p><h3>${esc(g.title)}</h3><p class="guide-instruction">${esc(g.steps[step])}</p><div class="row">${step?btn({action:'guide.back',label:'이전'}):''}${btn({action:'guide.next',cls:'primary grow',label:step===g.steps.length-1?'시작하기':'다음'})}</div><p class="small muted">기타 → 튜토리얼에서 언제든 다시 볼 수 있어요.</p>`;
+ return `<h2><span class="guide-title">${ui.guideReturn?'처음 만나는 '+g.title:'튜토리얼'}</span>${btn({action:'guide.close',cls:'close ghost',label:'✕',title:'안내 닫기'})}</h2>${ui.guideReturn?'':`<label class="guide-selector">다시 볼 기능<select id="guide-selector">${Object.entries(GUIDES).map(([key,x])=>`<option value="${key}" ${key===id?'selected':''}>${esc(x.title)}</option>`).join('')}</select></label>`}<div class="guide-picture">${ASSETS.guides?.[g.image]?.path?`<img class="pixel-icon" src="${esc(ASSETS.guides[g.image].path)}" alt="" loading="eager">`: ''}</div><p class="eyebrow">${step+1} / ${g.steps.length}</p><h3>${esc(g.title)}</h3><p class="guide-instruction">${esc(g.steps[step])}</p><div class="row">${step?btn({action:'guide.back',label:'이전'}):''}${btn({action:'guide.next',cls:'primary grow',label:step===g.steps.length-1?'시작하기':'다음'})}</div><p class="small muted">기타 → 튜토리얼에서 언제든 다시 볼 수 있어요.</p>`;
 }
