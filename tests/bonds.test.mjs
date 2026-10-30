@@ -103,3 +103,12 @@ test('루나 언니 인연 랭크가 오를 때 음료와 오븐 대기 공간�
  }
  const restored=deserialize(serialize(s));assert.ok(restored.ok);s=restored.state;assert.equal(cafeCapacity(s).queueSlots,cap.queueSlots);assert.equal(queuedJobs(s.stations.drink).length,2);assert.equal(queuedJobs(s.stations.oven).length,2);
 });
+
+test('합류한 윤달·무성·서한비·데스티노바는 매 인연 랭크마다 각자의 효과가 더해진다',async()=>{
+ const {castBondStory}=await import('../src/story/career.js');const ids=['yun','museong','seohanbi','solv','bambi','lune','raven'];
+ for(const id of ids){const s=createGame(),b=BONDS[id],key=Object.keys(b.rankFx.fx)[0],step=b.rankFx.fx[key];s.bondRank[id]=1;const before=bondFx(s)[key];
+  s.roster[id]={usableFrom:s.day};const after=bondFx(s)[key];assert.ok(Math.abs(after-before-step)<1e-8,`${id} 합류 후 적용`);
+  for(let rank=1;rank<=10;rank++){s.bondRank[id]=rank;const v=bondFx(s)[key];s.bondRank[id]=rank-1;assert.ok(bondFx(s)[key]<v,`${id} Rank ${rank}`);}
+  for(let tier=1;tier<=4;tier++)assert.ok(castBondStory(id,tier)?.length>5,`${id} 이야기 ${tier}`);
+ }
+});

@@ -21,7 +21,7 @@ test('무성의 일부 가구만 월정석 구매를 허용하며 기존 골드 
  assert.ok(dispatch(s,{type:'expand.decor',defId:'moon_lamp'}).ok);assert.equal(s.gold,10000-TEMP.DECOR_PRICES.moon_lamp);
 });
 
-test('윤달 공방은 강화와 상한만 월정석을 쓰고 나머지 상품은 골드를 쓴다',async()=>{
+test('윤달 공방은 강화와 상한·진화 비전에 월정석을 쓰고 상품은 골드를 쓴다',async()=>{
  const {armorySheet}=await import('../src/ui/armory.js');const {GEAR}=await import('../src/data/gear.js');const {upgradeCost,skillCost,techNext}=await import('../src/game/moka-armory.js');
  const s=createGame();s.hunter.maxStage=20;s.moonstone=10000;s.gold=100000;
  assert.ok(Object.values(GEAR).every(g=>g.cost.gold&&!g.cost.moonstone));
@@ -30,15 +30,15 @@ test('윤달 공방은 강화와 상한만 월정석을 쓰고 나머지 상품�
  let moon=s.moonstone,gold=s.gold;assert.ok(dispatch(s,{type:'armory.learn',id:'crescent'}).ok);assert.equal(s.gold,gold-skillCost('crescent'));assert.equal(s.moonstone,moon);
  gold=s.gold;assert.ok(dispatch(s,{type:'gear.buy',id:'crescent_wand'}).ok);assert.equal(s.gold,gold-GEAR.crescent_wand.cost.gold);assert.equal(s.moonstone,moon);
  assert.ok(dispatch(s,{type:'armory.tech',line:'forge'}).ok);assert.ok(dispatch(s,{type:'armory.tech',line:'forge'}).ok);moon=s.moonstone;gold=s.gold;
- assert.ok(dispatch(s,{type:'armory.tech',line:'evo',id:'crescent'}).ok);assert.equal(s.gold,gold-TEMP.HUNT_SKILLS.TECH.evo.cost[0]);assert.equal(s.moonstone,moon);
+ assert.ok(dispatch(s,{type:'armory.tech',line:'evo',id:'crescent'}).ok);assert.equal(s.gold,gold);assert.equal(s.moonstone,moon-TEMP.HUNT_SKILLS.TECH.evo.cost[0]);
  const html=armorySheet(s,{armoryTab:'upgrade'});assert.match(html,/달빛 발걸음/);assert.doesNotMatch(html,/월광 수집기/);
 });
 
-test('달빛 발걸음은 이동 속도를 높이고 기존 수집기 강화는 저장 후에도 보존한다',async()=>{
+test('달빛 발걸음은 이동 속도를 높이고 기존 수집기 강화 단계를 이어받는다',async()=>{
  const {enhancementBonus}=await import('../src/game/moka-armory.js');const s=createGame();s.huntUnlocked=true;s.hunter.maxStage=7;s.moonstone=1000;s.armory.upgrades.neo={magnet:3};
- assert.equal(enhancementBonus(s,'neo').magnet,.10500000000000001);assert.equal(enhancementBonus(s,'neo').speed,0);
- assert.ok(dispatch(s,{type:'armory.enhance',who:'neo',id:'stride'}).ok);assert.equal(enhancementBonus(s,'neo').speed,.015);
- const re=deserialize(serialize(s)).state;assert.equal(enhancementBonus(re,'neo').magnet,enhancementBonus(s,'neo').magnet);assert.equal(enhancementBonus(re,'neo').speed,.015);
- assert.ok(dispatch(re,{type:'hunt.start'}).ok);assert.ok(Math.abs(re.hunt.gear.speed-1.015)<1e-8);
+ assert.equal(enhancementBonus(s,'neo').magnet,0);assert.equal(enhancementBonus(s,'neo').speed,.045);
+ assert.ok(dispatch(s,{type:'armory.enhance',who:'neo',id:'stride'}).ok);assert.equal(enhancementBonus(s,'neo').speed,.06);
+ const re=deserialize(serialize(s)).state;assert.equal(enhancementBonus(re,'neo').magnet,enhancementBonus(s,'neo').magnet);assert.equal(enhancementBonus(re,'neo').speed,.06);
+ assert.ok(dispatch(re,{type:'hunt.start'}).ok);assert.ok(Math.abs(re.hunt.gear.speed-1.06)<1e-8);
  const capped=createGame();capped.hunter.maxStage=7;capped.moonstone=100000;capped.armory.upgrades.neo={stride:40};const before=capped.moonstone;assert.equal(dispatch(capped,{type:'armory.enhance',who:'neo',id:'stride'}).ok,false);assert.equal(capped.moonstone,before);
 });

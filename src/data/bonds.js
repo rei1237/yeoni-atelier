@@ -119,7 +119,7 @@ export function bondFx(state) {
   for (const id of BOND_IDS) {
     const t = perkTier(state, id);
     for (const p of BONDS[id].perks.slice(0, t)) for (const [k, v] of Object.entries(p.fx)) fx[k] += v;
-    for (const [k, v] of Object.entries(BONDS[id].rankFx?.fx || {})) fx[k] += v * bondRank(state, id);
+    if(!BONDS[id].requiresRecruit || state.roster?.[id]) for (const [k, v] of Object.entries(BONDS[id].rankFx?.fx || {})) fx[k] += v * bondRank(state, id);
   }
   for (const [key, cap] of Object.entries({cookSpeed:.5,discount:.4,feeCut:1,interestCut:.5,patience:.6,stressResist:.5,stressRecover:1})) fx[key] = Math.min(cap, fx[key]);
   return fx;

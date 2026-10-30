@@ -232,8 +232,8 @@ test('공방 연구: armory.learn은 배우기만, armory.tech는 무기·보조
   assert.ok(dispatch(s, { type: 'armory.tech', line: 'forge' }).ok); assert.ok(dispatch(s, { type: 'armory.tech', line: 'charm' }).ok);
   assert.equal(dispatch(s, { type: 'armory.tech', line: 'forge' }).ok, false, '끝까지 연구');
   assert.match(dispatch(s, { type: 'armory.tech', line: 'evo', id: 'tarot' }).reason, /배워/, '못 배운 무기의 진화는 거절');
-  const m = s.gold, ev = dispatch(s, { type: 'armory.tech', line: 'evo', id: 'crescent' });
-  assert.ok(ev.ok && s.gold === m - T.evo.cost[0] && evoKnown(s, 'crescent') && !evoKnown(s, 'bolt'));
+  const m = s.moonstone, ev = dispatch(s, { type: 'armory.tech', line: 'evo', id: 'crescent' });
+  assert.ok(ev.ok && s.moonstone === m - T.evo.cost[0] && evoKnown(s, 'crescent') && !evoKnown(s, 'bolt'));
   assert.match(dispatch(s, { type: 'armory.tech', line: 'evo', id: 'bolt' }).reason, new RegExp(`${T.evo.stage[1]}단계`), '두 번째 비전은 더 깊은 단계');
   assert.ok(T.evo.cost.every((c, i) => !i || c > T.evo.cost[i - 1]), '진화 비전은 갈수록 비싸다');
   assert.ok(dispatch(s, { type: 'hunt.start', depth: 1 }).ok);

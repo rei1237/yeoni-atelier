@@ -36,3 +36,12 @@ for (const [id, bond] of Object.entries(CAST_BONDS)) bond.speaker = id;
 // 가게 주인은 자기 가게에서 만나 이야기한다(영입 전에도)
 CAST_BONDS.yun.place = 'gear';
 CAST_BONDS.museong.place = 'expand';
+
+// 합류한 뒤 매 랭크 적용되는 게임 외전 효과(TEMP).
+Object.assign(CAST_BONDS.yun,{rankFx:{label:'랭크마다 재료값 −0.2%',fx:{discount:.002}}});
+Object.assign(CAST_BONDS.seohanbi,{rankFx:{label:'랭크마다 사냥 HP +2',fx:{huntHp:2}}});
+Object.assign(CAST_BONDS.museong,{rankFx:{label:'랭크마다 조리 시간 −0.4%',fx:{cookSpeed:.004}}});
+Object.assign(CAST_BONDS.solv,{rankFx:{label:'랭크마다 사냥 피해 +1%',fx:{huntDmg:.01}}});
+Object.assign(CAST_BONDS.bambi,{rankFx:{label:'랭크마다 음식 기다림 +0.5%',fx:{patience:.005}}});
+Object.assign(CAST_BONDS.lune,{rankFx:{label:'랭크마다 월정석 환전 +0.5%',fx:{moonRate:.005}}});
+Object.assign(CAST_BONDS.raven,{rankFx:{label:'랭크마다 보스 월정석 +1.5%',fx:{bossMoon:.015}}});

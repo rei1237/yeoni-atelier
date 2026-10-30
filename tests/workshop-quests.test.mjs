@@ -3,3 +3,13 @@ const ready=()=>{const s=createGame();s.huntUnlocked=true;s.stats.huntsCompleted
 test('윤달 부탁은 7~10단계마다 하나씩: 순차 수락·그 단계 보스 클리어·저장복원·보상1회',()=>{let s=ready();const initial=s.gold;assert.equal(workshopQuestView(createGame()).length,0,'공방이 닫혀 있으면 부탁도 없다');for(let i=0;i<4;i++){let q=workshopQuestView(s).find(q=>!q.claimed);assert.ok(q);assert.equal(q.stage,7+i);assert.ok(dispatch(s,{type:'workshop.quest',id:q.id,action:'accept'}).ok);assert.equal(dispatch(s,{type:'workshop.quest',id:q.id,action:'accept'}).ok,false);assert.equal(workshopQuestView(s).find(x=>x.id===q.id).progress,0);assert.match(dispatch(s,{type:'workshop.quest',id:q.id,action:'claim'}).reason,new RegExp(q.stage+'단계'));s.hunter.maxStage=q.stage+1;s=deserialize(serialize(s)).state;assert.ok(dispatch(s,{type:'workshop.quest',id:q.id,action:'claim'}).ok);assert.equal(dispatch(s,{type:'workshop.quest',id:q.id,action:'claim'}).ok,false);assert.equal(s.ledger.rewards['workshop:'+q.id],true);}assert.equal(s.gold-initial,1900);});
 test('실제 강화 명령은 공방 진행 카운터1회, 실패는 증가하지 않음',()=>{const s=ready();s.moonstone=0;assert.equal(dispatch(s,{type:'armory.enhance',id:'power',who:'neo'}).ok,false);assert.equal(s.stats.workshopEnhances,undefined);s.moonstone=1000;assert.ok(dispatch(s,{type:'armory.enhance',id:'power',who:'neo'}).ok);assert.equal(s.stats.workshopEnhances,1);});
 test('공방·업적의 초반 서한비 이름·떡밥 미노출, 첫 정식 이야기 뒤 공개',()=>{const s=ready();assert.equal(hiddenGuestQuest(s).revealed,false);for(const armoryTab of ['upgrade','skills','quests'])assert.doesNotMatch(armorySheet(s,{armoryTab}),/서한비|붉은 봉인|검은 발자국/);assert.doesNotMatch(huntPrepSheet(s,{huntMenu:'achieve'}),/서한비/);s.ledger.story['hanbi:30']=true;assert.equal(hiddenGuestQuest(s).revealed,true);assert.match(huntPrepSheet(s,{huntMenu:'achieve'}),/서한비/);});
+
+test('도달하지 못한 단계의 부탁과 잠긴 공방의 합류 부탁은 수락할 수 없다',()=>{
+ const s=ready();s.quests.workshop={yun_stage7:{acceptedDay:1,claimed:true}};s.hunter.maxStage=7;
+ const q=workshopQuestView(s).find(q=>q.id==='yun_stage8');assert.equal(q.acceptable,false);
+ const before=JSON.stringify(s);assert.match(dispatch(s,{type:'workshop.quest',id:q.id,action:'accept'}).reason,/8단계/);assert.equal(JSON.stringify(s),before);
+ const html=armorySheet(s,{armoryTab:'quests'});assert.match(html,/8단계에 먼저 도달/);assert.match(html,/aria-disabled="true"/);
+ s.hunter.maxStage=8;assert.ok(dispatch(s,{type:'workshop.quest',id:q.id,action:'accept'}).ok);
+ const locked=createGame();locked.yunQuest={gold:10000,moonstone:0,status:'locked'};assert.equal(dispatch(locked,{type:'yun.quest'}).ok,false);assert.equal(locked.yunQuest.status,'locked');
+ locked.hunter.maxStage=7;locked.interior.draft={};assert.equal(dispatch(locked,{type:'yun.quest'}).ok,false);assert.equal(locked.yunQuest.status,'locked');
+});

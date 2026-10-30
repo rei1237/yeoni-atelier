@@ -98,7 +98,7 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
   const saved=state.hunter.builds?.[hunterId];
   const hp = H.PLAYER_HP + gear.hp + (saved?.passives?.fish_stock||0)*20 + (saved?.kfp?.passives?.heart||0)*20;
   state.hunt = normalizeHunt({
-    id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: null, hunterId, hp, maxHp: hp, gear,
+    id: nextId(state, 'hunt'), elapsedMs: 0, durationMs: null, hunterId, hp, maxHp: hp, gear, legacyCollectorConverted:true,
     bag: { moonstone: 0 }, kills: 0, status: 'running', depth, careerLevel, careerXP: 0,
     caps: Object.fromEntries(SKILL_IDS.map(id => [id, skillCap(id, skillRank(state, id), capLevels(state))])), // 출발 때 고정한 공용 상한
     evoOk: Object.fromEntries(Object.keys(WEAPONS).map(id => [id, evoKnown(state, id)])), // 출발 때 고정한 진화 비전(옛 진행 중 사냥은 없음 = 허용)
@@ -170,7 +170,7 @@ export function mods(hs) {
 }
 export const catnipLeft = hs => Math.max(0, (hs.catnipUntil || 0) - (hs.elapsedMs || 0));
 function baseMods(hs) {
-  if(hs.hunterId==='yeoni_pig'){const p=kfpPlayerStats(hs),old=hs.kfp.legacy?hs.passives:{};return {dmg:p.might,speed:p.speed*(1+.1*(old.paw||0)),area:p.area*(1+.15*(old.hat||0)),cool:p.cooldown*(1-.08*(old.bell||0)),magnet:p.magnet*(1+.3*(old.whisker||0)),crit:p.crit+.05*(old.luck||0)};}
+  if(hs.hunterId==='yeoni_pig'){const p=kfpPlayerStats(hs),old=hs.kfp.legacy?hs.passives:{};return {dmg:p.might,speed:p.speed*(1+.1*(old.paw||0)),area:p.area*(1+.15*(old.hat||0)),cool:p.cooldown*(1-.08*(old.bell||0)),magnet:p.magnet,crit:p.crit+.05*(old.luck||0)};}
   const p = hs.passives;
   const g = hs.gear || gearBonus();
   return {
@@ -178,7 +178,7 @@ function baseMods(hs) {
     speed: (1 + 0.1 * (p.paw || 0)) * g.speed,
     area: 1 + 0.15 * (p.hat || 0),
     cool: 1 - 0.08 * (p.bell || 0),
-    magnet: (1 + 0.3 * (p.whisker || 0)) * g.magnet,
+    magnet: g.magnet,
     crit: H.CRIT_BASE + 0.05 * (p.luck || 0),
   };
 }
@@ -630,7 +630,14 @@ function subStep(state, dt, input) {
   } else w.spawnAcc = 0;
 
   if(hs.hunterId==='yeoni_pig')stepKfp(state,w,dt,(i,amount,crit,dx,dy)=>hurt(state,w,i,amount,crit,dx,dy));
-  if(hs.hunterId!=='yeoni_pig'||hs.kfp.legacy)fireWeapons(state, w, t, m, sec);
+  if(hs.hunterId!=='yeoni_pig'||hs.kfp.legacy) {
+    fireWeapons(state, w, t, m, sec);
+    const level=hs.passives.whisker||0;
+    if(level && t >= (w.cool.moonStrike||0)){
+      const target=nearest(w,p.x,p.y,350);
+      if(target>=0){const e=w.enemies.items[target],strike=w.strikes.spawn();Object.assign(strike,{x:e.x,y:e.y,at:t+350,r:52,dmg:(24+level*14)*m.dmg,boomUntil:0});w.cool.moonStrike=t+Math.max(3600,6600-level*1000);emit('huntAttack',{weapon:'tarot'});}
+    }
+  }
   for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(!ENEMIES[e.type].elite&&Math.hypot(e.x-p.x,e.y-p.y)>1300)w.enemies.release(i);}
   w.props=nearbyProps(hs,p);
   for(const o of w.props)if(o.treasure&&!hs.foundTreasure?.[o.id]&&Math.hypot(o.x-p.x,o.y-p.y)<=H.TREASURE_SPOT_RADIUS){(hs.foundTreasure??={})[o.id]=true;emit('huntTreasureFound',{id:o.id});}

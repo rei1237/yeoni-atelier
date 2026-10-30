@@ -89,7 +89,7 @@ test('인연 단계에 따라 고민이 바뀌고 숨은 초대장은 다음 단
  assert.equal(hiddenGuestQuest(s).next,0);s.ledger.story['hanbi:30']=true;assert.equal(hiddenGuestQuest(s).next,1);
 });
 test('윤달의 부탁은 공방 거래 누적 뒤 수락해야 하며 영입 완료와 분리된다',()=>{
- const s=createGame();assert.equal(cmd(s,'yun.quest').ok,false);recordYunTrade(s,10000);
+ const s=createGame();assert.equal(cmd(s,'yun.quest').ok,false);recordYunTrade(s,10000);s.hunter.maxStage=7;
  assert.equal(yunQuestView(s).eligible,true);assert.ok(cmd(s,'yun.quest').ok);assert.equal(yunQuestView(s).ready,false);
  assert.equal(cmd(s,'recruit.complete',{id:'yun'}).ok,false);
 });

@@ -97,6 +97,12 @@ function migrate(data) {
   // 기존 저장에는 도입부 기록이 없다. 이어하기는 프롤로그를 생략하고 다른 이야기 기록은 보존한다.
   data.ledger.story = {...data.ledger.story, prologue:true};
   migrateHuntVisits(data);
+  if(data.hunt?.gear && !data.hunt.legacyCollectorConverted){
+    const u=data.armory?.upgrades?.[data.hunt.hunterId||'neo']||{},old=Math.max(0,Number(u.magnet)||0),stride=Math.max(0,Number(u.stride)||0);
+    data.hunt.gear.magnet=Math.max(0,(data.hunt.gear.magnet??1)-old*.035);
+    data.hunt.gear.speed=(data.hunt.gear.speed??1)+Math.min(.6,(old+stride)*.015)-Math.min(.6,stride*.015);
+    data.hunt.legacyCollectorConverted=true;
+  }
   if(data.hunt)normalizeKfp(data.hunt);
   data.interior.areas ||= []; // 증축 구역 이전 저장
   // 꾸미기 통합 이전 저장: 옛 실내·증축·정원 안내 중 하나라도 봤으면 통합 안내도 본 것으로 친다

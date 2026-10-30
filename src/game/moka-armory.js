@@ -45,7 +45,7 @@ export const skillCost = id => SK.LEARN[id] ?? Infinity;
 export function techNext(state, line, id) {
   const lv = techLevel(state, line), t = SK.TECH[line];
   if (!t || lv >= techMax(line)) return { done: true };
-  const out = { cost: t.cost[lv], stage: t.stage[lv], currency: line === 'evo' ? 'gold' : 'moonstone' };
+  const out = { cost: t.cost[lv], stage: t.stage[lv], currency: 'moonstone' };
   if (line === 'evo') {
     if (!WEAPONS[id]) return { ...out, reason: '진화를 연구할 무기를 골라 주세요' };
     if (evoKnown(state, id)) return { done: true };
@@ -79,9 +79,9 @@ export function legacySkillRanks(data) {
   }
   return out;
 }
-export function upgradeLevel(state, who, id) { return armory(state).upgrades?.[who]?.[id] || 0; }
+export function upgradeLevel(state, who, id) { const u=armory(state).upgrades?.[who]||{}; return id==='stride'?(u.stride||0)+(u.magnet||0):(u[id]||0); }
 export function upgradeCost(state, who, id) { const d=UPGRADES[id], n=upgradeLevel(state,who,id); return d ? Math.ceil(d.base+d.step*n+Math.pow(n,1.18)) : Infinity; }
-export function enhancementBonus(state,who) { return { dmg:upgradeLevel(state,who,'power')*.045, hp:upgradeLevel(state,who,'vitality')*7, magnet:upgradeLevel(state,who,'magnet')*.035, speed:Math.min(.6,upgradeLevel(state,who,'stride')*.015) }; } // 기존 수집기 강화는 그대로 보존
+export function enhancementBonus(state,who) { return { dmg:upgradeLevel(state,who,'power')*.045, hp:upgradeLevel(state,who,'vitality')*7, magnet:0, speed:Math.min(.6,upgradeLevel(state,who,'stride')*.015) }; } // 기존 수집기 단계는 발걸음으로 전환
 // 강화는 윤달의 무기 공방, 소모품은 모카 식재료점 소관이다(저장 키 armory는 호환을 위해 유지).
 function check(state,where) { return state.mode==='prep' && !state.interior.draft ? {ok:true} : {ok:false,reason:`영업 준비 중에 ${where}을 이용해 주세요`}; }
 function ensure(state) { state.armory ||= {upgrades:{},supplies:{}}; state.armory.upgrades ||= {}; state.armory.supplies ||= {}; state.armory.skills ||= startSkills(); state.armory.tech ||= {forge:0,charm:0,evo:{}}; state.armory.tech.evo ||= {}; return state.armory; }
@@ -95,7 +95,7 @@ export function enhance(state,who,id) {
   if(id==='stride' && upgradeLevel(state,who,id)>=40)return {ok:false,reason:'달빛 발걸음은 최대 단계예요'};
   const free=(armory(state).freeEnhance||0)>0,cost=free?0:upgradeCost(state,who,id); if(!Number.isSafeInteger(cost)||state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
   const a=ensure(state), n=upgradeLevel(state,who,id); if(free)a.freeEnhance-=1; if(!Number.isSafeInteger(n+1))return {ok:false,reason:'저장할 수 있는 수치 범위를 넘었습니다'};
-  state.moonstone-=cost; (a.upgrades[who] ||= {})[id]=n+1;
+  state.moonstone-=cost; const upgrades=(a.upgrades[who] ||= {}); upgrades[id]=(upgrades[id]||0)+1;
   state.stats.workshopEnhances=(state.stats.workshopEnhances||0)+1;recordYunTrade(state,0,cost); emit('armoryUpgrade',{who,id,level:n+1,cost}); return {ok:true,cost,level:n+1};
 }
 // 기술 배우기(armory.learn)와 공방 연구(armory.tech). 사냥꾼 둘이 함께 쓴다

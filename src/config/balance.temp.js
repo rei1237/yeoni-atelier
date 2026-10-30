@@ -231,7 +231,7 @@ export const TEMP = Object.freeze({
     TECH: Object.freeze({
       forge: Object.freeze({ cost: Object.freeze([120, 300]), stage: Object.freeze([7, 12]) }),  // 무기 상한 해방: 무기 Lv3→4→5
       charm: Object.freeze({ cost: Object.freeze([180]), stage: Object.freeze([9]) }),            // 보조 상한 해방: 보조 Lv2→3
-      evo: Object.freeze({ cost: Object.freeze([3000, 4500, 6500, 9000, 12000]), stage: Object.freeze([14, 20, 28, 38, 50]) }), // 진화 비전: 연구한 수만큼 다음 값이 오른다. 무기 상한 해방 끝·그 무기를 배운 뒤
+      evo: Object.freeze({ cost: Object.freeze([600, 950, 1400, 2000, 2800]), stage: Object.freeze([14, 20, 28, 38, 50]) }), // 진화 비전: 연구한 수만큼 다음 값이 오른다. 무기 상한 해방 끝·그 무기를 배운 뒤
     }),
     POUCH: 12,                                        // 상한에 다 닿았을 때 레벨업 카드 「월정석 주머니」(10-28: 3→12, 단계 보상 배율 적용)
   }),

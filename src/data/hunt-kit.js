@@ -17,12 +17,12 @@ export const WEAPONS = Object.freeze({
   },
   orbit: {
     name: '별자리 궤도', icon: '✧', desc: '별이 영냥이 주위를 돈다',
-    base: { radius: 76, damage: 7, spin: 3.2, hitGap: 600 }, per: { damage: 3 }, counts: [2, 3, 3, 4, 5],
+    base: { radius: 76, damage: 14, spin: 3.2, hitGap: 600 }, per: { damage: 4 }, counts: [2, 3, 3, 4, 5],
     evo: { pair: 'hat', name: '황도 십이궁', desc: '별 6개 · 반경 증가' },
   },
   crescent: {
     name: '초승달 부메랑', icon: '☾', desc: '바라보는 쪽으로 날아갔다 돌아온다',
-    base: { cooldown: 1300, damage: 22, range: 230, speed: 360, hitGap: 350 }, per: { damage: 4 }, counts: [1, 1, 2, 2, 2],
+    base: { cooldown: 1200, damage: 30, range: 260, speed: 360, hitGap: 350 }, per: { damage: 5 }, counts: [1, 1, 2, 2, 2],
     evo: { pair: 'paw', name: '보름달 회전', desc: '부메랑 +2 · 사거리 증가' },
   },
   aura: {
@@ -32,7 +32,7 @@ export const WEAPONS = Object.freeze({
   },
   tarot: {
     name: '타로 낙하', icon: '🂠', desc: '무작위 적 위로 카드가 떨어진다',
-    base: { cooldown: 2100, damage: 38, radius: 52, warnMs: 450 }, per: { damage: 6 }, counts: [2, 2, 3, 3, 4],
+    base: { cooldown: 1900, damage: 52, radius: 58, warnMs: 450 }, per: { damage: 8 }, counts: [2, 2, 3, 3, 4],
     evo: { pair: 'luck', name: '운명의 수레바퀴', desc: '카드 +3 · 범위 증가' },
   },
 });
@@ -42,7 +42,7 @@ export const PASSIVES = Object.freeze({
   hat: { name: '마법모자', icon: '🎩', desc: '공격 범위 +15%' },
   bell: { name: '별 방울', icon: '🔔', desc: '재사용 대기 −8%' },
   fish_stock: { name: '생선 비축', icon: '🐟', desc: '최대 HP +20' },
-  whisker: { name: '자석 수염', icon: '🧲', desc: '흡수 반경 +30%' },
+  whisker: { name: '달빛 낙뢰', icon: '✧', desc: '주변 적에게 주기적으로 달빛 낙뢰 · 레벨이 오르면 피해와 발동 속도 증가' },
   luck: { name: '행운', icon: '🍀', desc: '치명타 확률 +5%' },
 });
 
