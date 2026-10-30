@@ -7,19 +7,19 @@ const GROUPS={all:'전체',dest1nova:'DEST1NOVA',yeoni:'연이',lunabloom:'Luna 
 export const CAFE_PLAYLIST=Object.freeze(['destinycafe-06','destinycafe-05','destinycafe-03','destinycafe-02','destinycafe-04','meditation-04','meditation-01','meditation-09']);
 let cafeIndex=0;
 const huntScene=()=>scene.startsWith('hunt');
-const activeTrack=()=>scene==='outfits'?'auto':huntScene()?(settings.huntTrack||'auto'):settings.track;
-const selectTrack=id=>{if(huntScene())settings.huntTrack=id;else settings.track=id;};
+const activeTrack=()=>scene==='outfits'?'auto':scene==='title'?(settings.titleTrack||'auto'):scene==='world'?(settings.worldTrack||'auto'):huntScene()?(settings.huntTrack||'auto'):settings.track;
+const selectTrack=id=>{if(scene==='title')settings.titleTrack=id;else if(scene==='world')settings.worldTrack=id;else if(huntScene())settings.huntTrack=id;else settings.track=id;};
 const cafeScene=()=>trackForScene(scene)==='cafe';
 let category='all',query='',bag=[],history=[],forward=[],shuffleReady=false,lastFailed='',playGeneration=0;
 const KEY='yeoni-atelier.audio.v1';
-let settings={music:false,sfx:true,volume:.35,sfxVolume:.75,track:'auto',repeat:'all',shuffle:false,shiftMusic:true};
+let settings={music:true,sfx:true,volume:.35,sfxVolume:.75,track:'auto',repeat:'all',shuffle:false,shiftMusic:true};
 try{settings={...settings,...JSON.parse(localStorage.getItem(KEY)||'{}')};}catch{}
 settings.volume=Math.max(0,Math.min(1,Number.isFinite(Number(settings.volume))?Number(settings.volume):.35));
 const player=typeof Audio!=='undefined'?new Audio():{pause(){},addEventListener(){}};player.preload='none';player.loop=false;
 let context, master, verb, noise, unlocked=false, scene='title', current='', error='', pending=false, storyTrack=null;
 const lastSounds=new Map(), voices=new Set();
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(settings));}catch{}}
-export function trackForScene(scene){return ({title:'tea',hunt:'battle',huntDeep:'lion',huntBoss:'boss',huntResult:'dream',huntPrep:'strategy',farm:'dream',story:'dream',outfits:'lion',fever:'opening'}[scene]||'cafe');}
+export function trackForScene(scene){return ({title:'destinycafe-02',world:'meditation-01',hunt:'battle',huntDeep:'lion',huntBoss:'boss',huntResult:'dream',huntPrep:'strategy',farm:'dream',story:'dream',outfits:'lion',fever:'opening'}[scene]||'cafe');}
 function selected(){return activeTrack()==='auto'?(cafeScene()?CAFE_PLAYLIST[cafeIndex]:scene==='story'&&storyTrack?storyTrack:trackForScene(scene)):activeTrack();}
 export function setStoryAudio(track){const next=TRACKS[track]?track:null;if(storyTrack!==next){storyTrack=next;sync();}}
 function sync(){
@@ -53,6 +53,9 @@ export function unlockAudio(){
  if(context.state==='suspended')context.resume().catch(()=>{});}catch{}sync();
 }
 export function setAudioScene(next){if(next!==scene){scene=next;sync();}}
+// 첫 입력으로 재생 제한을 해제한다. 저장된 음악 끔 설정은 sync가 그대로 지킨다.
+globalThis.document?.addEventListener('pointerdown',unlockAudio,{once:true});
+globalThis.document?.addEventListener('keydown',unlockAudio,{once:true});
 // 영업 시작 버튼을 누른 순간(사용자 입력 안) 카페 순서 재생을 Moonlight Tea부터 튼다. 🎵 토글로 끄면 다음 영업에도 켜지지 않는다.
 export const SHIFT_FIRST_TRACK=CAFE_PLAYLIST[0];
 export function startShiftMusic(){
@@ -127,7 +130,7 @@ export function audioSheet(){
  <section class="music-now" aria-label="현재 곡"><div class="music-now-head"><div class="music-cover">${track.cover?`<img src="${esc(track.cover)}" alt="${esc(track.artistName)} 앨범 표지" loading="lazy" referrerpolicy="no-referrer">`:'<span aria-label="표지 없는 명상 앨범">☾</span>'}</div><div><small>${esc(track.artistName)}</small><h3>${esc(track.name)}</h3><p role="status">${error||(!unlocked?'재생 버튼을 눌러 음악을 시작하세요':pending?'연결 중…':!settings.music?'일시정지':player.paused?'재생 준비 중':'재생 중')}${activeTrack()==='auto'?' · '+(cafeScene()?'카페 순서 재생 '+(cafeIndex+1)+'/'+CAFE_PLAYLIST.length:'장면 자동 선곡'):''}</p></div></div>
  <label class="music-seek"><span class="sr-only">곡 탐색</span><input type="range" data-audio-input="seek" min="0" max="${duration||1}" step="1" value="${Math.floor(time)}" ${duration?'':'disabled'} aria-label="현재 곡 재생 위치"><span>${stamp(time)} / ${stamp(duration)}</span></label>
  <div class="music-transport">${btn({action:'audio.change',args:{key:'previous'},label:transportIcon('previous'),title:'이전 곡'})}${btn({action:'audio.change',args:{key:'music'},cls:'primary',label:transportIcon(settings.music&&unlocked?'pause':'play'),title:settings.music&&unlocked?'일시정지':'재생'})}${btn({action:'audio.change',args:{key:'next'},label:transportIcon('next'),title:'다음 곡'})}</div></section>
- <div class="music-options">${button('repeat',settings.repeat==='one'?'한 곡 반복':settings.repeat==='off'?'반복 끔':'전체 반복')}${button('shuffle',settings.shuffle?'셔플 켜짐':'셔플 꺼짐')}${button('track',huntScene()?'사냥 장면 자동 선곡':'카페 순서 재생 · 장면 자동','auto',activeTrack()==='auto'?'on':'')}</div>
+ <div class="music-options">${button('repeat',settings.repeat==='one'?'한 곡 반복':settings.repeat==='off'?'반복 끔':'전체 반복')}${button('shuffle',settings.shuffle?'셔플 켜짐':'셔플 꺼짐')}${button('track',huntScene()?'사냥 장면 자동 선곡':scene==='title'?'대기 화면 자동 선곡':scene==='world'?'월드맵 자동 선곡':'카페 순서 재생 · 장면 자동','auto',activeTrack()==='auto'?'on':'')}</div>
  <label class="music-volume"><span>음량</span><input type="range" data-audio-input="volume" min="0" max="1" step=".05" value="${settings.volume}" aria-label="음악 음량"><span>${Math.round(settings.volume*100)}%</span></label>
  ${error?button('retry','다시 연결'):''}<div class="music-library"><label>곡 찾기 <input type="search" data-audio-input="search" value="${esc(query)}" placeholder="제목 또는 아티스트"></label><nav class="music-filters" aria-label="앨범 분류">${Object.entries(GROUPS).map(([id,name])=>button('filter',name,id,category===id?'on':'')).join('')}</nav><p class="small">${rows.length}곡 · 네오 솔로곡 제외</p><ol class="music-tracks">${rows.map(t=>`<li data-key="${t.id}"><button data-action="audio.change" data-key="track" data-value="${t.id}" aria-pressed="${track.id===t.id}"><span class="music-row-mark" aria-hidden="true">${track.id===t.id&&settings.music?'♫':'♪'}</span><span><b>${esc(t.name)}</b><small>${esc(t.artistName)}</small></span>${track.id===t.id?'<em>선택</em>':''}</button></li>`).join('')}</ol></div>
  <details class="music-sfx"><summary>효과음 설정</summary>${button('sfx',settings.sfx?'효과음 켜짐':'효과음 꺼짐')}<label>효과음 음량<input type="range" data-audio-input="sfxVolume" min="0" max="1" step=".05" value="${settings.sfxVolume}" aria-label="효과음 음량"></label></details><p class="small music-note">공식 공개 스트리밍 · 선택한 음악은 창을 닫아도 한 플레이어에서 이어집니다. 네트워크 오류는 게임 진행에 영향을 주지 않아요.</p></section>`;

@@ -4,6 +4,17 @@ import {createGame} from '../src/game/state.js';
 import {dispatch} from '../src/game/engine.js';
 import {serialize,deserialize,saveGame,loadGame,memoryStorage,SAVE_KEYS} from '../src/core/save.js';
 import {pendingStory} from '../src/game/calendar.js';
+import { PROLOGUE } from '../src/story/prologue.js';
+import { TEMP } from '../src/config/balance.temp.js';
+
+test('확장 프롤로그는 현재 기간·빚을 설정에서 읽는다',()=>{
+ const notice=PROLOGUE.find(b=>b.campaignNotice);
+ assert.ok(notice.t.includes(`${TEMP.CALENDAR.TOTAL_TURNS/TEMP.CALENDAR.TURNS_PER_MONTH}개월`));
+ assert.ok(PROLOGUE.find(b=>b.debtNotice).t.includes(`${TEMP.INITIAL_DEBT/100000000}억 골드`));
+ assert.doesNotMatch(PROLOGUE.map(b=>b.t||'').join('\n'),/오 년|십이만|120,000|5분 동안|몸부터 갚/);
+ assert.equal(PROLOGUE.filter(b=>b.transform==='human').length,1);
+ assert.ok(PROLOGUE.some(b=>b.s==='yeoni_pig'));
+});
 
 test('새 게임 프롤로그 완료는 한 번 기록하고 첫 달 이야기와 보상은 건드리지 않는다',()=>{
  const s=createGame(),before=structuredClone(s);

@@ -801,7 +801,7 @@ function render(force = false) {
   const hunting=state?.mode==='hunt', h=state?.hunt;
   // 보스곡은 서한비(검은 호랑이) 전용. 일반 단계 보스는 깊이별 사냥곡
   const hanbiAlive=hunting&&getHuntWorld(state)?.enemies.items.slice(0,getHuntWorld(state).enemies.count).some(e=>e.type==='boss_hanbi');
-  setAudioScene(novelActive()?'story':hunting?(h.status!=='running'?'huntResult':hanbiAlive?'huntBoss':h.depth>=55?'huntDeep':'hunt'):state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind==='hunt'?'huntPrep':ui.sheet?.kind||(state?'cafe':'title'));
+  setAudioScene(novelActive()?'story':hunting?(h.status!=='running'?'huntResult':hanbiAlive?'huntBoss':h.depth>=55?'huntDeep':'hunt'):state?.fever?.activeUntil!=null?'fever':ui.sheet?.kind==='hunt'?'huntPrep':ui.sheet?.kind==='outfits'?'outfits':ui.screen==='world'?'world':!state?'title':ui.sheet?.kind||'cafe');
   const guide=guideForContext(state,ui);
   // 잠긴 농장·공방에서는 안내를 띄우지 않는다
   const guideLocked=guide==='farm'?placeLock(state,'farm'):guide==='armory'?placeLock(state,'gear'):'';

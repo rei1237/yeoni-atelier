@@ -70,3 +70,20 @@ test('음악실은 또렷한 닫기와 이름 붙은 재생 버튼을 달밤 카
  for(const name of ['이전 곡','재생','다음 곡'])assert.match(now,new RegExp(`aria-label="${name}"`));
  assert.match(now,/data-audio-input="seek"/,'탐색 막대도 재생 카드 안에 있다');
 });
+
+test('첫 입력부터 귀여운 타이틀 OST, 월드 여행곡을 재생하고 카페 선곡을 보존한다',async()=>{
+ const {audio:a,player:p,events}=await fixture({track:'destinycafe-06'});
+ assert.equal(p.paused,true,'입력 전에는 자동 재생하지 않는다');
+ events.get('pointerdown')();await new Promise(setImmediate);
+ assert.equal(a.audioStatus().current,'destinycafe-02');assert.equal(p.paused,false);assert.equal(p.loop,true);
+ a.setAudioScene('world');assert.equal(a.audioStatus().current,'meditation-01');assert.equal(p.loop,true);
+ a.audioAction('track','yeoni-12');a.setAudioScene('cafe');assert.equal(a.audioStatus().current,'destinycafe-06');
+ a.setAudioScene('title');assert.equal(a.audioStatus().current,'destinycafe-02');
+ a.setAudioScene('world');assert.equal(a.audioStatus().current,'yeoni-12','월드의 수동 선곡도 따로 기억한다');
+});
+
+test('저장된 음소거는 대기 화면 첫 입력과 월드 진입에서도 유지한다',async()=>{
+ const {audio:a,player:p,events}=await fixture({music:false});
+ events.get('keydown')();a.setAudioScene('world');assert.equal(p.paused,true);assert.equal(a.audioStatus().music,false);
+ a.setAudioScene('title');assert.equal(p.paused,true);
+});
