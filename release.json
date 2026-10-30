@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.30.5",
-  "name": "연이의 아틀리에 · 윤달 공방 가격 조정",
+  "version": "2026.10.30.6",
+  "name": "연이의 아틀리에 · 달빛 낙뢰와 인연 이야기",
   "musicTracks": 103,
   "assetBytes": 17879958,
   "channel": "production",
-  "baseCommit": "1870d84",
+  "baseCommit": "cce16e6",
   "newTitleArt": true
 }
