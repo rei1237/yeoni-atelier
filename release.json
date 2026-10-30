@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.29.11",
-  "name": "연이의 아틀리에 · 달빛 수첩과 다섯 결말",
+  "version": "2026.10.29.12",
+  "name": "사냥터 전체화면 정리 · 3배 화면 휴대폰 선명도",
   "musicTracks": 103,
   "assetBytes": 17844086,
   "channel": "production",
-  "baseCommit": "874a5f0",
+  "baseCommit": "e05a69b",
   "newTitleArt": true
 }
