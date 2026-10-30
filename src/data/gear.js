@@ -6,12 +6,12 @@
 export const GEAR_SLOTS = Object.freeze({ weapon: '무기', armor: '방어구', charm: '장신구' });
 
 export const GEAR = Object.freeze({
-  claw_glove:     { id: 'claw_glove',     slot: 'weapon', name: '고양이 발톱 장갑',   desc: '모든 무기 피해 +15%',            fx: { dmg: 0.15 },               cost: { gold: 900 } },
-  crescent_wand:  { id: 'crescent_wand',  slot: 'weapon', name: '초승달 방울 지팡이', desc: '모든 무기 피해 +35%',            fx: { dmg: 0.35 },               cost: { gold: 2500 } },
+  claw_glove:     { id: 'claw_glove',     slot: 'weapon', name: '고양이 발톱 장갑',   desc: '모든 무기 피해 +15%',            fx: { dmg: 0.15 },               cost: { gold: 9000 } },
+  crescent_wand:  { id: 'crescent_wand',  slot: 'weapon', name: '초승달 방울 지팡이', desc: '모든 무기 피해 +35%',            fx: { dmg: 0.35 },               cost: { gold: 25000 } },
   scale_vest:     { id: 'scale_vest',     slot: 'armor',  name: '생선 비늘 조끼',     desc: '최대 HP +30',                    fx: { hp: 30 },                  cost: { gold: 800 } },
   fluff_cape:     { id: 'fluff_cape',     slot: 'armor',  name: '솜뭉치 망토',        desc: '최대 HP +60 · 이동 속도 +5%',    fx: { hp: 60, speed: 0.05 },     cost: { gold: 2200 } },
   fishbone_charm: { id: 'fishbone_charm', slot: 'charm',  name: '생선뼈 부적',        desc: '모든 무기 피해 +8%',             fx: { dmg: 0.08 },               cost: { gold: 600 } },
-  churu_magnet:   { id: 'churu_magnet',   slot: 'charm',  name: '용기의 츄르',        desc: '무기 피해 +12% · 이동 속도 +8%', fx: { dmg: 0.12, speed: 0.08 }, cost: { gold: 2000 } },
+  churu_magnet:   { id: 'churu_magnet',   slot: 'charm',  name: '용기의 츄르',        desc: '무기 피해 +12% · 아이템 끌어당기는 범위 +35%', fx: { dmg: 0.12, magnet: 0.35 }, cost: { gold: 2000 } },
 });
 
 export const GEAR_ORDER = Object.freeze(['claw_glove', 'crescent_wand', 'scale_vest', 'fluff_cape', 'fishbone_charm', 'churu_magnet']);

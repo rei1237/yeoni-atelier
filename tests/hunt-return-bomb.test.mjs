@@ -30,7 +30,7 @@ test('이벤트 정상 완료는 1회 실제 진입, 건너뛰기는 전투 없�
  const fail=ready();fail.ap.left=0;assert.equal(dispatch(fail,{type:'hunt.start'}).ok,false);assert.equal(huntVisitReason(fail),'');fail.ap.left=1;assert.ok(dispatch(fail,{type:'hunt.start'}).ok);assert.equal(dispatch(fail,{type:'hunt.start'}).ok,false);assert.equal(fail.ap.left,0);
 });
 test('기존 진행 사냥·오늘 귀환 저장은 방문을 보존하고 지점 전환으로 초기화되지 않는다',()=>{
- let s=ready();s.ap.neoTask='hunt';delete s.ledger.huntVisits;s=deserialize(serialize(s)).state;assert.ok(huntVisitReason(s));s.gold=1e6;s.ledger.sales.fixture=20000;s.ledger.story['branch:2']=true;dispatch(s,{type:'branch.buy',id:2,confirmed:true});dispatch(s,{type:'branch.switch',id:2});assert.ok(huntVisitReason(s));assert.equal(dispatch(s,{type:'hunt.start'}).ok,false);
+ let s=ready();s.ap.neoTask='hunt';delete s.ledger.huntVisits;s=deserialize(serialize(s)).state;assert.ok(huntVisitReason(s));s.gold=1e6;s.moonstone=1000;s.ledger.sales.fixture=20000;s.ledger.story['branch:2']=true;dispatch(s,{type:'branch.buy',id:2,confirmed:true});dispatch(s,{type:'branch.switch',id:2});assert.ok(huntVisitReason(s));assert.equal(dispatch(s,{type:'hunt.start'}).ok,false);
 });
 
 test('결과 화면 저장을 불러온 일시정지 상태에서도 귀환 버튼은 1회 정산한다',()=>{

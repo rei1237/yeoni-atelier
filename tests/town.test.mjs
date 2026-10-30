@@ -123,7 +123,7 @@ test('공방 증축: 잠긴 구역에는 가구를 못 놓고, 열 때마다 다
 test('장식 들이기는 보관함으로 오고, 월정석·장비는 저장 후에도 그대로', () => {
   const s = createGame();s.day=9;
   s.hostbar.open = true; s.huntUnlocked = true; s.stats.huntsCompleted = 1; s.hunter.maxStage = 7; // 테스트 준비: 기능 개시·6단계 클리어 후 동작
-  s.gold = 5000;
+  s.gold = 50000;
   s.moonstone = 99;
   const n0 = s.interior.furniture.length;
   assert.ok(dispatch(s, { type: 'expand.decor', defId: 'lamp' }).ok);
@@ -208,12 +208,12 @@ test('열리기 전 장소: 엔진이 거절하고, 6단계 클리어 뒤 윤달
 test('윤달 공방 장비 탭에 장비 목록이 있고 구매·장착이 탭 안에서 된다', async () => {
   const { armorySheet } = await import('../src/ui/armory.js');
   const s = createGame();
-  s.hostbar.open = true; s.huntUnlocked = true; s.stats.huntsCompleted = 1; s.hunter.maxStage = 7; s.gold = 5000; // 테스트 준비
+  s.hostbar.open = true; s.huntUnlocked = true; s.stats.huntsCompleted = 1; s.hunter.maxStage = 7; s.gold = 50000; // 테스트 준비
   const html = armorySheet(s, { armoryTab: 'equipment' });
   assert.equal((html.match(/data-action="gear.buy"/g) || []).length, 6);
   assert.doesNotMatch(html, /data-sheet="town"/, '다른 창으로 보내지 않는다');
   assert.ok(dispatch(s, { type: 'gear.buy', id: 'claw_glove' }).ok);
-  assert.equal(s.gold, 5000 - GEAR.claw_glove.cost.gold);
+  assert.equal(s.gold, 50000 - GEAR.claw_glove.cost.gold);
   const after = armorySheet(s, { armoryTab: 'equipment' });
   assert.match(after, /data-action="gear.equip"[^>]*>장착 중/);
   assert.equal((after.match(/data-action="gear.buy"/g) || []).length, 5);

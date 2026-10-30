@@ -22,7 +22,7 @@ test('호스트는 한 카페 최대 3명이며 저장과 지점 전환 후에�
  assert.equal(initial.length,3);assert.equal(dispatch(s,{type:'staffing.select',id:other,on:true}).ok,false);
  assert.ok(dispatch(s,{type:'staffing.select',id:initial[0],on:false}).ok);assert.ok(dispatch(s,{type:'staffing.select',id:other,on:true}).ok);
  const selected=assignedHosts(s);s=deserialize(serialize(s)).state;assert.deepEqual(assignedHosts(s),selected);
- s.ledger.story['branch:2']=true;s.ledger.sales.fixture=20000;assert.ok(dispatch(s,{type:'branch.buy',id:2,confirmed:true}).ok);assert.ok(dispatch(s,{type:'branch.switch',id:2}).ok);assert.ok(assignedHosts(s).length<=3);
+ s.ledger.story['branch:2']=true;s.moonstone=1000;s.ledger.sales.fixture=20000;assert.ok(dispatch(s,{type:'branch.buy',id:2,confirmed:true}).ok);assert.ok(dispatch(s,{type:'branch.switch',id:2}).ok);assert.ok(assignedHosts(s).length<=3);
  assert.ok(dispatch(s,{type:'branch.switch',id:1}).ok);assert.deepEqual(assignedHosts(s),selected);assert.ok(dispatch(s,{type:'shift.start'}).ok);assert.equal(dispatch(s,{type:'staffing.select',id:initial[0],on:true}).ok,false);assert.ok(s.staff[other]);
 });
 test('최대 공간 57테이블·63손님·영입 직원은 통로를 보존하며 실제로 이동한다',()=>{

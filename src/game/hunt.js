@@ -167,6 +167,7 @@ export function mods(hs) {
   const m = baseMods(hs);
   if (catnipLeft(hs) > 0) { m.dmg *= 1 + H.CATNIP.dmg; m.speed *= 1 + H.CATNIP.speed; }
   if ((hs.dashIncenseUntil || 0) > (hs.elapsedMs || 0)) m.speed *= 1.25;
+  if ((hs.collectIncenseUntil || 0) > (hs.elapsedMs || 0)) m.magnet *= 2;
   return m;
 }
 export const catnipLeft = hs => Math.max(0, (hs.catnipUntil || 0) - (hs.elapsedMs || 0));
@@ -835,7 +836,7 @@ export function supplyStatus(state,id) {
  if(left>0)return no(`${Math.ceil(left/1000)}초 뒤 사용 가능`,left);
  if(id==='tonic'&&h.hp>=h.maxHp)return no('체력이 가득해요 · 소모하지 않아요');
  if(id==='shield'&&h.shieldUntil>now)return no('이미 보호받고 있어요',h.shieldUntil-now);
- if(id==='magnet'&&(h.dashIncenseUntil||0)>now)return no('이미 질주 향이 지속되고 있어요',h.dashIncenseUntil-now);
+ if(id==='magnet'&&(h.collectIncenseUntil||0)>now)return no('이미 수집 향이 지속되고 있어요',h.collectIncenseUntil-now);
  if(id==='nova'){
   const w=getHuntWorld(state);
   if(id==='nova'&&!w.enemies.items.slice(0,w.enemies.count).some(e=>e.hp>0&&Math.hypot(e.x-w.player.x,e.y-w.player.y)<300))return no('주변에 적이 없어요');
@@ -849,7 +850,7 @@ export function useSupply(state,id) {
  if(id==='bomb'){hs.bombUsedAt=hs.elapsedMs;const m=mods(hs);for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(Math.hypot(e.x-w.player.x,e.y-w.player.y)<H.BOMB_RADIUS)hurt(state,w,i,H.BOMB_DAMAGE,m,e.x-w.player.x,e.y-w.player.y);}w.shakeUntil=hs.elapsedMs+400;}
  if(id==='tonic'){hs.hp=Math.min(hs.maxHp,hs.hp+Math.ceil(hs.maxHp*.35));hs.tonicsUsed=(hs.tonicsUsed||0)+1;}
  if(id==='shield')hs.shieldUntil=hs.elapsedMs+8000;
- if(id==='magnet')hs.dashIncenseUntil=hs.elapsedMs+8000;
+ if(id==='magnet')hs.collectIncenseUntil=hs.elapsedMs+8000;
  if(id==='nova')for(let i=w.enemies.count-1;i>=0;i--){const e=w.enemies.items[i];if(Math.hypot(e.x-w.player.x,e.y-w.player.y)<300)hurt(state,w,i,240*mods(hs).dmg,mods(hs),0,0);}
  emit('huntPower',{kind:id,label:d.name});return {ok:true};
 }
