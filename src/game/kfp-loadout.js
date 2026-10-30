@@ -46,5 +46,5 @@ export function activeKfpCores(h){const k=normalizeKfp(h);if(!k)return [];
  return k.weapons.flatMap(w=>[w,...(FUSION_RECIPES.find(r=>r.output===w.id)?.inputs||[]).map((i,n)=>({id:i.id,level:8,evolved:true,sourceId:w.id,coreIndex:n+1,fusionLevel:w.level}))]);
 }
 export function kfpPlayerStats(h){const p=normalizeKfp(h)?.passives||{},g=h.gear;
- return {might:g.dmg*(1+.1*(p.whet||0)),cooldown:Math.max(.35,1-.06*(p.nose||0)),area:1+.13*(p.spread||0),duration:1,projSpeed:1+.05*(p.scope||0),amount:0,amountMul:.1*(p.magazine||0),pierce:Math.ceil((p.scope||0)/2),crit:.045*(p.focus||0),speed:g.speed*(1+.07*(p.madness||0)),magnet:g.magnet*(1+.15*(p.nose||0)),xp:1+.08*(p.sap||0),regen:.3*(p.regen||0),armor:1.2*(p.hide||0),guard:.04*(p.hide||0),pollen:p.pollen||0};
+ return {might:g.dmg*(1+.1*(p.whet||0)),cooldown:Math.max(.35,1-.06*(p.nose||0)),area:1+.13*(p.spread||0),duration:1,projSpeed:1+.05*(p.scope||0),amount:0,amountMul:.1*(p.magazine||0),pierce:Math.ceil((p.scope||0)/2),crit:.045*(p.focus||0),speed:g.speed*(1+.07*(p.madness||0)),magnet:g.magnet,xp:1+.08*(p.sap||0),regen:.3*(p.regen||0),armor:1.2*(p.hide||0),guard:.04*(p.hide||0),pollen:p.pollen||0};
 }

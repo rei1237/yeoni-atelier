@@ -3,6 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { overlayHtml } from '../src/ui/sheets.js';
 import { LORE_CAST } from '../src/ui/lore.js';
+import { DEST1NOVA_MEMBERS } from '../src/data/dest1nova-profiles.js';
+import { arcanaSymbol } from '../src/ui/arcana.js';
 
 test('타이틀에 등장인물 버튼이 있고, 열면 프로필·이야기 탭을 보여 준다', () => {
   assert.match(overlayHtml(null, { storageOk: true }), /data-action="lore\.open"/);
@@ -20,4 +22,13 @@ test('타이틀에 등장인물 버튼이 있고, 열면 프로필·이야기 �
 test('세계관 문구는 원작 스포일러를 적지 않는다', () => {
   const all = overlayHtml(null, { loreBook: 'cast' }) + overlayHtml(null, { loreBook: 'story' });
   assert.doesNotMatch(all, /박지은|흑월|검은 호랑이/);
+});
+
+test('인물마다 실제 메이저 카드가 표시되고 비밀 인연은 뒷면을 유지한다', () => {
+  for (const id of [...LORE_CAST.map(c=>c.id), ...DEST1NOVA_MEMBERS.map(c=>c.id)].filter(id=>id!=='seohanbi')) {
+    assert.match(arcanaSymbol(id), /assets\/illustrated\/tarot\/\d\d\.webp/);
+  }
+  const hidden=arcanaSymbol('seohanbi',{masked:true});
+  assert.match(hidden,/아직 비밀이에요/);
+  assert.doesNotMatch(hidden,/illustrated\/tarot|심판/);
 });

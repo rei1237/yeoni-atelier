@@ -1,6 +1,7 @@
 import {pixelIcon,pxBtn} from './pixel-icons.js';
 import { creditsScreen } from './credits.js';
 import {titleGameRoom,gameRoomSheet} from './game-room.js';
+import {arcanaSymbol} from './arcana.js';
 import {fortuneSheet,FORTUNE_SITE} from './fortune-sheet.js';
 import {loreSheet} from './lore.js';
 import { ASSETS } from '../render/assets.js';
@@ -331,8 +332,8 @@ function bondCard(state, id) {
   const sp = SPEAKERS[b.speaker]?.name || b.name, masked = bondMasked(state, id);
   const title = masked ? '??? · 붉은 봉인의 손님' : sp === b.name ? b.name : `${b.name} · ${sp}`;
   return `<div class="bond-card"><div class="bc-top"><span class="bond-face">${masked ? MYSTERY_FACE : assetIcon('badges/'+(SPEAKERS[b.speaker]?.portrait||b.speaker||id))}</span><div class="bond-name"><b>${esc(title)}</b><small class="arcana">${masked ? '?' : num} · ${masked ? '???' : esc(arc)}</small></div><span class="bond-rank${ready ? ' ready' : ''}" aria-label="인연 Rank ${r} / ${MAX_RANK}"><small>RANK</small><b>${r >= MAX_RANK ? 'MAX' : r}</b></span></div>
-    <div class="rank-pips" aria-hidden="true">${pips}</div>${bar(r >= MAX_RANK || ready ? 100 : ((v - lo) / (hi - lo)) * 100, 'bond')}<span class="small bond-status${ready ? ' ready' : ''}">${status}</span>${DEST1NOVA_IDS.includes(id) && !masked ? `<span class="small bond-fans">인기 「${esc(fanTierName(state, id))}」 · 팬 ${fansOf(state, id).toLocaleString('ko-KR')}명${nextTierAt(state, id) ? ` / ${nextTierAt(state, id).toLocaleString('ko-KR')}명` : ''} · 단계마다 지명과 팁이 늘어요</span>` : ''}
-    <ul class="bond-perks" aria-label="인연 능력">${b.rankFx?`<li class="${r&&(!b.requiresRecruit||state.roster[id])?'open':'next'}"><b>매 랭크</b><span>${esc(b.rankFx.label)} · ${b.requiresRecruit&&!state.roster[id]?'합류 후 적용':`현재 Rank ${r}`}</span><small>${r?'적용':'다음'}</small></li>`:''}${perks}</ul>
+    ${arcanaSymbol(id,{masked})}<div class="rank-pips" aria-hidden="true">${pips}</div>${bar(r >= MAX_RANK || ready ? 100 : ((v - lo) / (hi - lo)) * 100, 'bond')}<span class="small bond-status${ready ? ' ready' : ''}">${status}</span>${DEST1NOVA_IDS.includes(id) && !masked ? `<span class="small bond-fans">인기 「${esc(fanTierName(state, id))}」 · 팬 ${fansOf(state, id).toLocaleString('ko-KR')}명${nextTierAt(state, id) ? ` / ${nextTierAt(state, id).toLocaleString('ko-KR')}명` : ''} · 단계마다 지명과 팁이 늘어요</span>` : ''}
+    <ul class="bond-perks" aria-label="인연 능력">${b.rankFx?`<li class="${r&&(!b.requiresRecruit||state.roster[id])?'open':'next'}"><b>매 랭크</b><span>${esc(b.rankFx.label)} · ${b.requiresRecruit&&!state.roster[id]?'합류 후 적용':`현재 Rank ${r}`}</span><small>${b.requiresRecruit&&!state.roster[id]?'합류 후':r?'적용':'다음'}</small></li>`:''}${perks}</ul>
     <p class="small bond-gift-status">${gifted?'이번 순 선물을 전했어요. 다음 순에 다시 전할 수 있어요.':'좋아하는 물건은 구매 후 바로 선물해요.'}</p><div class="row">${btn({action:'gift.open',args:{id},cls:'primary',disabled:gifted||!townCheck(state).ok,label:'보유 음식 선물 · '+(state.foodGifts?.items.length||0)+'개'})}${giftBtn(b.gift)}${giftBtn(COMMON_GIFT)}${talkBtn}</div><details class="bond-story-library"><summary>인연 이야기 · 4장</summary>${b.perks.map((perk,index)=>btn({action:'bond.read',args:{id,tier:index+1},disabled:state.mode!=='prep'||!state.ledger.story['bond:'+id+':'+(index+1)],label:'Rank '+P[index]+' · '+(state.ledger.story['bond:'+id+':'+(index+1)]?'이야기 다시 읽기':'인연을 쌓으면 열려요')})).join('')}</details></div>`;
 }
 
@@ -345,6 +346,7 @@ function rankUpSheet(state, up) {
     <div class="rankup-arcana"><span class="bond-face">${face}</span><small>${masked ? '?' : num}</small><b>${masked ? '???' : esc(arc)}</b></div>
     <h2>${esc(withWa(bondName(state, up.id)))}의 인연 · Rank ${up.rank >= MAX_RANK ? 'MAX' : up.rank}</h2><div class="rank-pips" aria-hidden="true">${pips}</div>
     ${up.perk ? `<div class="rankup-perk"><small>능력 해방</small><b>${esc(up.perk)}</b>${up.story ? '<span>이 랭크의 인연 이야기가 이어집니다</span>' : ''}</div>` : '<p class="small">함께 보낸 시간이 인연이 되었어요.</p>'}
+    ${b.rankFx ? `<div class="rankup-perk"><small>${b.requiresRecruit&&!state.roster[up.id]?'합류 후 적용':'매 랭크 효과'}</small><b>${esc(b.rankFx.label)}</b><span>${b.requiresRecruit&&!state.roster[up.id]?'동료로 합류하면 적용돼요.':`Rank ${up.rank}까지 적용 중이에요.`}</span></div>` : ''}
     <p class="small muted">${up.next ? `다음 해방 · Rank ${up.next.rank} ${esc(up.next.label)}` : '모든 능력이 해방됐어요'}</p>
     ${btn({ action: 'rankup.close', cls: 'primary', label: up.story ? '이야기 보기' : '계속하기' })}</section>`;
 }

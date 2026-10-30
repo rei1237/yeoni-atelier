@@ -17,7 +17,7 @@ export const UPGRADES = Object.freeze({
 export const SUPPLIES = Object.freeze({
   bomb:{name:'달빛 폭탄',cost:1200,tier:0,shop:'gear',icon:'tarot',limit:1,detail:'주변 적에게 피해 200 · 최대 보유 1개 · 사용 후 재구매 가능 (TEMP)'},
   tonic:{name:'모카의 회복 수프', cost:36, tier:0, icon:'heal', detail:'최대 체력의 35% 회복 · 사냥터의 구운 생선은 드물어요', limit:3},
-  magnet:{name:'달빛 수집 향', cost:60, tier:1, icon:'whisker', detail:'필드에 떨어진 모든 보상을 끌어오기'},
+  magnet:{name:'달빛 질주 향', cost:60, tier:1, icon:'whisker', detail:'8초 동안 이동 속도 +25%'},
   shield:{name:'검은 밤의 방패', cost:90, tier:2, icon:'hat', detail:'8초 동안 접촉 피해 방지'},
   nova:{name:'모카의 비밀 향신료', cost:130, tier:3, icon:'tarot', detail:'주변 적에게 현재 공격력 기준 큰 피해'},
 });

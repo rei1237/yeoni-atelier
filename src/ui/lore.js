@@ -4,6 +4,7 @@ import {btn,esc} from './dom.js';
 import {assetIcon} from './asset-html.js';
 import {pixelIcon} from './pixel-icons.js';
 import {FORTUNE_SITE} from './fortune-sheet.js';
+import {arcanaSymbol} from './arcana.js';
 import {DEST1NOVA_MEMBERS} from '../data/dest1nova-profiles.js';
 
 export const LORE_CAST=Object.freeze([
@@ -26,13 +27,13 @@ export const LORE_STORY=Object.freeze([
 ]);
 
 const face=c=>c.id==='seohanbi'?`<span class="lore-face lore-mono" aria-hidden="true">${pixelIcon('moon')}</span>`:`<span class="lore-face">${assetIcon('portraits/'+c.id)}</span>`;
-const card=c=>`<article class="lore-card">${face(c)}<div><h3>${esc(c.name)} <small>${esc(c.tag)}</small></h3><p>${esc(c.line)}</p>${c.here?`<p class="lore-here"><b>아틀리에에서</b> ${esc(c.here)}</p>`:''}</div></article>`;
+const card=c=>`<article class="lore-card">${face(c)}<div><h3>${esc(c.name)} <small>${esc(c.tag)}</small></h3><p>${esc(c.line)}</p>${c.here?`<p class="lore-here"><b>아틀리에에서</b> ${esc(c.here)}</p>`:''}${arcanaSymbol(c.id,{masked:c.id==='seohanbi'})}</div></article>`;
 
 export function loreSheet(tab='cast'){
  const story=tab==='story',tabBtn=(id,label)=>btn({action:'lore.tab',args:{tab:id},cls:'lore-tab',pressed:tab===id,label});
  const body=story
   ?`<ol class="lore-story">${LORE_STORY.map(([h,p],i)=>`<li><span class="lore-step">${i+1}</span><div><h3>${esc(h)}</h3><p>${esc(p)}</p></div></li>`).join('')}</ol><section class="lore-gaiden"><h3>그리고, 연이의 아틀리에</h3><p>그 섬에서 연이는 빚이 걸린 작은 카페를 맡게 돼요. 네오·루나 자매와 함께 2년 안에 갚아 내는 이야기는 이 게임만의 외전이에요.</p></section>`
-  :`<p class="lore-intro">카페와 섬에서 만날 소중한 인연을 소개해요.</p><h3 class="lore-section">카페와 재성의 섬</h3><div class="lore-cast">${LORE_CAST.map(card).join('')}</div><h3 class="lore-section">데스티노바</h3><p class="lore-intro">네오와 함께 무대를 만드는 멤버들이에요. 인물별 소개는 게임의 외전 설정을 담고 있어요.</p><div class="lore-cast">${DEST1NOVA_MEMBERS.filter(p=>p.id!=='neo').map(p=>card({id:p.id,name:p.name,tag:p.position,line:p.personality,here:p.tagline})).join('')}</div><p class="small lore-note">원작 소개는 꿀꿀 운세 라이트 노벨 세계관을 따르고, 「아틀리에에서」와 데스티노바의 인물별 소개는 이 게임만의 외전 설정이에요.</p>`;
+  :`<p class="lore-intro">카페와 섬에서 만날 소중한 인연을 소개해요. 인연의 카드는 이 게임의 외전에서 정한 상징이에요.</p><h3 class="lore-section">카페와 재성의 섬</h3><div class="lore-cast">${LORE_CAST.map(card).join('')}</div><h3 class="lore-section">데스티노바</h3><p class="lore-intro">네오와 함께 무대를 만드는 멤버들이에요. 인물별 소개는 게임의 외전 설정을 담고 있어요.</p><div class="lore-cast">${DEST1NOVA_MEMBERS.filter(p=>p.id!=='neo').map(p=>card({id:p.id,name:p.name,tag:p.position,line:p.personality,here:p.tagline})).join('')}</div><p class="small lore-note">원작 소개는 꿀꿀 운세 라이트 노벨 세계관을 따르고, 「아틀리에에서」와 데스티노바의 인물별 소개는 이 게임만의 외전 설정이에요.</p>`;
  return `<h2 id="lore-title">등장인물 · 재성의 섬${btn({action:'lore.close',cls:'close lore-close',label:'✕',title:'닫기'})}</h2>
  <div class="lore-tabs" role="group" aria-label="보기 선택">${tabBtn('cast','등장인물')}${tabBtn('story','재성의 섬 이야기')}</div>${body}
  <a class="lore-cta" href="${FORTUNE_SITE}world" target="_blank" rel="noopener noreferrer">꿀꿀 운세 라이트 노벨 세계관 보기 ↗</a>`;

@@ -13,6 +13,7 @@ import { serialize,deserialize } from '../src/core/save.js';
 import { deliveryQuote } from '../src/game/delivery.js';
 import { INGREDIENTS } from '../src/data/menus.js';
 import { quietShift } from './helpers.mjs';
+import { sheetHtml } from '../src/ui/sheets.js';
 
 import {bondQuestion} from '../src/data/bond-dialogues.js';
 const B = TEMP.BONDS;
@@ -111,4 +112,10 @@ test('합류한 윤달·무성·서한비·데스티노바는 매 인연 랭크�
   for(let rank=1;rank<=10;rank++){s.bondRank[id]=rank;const v=bondFx(s)[key];s.bondRank[id]=rank-1;assert.ok(bondFx(s)[key]<v,`${id} Rank ${rank}`);}
   for(let tier=1;tier<=4;tier++)assert.ok(castBondStory(id,tier)?.length>5,`${id} 이야기 ${tier}`);
  }
+});
+
+test('인연 랭크업 화면은 매 랭크 효과와 합류 전 적용 조건을 정확히 표시한다',()=>{
+ const s=createGame();s.bondRank.yun=1;const up={id:'yun',rank:1,arcana:['IX','은둔자'],perk:null,next:null,story:false};
+ let html=sheetHtml(s,{sheet:{kind:'rankup',up}});assert.match(html,/합류 후 적용/);assert.match(html,/재료값/);
+ s.roster.yun={usableFrom:1};html=sheetHtml(s,{sheet:{kind:'rankup',up}});assert.match(html,/매 랭크 효과/);assert.match(html,/Rank 1까지 적용 중/);
 });
