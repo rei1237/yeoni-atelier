@@ -12,5 +12,6 @@ test('카페 수첩 바로가기의 사냥터와 운세는 잠금 조건을 알�
 });
 test('섬 산책·목표·음악 안내는 각 장면에 맞는 그림을 사용한다',()=>{
  for(const id of ['world','quests','music']){assert.equal(GUIDES[id].image,id);assert.match(tutorialSheet({guideId:id,guideStep:0}),new RegExp('guides/'+id+'-v2.webp'));}
- assert.equal(GUIDES.shop.image,'shop');assert.equal(GUIDES.delivery.image,'shop');
+ assert.equal(new Set(Object.values(GUIDES).map(g=>g.image)).size,Object.keys(GUIDES).length);
+ for(const [id,g] of Object.entries(GUIDES)) assert.match(tutorialSheet({guideId:id,guideStep:0}),new RegExp('guides/'+(g.image.startsWith('tutorial_')?'tutorial-'+id:g.image+'-v2')+'\\.webp'));
 });

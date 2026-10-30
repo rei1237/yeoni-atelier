@@ -4303,5 +4303,222 @@
     "sourceFile": "exec-0dbad316-fd37-4a08-bc56-364fc44999ab.png",
     "prompt": "Illustrated vintage record player with vinyl, teacup and flowers in a moonlit cafe; no text.",
     "normalization": "720×464 WebP quality 82, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_restock",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-7d1c861e-649f-4747-b2d1-4c1e983e28e1.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: an empty flour jar and milk bottle alongside a basket of replenishment groceries and delivery parcel at a cozy cafe. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_delivery",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-1d3d71d3-28d8-4fd6-be65-1cc5ca6cb425.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a woven delivery basket packed with coffee beans, milk bottles, flour and eggs arriving at a cozy cafe door. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_personal",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-93a3919a-18b5-4c69-98f3-1f70a4197b8a.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a home kitchen counter with mixing bowl, ingredients, a finished plate and a small flower-shaped achievement ribbon. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_batch",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-09be0396-6b43-4323-94ff-f142be077b06.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: several dishes for a single cafe table being prepared together on an organized counter, multiple cups and a baking tray. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_signatures",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-dd4ce475-6ff3-496b-9e07-bc8cdf38a9d1.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: three elegant special cafe dishes displayed together: cream latte, strawberry rose mille-feuille and pumpkin quiche. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_firstday",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-c06c5b1b-655f-4517-81a9-32a7ce98e6ef.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a welcoming first morning in a cozy cafe with an apron, a cup and a handwritten diary on the counter, morning light. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_branches",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-36c368e9-2f3b-4524-a0b8-a127f4b625b7.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a set of several distinct cozy cafe branch buildings connected by paths on an illustrated tabletop town map. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_growth",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-430ff276-58bb-4890-a464-e078e4495862.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a flower-shaped medal, recipe journal and tiny growing plant on a wooden desk, symbolizing progress and earned titles. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_staffing",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-220edcf7-6043-415e-a516-c1044ab73c26.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a cafe staffing planning board with blank portrait silhouettes and tiny aprons beside the kitchen and service counters. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_opening",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-ea1e18ac-39f2-4cf8-9664-c63cca341f23.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a cafe entrance with its door open to the morning, tables set and fresh coffee ready for first guests. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_recipe",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-490d04a3-ab1c-4aca-904a-c4de561f32c8.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: an open recipe book with illustrated ingredients, coffee cup and pastry on a cozy kitchen worktop. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_exchange",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-778703ba-13be-4856-bab3-09b70256c594.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a pile of luminous blue moonstones and a pile of golden game coins on a wooden exchange counter. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_kfp",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-86d2e0ca-8cd8-49f4-8ab8-0fcb0e20cc4d.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a crescent wand and a small moon charm joining into a luminous evolved magical weapon on a dark velvet table. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_finance",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-5face9d7-9e14-4a9c-a588-b3caccb167cf.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: an open cafe bookkeeping ledger, calculator, gold game coins and a cup of tea on a desk. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_trail",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-2e6f89f1-9d1b-4438-973f-77d35a152f1f.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a moonlit forest path forking into two clear trails, lanterns and a treasure chest near the crossing. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_cook",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-480fc816-a634-46af-b554-e3abb3f9b88d.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a coffee machine and bakery oven on a warm cafe kitchen counter with a cup and pastry being prepared. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_shop",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-06211fca-6aa3-41b1-80c8-7fdde8a55cd0.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a cozy grocery shop counter stocked with coffee beans, milk, eggs, flour and a small healing soup. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_expand",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-2a4f295e-ab20-4ec0-b042-8e6300d85ced.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a furniture shop filled with cafe chairs, tables and shelves beside a folded floor plan. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_serve",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-e61325c1-7670-424a-9aa8-1fc5fcd33a1c.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a tray carrying finished coffee and cake from the kitchen toward a waiting cafe table. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_shelter",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-69ef199e-11c4-42eb-a93d-21d8c6652571.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a tranquil rabbit-themed rest room with soft cushions, warm tea, flowers and a small blanket. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_host",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-4e13e58e-e093-40af-a527-c3ce5eb4c2dc.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: an elegant host cafe table prepared with tea and flowers, a reserved sign without legible text and warm stage lights. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_catcafe",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-be8eb1e2-45a9-40ee-b6f1-8a7a0082221d.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a small white cat in a dark navy starry wizard hat carrying a little tray through a cozy cafe, gentle chibi game illustration. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_hunt",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-5913e285-4ad9-4e18-8745-9361da08344a.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a small white cat wearing a dark navy wizard hat facing shadowy creatures on a moonlit flower-covered forest path. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_huntmusic",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-94eeaf0d-37d2-40f8-ab42-2e7cf733efe1.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a small vintage music player and map with a glowing moon symbol in a dark moonlit forest. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_farm",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-9e6628bd-356d-4121-a836-93dadb001888.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a garden plot with seedlings, watering can and baskets of freshly harvested vegetables beside a cozy farm. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_worldcast",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-2055715d-140c-446d-a57d-2e85a56fa188.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: an elegant sealed invitation with floral motifs and a group of empty picture frames on a cafe table. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_armory",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-8facab8a-498f-4c66-906a-299f91136df8.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a magical workshop workbench with a crescent wand, protective charm, tools and glowing moonstones. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_decorate",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-1dd40dd0-b3ae-49ec-a6fc-ab6354bab170.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a cozy cafe interior mid-decoration with furniture placement plan, chairs, plants and a clear aisle. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_outfits",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-f48d59da-2105-4b38-8a8b-2b8b34ce9770.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: an open wardrobe with neatly arranged elegant jackets, a mirror and soft cafe lighting. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_bonds",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-cad4e56e-76dc-4f59-bba2-899145ad55b7.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: two cups of tea, a wrapped gift and a heart-shaped letter on a cozy cafe table. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
+  },
+  {
+    "id": "guides/tutorial_fortune",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-d5880090-9b53-4f8f-a4f0-00e90aa790e8.png",
+    "prompt": "Use case: illustration-story. Asset: one tutorial image for a cozy fantasy café management game. Scene: a tarot card deck, star chart and a cup of tea on a moonlit reading table, no text. Hand-painted gentle storybook illustration, refined warm cream, muted rose, sage and moonlight palette, softly detailed, readable composition, no text, no logos, no user interface, no watermark. Landscape framing with main subject centered. Avoid adding characters unless specified.",
+    "normalization": "480×310 WebP quality 72, Lanczos center crop"
   }
 ]

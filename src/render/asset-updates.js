@@ -10168,3 +10168,6 @@ for(const key of ['luna_crescent_latte','luna_berry_mille','luna_pumpkin_quiche'
 
 // 10-30 안내별 장면 그림(필요할 때만 로드).
 for(const key of ['world','quests','music']) ASSET_UPDATES.guides[key]={kind:'object',label:key,path:`assets/illustrated/guides/${key}-v2.webp`,dimensions:[720,464],opaque:true};
+
+// 10-30 각 안내의 장면을 필요한 순간에만 읽는다.
+for(const key of ["restock","delivery","personal","batch","signatures","firstday","branches","growth","staffing","opening","recipe","exchange","kfp","finance","trail","cook","shop","expand","serve","shelter","host","catcafe","hunt","huntmusic","farm","worldcast","armory","decorate","outfits","bonds","fortune"]) ASSET_UPDATES.guides[`tutorial_${key}`]={kind:'object',label:key,path:`assets/illustrated/guides/tutorial-${key}.webp`,dimensions:[480,310],opaque:true};

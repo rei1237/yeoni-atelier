@@ -63,6 +63,9 @@ body[data-mode=hunt] .hunt-kit-details[open] .hunt-kit{position:absolute;bottom:
 .hunt-map-canvas{width:150px;height:150px;border-radius:10px;border:1px solid #7188a5}
 .hunt-map-pop p{font-size:10px;line-height:1.4}.hunt-map-pop small{display:none}
 @media(max-width:700px){.hunt-map-pop{width:128px;padding:6px}.hunt-map-canvas{width:114px;height:114px}.hunt-map-pop p{display:none}}
+@media(max-width:400px){.hunt-map-pop{width:108px;padding:6px}.hunt-map-canvas{width:94px;height:94px}.hunt-map-head{font-size:11px}}
+.hunt-growth-short{display:none}
+@media(max-width:360px){.hunt-growth-long{display:none}.hunt-growth-short{display:inline}}
 @media(max-height:520px){.hunt-map-pop{width:108px}.hunt-map-canvas{width:94px;height:94px}.hunt-map-pop p{display:none}}
 /* 주변 지도는 상단 상태와 월정석 표기를 피해 오른쪽 위에 둔다. */
 body[data-mode=hunt] .hunt-map-pop{top:100px;right:10px;bottom:auto}

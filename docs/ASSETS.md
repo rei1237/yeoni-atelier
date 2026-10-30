@@ -767,3 +767,37 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 | guides/world | assets/illustrated/guides/world-v2.webp | 720×464 | 완료 |
 | guides/quests | assets/illustrated/guides/quests-v2.webp | 720×464 | 완료 |
 | guides/music | assets/illustrated/guides/music-v2.webp | 720×464 | 완료 |
+
+| 에셋 키 | 경로 | 크기 | 상태 |
+|---|---|---|---|
+| guides/tutorial_restock | assets/illustrated/guides/tutorial-restock.webp | 480×310 | 완료 |
+| guides/tutorial_delivery | assets/illustrated/guides/tutorial-delivery.webp | 480×310 | 완료 |
+| guides/tutorial_personal | assets/illustrated/guides/tutorial-personal.webp | 480×310 | 완료 |
+| guides/tutorial_batch | assets/illustrated/guides/tutorial-batch.webp | 480×310 | 완료 |
+| guides/tutorial_signatures | assets/illustrated/guides/tutorial-signatures.webp | 480×310 | 완료 |
+| guides/tutorial_firstday | assets/illustrated/guides/tutorial-firstday.webp | 480×310 | 완료 |
+| guides/tutorial_branches | assets/illustrated/guides/tutorial-branches.webp | 480×310 | 완료 |
+| guides/tutorial_growth | assets/illustrated/guides/tutorial-growth.webp | 480×310 | 완료 |
+| guides/tutorial_staffing | assets/illustrated/guides/tutorial-staffing.webp | 480×310 | 완료 |
+| guides/tutorial_opening | assets/illustrated/guides/tutorial-opening.webp | 480×310 | 완료 |
+| guides/tutorial_recipe | assets/illustrated/guides/tutorial-recipe.webp | 480×310 | 완료 |
+| guides/tutorial_exchange | assets/illustrated/guides/tutorial-exchange.webp | 480×310 | 완료 |
+| guides/tutorial_kfp | assets/illustrated/guides/tutorial-kfp.webp | 480×310 | 완료 |
+| guides/tutorial_finance | assets/illustrated/guides/tutorial-finance.webp | 480×310 | 완료 |
+| guides/tutorial_trail | assets/illustrated/guides/tutorial-trail.webp | 480×310 | 완료 |
+| guides/tutorial_cook | assets/illustrated/guides/tutorial-cook.webp | 480×310 | 완료 |
+| guides/tutorial_shop | assets/illustrated/guides/tutorial-shop.webp | 480×310 | 완료 |
+| guides/tutorial_expand | assets/illustrated/guides/tutorial-expand.webp | 480×310 | 완료 |
+| guides/tutorial_serve | assets/illustrated/guides/tutorial-serve.webp | 480×310 | 완료 |
+| guides/tutorial_shelter | assets/illustrated/guides/tutorial-shelter.webp | 480×310 | 완료 |
+| guides/tutorial_host | assets/illustrated/guides/tutorial-host.webp | 480×310 | 완료 |
+| guides/tutorial_catcafe | assets/illustrated/guides/tutorial-catcafe.webp | 480×310 | 완료 |
+| guides/tutorial_hunt | assets/illustrated/guides/tutorial-hunt.webp | 480×310 | 완료 |
+| guides/tutorial_huntmusic | assets/illustrated/guides/tutorial-huntmusic.webp | 480×310 | 완료 |
+| guides/tutorial_farm | assets/illustrated/guides/tutorial-farm.webp | 480×310 | 완료 |
+| guides/tutorial_worldcast | assets/illustrated/guides/tutorial-worldcast.webp | 480×310 | 완료 |
+| guides/tutorial_armory | assets/illustrated/guides/tutorial-armory.webp | 480×310 | 완료 |
+| guides/tutorial_decorate | assets/illustrated/guides/tutorial-decorate.webp | 480×310 | 완료 |
+| guides/tutorial_outfits | assets/illustrated/guides/tutorial-outfits.webp | 480×310 | 완료 |
+| guides/tutorial_bonds | assets/illustrated/guides/tutorial-bonds.webp | 480×310 | 완료 |
+| guides/tutorial_fortune | assets/illustrated/guides/tutorial-fortune.webp | 480×310 | 완료 |
