@@ -90,7 +90,7 @@ export function startHunt(state, depth = 1, hunterId = 'neo') {
   // TEMP: 정규 100단계 뒤 보상 동료. 원본 산탄과 꽃잎포를 쓰고 카페의 영입·능력은 바꾸지 않는다.
   if(hunterId === 'yeoni_pig'){gear.hp+=400;gear.dmg+=3;gear.speed+=.15;gear.magnet+=.5;}
   if(hunterId === 'seohanbi') { gear.hp += 120; gear.dmg += .8; gear.speed += .12; gear.magnet += .3; }
-  const enhancement = enhancementBonus(state,hunterId); gear.hp += enhancement.hp; gear.dmg += enhancement.dmg; gear.magnet += enhancement.magnet;
+  const enhancement = enhancementBonus(state,hunterId); gear.hp += enhancement.hp; gear.dmg += enhancement.dmg; gear.magnet += enhancement.magnet; gear.speed += enhancement.speed;
   const careerLevel = hunterProgress(state.hunter.xp).level;
   const statLevel = Math.min(careerLevel, TEMP.HUNT_CAREER.statCap); // 성장 보너스는 Lv10에서 멈춘다
   gear.hp += (statLevel - 1) * TEMP.HUNT_CAREER.hpPerLevel;

@@ -47,7 +47,8 @@ test('무인 장비 좌판: 사면 빈 칸에 장착되고, 사냥 시작 때 �
   assert.equal(s.gold, 5000 - GEAR.scale_vest.cost.gold);
   assert.equal(s.gear.equipped.armor, 'scale_vest');
   assert.equal(dispatch(s, { type: 'gear.buy', id: 'scale_vest' }).ok, false, '같은 장비는 두 번 못 산다');
-  assert.equal(dispatch(s, { type: 'gear.buy', id: 'crescent_wand' }).ok, false, '월정석이 없으면 못 산다');
+  const savedGold=s.gold;s.gold=GEAR.crescent_wand.cost.gold-1;
+  assert.equal(dispatch(s, { type: 'gear.buy', id: 'crescent_wand' }).ok, false, '골드가 부족하면 못 산다');s.gold=savedGold;
   assert.equal(dispatch(s, { type: 'gear.equip', slot: 'weapon', id: 'scale_vest' }).ok, false, '칸이 다르면 못 낀다');
   const r = dispatch(s, { type: 'hunt.start' });
   assert.ok(r.ok, r.reason);
@@ -122,8 +123,8 @@ test('공방 증축: 잠긴 구역에는 가구를 못 놓고, 열 때마다 다
 test('장식 들이기는 보관함으로 오고, 월정석·장비는 저장 후에도 그대로', () => {
   const s = createGame();s.day=7;
   s.hostbar.open = true; s.huntUnlocked = true; s.stats.huntsCompleted = 1; s.hunter.maxStage = 7; // 테스트 준비: 기능 개시·6단계 클리어 후 동작
-  s.gold = 2000;
-  s.moonstone = GEAR.crescent_wand.cost.moonstone;
+  s.gold = 5000;
+  s.moonstone = 99;
   const n0 = s.interior.furniture.length;
   assert.ok(dispatch(s, { type: 'expand.decor', defId: 'lamp' }).ok);
   const added = s.interior.furniture[n0];
@@ -132,7 +133,7 @@ test('장식 들이기는 보관함으로 오고, 월정석·장비는 저장 �
   assert.ok(dispatch(s, { type: 'gear.buy', id: 'crescent_wand' }).ok);
   const r = deserialize(serialize(s));
   assert.ok(r.ok, r.reason);
-  assert.equal(r.state.moonstone, 0);
+  assert.equal(r.state.moonstone, 99);
   assert.equal(r.state.gear.equipped.weapon, 'crescent_wand');
   assert.equal(r.state.interior.furniture.length, n0 + 1);
 });

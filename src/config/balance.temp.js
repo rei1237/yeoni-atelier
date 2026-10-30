@@ -224,14 +224,14 @@ export const TEMP = Object.freeze({
   HUNT_SKILLS: Object.freeze({
     START: Object.freeze(['bolt', 'orbit', 'paw', 'fish_stock']), // 처음부터 1단계
     // 10-28 사용자 요청: 기술마다 사던 상한 해방을 공용 상한 한 줄로 합치고 월정석을 낮춘다(TEMP)
-    LEARN: Object.freeze({ hat: 500, whisker: 500, crescent: 900, bell: 900, aura: 1500, luck: 1500, tarot: 2400 }), // 배우기 값(800~4000 → 약 0.6배)
+    LEARN: Object.freeze({ hat: 700, whisker: 700, crescent: 1200, bell: 1200, aura: 1800, luck: 1800, tarot: 3000 }), // 기술서 골드 가격(TEMP)
     CAP_BASE: Object.freeze({ weapon: 3, passive: 2 }), // 공용 상한 0단계(기본) 사냥 중 최대 Lv. 예전 기본(무기 Lv2·보조 Lv1)보다 한 단계 위
     CAP_COST: Object.freeze([900, 2200]),              // 옛 공용 상한 1·2단계 값(이전 저장 계산용). 10-29부터 TECH가 대신한다
     // 10-29 사용자 요청: 공방 연구를 여러 갈래로 나눠 쉽게 다 얻지 못하게 한다. cost·stage는 단계마다, stage = 사냥터 도달 단계(hunter.maxStage). 모두 TEMP
     TECH: Object.freeze({
-      forge: Object.freeze({ cost: Object.freeze([900, 2600]), stage: Object.freeze([7, 12]) }),  // 무기 상한 해방: 무기 Lv3→4→5
-      charm: Object.freeze({ cost: Object.freeze([1400]), stage: Object.freeze([9]) }),            // 보조 상한 해방: 보조 Lv2→3
-      evo: Object.freeze({ cost: Object.freeze([1800, 2600, 3600, 4800, 6400]), stage: Object.freeze([14, 20, 28, 38, 50]) }), // 진화 비전: 연구한 수만큼 다음 값이 오른다. 무기 상한 해방 끝·그 무기를 배운 뒤
+      forge: Object.freeze({ cost: Object.freeze([120, 300]), stage: Object.freeze([7, 12]) }),  // 무기 상한 해방: 무기 Lv3→4→5
+      charm: Object.freeze({ cost: Object.freeze([180]), stage: Object.freeze([9]) }),            // 보조 상한 해방: 보조 Lv2→3
+      evo: Object.freeze({ cost: Object.freeze([3000, 4500, 6500, 9000, 12000]), stage: Object.freeze([14, 20, 28, 38, 50]) }), // 진화 비전: 연구한 수만큼 다음 값이 오른다. 무기 상한 해방 끝·그 무기를 배운 뒤
     }),
     POUCH: 12,                                        // 상한에 다 닿았을 때 레벨업 카드 「월정석 주머니」(10-28: 3→12, 단계 보상 배율 적용)
   }),

@@ -15,7 +15,7 @@ test('첫 사냥 이야기만 준비 화면으로 안내하고 재완료·저장
  const locked=createGame();assert.equal(dispatch(locked,{type:'story.seen',id:'ev:hunt'}).ok,false);
 });
 test('폭탄은 공방에서 1개만 구매하고 소비 뒤 재구매하며 옛 초과 보유는 보존한다',()=>{
- let s=ready();const price=SUPPLIES.bomb.cost;s.moonstone=price-1;assert.equal(dispatch(s,{type:'armory.buy',id:'bomb'}).ok,false);s.moonstone=price*3;assert.ok(dispatch(s,{type:'armory.buy',id:'bomb'}).ok);assert.equal(dispatch(s,{type:'armory.buy',id:'bomb'}).ok,false);assert.equal(s.moonstone,price*2);s=deserialize(serialize(s)).state;assert.equal(s.armory.supplies.bomb,1);
+ let s=ready();const price=SUPPLIES.bomb.cost;s.gold=price-1;assert.equal(dispatch(s,{type:'armory.buy',id:'bomb'}).ok,false);s.gold=price*3;assert.ok(dispatch(s,{type:'armory.buy',id:'bomb'}).ok);assert.equal(dispatch(s,{type:'armory.buy',id:'bomb'}).ok,false);assert.equal(s.gold,price*2);s=deserialize(serialize(s)).state;assert.equal(s.armory.supplies.bomb,1);
  assert.ok(dispatch(s,{type:'hunt.start'}).ok);assert.ok(dispatch(s,{type:'hunt.supply',id:'bomb'}).ok);assert.equal(dispatch(s,{type:'hunt.supply',id:'bomb'}).ok,false);assert.equal(s.armory.supplies.bomb,0);dispatch(s,{type:'hunt.retreat'});dispatch(s,{type:'hunt.finish'});assert.ok(dispatch(s,{type:'armory.buy',id:'bomb'}).ok);
  s.armory.supplies.bomb=4;s=deserialize(serialize(s)).state;assert.equal(s.armory.supplies.bomb,4);assert.equal(dispatch(s,{type:'armory.buy',id:'bomb'}).ok,false);assert.equal(s.armory.supplies.bomb,4);assert.ok(!JSON.stringify(TEMP.HUNT).includes('"id":"bomb"'));
 });

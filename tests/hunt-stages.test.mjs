@@ -212,15 +212,15 @@ test('공방 연구: armory.learn은 배우기만, armory.tech는 무기·보조
   s.moonstone = 99999;
   assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).reason, placeLock(s, 'gear'));
   assert.equal(dispatch(s, { type: 'armory.tech', line: 'forge' }).reason, placeLock(s, 'gear'));
-  s.hunter.maxStage = 7; s.moonstone = skillCost('crescent') - 1; // 테스트 준비: 6단계를 클리어해 공방이 열렸다
+  s.hunter.maxStage = 7; s.gold = skillCost('crescent') - 1; // 테스트 준비: 6단계를 클리어해 공방이 열렸다
   assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).ok, false);
-  assert.equal(s.moonstone, skillCost('crescent') - 1, '실패 시 차감 없음');
-  s.moonstone += 1;
+  assert.equal(s.gold, skillCost('crescent') - 1, '실패 시 차감 없음');
+  s.gold += 1;
   const r = dispatch(s, { type: 'armory.learn', id: 'crescent' });
-  assert.ok(r.ok && r.rank === 1 && s.moonstone === 0 && r.cost === TEMP.HUNT_SKILLS.LEARN.crescent);
+  assert.ok(r.ok && r.rank === 1 && s.gold === 0 && r.cost === TEMP.HUNT_SKILLS.LEARN.crescent);
   assert.ok(r.events.some(e => e.type === 'skillLearned'));
   assert.ok(TEMP.HUNT_SKILLS.LEARN.tarot < 4000, '10-28: 배우기 값을 낮췄다');
-  s.moonstone = 1e6;
+  s.moonstone = 1e6; s.gold=1e6;
   assert.equal(dispatch(s, { type: 'armory.learn', id: 'crescent' }).ok, false, '이미 배운 기술');
   assert.ok(dispatch(s, { type: 'armory.learn', id: 'bell' }).ok);
   const T = TEMP.HUNT_SKILLS.TECH, before = s.moonstone, up = dispatch(s, { type: 'armory.tech', line: 'forge' });
@@ -232,8 +232,8 @@ test('공방 연구: armory.learn은 배우기만, armory.tech는 무기·보조
   assert.ok(dispatch(s, { type: 'armory.tech', line: 'forge' }).ok); assert.ok(dispatch(s, { type: 'armory.tech', line: 'charm' }).ok);
   assert.equal(dispatch(s, { type: 'armory.tech', line: 'forge' }).ok, false, '끝까지 연구');
   assert.match(dispatch(s, { type: 'armory.tech', line: 'evo', id: 'tarot' }).reason, /배워/, '못 배운 무기의 진화는 거절');
-  const m = s.moonstone, ev = dispatch(s, { type: 'armory.tech', line: 'evo', id: 'crescent' });
-  assert.ok(ev.ok && s.moonstone === m - T.evo.cost[0] && evoKnown(s, 'crescent') && !evoKnown(s, 'bolt'));
+  const m = s.gold, ev = dispatch(s, { type: 'armory.tech', line: 'evo', id: 'crescent' });
+  assert.ok(ev.ok && s.gold === m - T.evo.cost[0] && evoKnown(s, 'crescent') && !evoKnown(s, 'bolt'));
   assert.match(dispatch(s, { type: 'armory.tech', line: 'evo', id: 'bolt' }).reason, new RegExp(`${T.evo.stage[1]}단계`), '두 번째 비전은 더 깊은 단계');
   assert.ok(T.evo.cost.every((c, i) => !i || c > T.evo.cost[i - 1]), '진화 비전은 갈수록 비싸다');
   assert.ok(dispatch(s, { type: 'hunt.start', depth: 1 }).ok);

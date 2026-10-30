@@ -8,20 +8,20 @@ import { TEMP } from '../config/balance.temp.js';
 import { WEAPONS, PASSIVES, WEAPON_MAX_LV, PASSIVE_MAX_LV } from '../data/hunt-kit.js';
 const SK = TEMP.HUNT_SKILLS;
 export const HUNTERS = ['neo', 'seohanbi'];
-// 윤달 공방은 월정석, 모카 보급품은 기존 기본 환율을 기준으로 환산한 골드를 사용한다.
+// 공방 강화·상한 해방은 월정석, 나머지 공방 물품과 모카 보급품은 골드를 사용한다.
 export const UPGRADES = Object.freeze({
-  power: { name:'무기 연마', base:320, step:60, value:.045, detail:'피해 배율 +4.5%p' },
-  vitality: { name:'수호 부적', base:260, step:50, value:7, detail:'최대 체력 +7' },
-  magnet: { name:'월광 수집기', base:280, step:50, value:.035, detail:'줍기 범위 +3.5%p' },
+  power: { name:'무기 연마', base:45, step:12, value:.045, detail:'피해 배율 +4.5%p' },
+  vitality: { name:'수호 부적', base:35, step:10, value:7, detail:'최대 체력 +7' },
+  stride: { name:'달빛 발걸음', base:40, step:10, value:.015, detail:'이동 속도 +1.5%p · 최대 +60%p' },
 });
 export const SUPPLIES = Object.freeze({
-  bomb:{name:'달빛 폭탄',cost:130,tier:0,shop:'gear',icon:'tarot',limit:1,detail:'주변 적에게 피해 200 · 최대 보유 1개 · 사용 후 재구매 가능 (TEMP)'},
+  bomb:{name:'달빛 폭탄',cost:1200,tier:0,shop:'gear',icon:'tarot',limit:1,detail:'주변 적에게 피해 200 · 최대 보유 1개 · 사용 후 재구매 가능 (TEMP)'},
   tonic:{name:'모카의 회복 수프', cost:36, tier:0, icon:'heal', detail:'최대 체력의 35% 회복 · 사냥터의 구운 생선은 드물어요', limit:3},
   magnet:{name:'달빛 수집 향', cost:60, tier:1, icon:'whisker', detail:'필드에 떨어진 모든 보상을 끌어오기'},
   shield:{name:'검은 밤의 방패', cost:90, tier:2, icon:'hat', detail:'8초 동안 접촉 피해 방지'},
   nova:{name:'모카의 비밀 향신료', cost:130, tier:3, icon:'tarot', detail:'주변 적에게 현재 공격력 기준 큰 피해'},
 });
-export const supplyPrice = item => (item.shop || 'moka') === 'gear' ? {currency:'moonstone', amount:item.cost} : {currency:'gold', amount:item.cost * TEMP.MOONSTONE_GOLD};
+export const supplyPrice = item => ({currency:'gold', amount:item.shop==='gear' ? item.cost : item.cost * TEMP.MOONSTONE_GOLD});
 export function armory(state) { return state.armory || { upgrades:{}, supplies:{}, skills:{} }; }
 // ── 기술: 0 = 못 배움, 1 이상 = 배움(옛 저장의 기술별 해방 단계는 숫자 그대로 남는다).
 // 10-29 공방 연구(armory.tech): 무기 상한(forge)·보조 상한(charm)은 배운 기술 모두에 공용, 진화 비전(evo)은 무기마다 따로 연다
@@ -45,7 +45,7 @@ export const skillCost = id => SK.LEARN[id] ?? Infinity;
 export function techNext(state, line, id) {
   const lv = techLevel(state, line), t = SK.TECH[line];
   if (!t || lv >= techMax(line)) return { done: true };
-  const out = { cost: t.cost[lv], stage: t.stage[lv] };
+  const out = { cost: t.cost[lv], stage: t.stage[lv], currency: line === 'evo' ? 'gold' : 'moonstone' };
   if (line === 'evo') {
     if (!WEAPONS[id]) return { ...out, reason: '진화를 연구할 무기를 골라 주세요' };
     if (evoKnown(state, id)) return { done: true };
@@ -81,7 +81,7 @@ export function legacySkillRanks(data) {
 }
 export function upgradeLevel(state, who, id) { return armory(state).upgrades?.[who]?.[id] || 0; }
 export function upgradeCost(state, who, id) { const d=UPGRADES[id], n=upgradeLevel(state,who,id); return d ? Math.ceil(d.base+d.step*n+Math.pow(n,1.18)) : Infinity; }
-export function enhancementBonus(state,who) { return { dmg:upgradeLevel(state,who,'power')*.045, hp:upgradeLevel(state,who,'vitality')*7, magnet:upgradeLevel(state,who,'magnet')*.035 }; }
+export function enhancementBonus(state,who) { return { dmg:upgradeLevel(state,who,'power')*.045, hp:upgradeLevel(state,who,'vitality')*7, magnet:upgradeLevel(state,who,'magnet')*.035, speed:Math.min(.6,upgradeLevel(state,who,'stride')*.015) }; } // 기존 수집기 강화는 그대로 보존
 // 강화는 윤달의 무기 공방, 소모품은 모카 식재료점 소관이다(저장 키 armory는 호환을 위해 유지).
 function check(state,where) { return state.mode==='prep' && !state.interior.draft ? {ok:true} : {ok:false,reason:`영업 준비 중에 ${where}을 이용해 주세요`}; }
 function ensure(state) { state.armory ||= {upgrades:{},supplies:{}}; state.armory.upgrades ||= {}; state.armory.supplies ||= {}; state.armory.skills ||= startSkills(); state.armory.tech ||= {forge:0,charm:0,evo:{}}; state.armory.tech.evo ||= {}; return state.armory; }
@@ -92,6 +92,7 @@ export function enhance(state,who,id) {
   const chk=check(state,'윤달의 무기 공방'); if(!chk.ok)return chk;
   const lock=placeLock(state,'gear'); if(lock)return {ok:false,reason:lock};
   if(!HUNTERS.includes(who) || !state.roster[who] || !UPGRADES[id])return {ok:false,reason:'함께하는 사냥꾼과 강화 항목을 골라 주세요'};
+  if(id==='stride' && upgradeLevel(state,who,id)>=40)return {ok:false,reason:'달빛 발걸음은 최대 단계예요'};
   const free=(armory(state).freeEnhance||0)>0,cost=free?0:upgradeCost(state,who,id); if(!Number.isSafeInteger(cost)||state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
   const a=ensure(state), n=upgradeLevel(state,who,id); if(free)a.freeEnhance-=1; if(!Number.isSafeInteger(n+1))return {ok:false,reason:'저장할 수 있는 수치 범위를 넘었습니다'};
   state.moonstone-=cost; (a.upgrades[who] ||= {})[id]=n+1;
@@ -104,10 +105,10 @@ export function learnSkill(state,id) {
   if(!skillKind(id))return {ok:false,reason:'없는 기술입니다'};
   const a=ensure(state);
   if(skillRank(state,id)>0)return {ok:false,reason:'이미 배운 기술이에요 · 상한은 공방 연구로 올려요'};
-  const cost=skillCost(id); if(state.moonstone<cost)return {ok:false,reason:`월정석 ${cost}개가 필요해요`};
-  state.moonstone-=cost; a.skills[id]=1;
+  const cost=skillCost(id); if(state.gold<cost)return {ok:false,reason:`골드 ${cost.toLocaleString()}G가 필요해요`};
+  state.gold-=cost; a.skills[id]=1;
   const cap=skillCap(id,1,capLevels(state));
-  recordYunTrade(state,0,cost); emit('skillLearned',{id,name:(WEAPONS[id]||PASSIVES[id]).name,rank:1,cost,cap}); return {ok:true,cost,rank:1};
+  recordYunTrade(state,cost,0); emit('skillLearned',{id,name:(WEAPONS[id]||PASSIVES[id]).name,rank:1,cost,cap}); return {ok:true,cost,rank:1};
 }
 export function researchTech(state,line,id) {
   const chk=check(state,'윤달의 무기 공방'); if(!chk.ok)return chk;
@@ -115,11 +116,11 @@ export function researchTech(state,line,id) {
   if(!TECH_LINES[line])return {ok:false,reason:'없는 연구입니다'};
   const next=techNext(state,line,id); if(next.done)return {ok:false,reason:line==='evo'&&WEAPONS[id]?'이미 연구한 진화예요':`${TECH_LINES[line].name}을 끝까지 연구했어요`};
   if(next.reason)return {ok:false,reason:next.reason};
-  if(state.moonstone<next.cost)return {ok:false,reason:`월정석 ${next.cost}개가 필요해요`};
-  const a=ensure(state); state.moonstone-=next.cost;
+  if(state[next.currency]<next.cost)return {ok:false,reason:next.currency==='gold'?`골드 ${next.cost.toLocaleString()}G가 필요해요`:`월정석 ${next.cost}개가 필요해요`};
+  const a=ensure(state); state[next.currency]-=next.cost;
   if(line==='evo')a.tech.evo[id]=1; else a.tech[line]=techLevel(state,line)+1;
   const level=techLevel(state,line);
-  recordYunTrade(state,0,next.cost); emit('techResearched',{line,id:line==='evo'?id:null,name:line==='evo'?WEAPONS[id].evo.name:TECH_LINES[line].name,level,max:techMax(line),cost:next.cost,...capLevels(state)}); return {ok:true,cost:next.cost,level};
+  recordYunTrade(state,next.currency==='gold'?next.cost:0,next.currency==='moonstone'?next.cost:0); emit('techResearched',{line,id:line==='evo'?id:null,name:line==='evo'?WEAPONS[id].evo.name:TECH_LINES[line].name,level,max:techMax(line),cost:next.cost,...capLevels(state)}); return {ok:true,cost:next.cost,level};
 }
 export function buySupply(state,id) {
   const item=SUPPLIES[id],chk=check(state,item?.shop==='gear'?'윤달의 무기 공방':'모카 식재료점');if(!chk.ok)return chk;
@@ -128,5 +129,5 @@ export function buySupply(state,id) {
   if(item?.limit && (armory(state).supplies?.[id]||0)>=item.limit)return {ok:false,reason:id==='tonic'?'회복 수프는 3개까지만 챙길 수 있어요':`${item.name} 최대 보유 ${item.limit}개 · 사용한 뒤 다시 구매할 수 있어요`};
   const price=supplyPrice(item);
   if((state[price.currency]||0)<price.amount)return {ok:false,reason:price.currency==='gold'?`골드 ${price.amount.toLocaleString()}G가 필요해요`:`월정석 ${price.amount}개가 필요해요`};
-  const a=ensure(state);state[price.currency]-=price.amount;a.supplies[id]=(a.supplies[id]||0)+1;workShop(state);emit('supplyBought',{id});return {ok:true};
+  const a=ensure(state);state[price.currency]-=price.amount;a.supplies[id]=(a.supplies[id]||0)+1;if(item.shop==='gear')recordYunTrade(state,price.amount,0);workShop(state);emit('supplyBought',{id});return {ok:true};
 }
