@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.30.4",
-  "name": "연이의 아틀리에 · 카페와 달빛 상점",
+  "version": "2026.10.30.5",
+  "name": "연이의 아틀리에 · 윤달 공방 가격 조정",
   "musicTracks": 103,
   "assetBytes": 17879958,
   "channel": "production",
-  "baseCommit": "ab25f2c",
+  "baseCommit": "1870d84",
   "newTitleArt": true
 }
