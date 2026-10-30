@@ -9,7 +9,7 @@ import {customerLook} from '../src/data/customer-looks.js';
 import {worldScreenHtml} from '../src/ui/world-screen.js';
 import {tableBadgesHtml,tablePopHtml,orderChipsHtml,cafeTasks} from '../src/ui/table-ui.js';
 import {panelHtml,automationChips} from '../src/ui/hud.js';
-import {computeView} from '../src/render/cafe-view.js';
+import {computeView,canvasDpr} from '../src/render/cafe-view.js';
 
 test('지도·의뢰를 그리는 것만으로 행동력·보상·난수는 바뀌지 않는다',()=>{
  const s=createGame(),before=serialize(s);
@@ -97,4 +97,10 @@ test('영업 중에는 재성의 섬 버튼이 잠기고, 영업 준비 때는 �
  assert.match(shift,/aria-disabled="true"/);assert.match(shift,/영업 중에는 재성의 섬에 갈 수 없어요/);
  assert.doesNotMatch(island(panelHtml(createGame(7),{})),/aria-disabled/);
  const s=quietShift();assert.equal(dispatch(s,{type:'world.arrive',place:'moka'}).ok,false,'영업 중 도착 명령도 거절');
+});
+
+test('캔버스 배율은 3배 화면 휴대폰에서 3, 큰 화면에서는 예전처럼 2까지만 쓴다',()=>{
+ assert.equal(canvasDpr(390,844,3),3);assert.equal(canvasDpr(360,640,2),2);assert.equal(canvasDpr(1920,1080,1),1);
+ assert.equal(canvasDpr(1920,1080,2),2);assert.equal(canvasDpr(1440,900,3),2);assert.equal(canvasDpr(390,844,undefined),1);
+ const d=canvasDpr(800,900,3);assert.ok(d>2&&d<3&&800*900*d*d<=4e6+1);assert.equal(canvasDpr(1000,1300,3),2);
 });
