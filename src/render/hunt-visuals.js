@@ -17,6 +17,7 @@ export function drawSaju(ctx,a,now,still=false){
  ctx.fillStyle=glow;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,a.radius,-a.halfArc,a.halfArc);ctx.closePath();ctx.fill();
  const tip=-a.halfArc+2*a.halfArc*p.sweep,tail=Math.max(-a.halfArc,tip-a.halfArc*.9);
  for(const [radius,width,color,alpha] of [[.90,15,gold,.12],[.94,7,gold,.25],[.96,3,gold,.65],[1,1.7,rim,.95]]){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.globalAlpha=p.alpha*alpha;ctx.beginPath();ctx.arc(0,0,a.radius*radius,tail,tip+.04);ctx.stroke();}
+ if(tiger){ctx.globalAlpha=p.alpha*.7;ctx.strokeStyle='#f4f9ff';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,a.radius*.82,Math.max(-a.halfArc,tail+.12),tip);ctx.stroke();ctx.globalAlpha=p.alpha*.35;ctx.strokeStyle='#8abfff';ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,0,a.radius*.73,Math.max(-a.halfArc,tail+.2),tip);ctx.stroke();}
  for(let k=0;k<p.particles;k++){const v=k/p.particles,angle=-a.halfArc+v*a.halfArc*2,r=a.radius*(.64+.27*((k*7%11)/11)),drift=p.progress*(6+k%3);ctx.globalAlpha=p.alpha*(.2+.5*(1-v));ctx.fillStyle=k%2?rim:gold;const x=Math.cos(angle)*(r+drift),y=Math.sin(angle)*(r+drift);ctx.beginPath();ctx.ellipse(x,y,k%3===0?2.2:1,1,angle,0,Math.PI*2);ctx.fill();}
  ctx.restore();
 }

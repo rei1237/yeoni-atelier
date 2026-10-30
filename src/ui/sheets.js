@@ -1,3 +1,4 @@
+import {NOTEBOOK} from './notebook.js';
 import {pixelIcon,pxBtn} from './pixel-icons.js';
 import { creditsScreen } from './credits.js';
 import {titleGameRoom,gameRoomSheet} from './game-room.js';
@@ -687,8 +688,5 @@ function financeLoanHtml(state,c){
 }
 
 // 10-29 카페 수첩: 묶음별 2열 도트 타일. 잠긴 칸은 흐리게 두고 열리는 조건을 적는다
-const NOTEBOOK=[['오늘',[['fortune','달빛 운세 수첩','오늘의 타로·일진·띠·별자리','skills/tarot',s=>!s.ledger.story['ev:fortune']&&'두 번째 영업을 마치면 열려요'],['quests','퀘스트','연이와 오늘의 목표','services/quests']]],
- ['카페 운영',[['staffing','직원 배치','영입 동료 배치','badges/luna'],['branches','지점 관리','본점에서 5호점까지','ui/town-node-expand',s=>branchLock(s)&&'지점 이야기 뒤에 열려요'],['debt','장부와 상환','빚과 이번 달 계획','ui/debt_ledger']]],
- ['친구와 놀이',[['companions','동료와 인연','친구들의 이야기','ui/heart-full'],['outfits','드레스룸','오늘의 옷 고르기','icons/fluff_cape'],['gameroom','게임방','연이·네오 미니게임','ui/game_room']]],
- ['설정',[['audio','달빛 음악실','음악과 효과음','objects/record_player'],['tutorial','튜토리얼','기능 안내 다시 보기','objects/bookshelf'],['more','기타','저장과 그 밖의 설정','services/more']]]];
+
 function manageSheet(state){return `${head('카페 수첩')}${NOTEBOOK.map(([group,items])=>`<section class="notebook-group"><h3>${group}</h3><div class="notebook-menu">${items.map(([id,title,line,icon,lock])=>{const why=lock?.(state);return btn({action:'sheet.open',args:{sheet:id},cls:`notebook-link${why?' locked':''}`,label:`<i class="nb-icon">${assetIcon(icon)}${why?'<em aria-hidden="true">🔒</em>':''}</i><span class="nb-text"><b>${title}</b><small>${why||line}</small></span>`});}).join('')}</div></section>`).join('')}<div class="title-secondary">${btn({action:'game.title',label:'메인 화면으로'})}${btn({action:'game.exit',label:'저장하고 종료'})}</div><div class="manage-auto">${automationRow(state, 'hall')}${automationRow(state, 'hall_neo')}${automationRow(state, 'kitchen')}</div>`;}

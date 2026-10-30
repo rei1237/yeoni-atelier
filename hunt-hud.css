@@ -44,3 +44,4 @@ body[data-mode=hunt] #topbar .hunt-full[aria-pressed=true]{background:#f0cf92;co
  body[data-mode=hunt] .hunt-dock>small{grid-column:1/-1;grid-row:3;color:#cfc3d3}
  body[data-mode=hunt] .toasts{top:84px}
 }
+.hunt-home .hunter-growth-card,.hunt-home .hunter-growth-card :is(b,p,span){color:#493444}.hunt-home .hunter-growth-card p{line-height:1.65}.hunt-home .hunter-select .hunter-locked b{color:#51464b}.hunt-home .close{color:#493444}

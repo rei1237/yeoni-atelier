@@ -527,7 +527,10 @@
     "backgrounds/ending_bad",
     "icons/luna_crescent_latte",
     "icons/luna_berry_mille",
-    "icons/luna_pumpkin_quiche"
+    "icons/luna_pumpkin_quiche",
+    "guides/world",
+    "guides/quests",
+    "guides/music"
   ],
   "hd": [
     "assets/illustrated/actors/bambi@bambi_formal.webp",

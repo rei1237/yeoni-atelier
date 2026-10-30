@@ -129,14 +129,16 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
     if (z.kind === 'circle') {
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2); ctx.stroke();
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r * k, 0, Math.PI * 2); ctx.fill();
-      if (!warn) { ctx.shadowBlur=0; ctx.strokeStyle='rgba(255,230,220,.65)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(z.x,z.y,z.r*.72,0,Math.PI*2); ctx.stroke(); }
+      if (!warn) { ctx.shadowBlur=0; ctx.strokeStyle='rgba(255,230,220,.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(z.x,z.y,z.r*.72,0,Math.PI*2); ctx.stroke(); ctx.strokeStyle='rgba(255,205,190,.55)';ctx.lineWidth=1.5;for(let i=0;i<8;i++){const a=i*Math.PI/4;ctx.beginPath();ctx.moveTo(z.x+Math.cos(a)*z.r*.78,z.y+Math.sin(a)*z.r*.78);ctx.lineTo(z.x+Math.cos(a)*z.r*.96,z.y+Math.sin(a)*z.r*.96);ctx.stroke();} }
     } else if (z.kind === 'ring') { // 도넛: 안쪽은 안전
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2); ctx.moveTo(z.x + z.r0, z.y); ctx.arc(z.x, z.y, z.r0, 0, Math.PI * 2, true); ctx.stroke();
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r0 + (z.r - z.r0) * k, 0, Math.PI * 2); ctx.moveTo(z.x + z.r0, z.y); ctx.arc(z.x, z.y, z.r0, 0, Math.PI * 2, true); ctx.fill();
+      if(!warn){ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,230,220,.8)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(z.x,z.y,(z.r+z.r0)/2,0,Math.PI*2);ctx.stroke();}
     } else {
       const len = Math.hypot(z.x2 - z.x, z.y2 - z.y);
       ctx.translate(z.x, z.y); ctx.rotate(Math.atan2(z.y2 - z.y, z.x2 - z.x));
       ctx.strokeRect(0, -z.w / 2, len, z.w); ctx.fillRect(0, -z.w * k / 2, len, z.w * k);
+      if(!warn){ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,235,225,.8)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(len,0);ctx.stroke();}
     }
     ctx.restore();
   }

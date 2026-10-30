@@ -4282,5 +4282,26 @@
     "sourceFile": "../art-originals/luna_pumpkin_quiche.png",
     "prompt": "Single golden pumpkin quiche on ivory porcelain, soft hand-painted fantasy café game illustration, transparent background, no text.",
     "normalization": "128px WebP export"
+  },
+  {
+    "id": "guides/world",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-a2fbb4d8-f917-4238-aaa9-3341d5e4fd79.png",
+    "prompt": "Cozy illustrated island with paths linking a cafe, farm and shops; no people or text.",
+    "normalization": "720×464 WebP quality 82, Lanczos center crop"
+  },
+  {
+    "id": "guides/quests",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-86414d13-5f37-484c-8471-87818e4e0a20.png",
+    "prompt": "Illustrated quest journal, checklist, stars and gift on a cafe desk; no readable text.",
+    "normalization": "720×464 WebP quality 82, Lanczos center crop"
+  },
+  {
+    "id": "guides/music",
+    "tool": "image_gen built-in",
+    "sourceFile": "exec-0dbad316-fd37-4a08-bc56-364fc44999ab.png",
+    "prompt": "Illustrated vintage record player with vinyl, teacup and flowers in a moonlit cafe; no text.",
+    "normalization": "720×464 WebP quality 82, Lanczos center crop"
   }
 ]

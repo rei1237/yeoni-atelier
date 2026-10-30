@@ -21,7 +21,8 @@ export const SUPPLIES = Object.freeze({
   shield:{name:'검은 밤의 방패', cost:90, tier:2, icon:'hat', detail:'8초 동안 접촉 피해 방지'},
   nova:{name:'모카의 비밀 향신료', cost:130, tier:3, icon:'tarot', detail:'주변 적에게 현재 공격력 기준 큰 피해'},
 });
-export const supplyPrice = item => ({currency:'gold', amount:item.shop==='gear' ? item.cost : item.cost * TEMP.MOONSTONE_GOLD});
+// 모카 사냥 보급품은 기존 환산가의 약 1/3을 100G 단위로 반올림한다.
+export const supplyPrice = item => ({currency:'gold', amount:item.shop==='gear' ? item.cost : Math.round(item.cost * TEMP.MOONSTONE_GOLD / 3 / 100) * 100});
 export function armory(state) { return state.armory || { upgrades:{}, supplies:{}, skills:{} }; }
 // ── 기술: 0 = 못 배움, 1 이상 = 배움(옛 저장의 기술별 해방 단계는 숫자 그대로 남는다).
 // 10-29 공방 연구(armory.tech): 무기 상한(forge)·보조 상한(charm)은 배운 기술 모두에 공용, 진화 비전(evo)은 무기마다 따로 연다

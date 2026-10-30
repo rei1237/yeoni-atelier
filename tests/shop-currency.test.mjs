@@ -7,6 +7,17 @@ import {supplyShop} from '../src/ui/armory.js';
 import {serialize,deserialize} from '../src/core/save.js';
 import {TEMP} from '../src/config/balance.temp.js';
 
+test('모카 사냥 보급품 가격은 기존 환산가의 약 3분의 1이다',()=>{
+ const prices={tonic:6000,magnet:10000,shield:15000,nova:21700};
+ const s=createGame();s.bondRank.moka=10;s.gold=100000;s.moonstone=1000;
+ for(const [id,amount] of Object.entries(prices)){
+  assert.deepEqual(supplyPrice(SUPPLIES[id]),{currency:'gold',amount});
+  assert.match(supplyShop(s),new RegExp(amount.toLocaleString()+'G'));
+  const gold=s.gold;assert.ok(dispatch(s,{type:'armory.buy',id}).ok);assert.equal(s.gold,gold-amount);assert.equal(s.moonstone,1000);
+ }
+ assert.deepEqual(supplyPrice(SUPPLIES.bomb),{currency:'gold',amount:1200});
+});
+
 test('모카 보급품과 윤달 도구는 골드만 차감한다',()=>{
  let s=createGame();s.gold=100000;s.moonstone=1000;const price=supplyPrice(SUPPLIES.tonic).amount;
  assert.match(supplyShop(s),new RegExp(price.toLocaleString()+'G'));assert.ok(dispatch(s,{type:'armory.buy',id:'tonic'}).ok);assert.equal(s.gold,100000-price);assert.equal(s.moonstone,1000);

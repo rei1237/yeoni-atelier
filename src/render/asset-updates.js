@@ -10165,3 +10165,6 @@ ASSET_UPDATES.backgrounds.ending_bad={"kind":"background","label":"불 꺼진 �
 
 // 루나 언니 인연 메뉴: 새 일러스트 아이콘
 for(const key of ['luna_crescent_latte','luna_berry_mille','luna_pumpkin_quiche']) ASSET_UPDATES.icons[key]={kind:'icon',label:key,path:`assets/illustrated/icons/${key}.webp`,dimensions:[128,128],px:128};
+
+// 10-30 안내별 장면 그림(필요할 때만 로드).
+for(const key of ['world','quests','music']) ASSET_UPDATES.guides[key]={kind:'object',label:key,path:`assets/illustrated/guides/${key}-v2.webp`,dimensions:[720,464],opaque:true};

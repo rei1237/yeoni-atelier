@@ -759,3 +759,11 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 | icons/luna_crescent_latte | 초승달 크림 커피 | 128×128 | 완료 |
 | icons/luna_berry_mille | 딸기 장미 밀푀유 | 128×128 | 완료 |
 | icons/luna_pumpkin_quiche | 황금 호박 키슈 | 128×128 | 완료 |
+
+- 2026-10-30: 섬 산책·퀘스트·음악 안내에 장면별 생성 이미지 `guides/world`, `guides/quests`, `guides/music` (720×464 WebP)을 추가했다. 모카 배달과 상점 안내에는 기존 모카 그림을 유지한다.
+
+| 에셋 키 | 경로 | 크기 | 상태 |
+|---|---|---|---|
+| guides/world | assets/illustrated/guides/world-v2.webp | 720×464 | 완료 |
+| guides/quests | assets/illustrated/guides/quests-v2.webp | 720×464 | 완료 |
+| guides/music | assets/illustrated/guides/music-v2.webp | 720×464 | 완료 |
