@@ -3,7 +3,7 @@ import {emptyStations} from './state.js';
 // TEMP: 기존 1호점의 최대 면적은 보존하고 이후 지점마다 4행씩 넓힌다.
 export const BRANCHES=Object.freeze([
  {id:1,name:'아틀리에 본점',revenue:0,cost:0,maxRows:24,line:'익숙한 첫 공간에서 단골을 만나요.'},
- {id:2,name:'항구 찻집',revenue:300000,cost:1000,currency:'moonstone',maxRows:28,line:'여행길에 잠시 쉬어 가는 찻집이에요.'},
+ {id:2,name:'항구 찻집',revenue:150000,cost:1000,currency:'moonstone',maxRows:28,line:'여행길에 잠시 쉬어 가는 찻집이에요.'},
  {id:3,name:'꽃길 살롱',revenue:800000,cost:24000,maxRows:32,line:'꽃과 여유로운 좌석을 위한 넓은 살롱이에요.'},
  {id:4,name:'시계탑 별관',revenue:2400000,cost:70000,maxRows:36,line:'많은 손님을 맞이할 수 있는 별관이에요.'},
  {id:5,name:'달빛 정원점',revenue:6000000,cost:180000,maxRows:40,line:'가장 넓은 홀과 정원을 꾸밀 수 있어요.'}

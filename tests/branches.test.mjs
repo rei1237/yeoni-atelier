@@ -10,7 +10,7 @@ import {sheetHtml} from '../src/ui/sheets.js';
 import {pendingStory} from '../src/game/calendar.js';
 function offer(s,id){s.ledger.sales['fixture-'+id]=BRANCHES[id-1].revenue;s.ledger.story['branch:'+id]=true;}
 test('제안은 잔액이 아닌 누적 매출, 개점 확인과 비용은 한 번만',()=>{
- const s=createGame();s.gold=1e7;s.moonstone=1000;assert.equal(branchOffer(s),null);s.ledger.sales.a=300000;assert.equal(earnedRevenue(s),300000);assert.equal(pendingBranchStory(s),null);s.day=13;assert.equal(pendingBranchStory(s),'branch:2');
+ const s=createGame();s.gold=1e7;s.moonstone=1000;assert.equal(branchOffer(s),null);s.ledger.sales.a=150000;assert.equal(earnedRevenue(s),150000);assert.equal(pendingBranchStory(s),null);s.day=13;assert.equal(pendingBranchStory(s),'branch:2');
  const before=s.gold;assert.equal(dispatch(s,{type:'branch.buy',id:2,confirmed:true}).ok,false);s.ledger.story['branch:2']=true;assert.equal(dispatch(s,{type:'branch.buy',id:2}).ok,false);assert.equal(s.gold,before);
  assert.equal(dispatch(s,{type:'branch.buy',id:2,confirmed:true}).ok,true);assert.equal(s.gold,before);assert.equal(s.moonstone,0);assert.equal(dispatch(s,{type:'branch.buy',id:2,confirmed:true}).duplicate,true);assert.equal(s.gold,before);assert.equal(s.moonstone,0);
 });
@@ -27,7 +27,7 @@ test('부족한 잔액·영업·편집 중 전환을 거절하고 4→5 이후 6
  assert.equal(new Set(BRANCHES.map(b=>b.maxRows)).size,5);
 });
 test('청토끼 제안은 정상 이야기 원장에서 완료되고 로드 뒤 반복하지 않는다',()=>{
- const s=createGame();s.ledger.story.m0=true;s.ledger.story.m3=true;s.day=13;s.ledger.sales.fixture=300000;assert.equal(pendingStory(s),'branch:2');assert.ok(dispatch(s,{type:'story.seen',id:'branch:2'}).ok);assert.equal(dispatch(s,{type:'story.seen',id:'branch:2'}).duplicate,true);assert.equal(pendingBranchStory(deserialize(serialize(s)).state),null);
+ const s=createGame();s.ledger.story.m0=true;s.ledger.story.m3=true;s.day=13;s.ledger.sales.fixture=150000;assert.equal(pendingStory(s),'branch:2');assert.ok(dispatch(s,{type:'story.seen',id:'branch:2'}).ok);assert.equal(dispatch(s,{type:'story.seen',id:'branch:2'}).duplicate,true);assert.equal(pendingBranchStory(deserialize(serialize(s)).state),null);
 });
 
 test('후속 지점 별관은 앞 구역부터만 열리며 본점 최대 면적과 저장 배치를 보존한다',()=>{

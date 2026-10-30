@@ -21,7 +21,7 @@ test('수집 장신구와 무기 가격은 장착과 구입 데이터에 반영�
  assert.equal(gearBonus({charm:'churu_magnet'}).magnet,1.35);assert.equal(gearBonus({charm:'churu_magnet'}).speed,1);assert.equal(GEAR.claw_glove.cost.gold,9000);assert.equal(GEAR.crescent_wand.cost.gold,25000);
 });
 test('2호점 제안 조건과 월정석 안내, 이전 제안·구입 기록은 보존한다',()=>{
- let s=createGame();s.ledger.sales.a=300000;s.day=12;assert.equal(branchOffer(s),null);s.day=13;s.ledger.sales.a=299999;assert.equal(branchOffer(s),null);s.ledger.sales.a=300000;assert.equal(branchOffer(s).id,2);
+ let s=createGame();s.ledger.sales.a=150000;s.day=12;assert.equal(branchOffer(s),null);s.day=13;s.ledger.sales.a=149999;assert.equal(branchOffer(s),null);s.ledger.sales.a=150000;assert.equal(branchOffer(s).id,2);
  s.ledger.story['branch:2']=true;s.moonstone=999;let html=branchesSheet(s,{sheet:{preview:2}});assert.match(html,/월정석 1,000개/);assert.match(html,/잔액 부족/);assert.equal(buyBranch(s,2,true).ok,false);assert.match(branchStory(2).map(b=>b.t||'').join(' '),/월정석 1,000개/);
  s.moonstone=1000;const gold=s.gold;assert.ok(buyBranch(s,2,true).ok);assert.equal(s.moonstone,0);assert.equal(s.gold,gold);s=deserialize(serialize(s)).state;assert.ok(s.branches.owned[2]);assert.equal(branchOffer(s),null);assert.equal(buyBranch(s,2,true).duplicate,true);
  const legacy=createGame();legacy.ledger.story['branch:2']=true;legacy.ledger.sales.a=20000;assert.equal(branchOffer(legacy).id,2);
