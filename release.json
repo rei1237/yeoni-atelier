@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.30.3",
-  "name": "연이의 아틀리에 · 달빛 운세와 사냥 지도",
+  "version": "2026.10.30.4",
+  "name": "연이의 아틀리에 · 카페와 달빛 상점",
   "musicTracks": 103,
   "assetBytes": 17879958,
   "channel": "production",
-  "baseCommit": "f3dc186",
+  "baseCommit": "ab25f2c",
   "newTitleArt": true
 }
