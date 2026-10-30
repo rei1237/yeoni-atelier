@@ -251,9 +251,14 @@ function menuAvailable(state, menuId) {
 }
 
 export function chooseMenu(state, limitMs, visit=null) {
-  const list = MENU_ORDER.filter(id => menuAvailable(state, id) && MENUS[id].cookMs + TEMP.SERVE_BUFFER_MS <= limitMs && menuWeight(state,visit,MENUS[id])>0);
+  const list = [], weights = [], level = cafeProgress(state).level;
+  for(const id of MENU_ORDER){
+    const menu=MENUS[id];
+    if(!menuAvailable(state,id)||menu.cookMs+TEMP.SERVE_BUFFER_MS>limitMs)continue;
+    const weight=menuWeight(state,visit,menu,level);
+    if(weight>0){list.push(id);weights.push(weight);}
+  }
   if (!list.length) return null;
-  const weights = list.map(id => menuWeight(state,visit,MENUS[id]));
   let r = nextRandom(state.rng) * weights.reduce((a, b) => a + b, 0);
   for (let i = 0; i < list.length; i++) { r -= weights[i]; if (r < 0) return list[i]; }
   return list[list.length - 1];

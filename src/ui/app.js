@@ -47,6 +47,7 @@ import { SAVE_KEYS, memoryStorage, browserStorage, saveGame, loadGame, hasSave, 
 import { createFrameLoop } from '../core/frame-loop.js';
 import { createJoystick } from '../core/joystick.js';
 import { loadAssetImages, imageFor, ASSETS } from '../render/assets.js';
+import { huntAssets } from '../render/hunt-assets.js';
 import { talkingKey } from '../render/sprite-renderer.js';
 import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe, canvasDpr } from '../render/cafe-view.js';
 import { AREAS } from '../data/layout.js';
@@ -345,7 +346,7 @@ const ACTIONS = {
   'hunt.start': () => { ui.sheet = { kind: 'hunt' }; },
   // 10-29 사냥터 전체화면: 페이지 전체를 띄우고, 다시 누르면 창 모드로
   'hunt.fullscreen': () => { const on=!document.fullscreenElement;const p=on?document.documentElement.requestFullscreen({navigationUI:'hide'}):document.exitFullscreen();ui.huntFullscreen=on;p?.catch?.(()=>toast('이 브라우저에서는 전체화면을 열 수 없어요.','bad')); },
-  'hunt.depart': async d => { if(ui.huntLoading)return;ui.huntLoading=true;const departing=state;try{const keys=[...Object.keys(ASSETS.enemies).map(id=>'enemies/'+id),'actors/neo_cat','actors/seohanbi'];await loadAssetImages(undefined,{keys});if(state!==departing||ui.sheet?.kind!=='hunt')return;if(keys.some(id=>!imageFor(id))){toast('사냥터 그림을 불러오지 못했어요. 연결을 확인하고 다시 출발해 주세요.');return;}if (run({ type: 'hunt.start', depth: n(d.depth), hunterId:ui.hunterId||'neo' }).ok) ui.sheet = null;}finally{ui.huntLoading=false;render(true);} },
+  'hunt.depart': async d => { if(ui.huntLoading)return;ui.huntLoading=true;const departing=state;try{const keys=huntAssets(ui.hunterId||'neo',ASSETS.enemies);await loadAssetImages(undefined,{keys});if(state!==departing||ui.sheet?.kind!=='hunt')return;if(keys.some(id=>!imageFor(id))){toast('사냥터 그림을 불러오지 못했어요. 연결을 확인하고 다시 출발해 주세요.');return;}if (run({ type: 'hunt.start', depth: n(d.depth), hunterId:ui.hunterId||'neo' }).ok) ui.sheet = null;}finally{ui.huntLoading=false;render(true);} },
   'farm.select': d => { ui.farmCrop = d.id; },
   'farm.plot': d => { ui.farmPlot = n(d.index); },
   'world.delegate': d => {ui.delegate=ui.delegate===d.id?null:d.id;},
@@ -405,10 +406,15 @@ const ACTIONS = {
   'game.install':()=>installApp(),
   'game.wake':()=>{ui.exited=false;},
   'game.exit':()=>{if(state&&(!storageOk||!saveGame(storage,SAVE_KEY,state).ok)){toast('저장을 완료하지 못했어요. 종료 전에 저장 상태를 확인해 주세요.','bad');return;}ui.exitSaved=!!state;goTitle();ui.exited=true;if(audioStatus().music)audioAction('music');if(window.opener)window.close();},
-  'game.continue': () => {
-    if(state || novelActive())return;
+  'game.continue': async () => {
+    if(state || novelActive() || ui.huntLoading)return;
     const r = loadGame(storage, SAVE_KEY);
     if (!r.ok) { toast(r.reason, 'bad'); return; }
+    if(r.state.mode==='hunt'){
+      ui.huntLoading=true; const notice=toast('사냥터 그림을 준비하고 있어요.','',12000);
+      try { const keys=huntAssets(r.state.hunt?.hunterId||'neo',ASSETS.enemies); await loadAssetImages(undefined,{keys}); if(state||novelActive())return; if(keys.some(id=>!imageFor(id))){toast('사냥터 그림을 불러오지 못했어요. 연결을 확인하고 다시 시도해 주세요.','bad');return;} }
+      finally { notice?.remove(); ui.huntLoading=false; }
+    }
     state = r.state;
     if(HOST_DEMO&&state.meta?.hostDemo)dispatch(state,{type:'hostDemo.prepare'});
     ui.worldAt=WORLD_PLACES.some(x=>x.id===state.worldLocation)?state.worldLocation:'atelier';
@@ -417,7 +423,7 @@ const ACTIONS = {
     if (state.paused) toast('저장한 지점에서 일시정지 상태로 이어집니다', 'good');
   },
   'game.new': () => {
-    if(state || novelActive())return;
+    if(state || novelActive() || ui.huntLoading)return;
     if (!ui.hasSave) { startNew(); return; }
     ui.confirm = { title:'새로운 카페를 열까요?', text:'지금까지의 저장은 지워지고 첫날부터 시작해요. 현재 이야기를 계속하려면 아래 버튼을 눌러 주세요.', art:'ui/new_game', yesLabel:'새 이야기 시작', noLabel:'현재 이야기 유지', danger:true, onYes:startNew };
   },

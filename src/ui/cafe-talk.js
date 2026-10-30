@@ -133,10 +133,13 @@ export function syncTalk(layer,state,view,talk,now,{width=Infinity,height=Infini
     if(face){const img=document.createElement('img');img.className='talk-face';img.src=face.src;img.alt='';n.prepend(img);}
   }
   const shown=items.map(i=>({i,n:layer.querySelector(`[data-id="${i.id}"]`),pt:talkPoint(state,view,i.who)})).filter(o=>{o.n.hidden=!o.pt;return o.pt;});
-  const spots=placeBubbles(shown.map(({n,pt})=>({x:pt.x,y:pt.y,w:n.offsetWidth||180,h:n.offsetHeight||56})),{width,height});
+  // 크기는 한 프레임에 한 번만 읽고, 바뀐 좌표만 적용한다.
+  const boxes=shown.map(({n,pt})=>({x:pt.x,y:pt.y,w:n.offsetWidth||180,h:n.offsetHeight||56}));
+  const spots=placeBubbles(boxes,{width,height});
   shown.forEach(({i,n,pt},k)=>{
-    const s=spots[k],w=n.offsetWidth||180,tail=Math.max(16,Math.min(w-16,pt.x-s.x+w/2));
-    n.style.left=`${s.x}px`;n.style.top=`${s.y}px`;n.style.setProperty('--tail',`${tail}px`);
+    const s=spots[k],w=boxes[k].w,tail=Math.max(16,Math.min(w-16,pt.x-s.x+w/2));
+    const left=`${s.x}px`,top=`${s.y}px`,tailPx=`${tail}px`;
+    if(n.style.left!==left)n.style.left=left;if(n.style.top!==top)n.style.top=top;if(n.style.getPropertyValue('--tail')!==tailPx)n.style.setProperty('--tail',tailPx);
     n.classList.toggle('lifted',s.moved);n.classList.toggle('fading',i.until-now<450);
   });
 }

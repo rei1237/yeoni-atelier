@@ -145,7 +145,9 @@ const loaded = new Map(), requests = new Map();
 let available = new Set(), hdPaths = new Set(), ultraPaths = new Set(), manifestTask;
 const allEntries = () => Object.entries(ASSETS).flatMap(([g,group])=>Object.entries(group).map(([k,d])=>[`${g}/${k}`,d]));
 const definitions = new Map(allEntries());
-export const BOOT_ASSETS = ['backgrounds/title','ui/loading','actors/yeoni','actors/neo','actors/luna','actors/luna_sis','portraits/yeoni','portraits/neo','portraits/neo_cat','portraits/luna','portraits/luna_sis','backgrounds/atelier_lit','backgrounds/cafe_room','tiles/cafe_floor','tiles/cafe_wall',...allEntries().filter(([id])=>['objects/','icons/','actors/','portraits/','talking/'].some(group=>id.startsWith(group))).map(([id])=>id)];
+// 첫 카페의 직원·손님과 공통 소품만 준비한다. 나머지 캐릭터와 대화는 사용하는 장면에서 요청한다.
+const BOOT_ACTORS = new Set(['yeoni','yeoni_idle','yeoni_idle_right','yeoni_idle_left','yeoni_cook','yeoni_cook_drink','yeoni_cook_bake','neo','neo_idle','neo_cat_cafe','luna','luna_idle','luna_sis','luna_sis_idle','luna_sis_cook','luna_place_plate','luna_tray_walk','luna_wipe','neo_place_plate','neo_tray_walk','neo_wipe','luna_sis_close','luna_close','neo_close']);
+export const BOOT_ASSETS = ['backgrounds/title','ui/loading','portraits/yeoni','portraits/neo','portraits/neo_cat','portraits/luna','portraits/luna_sis','backgrounds/atelier_lit','backgrounds/cafe_room','tiles/cafe_floor','tiles/cafe_wall',...allEntries().filter(([id])=>id.startsWith('objects/')||id.startsWith('icons/')||id.startsWith('actors/customer')||(id.startsWith('actors/')&&BOOT_ACTORS.has(id.slice(7)))).map(([id])=>id)];
 // 기존 atlas 절단에 섞인 옆 물체만 제외한다. 디스크 원본은 보존한다.
 const contentCrops={'objects/lamp':[14,0,70,128]};
 async function requestImage(id){

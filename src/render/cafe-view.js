@@ -97,8 +97,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   const backdrop=imageFor((REMODELS[exteriorOf(state).theme]||REMODELS.original).interior);
   if(backdrop&&v.cols===12&&v.rows===16)ctx.drawImage(backdrop,v.ox-T*1.1,v.oy-T*3,T*14.2,T*19);
   // 바닥
-  for (let y = 0; y < v.rows; y++) for (let x = 0; x < v.cols; x++) {
-    if(backdrop && v.cols===12 && v.rows===16 && !state.interior.draft)continue;
+  if(!(backdrop && v.cols===12 && v.rows===16 && !state.interior.draft)) for (let y = 0; y < v.rows; y++) for (let x = 0; x < v.cols; x++) {
     const p = P(x, y);
     ctx.fillStyle = y === 0 ? '#e8dbc8' : '#f3e8d9';
     ctx.fillRect(p.x,p.y,T+.5,T+.5);

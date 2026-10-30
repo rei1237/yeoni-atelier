@@ -36,6 +36,8 @@ function patchChildren(a, b) {
   for (let i = 0; i < bn.length; i++) {
     const x = an[i], y = bn[i];
     if (!x) { a.appendChild(y); continue; }
+    // 바뀌지 않은 하위 트리는 속성과 자식을 다시 순회하지 않는다.
+    if (x.isEqualNode(y)) continue;
     if (!sameNode(x, y)) { a.replaceChild(y, x); continue; }
     if (x.nodeType !== 1) { if (x.nodeValue !== y.nodeValue) x.nodeValue = y.nodeValue; continue; }
     patchAttrs(x, y);
