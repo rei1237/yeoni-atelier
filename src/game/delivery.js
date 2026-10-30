@@ -1,4 +1,4 @@
-import {INGREDIENTS,MENUS} from '../data/menus.js';
+import {INGREDIENTS,MENUS,menuUnlocked} from '../data/menus.js';
 import {bondFx} from '../data/bonds.js';
 import {TEMP} from '../config/balance.temp.js';
 import {workShop} from './bonds.js';
@@ -22,7 +22,7 @@ export function orderDelivery(s,items,requestId){
 // 10-29 배운 메뉴를 한 번 만들기에도 모자란 판매 재료(배달로 채울 수 있는 것만)
 export function shortIngredients(s){
  const need={};
- for(const [id,on] of Object.entries(s.learned||{})){if(!on||!MENUS[id])continue;for(const [ing,n] of Object.entries(MENUS[id].ingredients)){const x=INGREDIENTS[ing];if(x&&(x.basic||x.shop)&&(s.stock[ing]||0)<n)need[ing]=true;}}
+ for(const id of Object.keys(MENUS)){if(!menuUnlocked(s,id))continue;for(const [ing,n] of Object.entries(MENUS[id].ingredients)){const x=INGREDIENTS[ing];if(x&&(x.basic||x.shop)&&(s.stock[ing]||0)<n)need[ing]=true;}}
  return Object.keys(need);
 }
 // 10-29 모카 묶음 담기. refill 은 모자란 재료를 5개까지 채운다

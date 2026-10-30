@@ -10162,3 +10162,6 @@ ASSET_UPDATES.backgrounds.ending_clear={"kind":"background","label":"0골드의 
 ASSET_UPDATES.backgrounds.ending_close={"kind":"background","label":"조금 모자란 봄","path":"assets/illustrated/backgrounds/ending_close.webp","dimensions":[960,640],"opaque":true};
 ASSET_UPDATES.backgrounds.ending_extend={"kind":"background","label":"계약서 2권","path":"assets/illustrated/backgrounds/ending_extend.webp","dimensions":[960,640],"opaque":true};
 ASSET_UPDATES.backgrounds.ending_bad={"kind":"background","label":"불 꺼진 계산대","path":"assets/illustrated/backgrounds/ending_bad.webp","dimensions":[960,640],"opaque":true};
+
+// 루나 언니 인연 메뉴: 새 일러스트 아이콘
+for(const key of ['luna_crescent_latte','luna_berry_mille','luna_pumpkin_quiche']) ASSET_UPDATES.icons[key]={kind:'icon',label:key,path:`assets/illustrated/icons/${key}.webp`,dimensions:[128,128],px:128};

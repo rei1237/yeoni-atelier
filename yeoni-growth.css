@@ -64,3 +64,9 @@ body[data-mode=hunt] .hunt-kit-details[open] .hunt-kit{position:absolute;bottom:
 .hunt-map-pop p{font-size:10px;line-height:1.4}.hunt-map-pop small{display:none}
 @media(max-width:700px){.hunt-map-pop{width:128px;padding:6px}.hunt-map-canvas{width:114px;height:114px}.hunt-map-pop p{display:none}}
 @media(max-height:520px){.hunt-map-pop{width:108px}.hunt-map-canvas{width:94px;height:94px}.hunt-map-pop p{display:none}}
+/* 주변 지도는 상단 상태와 월정석 표기를 피해 오른쪽 위에 둔다. */
+body[data-mode=hunt] .hunt-map-pop{top:100px;right:10px;bottom:auto}
+@media(max-width:899px){body[data-mode=hunt] .hunt-map-pop{top:108px}}
+@media(max-height:520px){body[data-mode=hunt] .hunt-map-pop{top:68px}}
+body[data-mode=hunt] .floater.hunt-loot{max-width:min(60vw,260px);box-sizing:border-box;overflow:hidden;text-overflow:ellipsis;padding:6px 11px;border:1px solid #a8bfda;border-radius:10px;background:rgba(16,31,50,.94);color:#fff4d8;font-size:12px;line-height:1.4;text-shadow:none;box-shadow:0 4px 12px #111a2d66}
+@media(prefers-reduced-motion:reduce){body[data-mode=hunt] .floater.hunt-loot{animation:none}}

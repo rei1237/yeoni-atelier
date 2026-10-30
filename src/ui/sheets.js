@@ -46,7 +46,7 @@ import { assetStyle, assetIcon } from './asset-html.js';
 import { RULES, STAT_KEYS, STAT_LABELS, CORE_CAP } from '../config/rules.js';
 import { PDF } from '../config/balance.pdf.js';
 import { TEMP } from '../config/balance.temp.js';
-import { MENUS, MENU_ORDER, INGREDIENTS } from '../data/menus.js';
+import { MENUS, MENU_ORDER, INGREDIENTS, menuUnlocked } from '../data/menus.js';
 import { HELP_KINDS, TOPICS } from '../data/lines.js';
 import { PEOPLE, LOCKED_SLOT_COUNT, STAFF_CREW } from '../data/companions.js';
 import { FURNITURE, AREAS } from '../data/layout.js';
@@ -247,8 +247,8 @@ function kitchenSheet(state, ui) {
   const menus = MENU_ORDER.map(id => {
     const m = MENUS[id];
     const ings = Object.entries(m.ingredients).map(([i, n]) => `${INGREDIENTS[i].name} ${state.stock[i] || 0}/${n}`).join(' · ');
-    if (!state.learned[id]) {
-      const how = m.nominationOnly ? `${m.huntStage}단계 이상 사냥에서 전용 재료 획득 · 지명 접대 손님 전용 판매` : m.farm ? '연이의 농장에서 해당 작물을 수확하면 배워요' : m.combo ? `조합대에서 발견 · 재료 ${Object.values(m.ingredients).reduce((a, b) => a + b, 0)}가지 · ${STATION_NAMES[m.station]}` : m.special ? '퀘스트 보상 또는 조합대에서 발견' : '퀘스트로 레시피를 배워야 합니다';
+    if (!menuUnlocked(state,id)) {
+      const how = m.lunaRank ? `루나 언니 인연 Rank ${m.lunaRank}에서 해금` : m.nominationOnly ? `${m.huntStage}단계 이상 사냥에서 전용 재료 획득 · 지명 접대 손님 전용 판매` : m.farm ? '연이의 농장에서 해당 작물을 수확하면 배워요' : m.combo ? `조합대에서 발견 · 재료 ${Object.values(m.ingredients).reduce((a, b) => a + b, 0)}가지 · ${STATION_NAMES[m.station]}` : m.special ? '퀘스트 보상 또는 조합대에서 발견' : '퀘스트로 레시피를 배워야 합니다';
       return `<div class="item"><i class="swatch" style="background:#bbb"></i><div class="meta grow"><b>❓ ${m.combo ? '???' : esc(m.name)}</b><span>${how}</span></div></div>`;
     }
     const sc = stockCheck(state, id);
@@ -256,7 +256,7 @@ function kitchenSheet(state, ui) {
     return `<div class="item">${assetIcon(`icons/${m.id}`,`<i class="swatch" style="background:${m.color}"></i>`)}<div class="meta grow"><b>${esc(m.name)} · ${won(menuPrice(state,m))}</b><span>${m.nominationOnly?'지명 손님 전용 · ':''}${STATION_NAMES[m.station]} ${Math.round(m.cookMs / 1000)}초 · ${ings}${w}</span></div>
       ${state.mode !== 'shift' ? '' : btn({ action: 'cook', args: { menu: id }, cls: waitingBy[id] ? 'primary' : '', disabled: !sc.ok, title: sc.ok ? `${m.name} 만들기` : sc.reason, label: '만들기' })}</div>`;
   }).join('');
-  const found = MENU_ORDER.filter(id => state.learned[id]).length;
+  const found = MENU_ORDER.filter(id => menuUnlocked(state,id)).length;
   const autoLine = automationRow(state, 'hall') + automationRow(state, 'hall_neo') + automationRow(state, 'kitchen') + automationRow(state, 'museong_kitchen');
   if (state.mode !== 'shift') return `${head('주방 · 루나 언니')}<p class="small">설비당 동시 ${capacity.stationSlots}건${capacity.stationSlots===1?' · 같은 손님 2건은 병렬':''} · 설비별 대기 ${capacity.queueSlots}건 · 픽업 ${capacity.traySlots}칸</p><p class="small">카페 Lv.${cafeProgress(state).level} · 레벨에 맞춰 메뉴 판매가가 올라가요.</p>${serviceBanner('kitchen','LUNA’S KITCHEN','따끈한 한 잔, 한 접시','재료를 고르면 제가 맛있게 준비할게요.')}${autoLine}${comboBench(state, ui)}<h3>레시피 노트 ${found}/${MENU_ORDER.length}</h3><div class="list">${menus}</div>`;
   return `${head('주방 · 루나 언니')}<p class="small">설비당 동시 ${capacity.stationSlots}건${capacity.stationSlots===1?' · 같은 손님 2건은 병렬':''} · 설비별 대기 ${capacity.queueSlots}건 · 픽업 ${capacity.traySlots}칸</p><p class="small">카페 Lv.${cafeProgress(state).level} · 레벨에 맞춰 메뉴 판매가가 올라가요.</p>${serviceBanner('kitchen','LUNA’S KITCHEN','따끈한 한 잔, 한 접시','포장 주문은 더 빠르게 준비해요.')}${autoLine}${comboBench(state, ui)}${stations}<h3>레시피 노트 ${found}/${MENU_ORDER.length} (재료는 조리 시작 때 사용)</h3><div class="list">${menus}</div>`;

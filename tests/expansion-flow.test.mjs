@@ -14,12 +14,12 @@ import {tableCookingOrders} from '../src/game/table-cooking.js';
 import {stationJobs} from '../src/game/station-slots.js';
 const run=(s,type,args={})=>dispatch(s,{type,...args});
 test('묶음 배달은 기본 200G 한 번, 원자적 비용·재료 반영, 저장 후 재실행 방지',()=>{
- let s=createGame(),ap=s.ap.left,bean=s.stock.bean,milk=s.stock.milk;const items={bean:2,milk:3};const q=deliveryQuote(s,items);assert.equal(q.fee,200);assert.equal(q.base,138);
- assert.ok(run(s,'shop.deliver',{items,requestId:'one'}).ok);assert.equal(s.gold,600-338);assert.equal(s.stock.bean,bean+2);assert.equal(s.stock.milk,milk+3);assert.equal(s.ap.left,ap);
+ let s=createGame(),ap=s.ap.left,bean=s.stock.bean,milk=s.stock.milk;const items={bean:2,milk:3};const q=deliveryQuote(s,items);assert.equal(q.fee,200);assert.equal(q.base,96);
+ assert.ok(run(s,'shop.deliver',{items,requestId:'one'}).ok);assert.equal(s.gold,600-296);assert.equal(s.stock.bean,bean+2);assert.equal(s.stock.milk,milk+3);assert.equal(s.ap.left,ap);
  s=deserialize(serialize(s)).state;const before=serialize(s);assert.ok(run(s,'shop.deliver',{items,requestId:'one'}).duplicate);assert.equal(serialize(s),before);
  assert.equal(run(s,'shop.deliver',{items:{bean:99},requestId:'poor'}).ok,false);assert.equal(serialize(s),before);
  assert.equal(run(s,'shop.deliver',{items:{bean:1,pumpkin:1},requestId:'invalid'}).ok,false);assert.equal(serialize(s),before);
- const shop=createGame();const r=run(shop,'shop.buy',{ingredientId:'bean',qty:2});assert.equal(r.fee,0);assert.equal(shop.gold,540);
+ const shop=createGame();const r=run(shop,'shop.buy',{ingredientId:'bean',qty:2});assert.equal(r.fee,0);assert.equal(shop.gold,558);
 });
 test('특별 메뉴는 레벨·직접 완성을 모두 충족한 뒤 등록, 저장·중복과 실제 판매 인기도',()=>{
  let s=createGame();const id='yeoni_moon_latte';assert.equal(run(s,'gift.cook',{menuId:id,requestId:'locked'}).ok,false);

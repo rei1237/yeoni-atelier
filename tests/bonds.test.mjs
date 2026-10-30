@@ -53,7 +53,7 @@ test('능력: 단계를 넘으면 재료값·환전·사냥 HP 에 붙고, 인�
 
   const gold0 = s.gold;
   assert.ok(dispatch(s, { type: 'shop.buy', ingredientId: 'bean', qty: 10 }).ok);
-  assert.equal(gold0 - s.gold, Math.ceil(30 * 10 * 0.9));
+  assert.equal(gold0 - s.gold, Math.ceil(21 * 10 * 0.9));
   assert.equal(s.affinity.moka, B.TIERS[0] + B.WORK_SHOP, '준비 중 첫 구매는 모카와 함께 일한 몫');
   dispatch(s, { type: 'shop.buy', ingredientId: 'bean', qty: 1 });
   assert.equal(s.affinity.moka, B.TIERS[0] + B.WORK_SHOP, '순마다 한 번');

@@ -687,7 +687,7 @@ function handleEvents(events) {
       case 'huntCritical': ui.critLine=(ui.critLine||0)+1;showCafeLine(CAFE_LINES.critical[ui.critLine%CAFE_LINES.critical.length],'영냥이','neo_cat');sound('level');break;
       case 'huntStageClear': if(ev.tired)showCafeLine(tiredLine(ev.hunterId),ev.hunterId==='seohanbi'?'서한비':'영냥이',ev.hunterId==='seohanbi'?'seohanbi':'neo_cat');break;
       case 'huntTreasureFound': toast('✦ 보물 상자 발견! 부수면 월정석이 쏟아져요','good',2600);if(state.hunt?.hunterId==='neo'){ui.chatter=null;ui.lastHuntChatter=0;showCafeLine('오늘은 일진이 좋군!','영냥이','neo_cat');}break;
-      case 'huntObjectBroken': sound('gem');floater(cssW/2,cssH*.34,ev.treasure?`✦ 보물 상자! 월정석 ×${ev.reward}${ev.heal?' · 구운 생선':''}`:`✦ 월정석 ×${ev.reward} 발견!${ev.snack?' · 구운 생선 조각':''}`,'#6f63c9');if(ev.treasure)break;ui.lootLine=(ui.lootLine||0)+1;if(state.hunt?.hunterId==='neo'&&ui.lootLine%2===1)showCafeLine(CAFE_LINES.moonloot[(ui.lootLine>>1)%CAFE_LINES.moonloot.length],'영냥이','neo_cat');break;
+      case 'huntObjectBroken': sound('gem');floater(cssW/2,Math.max(30,cssH*.12),ev.treasure?`보물 상자 · 월정석 ×${ev.reward}${ev.heal?' · 구운 생선':''}`:`월정석 ×${ev.reward} 발견${ev.snack?' · 구운 생선 조각':''}`,null,'hunt-loot');if(ev.treasure)break;ui.lootLine=(ui.lootLine||0)+1;if(state.hunt?.hunterId==='neo'&&ui.lootLine%2===1)showCafeLine(CAFE_LINES.moonloot[(ui.lootLine>>1)%CAFE_LINES.moonloot.length],'영냥이','neo_cat');break;
       case 'huntEliteDown': if(state.hunt?.hunterId==='neo'){ui.eliteLine=(ui.eliteLine||0)+1;showCafeLine(CAFE_LINES.elitedown[ui.eliteLine%CAFE_LINES.elitedown.length],'영냥이','neo_cat');}break;
       case 'supplyGift': toast(ev.label,'good',3600);break;
       case 'neoGrowth': toast(`🌙 네오 성장 · 공감·대화·재미·외모가 오르고 사냥 체력 +${TEMP.CALENDAR.HIKE_NEO.huntHp}`,'good',3600);break;
@@ -741,7 +741,7 @@ function handleEvents(events) {
       case 'decorBought': if(!state.interior.draft)toast(`📦 ${ev.name} 보관함에 도착 · 카페 꾸미기에서 놓아 주세요`, 'good'); break;
       case 'huntFinished': pixelFx(el.stage,'transform',{frames:8}); if ((ev.bag?.moonstone || 0) > 0) gagOnce('hunt', pickLine(GAG_HUNT_RETURN), 0); break;
       case 'huntStart': pixelFx(el.stage,'transform',{frames:8}); toast(`${hunterName(state.hunt.hunterId)}가 ${state.hunt.depth}단계로 출발했어요 · 보스를 쓰러뜨리면 클리어`, 'good'); break;
-      case 'huntPickup': floater(cssW / 2, cssH * 0.4, `+${ev.name}`, '#7d86e8'); break;
+      case 'huntPickup': floater(cssW / 2, Math.max(30,cssH * 0.12), `${ev.name} 획득`, null, 'hunt-loot'); break;
       case 'huntHurt': if(!matchMedia('(prefers-reduced-motion: reduce)').matches)shake(el.stage); break;
       case 'skillLearned': toast(`📜 ${ev.name}을 배웠어요 · 다음 사냥부터 최대 Lv ${ev.cap}`, 'good', 3200); break;
       case 'techResearched': toast(ev.line==='evo'?`🔓 진화 비전 · ${ev.name} 연구 완료 (${ev.level}/${ev.max})`:`🔓 ${ev.name} ${ev.level}/${ev.max} · 무기 Lv ${ev.weapon} · 보조 Lv ${ev.passive}`, 'good', 3200); break;

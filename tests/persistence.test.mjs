@@ -52,8 +52,8 @@ test('[자동 시계] 영업 도중 저장·복원해도 매출·팁·재료가 
   assert.deepEqual(saved.lastSettlement, plain.lastSettlement);
   assert.equal(saved.gold, plain.gold);
   assert.deepEqual(saved.stock, plain.stock);
-  // 장부 대조: 골드 = 시작 골드 + 매출 장부 + 팁 장부 (재료는 이미 산 재고에서 빠진다)
-  assert.equal(saved.gold, TEMP.START_GOLD + sum(saved.ledger.sales) + sum(saved.ledger.tips));
+  // 장부 대조: 골드 = 시작 골드 + 매출 장부 + 접대 팁 + 단골 팁 (재료는 이미 산 재고에서 빠진다)
+  assert.equal(saved.gold, TEMP.START_GOLD + sum(saved.ledger.sales) + sum(saved.ledger.tips) + sum(saved.ledger.patronTips));
   assert.equal(sum(saved.ledger.sales), saved.lastSettlement.sales);
 });
 

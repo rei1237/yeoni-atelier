@@ -1,5 +1,5 @@
 import {emit} from './state.js';
-import {MENUS} from '../data/menus.js';
+import {MENUS,menuUnlocked} from '../data/menus.js';
 // TEMP: 연이의 직접 활동 성장. 기존 플레이 기록은 소급하지 않는다.
 export const YEONI_GROWTH = Object.freeze({maxLevel:50, xp:{cook:12,farm:4,talk:10,gift:6,counter:1}, revenuePerLevel:.01,revenueCap:.25,cookPerLevel:.01,cookCap:.2,checkoutPerLevel:.02,checkoutCap:.4,patiencePerLevel:.01,patienceCap:.2,reviewPerLevel:.02,reviewCap:.4});
 export const YEONI_TITLES = Object.freeze([
@@ -25,7 +25,7 @@ export function gainYeoni(s,kind){
  g.counts??={};g.xp=(Number(g.xp)||0)+amount;const key=['talk','gift'].includes(kind)?'bond':kind;g.counts[key]=(g.counts[key]||0)+1;const level=yeoniProgress(s).level;if(level>before)emit('yeoniLevelUp',{level});
 }
 export function equipYeoniTitle(s,id){if(!yeoniTitles(s).some(t=>t.id===id))return {ok:false,reason:'아직 얻지 못한 칭호예요'};s.yeoniGrowth??={xp:0,counts:{}};s.yeoniGrowth.title=id;return {ok:true};}
-export const canYeoniCook=(s,m)=>!!m&&(m.yeoniLevel?yeoniProgress(s).level>=m.yeoniLevel:!!s.learned[m.id]);
+export const canYeoniCook=(s,m)=>!!m&&(m.yeoniLevel?yeoniProgress(s).level>=m.yeoniLevel:menuUnlocked(s,m.id));
 export function registerYeoniMenu(s,id){
  const m=MENUS[id];
  if(s.mode!=='prep'||s.paused||s.interior.draft||s.outdoor?.draft)return {ok:false,reason:'영업 준비 중에 메뉴를 등록해 주세요'};

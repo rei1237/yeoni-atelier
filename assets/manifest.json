@@ -524,7 +524,10 @@
     "backgrounds/ending_clear",
     "backgrounds/ending_close",
     "backgrounds/ending_extend",
-    "backgrounds/ending_bad"
+    "backgrounds/ending_bad",
+    "icons/luna_crescent_latte",
+    "icons/luna_berry_mille",
+    "icons/luna_pumpkin_quiche"
   ],
   "hd": [
     "assets/illustrated/actors/bambi@bambi_formal.webp",

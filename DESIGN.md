@@ -2,21 +2,21 @@
 name: "연이의 아틀리에"
 description: "버터 크림·꿀빛 목재·딸기 로즈·피스타치오 세이지의 카페와 남색 라이트노벨을 잇는 Code Destiny 모바일 일러스트 게임"
 colors:
-  accent: "#ad5265"
-  accent-hover: "#9a4359"
-  selected: "#853d4d"
+  accent: "#8c4e68"
+  accent-hover: "#734158"
+  selected: "#f5e7e9"
   accent-ink: "#ffffff"
-  bg: "#f6eddf"
-  paper: "#fffaf0"
-  ink: "#48382e"
-  muted: "#776457"
-  line: "#e1cdb6"
+  bg: "#f5eee4"
+  paper: "#fffaf2"
+  ink: "#463248"
+  muted: "#766170"
+  line: "#d9c8b1"
   card: "#fffdf7"
   card-line: "#ddcdb4"
   button-hover: "#f0e6d7"
   tag: "#efe2d1"
   rose-paper: "#fff1f4"
-  gold-line: "#bc9d71"
+  gold-line: "#ac9068"
   ok: "#4b704b"
   warn: "#925b10"
   bad: "#c9443a"
@@ -56,12 +56,12 @@ typography:
     fontWeight: 500
     lineHeight: 1.7
 rounded:
-  button: "9px"
+  button: "7px"
   item: "10px"
   card: "12px"
   scene: "14px"
-  dialog: "18px"
-  sheet: "22px 22px 0 0"
+  dialog: "14px"
+  sheet: "14px"
   pill: "999px"
   dialogue: "24px 24px 24px 10px"
 spacing:
@@ -121,13 +121,13 @@ components:
 
 ## Overview
 
-현재 카페 변경은 기존 크림·로즈·원목 미감을 유지한 로컬 개선이다. 손님 이동·착석·식사 시트, 네 방향 의자, 루나 언니 조리 시트와 식물 장식이 실제 렌더링에 연결되어 있다. 별도 요청한 신규 타이틀 PNG 2장은 미도착이며 전체 재디자인 완료를 뜻하지 않는다.
+카페는 크림 종이와 로즈 행동색, 사냥은 남색과 은청·금빛을 사용한다. 이 문서는 기존 결정과 구현을 유지하며 현재 기준을 먼저 안내하고, 아래의 날짜별 기록은 당시 맥락으로 보존한다.
 
 **Creative North Star: "Code Destiny 일러스트 호스트 카페"**
 
 버터 크림 표면, 꿀빛 목재 테두리, 딸기 로즈 실행색, 피스타치오 세이지 성공·정보색, 코코아 먹색 본문으로 카페를 만든다. 남색과 금빛은 라이트노벨 대화 장면과 사냥 화면에만 쓴다. 가구와 인물이 주인공인 부드러운 일러스트 세계를 유지하고, 운영 정보는 짧고 선명한 HTML 조작부에 담는다. 소박한 시작과 고급스러운 성장 과정은 같은 세계 안에서 이어진다.
 
-이 문서는 PRODUCT.md와 사용자 확정 방향을 바탕으로 현재 구현을 추출한 기록이다. 기준은 index.html의 styles.css → novel.css → game-ui.css → cafe-brand.css 적용 순서와 src/ui의 실제 요소다. 마지막에 로드되는 cafe-brand.css의 :root 값(로즈 accent)이 정본이다(10-26 인계 브랜드 결정). 브라우저 측정이나 새로운 시각 승인 결과를 주장하지 않는다.
+이 문서는 PRODUCT.md와 사용자 확정 방향을 바탕으로 현재 구현을 추출한 기록이다. 기준은 `index.html`의 전체 CSS 로드 순서와 `src/ui`의 실제 요소다. 공통 달빛 예화 변수는 `moonlight-ui.css`를 따르며, 화면별 후속 스타일이 덮어쓴 값은 해당 화면 CSS가 우선한다. 날짜별 기록은 당시 상태로 읽는다.
 
 **Key Characteristics:**
 - 크림 표면, 로즈 행동 버튼, 세이지 상태색, 꿀빛 목재 선.
@@ -160,7 +160,7 @@ components:
 
 운영 UI의 Yeoni UI는 로컬 제공하는 Pretendard OFL 수정 서브셋이다. 출처와 라이선스는 docs/REUSE.md를 따른다. 운영 패널 최소 글자는 12px이며 숫자는 고정 폭으로 표시한다. 대화 전용 서체는 별도로 유지한다.
 
-**Display / Body Font:** Noto Sans KR, system-ui, Malgun Gothic, sans-serif.
+**Display / Body Font:** Yeoni UI, Malgun Gothic, sans-serif.
 **Dialogue Font:** Noto Serif KR, Nanum Myeongjo, serif.
 
 외부 웹폰트 로딩은 index.html에 없다. 지정 글꼴이 없는 환경에서는 명시된 대체 글꼴로 표시된다. 운영 정보는 빠르게 훑고, 대화는 넉넉한 행간으로 읽는다.

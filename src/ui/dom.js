@@ -63,11 +63,12 @@ export function toast(text, kind = '', ms = 2600) {
 }
 
 // 화면 위 떠오르는 숫자(+골드 등)
-export function floater(x, y, text, color) {
+export function floater(x, y, text, color, kind = '') {
   const box = $('#floaters');
   if (!box) return;
+  if (kind === 'hunt-loot') box.querySelectorAll('.hunt-loot').forEach(node => node.remove());
   const el = document.createElement('div');
-  el.className = 'floater';
+  el.className = `floater ${kind}`;
   el.style.left = `${x}px`; el.style.top = `${y}px`;
   if (color) el.style.color = color;
   el.textContent = text;

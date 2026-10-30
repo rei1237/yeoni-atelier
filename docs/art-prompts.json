@@ -4261,5 +4261,26 @@
     "sourceFile": "exec-ce6a5174-0cae-4070-ac81-916a27b4dcf8.png",
     "prompt": "Fix ONLY the duplicated left eyebrow in second closed-eye frame. Exactly one soft small eyebrow above each eye. Preserve four cells, pink lotus, scarf, character identity and all other pixels.",
     "normalization": "Generated eyebrow patch only, 33×30 at (420,186), feathered 3px; lossless WebP. 865 visible pixels changed, zero outside patch."
+  },
+  {
+    "id": "icons/luna_crescent_latte",
+    "tool": "image_gen built-in",
+    "sourceFile": "../art-originals/luna_crescent_latte.png",
+    "prompt": "Single crescent cream coffee on ivory porcelain, soft hand-painted fantasy café game illustration, transparent background, no text.",
+    "normalization": "128px WebP export"
+  },
+  {
+    "id": "icons/luna_berry_mille",
+    "tool": "image_gen built-in",
+    "sourceFile": "../art-originals/luna_berry_mille.png",
+    "prompt": "Single strawberry rose mille-feuille on ivory porcelain, soft hand-painted fantasy café game illustration, transparent background, no text.",
+    "normalization": "128px WebP export"
+  },
+  {
+    "id": "icons/luna_pumpkin_quiche",
+    "tool": "image_gen built-in",
+    "sourceFile": "../art-originals/luna_pumpkin_quiche.png",
+    "prompt": "Single golden pumpkin quiche on ivory porcelain, soft hand-painted fantasy café game illustration, transparent background, no text.",
+    "normalization": "128px WebP export"
   }
 ]

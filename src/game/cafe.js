@@ -18,7 +18,7 @@ import {CUSTOMER_WEALTH,wealthAt,hostRevenueMultiplier} from '../data/customer-w
 import { RULES } from '../config/rules.js';
 import { PDF } from '../config/balance.pdf.js';
 import { TEMP } from '../config/balance.temp.js';
-import { MENUS, MENU_ORDER, INGREDIENTS, ingredientCostOf } from '../data/menus.js';
+import { MENUS, MENU_ORDER, INGREDIENTS, ingredientCostOf, legacyIngredientCostOf, menuUnlocked } from '../data/menus.js';
 import { SPOTS, FURNITURE, cafeSpots, cafeLayout } from '../data/layout.js';
 import { PEOPLE, STAFF_CREW } from '../data/companions.js';
 import { emit, nextId, usableHosts } from './state.js';
@@ -153,7 +153,7 @@ function consume(state, job) {
   if (state.ledger.consumes[job.id]) return; // 같은 작업의 재료를 두 번 빼지 않는다
   for (const [id, n] of Object.entries(MENUS[job.menuId].ingredients)) state.stock[id] -= n;
   state.ledger.consumes[job.id] = true;
-  if (state.shift) state.shift.ingredientCost += ingredientCostOf(job.menuId);
+  if (state.shift) { job.ingredientCost = ingredientCostOf(job.menuId); state.shift.ingredientCost += job.ingredientCost; }
 }
 
 function startJob(state, sid, job, slot='current') {
@@ -169,7 +169,7 @@ function startJob(state, sid, job, slot='current') {
 export function cook(state, menuId, orderId=null, timing) {
   const m = MENUS[menuId];
   if (!m) return { ok: false, reason: '없는 메뉴입니다' };
-  if (!state.learned[menuId]) return { ok: false, reason: `${m.name} 레시피를 아직 배우지 않았습니다` };
+  if (!menuUnlocked(state,menuId)) return { ok: false, reason: `${m.name} 레시피를 아직 배우지 않았습니다` };
   const st = state.stations[m.station];
   if(orderId && (!state.orders[orderId] || state.orders[orderId].status!=='waiting' || state.orders[orderId].menuId!==menuId))return {ok:false,reason:'조리할 주문을 확인해 주세요'};
   if(orderId && [...stationJobs(st),...stationItems(st),...state.tray.filter(Boolean)].some(j=>j.orderId===orderId))return {ok:false,reason:'이미 준비 중인 주문입니다'};
@@ -236,7 +236,7 @@ export function cancelCook(state,jobId){
   const job=st[slot];state.ledger.cookRefunds??={};
   if(state.ledger.consumes[job.id]&&!state.ledger.cookRefunds[job.id]){
    for(const [id,n] of Object.entries(MENUS[job.menuId].ingredients))state.stock[id]=(state.stock[id]||0)+n;
-   state.shift.ingredientCost-=ingredientCostOf(job.menuId);state.ledger.cookRefunds[job.id]=true;
+   state.shift.ingredientCost-=job.ingredientCost ?? legacyIngredientCostOf(job.menuId);state.ledger.cookRefunds[job.id]=true;
   }
   st[slot]=slot==='next'?(st.queue||[]).shift()||null:null;emit('cookCancelled',{station:sid,menuId:job.menuId,reason:'선택한 조리 취소'});return {ok:true};
  }
@@ -245,7 +245,7 @@ export function cancelCook(state,jobId){
 
 // ── 메뉴 선택(늦은 주문 제한 포함)
 function menuAvailable(state, menuId) {
-  if (!state.learned[menuId]) return false;
+  if (!menuUnlocked(state,menuId)) return false;
   if (stockCheck(state, menuId).ok) return true;
   return state.tray.some(it => it && it.menuId === menuId && !it.reservedFor);
 }

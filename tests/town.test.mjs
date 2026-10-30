@@ -63,7 +63,7 @@ test('모카 식재료점: 준비 중엔 재료값만, 영업 중엔 긴급 배�
   const r = dispatch(s, { type: 'shop.buy', ingredientId: 'night_dew', qty: 1 });
   assert.ok(r.ok, r.reason);
   assert.equal(r.fee, 0);
-  assert.equal(s.gold, 1000 - 90);
+  assert.equal(s.gold, 1000 - 63);
   assert.equal(s.stats.nightDewObtained, 1);
   assert.ok(questView(s).find(q => q.id === 'q_special_ingredient').claimable);
 
@@ -72,7 +72,7 @@ test('모카 식재료점: 준비 중엔 재료값만, 영업 중엔 긴급 배�
   const r2 = dispatch(t, { type: 'shop.buy', ingredientId: 'night_dew', qty: 2 });
   assert.ok(r2.ok, r2.reason);
   assert.equal(r2.fee, TEMP.DELIVERY_FEE);
-  assert.equal(t.gold, 1000 - 180 - r2.fee);
+  assert.equal(t.gold, 1000 - 126 - r2.fee);
 });
 
 test('가게 확장: 테이블 값은 들일수록 오르고, 6·7번 테이블에도 다음 영업에서 손님이 앉는다', () => {

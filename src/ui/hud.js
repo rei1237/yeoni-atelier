@@ -33,7 +33,7 @@ import { assetIcon } from './asset-html.js';
 
 import { RULES } from '../config/rules.js';
 import { TEMP } from '../config/balance.temp.js';
-import { MENUS, INGREDIENTS } from '../data/menus.js';
+import { MENUS, INGREDIENTS, menuUnlocked } from '../data/menus.js';
 import { GEAR } from '../data/gear.js';
 import { FURNITURE, AREAS, SPOTS, FIXTURES, cafeLayout } from '../data/layout.js';
 import { HELP_KINDS } from '../data/lines.js';
@@ -218,7 +218,7 @@ function shiftPanel(state, ui) {
 
 function prepPanel(state) {
  const capacity=cafeCapacity(state),sc=startCheck(state), available=recruitView(state).filter(c=>c.status==='available');
- const readyMenus=Object.values(MENUS).filter(m=>state.learned[m.id]&&Object.entries(m.ingredients).every(([id,n])=>(state.stock[id]||0)>=n)).length;
+ const readyMenus=Object.values(MENUS).filter(m=>menuUnlocked(state,m.id)&&Object.entries(m.ingredients).every(([id,n])=>(state.stock[id]||0)>=n)).length;
  const summary=`<section class="prep-summary"><h2>오늘의 영업 준비</h2><dl><dt>준비된 메뉴</dt><dd>${readyMenus}종</dd><dt>테이블</dt><dd>${state.interior.furniture.filter(f=>FURNITURE[f.defId]?.table).length}개</dd><dt>직원 배치</dt><dd>${assignedHosts(state).length+3}/${capacity.staffSlots}명</dd><dt>수용 좌석</dt><dd>${capacity.seats} / 최대 ${capacity.tableLimit}</dd><dt>홀 담당</dt><dd>루나</dd><dt>주방 담당</dt><dd>루나 언니</dd></dl><p>${sc.ok?'문을 열 준비가 됐어요. 재료와 자리를 한 번 살펴볼까요?':esc(sc.reasons.join(' · '))}</p><div>${btn({action:'decor.open',label:'카페 꾸미기'})}${btn({action:'sheet.open',args:{sheet:'staffing'},label:'직원 배치'})}${btn({action:'decor.open',args:{space:'outdoor'},label:'정원·외부 꾸미기'})}${btn({action:'sheet.open',args:{sheet:'branches'},label:'지점 관리'})}</div></section>`;
  return `<div class="cafe-dock">${summary}<div class="day-plan"><span>${esc(dateLabel(state))}</span><span>행동력 ${state.ap?.left??0}/${maxActionPoints(state)}</span></div>${available.length?btn({action:'recruit.event',args:{id:available[0].id},cls:'new-friend',label:available[0].id==='seohanbi'?'봉인된 초대장이 도착했어요':`${esc(available[0].name)}의 초대장` }):''}${btn({action:'shift.start',cls:'primary open-cafe',disabled:!sc.ok,title:sc.ok?'10분 영업을 시작해요':sc.reasons.join(' / '),label:`${assetIcon('icons/fortune_latte')} 카페 문 열기 <small>10:00</small>`})}${navRow([['kitchen','주방'],['farm',placeLock(state,'farm')?'농장 🔒':'농장'],['town','마을'],['manage','수첩']])}</div>`;
 }

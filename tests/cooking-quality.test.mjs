@@ -25,6 +25,6 @@ test('취소된 완벽 작업은 음식·품질을 남기지 않고 재조리와
  const second=dispatch(s,{type:'order.quick',orderId:o.id});assert.notEqual(first.jobId,second.jobId);tick(s,10000);const it=s.tray.find(Boolean);assert.equal(it.quality,'good');assert.equal(it.orderId,o.id);assert.equal(s.stock.bean,stock-1);
 });
 test('아메리카노는 처음부터 원두 1개만 소모하고 옛 저장·메뉴 생성·레시피 비용과 일치한다',()=>{
- assert.deepEqual(MENUS.americano.ingredients,{bean:1});assert.equal(ingredientCostOf('americano'),30);const old=createGame();delete old.learned.americano;const r=deserialize(serialize(old));assert.equal(r.state.learned.americano,true);
+ assert.deepEqual(MENUS.americano.ingredients,{bean:1});assert.equal(ingredientCostOf('americano'),21);const old=createGame();delete old.learned.americano;const r=deserialize(serialize(old));assert.equal(r.state.learned.americano,true);
  const {s,g,v}=setup();s.learned=Object.fromEntries(Object.keys(MENUS).map(k=>[k,k==='americano']));s.stock=Object.fromEntries(Object.keys(s.stock).map(k=>[k,k==='bean'?5:0]));assert.equal(chooseMenu(s,60000,v),'americano');const o=placeOrder(s,v,'americano'),before=structuredClone(s.stock);const res=dispatch(s,{type:'order.quick',orderId:o.id,timing:50});assert.ok(res.ok);assert.equal(dispatch(s,{type:'order.quick',orderId:o.id,timing:0}).ok,false);assert.deepEqual(s.stock,{...before,bean:4});assert.equal(s.tray.filter(Boolean).length,0);tick(s,10000);assert.equal(s.tray.find(Boolean).menuId,'americano');assert.equal(s.tray.find(Boolean).quality,'perfect');
 });

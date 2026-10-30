@@ -23,14 +23,14 @@ const sameBag = (a, b) => {
 
 export function findRecipe(ingredients) {
   const bag = countOf(ingredients);
-  return MENU_ORDER.find(id => sameBag(MENUS[id].ingredients, bag)) || null;
+  return MENU_ORDER.find(id => !MENUS[id].lunaRank && sameBag(MENUS[id].ingredients, bag)) || null;
 }
 
 // 모르는 레시피 중 가장 많이 겹치는 것을 기준으로 힌트(모두 알면 전체 기준)
 export function comboHint(state, ingredients) {
   const bag = countOf(ingredients), k = ingredients.length;
-  let pool = MENU_ORDER.filter(id => !state.learned[id] && !MENUS[id].nominationOnly);
-  if (!pool.length) pool = MENU_ORDER.slice();
+  let pool = MENU_ORDER.filter(id => !state.learned[id] && !MENUS[id].nominationOnly && !MENUS[id].lunaRank);
+  if (!pool.length) pool = MENU_ORDER.filter(id => !MENUS[id].lunaRank);
   let best = { overlap: -1, size: 0 };
   for (const id of pool) {
     const ing = MENUS[id].ingredients, size = sizeOf(ing);

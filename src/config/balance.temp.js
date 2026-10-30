@@ -182,7 +182,7 @@ export const TEMP = Object.freeze({
   }),
 
   // ── 연이 선물 요리(준비 중). 10-28 요청: 어떤 메뉴든 5초 만에 완성, 조리 장면만 보여 준다. TEMP
-  GIFT_COOK_MS: 5000,
+  GIFT_COOK_MS: 3000,
 
   // ── 멤버 인기·무대 공연·정기 콘서트(10-28 경제 개편, 모두 임시). 공식은 game/fans.js
   FANS: Object.freeze({

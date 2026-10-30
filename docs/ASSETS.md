@@ -751,3 +751,11 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 - 호스트 튜토리얼 그림은 네오와 데스티노바 다섯 멤버의 기존 초상을 참조해 생성한 새 원화에서 제작했다. 기존 키와 크기는 유지한다.
 
 운세 수첩: `assets/illustrated/guides/fortune-yeoni-v2.webp`는 첨부된 연이 찻집 이미지를 인물·분위기 참고로 이미지 생성 도구에서 새로 제작했다. `assets/illustrated/tarot/00.webp`~`21.webp`는 Code Destiny 운명의 찻집 `DestinyCafe/caretaro` 대아르카나 원본을 모바일용으로 축소한 그림이며 번호 순서는 찻집 카드 매핑을 따른다.
+
+## 2026-10-30 루나 언니 인연 메뉴
+
+| 키 | 이름 | 크기 | 상태 |
+| --- | --- | --- | --- |
+| icons/luna_crescent_latte | 초승달 크림 커피 | 128×128 | 완료 |
+| icons/luna_berry_mille | 딸기 장미 밀푀유 | 128×128 | 완료 |
+| icons/luna_pumpkin_quiche | 황금 호박 키슈 | 128×128 | 완료 |
