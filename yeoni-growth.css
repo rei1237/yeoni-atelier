@@ -56,3 +56,11 @@ body[data-mode=hunt] .hunt-kit-details summary{min-height:44px;display:flex;alig
 body[data-mode=hunt] .hunt-kit-details[open] .hunt-kit{position:absolute;bottom:100%;left:0;z-index:34;min-width:220px;padding:8px;background:#20243a;border:2px solid #a58a71;box-shadow:3px 3px 0 #111426;overflow:auto}
 @media(max-width:899px){body[data-mode=hunt] .hunt-tools{grid-column:1/-1;grid-row:2;justify-content:space-between}.hunt-tools .hunt-kit-details{flex:1}}
 @media(min-width:900px){body[data-mode=hunt] .hunt-dock{grid-template-columns:minmax(220px,1fr) minmax(320px,560px) auto;gap:6px 12px}body[data-mode=hunt] .hunt-dock>.hunt-tools{grid-column:3;grid-row:1}body[data-mode=hunt] .hunt-dock>small{grid-column:1/-1;grid-row:2}body[data-mode=hunt] #panel{padding:5px 14px calc(5px + env(safe-area-inset-bottom))}}
+/* 전투 중 주변 지도: 참조 게임처럼 화면 위에 작게 유지한다. */
+.hunt-map-pop{z-index:10}
+.hunt-map-pop{width:166px;padding:7px;border:1px solid #9aafc6;border-radius:14px;background:rgba(16,31,50,.94);box-shadow:0 8px 22px rgba(0,0,0,.35)}
+.hunt-map-head{margin-bottom:4px;color:#eef5ff}.hunt-map-head button{min-height:44px;border-radius:8px}
+.hunt-map-canvas{width:150px;height:150px;border-radius:10px;border:1px solid #7188a5}
+.hunt-map-pop p{font-size:10px;line-height:1.4}.hunt-map-pop small{display:none}
+@media(max-width:700px){.hunt-map-pop{width:128px;padding:6px}.hunt-map-canvas{width:114px;height:114px}.hunt-map-pop p{display:none}}
+@media(max-height:520px){.hunt-map-pop{width:108px}.hunt-map-canvas{width:94px;height:94px}.hunt-map-pop p{display:none}}

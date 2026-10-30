@@ -1,9 +1,9 @@
 {
-  "version": "2026.10.30.8",
+  "version": "2026.10.30.9",
   "name": "연이의 아틀리에 · 주간 영업과 인연 이야기",
   "musicTracks": 103,
   "assetBytes": 17879958,
   "channel": "production",
-  "baseCommit": "b5904cc",
+  "baseCommit": "9aeccb0",
   "newTitleArt": true
 }

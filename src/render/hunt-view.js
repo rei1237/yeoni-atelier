@@ -123,11 +123,13 @@ export function drawHunt(ctx, state, world, w, h, opts = {}) {
     const warn = now < z.at, k = warn ? Math.max(0.15, Math.min(1, 1 - (z.at - now) / 1400)) : 1;
     ctx.save();
     ctx.fillStyle = warn ? 'rgba(230,70,90,0.28)' : z.puddle ? 'rgba(120,40,150,0.45)' : 'rgba(255,90,80,0.55)';
-    ctx.strokeStyle = warn ? 'rgba(255,170,170,0.95)' : 'rgba(255,225,205,0.95)'; ctx.lineWidth = 2;
+    ctx.strokeStyle = warn ? 'rgba(255,170,170,0.95)' : 'rgba(255,225,205,0.95)'; ctx.lineWidth = warn ? 2 : 3;
+    if (!warn && !opts.reducedMotion) { ctx.shadowColor = z.puddle ? '#b671db' : '#ff6d70'; ctx.shadowBlur = 14; }
     if (warn) ctx.setLineDash([8, 6]);
     if (z.kind === 'circle') {
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2); ctx.stroke();
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r * k, 0, Math.PI * 2); ctx.fill();
+      if (!warn) { ctx.shadowBlur=0; ctx.strokeStyle='rgba(255,230,220,.65)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(z.x,z.y,z.r*.72,0,Math.PI*2); ctx.stroke(); }
     } else if (z.kind === 'ring') { // 도넛: 안쪽은 안전
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2); ctx.moveTo(z.x + z.r0, z.y); ctx.arc(z.x, z.y, z.r0, 0, Math.PI * 2, true); ctx.stroke();
       ctx.beginPath(); ctx.arc(z.x, z.y, z.r0 + (z.r - z.r0) * k, 0, Math.PI * 2); ctx.moveTo(z.x + z.r0, z.y); ctx.arc(z.x, z.y, z.r0, 0, Math.PI * 2, true); ctx.fill();

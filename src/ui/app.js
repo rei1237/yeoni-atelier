@@ -96,7 +96,7 @@ let state = null;
 const SPEED_KEY='yeoni-atelier.play-speed.v1';
 const savedSpeed=()=>{try{const v=Number(storage.getItem(SPEED_KEY));return [1,2,3].includes(v)?v:1;}catch{return 1;}};
 function setPlaySpeed(v){ui.playSpeed=[1,2,3].includes(v)?v:1;try{storage.setItem(SPEED_KEY,String(ui.playSpeed));}catch{}}
-const ui = { playSpeed:savedSpeed(), camera:{zoom:1,x:0,y:0}, dev: DEV, hostDemo:HOST_DEMO, speed: 1, sheet: null, confirm: null, selectedSlot: null, recruitEvent: null, combo: [], discovery: null, ending: null, storageOk, hasSave: hasSave(storage, SAVE_KEY) };
+const ui = { huntMap:true, playSpeed:savedSpeed(), camera:{zoom:1,x:0,y:0}, dev: DEV, hostDemo:HOST_DEMO, speed: 1, sheet: null, confirm: null, selectedSlot: null, recruitEvent: null, combo: [], discovery: null, ending: null, storageOk, hasSave: hasSave(storage, SAVE_KEY) };
 ui.canFullscreen=!!document.fullscreenEnabled&&typeof document.documentElement.requestFullscreen==='function';
 document.addEventListener('fullscreenchange',()=>{ui.fullscreen=!!document.fullscreenElement;if(!ui.fullscreen)ui.huntFullscreen=false;render(true);});
 if (DEV) document.documentElement.classList.add('dev');
@@ -788,7 +788,7 @@ function render(force = false) {
   document.body.dataset.editing=state?.interior?.draft?'true':'false';
   document.body.dataset.cafeFocus=['prep','shift'].includes(state?.mode)&&!state.interior.draft?'true':'false';
   if(!state||state.mode==='hunt')ui.screen=null;
-  if(state?.mode!=='hunt')ui.huntMap=false;
+  if(state?.mode!=='hunt')ui.huntMap=true;
   if(huntFullscreenEnds(state,ui,!!document.fullscreenElement)){ui.huntFullscreen=false;document.exitFullscreen?.()?.catch?.(()=>{});}
   document.getElementById('app').hidden=!!ui.screen;
   const world=document.getElementById('world-screen');world.hidden=!ui.screen;
