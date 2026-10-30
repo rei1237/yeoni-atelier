@@ -47,7 +47,7 @@ import { createFrameLoop } from '../core/frame-loop.js';
 import { createJoystick } from '../core/joystick.js';
 import { loadAssetImages, imageFor, ASSETS } from '../render/assets.js';
 import { talkingKey } from '../render/sprite-renderer.js';
-import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe } from '../render/cafe-view.js';
+import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe, canvasDpr } from '../render/cafe-view.js';
 import { AREAS } from '../data/layout.js';
 import { gardenItem } from '../game/grounds.js';
 import { decorDirty, purchaseGate, placedNote } from './decor-screen.js';
@@ -112,8 +112,8 @@ function stageBounds(){const b=cafeBounds(state),a=state?.interior.draft&&AREAS.
 function resize() {
   const r = el.stage.getBoundingClientRect();
   document.documentElement.style.setProperty('--cafe-stage-height', `${r.height}px`);
-  dpr = Math.min(3, window.devicePixelRatio || 1); // 3배 화면 휴대폰에서도 캔버스가 늘어나 흐려지지 않게
   cssW = Math.max(1, el.stage.clientWidth); cssH = Math.max(1, el.stage.clientHeight);
+  dpr = canvasDpr(cssW, cssH, window.devicePixelRatio); // 3배 화면 휴대폰에서도 캔버스가 늘어나 흐려지지 않게
   el.canvas.width = Math.round(cssW * dpr); el.canvas.height = Math.round(cssH * dpr);
   el.canvas.style.width = `${cssW}px`; el.canvas.style.height = `${cssH}px`;
   view = computeView(cssW, cssH,{...ui.camera,...stageBounds()});
