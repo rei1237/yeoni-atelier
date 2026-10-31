@@ -1,0 +1,762 @@
+[
+  {
+    "path": "assets/illustrated/actors/bambi_stage.webp",
+    "original": 69938,
+    "mobile": 55930,
+    "size": [
+      384,
+      288
+    ],
+    "psnr": 36.19
+  },
+  {
+    "path": "assets/illustrated/actors/customer_hoodie.webp",
+    "original": 60112,
+    "mobile": 48386,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 35.59
+  },
+  {
+    "path": "assets/illustrated/actors/customer_hoodie_transition.webp",
+    "original": 71062,
+    "mobile": 57510,
+    "size": [
+      384,
+      480
+    ],
+    "psnr": 35.63
+  },
+  {
+    "path": "assets/illustrated/actors/customer_suit.webp",
+    "original": 55254,
+    "mobile": 44696,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 36.12
+  },
+  {
+    "path": "assets/illustrated/actors/customer_suit_seated.webp",
+    "original": 48174,
+    "mobile": 38252,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 35.8
+  },
+  {
+    "path": "assets/illustrated/actors/customer_suit_transition.webp",
+    "original": 61156,
+    "mobile": 48388,
+    "size": [
+      384,
+      480
+    ],
+    "psnr": 35.81
+  },
+  {
+    "path": "assets/illustrated/actors/luna_close.webp",
+    "original": 53828,
+    "mobile": 43594,
+    "size": [
+      384,
+      288
+    ],
+    "psnr": 35.74
+  },
+  {
+    "path": "assets/illustrated/actors/lune_stage.webp",
+    "original": 84172,
+    "mobile": 65674,
+    "size": [
+      384,
+      288
+    ],
+    "psnr": 36.34
+  },
+  {
+    "path": "assets/illustrated/actors/neo.webp",
+    "original": 58456,
+    "mobile": 46884,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 36.82
+  },
+  {
+    "path": "assets/illustrated/actors/neo@blossom_haori.webp",
+    "original": 83308,
+    "mobile": 68336,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 36.8
+  },
+  {
+    "path": "assets/illustrated/actors/neo@crescent_tailcoat.webp",
+    "original": 82308,
+    "mobile": 65202,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 37.22
+  },
+  {
+    "path": "assets/illustrated/actors/neo@host_first.webp",
+    "original": 76278,
+    "mobile": 61186,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 37.06
+  },
+  {
+    "path": "assets/illustrated/actors/neo@moonstone_robe.webp",
+    "original": 81638,
+    "mobile": 65272,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 37.11
+  },
+  {
+    "path": "assets/illustrated/actors/neo@rain_coat.webp",
+    "original": 74880,
+    "mobile": 60340,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 36.68
+  },
+  {
+    "path": "assets/illustrated/actors/neo@summer_linen.webp",
+    "original": 62680,
+    "mobile": 52644,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 37.2
+  },
+  {
+    "path": "assets/illustrated/actors/neo@vest_night.webp",
+    "original": 73058,
+    "mobile": 58416,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 37.24
+  },
+  {
+    "path": "assets/illustrated/actors/neo@winter_coat.webp",
+    "original": 78366,
+    "mobile": 63558,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 37.51
+  },
+  {
+    "path": "assets/illustrated/actors/neo@wood_suit.webp",
+    "original": 67720,
+    "mobile": 57528,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 36.25
+  },
+  {
+    "path": "assets/illustrated/actors/neo_close.webp",
+    "original": 53950,
+    "mobile": 42018,
+    "size": [
+      384,
+      288
+    ],
+    "psnr": 36.97
+  },
+  {
+    "path": "assets/illustrated/actors/neo_stage.webp",
+    "original": 42286,
+    "mobile": 34572,
+    "size": [
+      384,
+      288
+    ],
+    "psnr": 36.78
+  },
+  {
+    "path": "assets/illustrated/actors/raven_stage.webp",
+    "original": 77112,
+    "mobile": 56144,
+    "size": [
+      384,
+      288
+    ],
+    "psnr": 36.24
+  },
+  {
+    "path": "assets/illustrated/actors/seohanbi.webp",
+    "original": 91198,
+    "mobile": 74498,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 37.2
+  },
+  {
+    "path": "assets/illustrated/actors/solv@solv_formal.webp",
+    "original": 85234,
+    "mobile": 71898,
+    "size": [
+      384,
+      384
+    ],
+    "psnr": 37.47
+  },
+  {
+    "path": "assets/illustrated/actors/solv_stage.webp",
+    "original": 69630,
+    "mobile": 51656,
+    "size": [
+      384,
+      288
+    ],
+    "psnr": 36.62
+  },
+  {
+    "path": "assets/illustrated/actors/yeoni_cheer.webp",
+    "original": 68644,
+    "mobile": 51600,
+    "size": [
+      384,
+      288
+    ],
+    "psnr": 35.74
+  },
+  {
+    "path": "assets/illustrated/actors/yeoni_cook_bake.webp",
+    "original": 68676,
+    "mobile": 53842,
+    "size": [
+      384,
+      288
+    ],
+    "psnr": 35.76
+  },
+  {
+    "path": "assets/illustrated/actors/yeoni_cook_drink.webp",
+    "original": 70042,
+    "mobile": 52864,
+    "size": [
+      384,
+      288
+    ],
+    "psnr": 36.26
+  },
+  {
+    "path": "assets/illustrated/backgrounds/atelier_lit.webp",
+    "original": 73430,
+    "mobile": 61696,
+    "size": [
+      640,
+      427
+    ],
+    "psnr": 38.98
+  },
+  {
+    "path": "assets/illustrated/backgrounds/dressroom.webp",
+    "original": 89246,
+    "mobile": 74640,
+    "size": [
+      640,
+      427
+    ],
+    "psnr": 38.28
+  },
+  {
+    "path": "assets/illustrated/backgrounds/ending_bad.webp",
+    "original": 117592,
+    "mobile": 73806,
+    "size": [
+      640,
+      427
+    ],
+    "psnr": 37.69
+  },
+  {
+    "path": "assets/illustrated/backgrounds/ending_bad_cast.webp",
+    "original": 135584,
+    "mobile": 80918,
+    "size": [
+      640,
+      427
+    ],
+    "psnr": 37.22
+  },
+  {
+    "path": "assets/illustrated/backgrounds/ending_clear.webp",
+    "original": 133836,
+    "mobile": 88354,
+    "size": [
+      640,
+      427
+    ],
+    "psnr": 36.14
+  },
+  {
+    "path": "assets/illustrated/backgrounds/ending_close.webp",
+    "original": 125138,
+    "mobile": 86458,
+    "size": [
+      640,
+      427
+    ],
+    "psnr": 36.06
+  },
+  {
+    "path": "assets/illustrated/backgrounds/farm.webp",
+    "original": 124880,
+    "mobile": 102740,
+    "size": [
+      640,
+      427
+    ],
+    "psnr": 35.52
+  },
+  {
+    "path": "assets/illustrated/backgrounds/host_opening.webp",
+    "original": 136090,
+    "mobile": 87680,
+    "size": [
+      640,
+      427
+    ],
+    "psnr": 36.27
+  },
+  {
+    "path": "assets/illustrated/guides/armory.webp",
+    "original": 98758,
+    "mobile": 74520,
+    "size": [
+      640,
+      360
+    ],
+    "psnr": 37.23
+  },
+  {
+    "path": "assets/illustrated/guides/fortune-yeoni-v2.webp",
+    "original": 98132,
+    "mobile": 74116,
+    "size": [
+      640,
+      360
+    ],
+    "psnr": 36.33
+  },
+  {
+    "path": "assets/illustrated/talking/bambi.webp",
+    "original": 96118,
+    "mobile": 74706,
+    "size": [
+      960,
+      288
+    ],
+    "psnr": 36.93
+  },
+  {
+    "path": "assets/illustrated/talking/luna_sis.webp",
+    "original": 88622,
+    "mobile": 72866,
+    "size": [
+      960,
+      288
+    ],
+    "psnr": 37.39
+  },
+  {
+    "path": "assets/illustrated/talking/lune.webp",
+    "original": 108242,
+    "mobile": 87634,
+    "size": [
+      960,
+      288
+    ],
+    "psnr": 37.22
+  },
+  {
+    "path": "assets/illustrated/talking/neo_cat.webp",
+    "original": 79540,
+    "mobile": 63240,
+    "size": [
+      960,
+      288
+    ],
+    "psnr": 35.97
+  },
+  {
+    "path": "assets/illustrated/talking/neo_stage.webp",
+    "original": 69004,
+    "mobile": 53510,
+    "size": [
+      960,
+      288
+    ],
+    "psnr": 37.27
+  },
+  {
+    "path": "assets/illustrated/talking/seohanbi.webp",
+    "original": 80410,
+    "mobile": 60792,
+    "size": [
+      960,
+      288
+    ],
+    "psnr": 37.51
+  },
+  {
+    "path": "assets/illustrated/talking/yeoni_pig.webp",
+    "original": 210414,
+    "mobile": 50728,
+    "size": [
+      960,
+      288
+    ],
+    "psnr": 37.84
+  },
+  {
+    "path": "assets/illustrated/wardrobe/bambi@bambi_formal.webp",
+    "original": 78276,
+    "mobile": 61052,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.0
+  },
+  {
+    "path": "assets/illustrated/wardrobe/bambi@bambi_garden.webp",
+    "original": 63402,
+    "mobile": 52378,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.25
+  },
+  {
+    "path": "assets/illustrated/wardrobe/bambi@bambi_moon.webp",
+    "original": 76270,
+    "mobile": 59672,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.52
+  },
+  {
+    "path": "assets/illustrated/wardrobe/bambi@bambi_swim.webp",
+    "original": 57882,
+    "mobile": 46444,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 36.59
+  },
+  {
+    "path": "assets/illustrated/wardrobe/lune@lune_formal.webp",
+    "original": 94632,
+    "mobile": 74198,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 36.74
+  },
+  {
+    "path": "assets/illustrated/wardrobe/lune@lune_garden.webp",
+    "original": 89012,
+    "mobile": 70244,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 36.96
+  },
+  {
+    "path": "assets/illustrated/wardrobe/lune@lune_moon.webp",
+    "original": 81446,
+    "mobile": 65542,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.26
+  },
+  {
+    "path": "assets/illustrated/wardrobe/lune@lune_swim.webp",
+    "original": 70468,
+    "mobile": 58064,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 36.64
+  },
+  {
+    "path": "assets/illustrated/wardrobe/museong@museong_formal.webp",
+    "original": 71850,
+    "mobile": 59262,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.67
+  },
+  {
+    "path": "assets/illustrated/wardrobe/museong@museong_garden.webp",
+    "original": 68334,
+    "mobile": 54686,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.63
+  },
+  {
+    "path": "assets/illustrated/wardrobe/museong@museong_moon.webp",
+    "original": 68694,
+    "mobile": 54282,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.65
+  },
+  {
+    "path": "assets/illustrated/wardrobe/neo.webp",
+    "original": 50716,
+    "mobile": 39162,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.69
+  },
+  {
+    "path": "assets/illustrated/wardrobe/neo@blossom_haori.webp",
+    "original": 69282,
+    "mobile": 56680,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.46
+  },
+  {
+    "path": "assets/illustrated/wardrobe/neo@crescent_tailcoat.webp",
+    "original": 75662,
+    "mobile": 59594,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.68
+  },
+  {
+    "path": "assets/illustrated/wardrobe/neo@host_first.webp",
+    "original": 66842,
+    "mobile": 53116,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.59
+  },
+  {
+    "path": "assets/illustrated/wardrobe/neo@moonstone_robe.webp",
+    "original": 71034,
+    "mobile": 55642,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.57
+  },
+  {
+    "path": "assets/illustrated/wardrobe/neo@neo_swim.webp",
+    "original": 62692,
+    "mobile": 49802,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 36.19
+  },
+  {
+    "path": "assets/illustrated/wardrobe/neo@rain_coat.webp",
+    "original": 63786,
+    "mobile": 51942,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.35
+  },
+  {
+    "path": "assets/illustrated/wardrobe/neo@summer_linen.webp",
+    "original": 54416,
+    "mobile": 45654,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 38.0
+  },
+  {
+    "path": "assets/illustrated/wardrobe/neo@vest_night.webp",
+    "original": 62326,
+    "mobile": 49638,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.8
+  },
+  {
+    "path": "assets/illustrated/wardrobe/neo@winter_coat.webp",
+    "original": 65136,
+    "mobile": 53926,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 38.13
+  },
+  {
+    "path": "assets/illustrated/wardrobe/neo@wood_suit.webp",
+    "original": 64772,
+    "mobile": 51496,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.12
+  },
+  {
+    "path": "assets/illustrated/wardrobe/raven@raven_formal.webp",
+    "original": 82834,
+    "mobile": 63778,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.47
+  },
+  {
+    "path": "assets/illustrated/wardrobe/raven@raven_garden.webp",
+    "original": 68616,
+    "mobile": 55744,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.54
+  },
+  {
+    "path": "assets/illustrated/wardrobe/raven@raven_moon.webp",
+    "original": 76148,
+    "mobile": 60490,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.56
+  },
+  {
+    "path": "assets/illustrated/wardrobe/raven@raven_swim.webp",
+    "original": 58908,
+    "mobile": 46830,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 36.97
+  },
+  {
+    "path": "assets/illustrated/wardrobe/solv@solv_formal.webp",
+    "original": 78190,
+    "mobile": 60284,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.37
+  },
+  {
+    "path": "assets/illustrated/wardrobe/solv@solv_garden.webp",
+    "original": 65428,
+    "mobile": 52232,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.15
+  },
+  {
+    "path": "assets/illustrated/wardrobe/solv@solv_moon.webp",
+    "original": 67360,
+    "mobile": 53562,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.72
+  },
+  {
+    "path": "assets/illustrated/wardrobe/solv@solv_swim.webp",
+    "original": 60104,
+    "mobile": 47970,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 36.74
+  },
+  {
+    "path": "assets/illustrated/wardrobe/yun@yun_garden.webp",
+    "original": 61980,
+    "mobile": 50960,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.25
+  },
+  {
+    "path": "assets/illustrated/wardrobe/yun@yun_moon.webp",
+    "original": 60136,
+    "mobile": 49234,
+    "size": [
+      768,
+      192
+    ],
+    "psnr": 37.83
+  }
+]

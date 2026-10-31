@@ -6,6 +6,7 @@
 // 자세한 규격과 생성 프롬프트는 docs/ASSETS.md, AGENTS.md.
 
 import { ASSET_UPDATES } from './asset-updates.js';
+import { MOBILE_PATHS } from './mobile-paths.js';
 import { OUTFITS } from '../data/outfits.js';
 import { RECRUITABLE } from '../data/companions.js';
 import { DECOR_CATALOG } from '../data/decor-catalog.js';
@@ -152,7 +153,7 @@ export const BOOT_ASSETS = ['backgrounds/title','ui/loading','portraits/yeoni','
 const contentCrops={'objects/lamp':[14,0,70,128]};
 async function requestImage(id){
  if(!available.has(id))return null;const d=definitions.get(id);if(!d)return null;const src=d.image||d.path;
- if(!requests.has(src))requests.set(src,new Promise(resolve=>{const img=new Image();let timer=setTimeout(()=>resolve(null),12000);img.onload=()=>{clearTimeout(timer);const rect=contentCrops[id];if(!rect){resolve(img);return;}const cv=document.createElement('canvas');cv.width=rect[2];cv.height=rect[3];cv.getContext('2d').drawImage(img,...rect,0,0,cv.width,cv.height);const cropped=new Image();cropped.onload=()=>resolve(cropped);cropped.onerror=()=>resolve(img);cropped.src=cv.toDataURL('image/png');};img.onerror=()=>{clearTimeout(timer);resolve(null);};img.src=src;}));
+ if(!requests.has(src))requests.set(src,new Promise(resolve=>{const img=new Image(),selected=responsiveAssetPath(src);let timer=setTimeout(()=>resolve(null),12000),fallback=selected!==src;img.onload=()=>{clearTimeout(timer);const rect=contentCrops[id];if(!rect){resolve(img);return;}const cv=document.createElement('canvas');cv.width=rect[2];cv.height=rect[3];cv.getContext('2d').drawImage(img,...rect,0,0,cv.width,cv.height);const cropped=new Image();cropped.onload=()=>resolve(cropped);cropped.onerror=()=>resolve(img);cropped.src=cv.toDataURL('image/png');};img.onerror=()=>{if(fallback){fallback=false;img.src=src;return;}clearTimeout(timer);resolve(null);};img.src=selected;}));
  const img=await requests.get(src);if(img)loaded.set(id,img);else requests.delete(src);return img;
 }
 export async function loadAssetImages(manifestUrl='assets/manifest.json',{keys=BOOT_ASSETS,onProgress=()=>{}}={}){
@@ -167,9 +168,20 @@ export function imageFor(id){
 }
 // 10-29 큰 화면 전용 2배 시트(manifest.hd 에 적힌 경로의 _hd.webp). 실제로 크게 그릴 때만 받고, 받기 전·실패 시에는 기본 시트를 쓴다
 const hdLoaded = new Map(), hdRequested = new Set();
+const fullLoaded = new Map(), fullRequested = new Set();
 // 터치 기반 작은 화면은 기본 시트를 사용한다. 화면 회전 후에도 같은 등급을 유지한다.
 export function mobileAssetTier(host=globalThis){
  return !!host.matchMedia?.('(pointer: coarse)').matches && Math.min(host.screen?.width||Infinity,host.screen?.height||Infinity)<=600;
+}
+export function responsiveAssetPath(path,host=globalThis){
+ return path&&mobileAssetTier(host)&&MOBILE_PATHS.has(path)?path.replace(/^assets\//,'assets/mobile/'):path;
+}
+// 모바일에서 크게 확대할 때만 원본 시트를 추가로 읽는다.
+export function fullImageFor(id){
+ const key=definitions.has(id)?id:definitions.has(`actors/${id}`)?`actors/${id}`:`enemies/${id}`,d=definitions.get(key),src=d&&(d.image||d.path);
+ if(!src||!MOBILE_PATHS.has(src))return null;
+ if(!fullRequested.has(src)&&typeof Image!=='undefined'){fullRequested.add(src);const img=new Image();img.onload=()=>fullLoaded.set(src,img);img.src=src;}
+ return fullLoaded.get(src)||null;
 }
 export function hdImageFor(id, scale=1){
  if(mobileAssetTier())return null;

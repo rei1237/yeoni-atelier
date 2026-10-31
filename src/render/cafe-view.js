@@ -38,8 +38,8 @@ export function computeView(w,h,camera={}){
  const focusX=readable?w/2-tile*6-baseX:0,focusY=readable?h/2-tile*(expanded?8:5)-baseY:0;
  return {tile,ox:baseX+clamp(focusX+(camera.x||0),-extraX/2,extraX/2),oy:baseY+clamp(focusY+(camera.y||0),-extraY/2,extraY/2),w,h,cols,rows};
 }
-// 캔버스 화면 배율: 2배까지는 그대로, 3배 화면은 캔버스 픽셀이 약 400만을 넘지 않는 만큼만 더 쓴다(저사양 휴대폰 채우기 비용)
-export const canvasDpr=(w,h,device,mobile=false)=>Math.min(device||1,mobile?2:Math.max(2,Math.min(3,Math.sqrt(4e6/Math.max(1,w*h)))));
+// 작은 터치 화면은 더 넓어진 무대의 그리기 비용을 줄인다. 큰 화면은 기존 픽셀 예산을 따른다.
+export const canvasDpr=(w,h,device,mobile=false)=>Math.min(device||1,mobile?1.75:Math.max(2,Math.min(3,Math.sqrt(4e6/Math.max(1,w*h)))));
 export const cellToPx = (v, x, y) => ({ x: v.ox + x * v.tile, y: v.oy + y * v.tile });
 export const pxToCell = (v, px, py) => ({ x: Math.floor((px - v.ox) / v.tile), y: Math.floor((py - v.oy) / v.tile) });
 

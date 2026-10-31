@@ -37,7 +37,7 @@ export function drawDressroom(state, ui, now) {
   if(canvas.width!==384){canvas.width=384;canvas.height=384;}
   const ctx = canvas.getContext('2d');ctx.setTransform(2,0,0,2,0,0); ctx.clearRect(0, 0, 192, 192);
   const previewImage=imageFor(`wardrobe/${outfit?`${who}@${outfit}`:who}`);
-  if(previewImage){const direction=Math.max(0,['down','left','right','up'].indexOf(ui.dressDirection||'down'));ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(previewImage,direction*256,0,256,256,0,0,192,192);return;}
+  if(previewImage){const direction=Math.max(0,['down','left','right','up'].indexOf(ui.dressDirection||'down')),cell=previewImage.width/4;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(previewImage,direction*cell,0,cell,previewImage.height,0,0,192,192);return;}
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   drawActor(ctx, outfit ? `${who}@${outfit}` : who, { x: 96, y: 188, size: 184, body: OUTFITS[outfit]?.color, state: ui.dressPose || 'idle', facing: ui.dressDirection || 'down', t: reduced ? 0 : now });
 }

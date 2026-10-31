@@ -5,7 +5,7 @@ import {titleGameRoom,gameRoomSheet} from './game-room.js';
 import {arcanaSymbol} from './arcana.js';
 import {fortuneSheet,FORTUNE_SITE} from './fortune-sheet.js';
 import {loreSheet} from './lore.js';
-import { ASSETS } from '../render/assets.js';
+import { ASSETS, responsiveAssetPath } from '../render/assets.js';
 import {hostFeeQuote} from '../game/host-fees.js';
 import {catCafeActive} from '../game/cat-cafe-rules.js';
 import {worldCastSheet} from './world-cast.js';
@@ -601,7 +601,7 @@ function endingDialog(state, id) {
   const e = ENDINGS[id];
   const bonds = Object.entries(state.affinity || {}).map(([k, v]) => `${BONDS[k] ? bondName(state,k) : BOND_NAMES[k] || k} ${v}`).join(' · ');
   const endingHint=id==='bad'&&state.calendar?.turnsPerMonth===4?'분기 상환 기한까지 약속을 채우지 못해 가게를 내줬습니다. 다음에는 분기 목표와 남은 빚을 살피며 차근차근 갚아 보세요.':ENDING_HINT[id] || '';
-  return `<div class="dialog ending" role="dialog" aria-modal="true" aria-labelledby="ending-title"><h2 id="ending-title">${esc(e.title)}</h2><img class="ending-art" src="${esc(id==='bad'?'assets/illustrated/backgrounds/ending_bad_cast.webp':ASSETS.backgrounds['ending_'+id].path)}" alt="${esc(e.title)}의 마지막 풍경" width="960" height="640"><p class="small muted">꿀꿀 운세 외전 · 게임 오리지널 결말</p>
+  return `<div class="dialog ending" role="dialog" aria-modal="true" aria-labelledby="ending-title"><h2 id="ending-title">${esc(e.title)}</h2><img class="ending-art" src="${esc(responsiveAssetPath(id==='bad'?'assets/illustrated/backgrounds/ending_bad_cast.webp':ASSETS.backgrounds['ending_'+id].path))}" alt="${esc(e.title)}의 마지막 풍경" width="960" height="640"><p class="small muted">꿀꿀 운세 외전 · 게임 오리지널 결말</p>
     <div class="kv"><span>마지막 결산 남은 빚</span><b>${won(state.calendar.endedDebt ?? state.debt)}</b><span>갚은 총액</span><b>${won(state.repaidTotal)}</b><span>동료 친밀도</span><b>${esc(bonds)}</b></div>
     <p class="small">${esc(endingHint)}</p>
     <div class="stack">${id === 'bad' ? '' : btn({ action: 'ending.close', cls: 'primary', label: '☕ 후일담 영업 계속하기' })}${btn({ action: 'credits.open', cls: id === 'bad' ? 'primary' : '', label: '🎬 크레딧 보기' })}${btn({ action: 'story.replay', label: '📖 결말 다시 보기' })}${btn({ action: 'game.new', label: '🌱 새 게임' })}</div></div>`;

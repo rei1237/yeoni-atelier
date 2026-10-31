@@ -55,8 +55,8 @@ async function checkFolder(relative) {
  }
 }
 await checkFolder('assets/');
-// 안내별 그림은 열 때만 받는다. 기존 링크 호환 그림과 HD 시트를 보존하며 전체 예산을 46MB로 둔다.
-if(folderBytes>=46_000_000)errors.push('assets/ 전체 46MB 예산 초과: '+folderBytes+'바이트');
+// 원본과 모바일 경량본을 함께 배포하므로 전체 예산에 경량본을 더한다.
+if(folderBytes>=52_000_000)errors.push('assets/ 전체 52MB 예산 초과: '+folderBytes+'바이트');
 console.log('등록 에셋 '+count+'/'+manifest.ready.length+' · 런타임 '+totalBytes+'바이트 ('+(totalBytes/1e6).toFixed(2)+'MB)');
 console.log('로컬 보존 포함 '+localFiles+'파일 · '+localBytes+'바이트');
 console.log('배포 assets/ 전체 '+folderFiles+'파일 · '+folderBytes+'바이트 ('+(folderBytes/1e6).toFixed(2)+'MB)');

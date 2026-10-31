@@ -1,5 +1,5 @@
 import { btn,esc } from './dom.js';
-import { ASSETS } from '../render/assets.js';
+import { ASSETS, responsiveAssetPath } from '../render/assets.js';
 import {firstDayStep} from '../game/first-day.js';
 import {shortIngredients} from '../game/delivery.js';
 export const GUIDES = Object.freeze({
@@ -59,8 +59,8 @@ export function guideForContext(s,ui){
  if(ui.cafeDrawer==='crew')return 'growth';
  return s.day===1&&s.mode==='prep'&&!s.tutorials?.firstdayintro?'firstday':null;
 }
-export function journeyHtml(s){const step=firstDayStep(s);return step?`<section class="first-day-guide" aria-label="첫날 실습 안내"><div><small>연이의 첫날 · ${s.mode==='prep'?'영업 준비':'첫 영업'}</small><b>${esc(step.title)}</b><p>${esc(step.text)}</p></div>${btn({action:step.action,args:step.args||{},cls:'primary',label:step.label})}</section>`:'';}
+export function journeyHtml(s){const step=firstDayStep(s);return step?`<section class="first-day-guide" aria-label="첫날 실습 안내"><details><summary><small>연이의 첫날 · ${s.mode==='prep'?'영업 준비':'첫 영업'}</small><b>${esc(step.title)}</b><span>안내 보기</span></summary><p>${esc(step.text)}</p></details>${btn({action:step.action,args:step.args||{},cls:'primary',label:step.label})}</section>`:'';}
 export function tutorialSheet(ui) {
  const id=GUIDES[ui.guideId]?ui.guideId:'cook',g=GUIDES[id],step=Math.min(ui.guideStep||0,g.steps.length-1);
- return `<h2><span class="guide-title">${ui.guideReturn?'처음 만나는 '+g.title:'튜토리얼'}</span>${btn({action:'guide.close',cls:'close ghost',label:'✕',title:'안내 닫기'})}</h2>${ui.guideReturn?'':`<label class="guide-selector">다시 볼 기능<select id="guide-selector">${Object.entries(GUIDES).map(([key,x])=>`<option value="${key}" ${key===id?'selected':''}>${esc(x.title)}</option>`).join('')}</select></label>`}<div class="guide-picture">${ASSETS.guides?.[g.image]?.path?`<img class="pixel-icon" src="${esc(ASSETS.guides[g.image].path)}" alt="" loading="eager">`: ''}</div><p class="eyebrow">${step+1} / ${g.steps.length}</p><h3>${esc(g.title)}</h3><p class="guide-instruction">${esc(g.steps[step])}</p><div class="row">${step?btn({action:'guide.back',label:'이전'}):''}${btn({action:'guide.next',cls:'primary grow',label:step===g.steps.length-1?'시작하기':'다음'})}</div><p class="small muted">기타 → 튜토리얼에서 언제든 다시 볼 수 있어요.</p>`;
+ return `<h2><span class="guide-title">${ui.guideReturn?'처음 만나는 '+g.title:'튜토리얼'}</span>${btn({action:'guide.close',cls:'close ghost',label:'✕',title:'안내 닫기'})}</h2>${ui.guideReturn?'':`<label class="guide-selector">다시 볼 기능<select id="guide-selector">${Object.entries(GUIDES).map(([key,x])=>`<option value="${key}" ${key===id?'selected':''}>${esc(x.title)}</option>`).join('')}</select></label>`}<div class="guide-picture">${ASSETS.guides?.[g.image]?.path?`<img class="pixel-icon" src="${esc(responsiveAssetPath(ASSETS.guides[g.image].path))}" alt="" loading="eager">`: ''}</div><p class="eyebrow">${step+1} / ${g.steps.length}</p><h3>${esc(g.title)}</h3><p class="guide-instruction">${esc(g.steps[step])}</p><div class="row">${step?btn({action:'guide.back',label:'이전'}):''}${btn({action:'guide.next',cls:'primary grow',label:step===g.steps.length-1?'시작하기':'다음'})}</div><p class="small muted">기타 → 튜토리얼에서 언제든 다시 볼 수 있어요.</p>`;
 }

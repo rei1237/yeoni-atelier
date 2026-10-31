@@ -44,9 +44,10 @@ test('한 손님이 여러 개 주문해도 팝오버·말풍선·주문 칩에 
   assert.equal((pop.match(/<li class="table-order/g)||[]).length,5);assert.match(pop,/남은 주문 4 \/ 5/);
   assert.match(pop,/st-done/);assert.match(pop,/st-carry/);assert.equal((pop.match(/data-action="order.quick"/g)||[]).length,3);
   assert.ok(Number(pop.match(/max-height:(\d+)px/)[1])<=v.h,'팝오버는 무대 높이를 넘지 않는다');
-  assert.match(tableBadgesHtml(s,v),new RegExp(`data-no="${guest.tableNo}"[^>]*aria-label="[^"]*남은 주문 4개"`));
+  assert.match(tableBadgesHtml(s,v),new RegExp(`data-no="${guest.tableNo}"[^>]*aria-label="[^"]*남은 주문 4건"`));
  }
- const chips=orderChipsHtml(s,visit);assert.equal((chips.match(/class="order-chip/g)||[]).length,4);assert.match(chips,/×2/);assert.match(chips,/st-done/);
+ const chips=orderChipsHtml(s,visit);assert.equal((chips.match(/class="order-chip/g)||[]).length,4);assert.match(chips,/×2/);assert.match(chips,/st-done/);assert.match(chips,/가져가는 중/);
+ const panel=panelHtml(s,{selectedSlot:null});assert.match(panel,new RegExp(`data-action="table.inspect"[^>]*data-no="${guest.tableNo}"[^>]*data-key="order-${guest.cid}"`));assert.match(panel,/남은 주문 4건/);
 });
 test('주방 설비는 한 번만 나오고 잠긴 자동화에는 인연 조건이 있다',()=>{
  const s=quietShift();assert.equal((panelHtml(s,{selectedSlot:null}).match(/class="station-dock"/g)||[]).length,1);
@@ -103,5 +104,5 @@ test('캔버스 배율은 3배 화면 휴대폰에서 3, 큰 화면에서는 예
  assert.equal(canvasDpr(390,844,3),3);assert.equal(canvasDpr(360,640,2),2);assert.equal(canvasDpr(1920,1080,1),1);
  assert.equal(canvasDpr(1920,1080,2),2);assert.equal(canvasDpr(1440,900,3),2);assert.equal(canvasDpr(390,844,undefined),1);
  const d=canvasDpr(800,900,3);assert.ok(d>2&&d<3&&800*900*d*d<=4e6+1);assert.equal(canvasDpr(1000,1300,3),2);
- assert.equal(canvasDpr(390,844,3,true),2);assert.equal(canvasDpr(390,844,1,true),1);
+ assert.equal(canvasDpr(390,844,3,true),1.75);assert.equal(canvasDpr(390,844,1,true),1);
 });
