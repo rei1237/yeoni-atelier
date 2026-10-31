@@ -252,6 +252,11 @@ body[data-mode] .lore-dialog h2 .lore-close.lore-close{flex:none;width:40px;heig
  body[data-mode=prep][data-cafe-focus=true] #panel .cafe-opening{flex:1 0 100%;min-width:0}
  body[data-mode=prep][data-cafe-focus=true] #panel .cafe-opening .cafe-open{min-width:0;width:100%}
 }
+/* 첫날 안내를 무대 위에 띄우지 않고 조작 영역 안에 둔다. */
+@media(max-width:899px) and (min-height:501px){
+ body[data-mode=prep][data-cafe-focus=true] #panel .first-day-guide{position:static;order:-1;max-width:100%;padding:6px 8px}
+ body[data-mode=prep][data-cafe-focus=true] #panel .first-day-guide p{font-size:12px;line-height:1.35}
+}
 /* 찻집 카드 원화는 픽셀 아이콘과 달리 부드럽게 축소한다. */
 .sheet .fortune-card.is-open img{image-rendering:auto;object-fit:contain;width:120px;height:180px}
 /* 캐릭터의 아르카나와 섬 초대장 */

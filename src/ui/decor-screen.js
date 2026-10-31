@@ -43,7 +43,7 @@ export function decorCoach(state,ui){
  const d=state.interior.draft;if(state.tutorials?.decorate||!d||d.checkoutPreview)return null;
  if(ui.decorSpace==='outdoor')return {n:0,text:'정원·외부는 가구를 고른 뒤 격자를 누르면 바로 옮겨져요. 대문에서 입구까지 길을 남겨 주세요.'};
  const s=d.itemBefore&&d.furniture.find(f=>f.uid===d.selected);
- if(!d.itemBefore)return d.undo?.length?{n:4,text:'좋아요! 배치 적용을 눌러야 실제 카페에 반영돼요.'}:{n:1,text:'아래 보유 가구 카드를 골라 보세요. 카페 안 가구를 눌러도 골라져요.'};
+ if(!d.itemBefore)return d.undo?.length?{n:4,text:'좋아요! 배치 적용을 눌러야 실제 카페에 반영돼요.'}:{n:1,text:d.furniture.some(f=>f.x==null)?'보관함의 가구를 골라 보세요. 추천 자리에 미리 놓여요.':'보유 가구를 고르거나 카페 안 가구를 눌러 보세요.'};
  return s?.x==null?{n:2,text:'바닥을 누르거나 추천 자리를 눌러 놓을 곳을 정해요.'}:{n:3,text:'반투명 미리보기를 확인하고 여기에 놓기를 눌러요. 회전으로 방향을 바꿔요.'};
 }
 

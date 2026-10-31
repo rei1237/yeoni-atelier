@@ -4,6 +4,7 @@ export function firstDayStep(s){
  if(!s||s.day!==1||s.tutorials?.firstday||s.interior.draft)return null;
  if(s.mode==='prep'){
   if(s.foodGifts?.job)return {id:'cooking',title:'연이가 첫 음식을 만들고 있어요',text:'완성하면 보관함에 담기고 경험치가 올라요. 창을 닫아도 조리는 계속돼요.',action:'gift.watch',label:'조리 장면 보기'};
+  if(!s.tutorials?.decorate&&s.interior.furniture.some(f=>f.x==null))return {id:'decorate',title:'보관함 가구로 카페를 꾸며요',text:'가구를 골라 놓고 배치를 적용해 보세요.',action:'decor.open',label:'가구 배치 배우기'};
   if(s.ap.left>0){
    if((s.yeoniGrowth?.counts?.cook||0)>0&&!Object.keys(s.ap.talked||{}).length)return {id:'talk',title:'동료와 첫 이야기를 나눠요',text:'대답을 고르면 행동력 1이 자동으로 사용되고 인연과 연이 경험치가 올라요.',action:'bond.talk',args:{id:'luna'},label:'루나와 이야기 · 행동력 1'};
    const m=Object.values(MENUS).find(m=>s.learned[m.id]&&!m.yeoniLevel&&Object.entries(m.ingredients).every(([id,n])=>(s.stock[id]||0)>=n));

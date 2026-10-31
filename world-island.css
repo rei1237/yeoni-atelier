@@ -59,6 +59,10 @@
 .boot-pig{position:absolute;left:126px;top:19px;width:104px;height:112px;animation:boot-pig-hop 1.55s ease-in-out infinite;transform-origin:50% 90%}
 .boot-pig::after{content:'';position:absolute;left:24px;bottom:-5px;width:56px;height:8px;border-radius:50%;background:#7a4a5c;opacity:.25;filter:blur(2px)}
 .boot-pig-body{position:absolute;inset:0;width:104px;height:104px;z-index:1;background-image:image-set(url('assets/illustrated/actors/yeoni_pig.webp') 1x,url('assets/illustrated/actors/yeoni_pig_hd.webp') 2x);background-position:0 0;background-size:416px 416px;background-repeat:no-repeat;animation:boot-pig-frames 1.6s step-end infinite}
+@media (pointer:coarse) and (max-width:600px), (pointer:coarse) and (max-height:600px){
+ .boot-yeoni-body{background-image:url('assets/illustrated/actors/yeoni_idle.webp')}
+ .boot-pig-body{background-image:url('assets/illustrated/actors/yeoni_pig.webp')}
+}
 .boot-yeoni i:nth-of-type(1){left:10px}.boot-yeoni i:nth-of-type(2){left:222px}.boot-yeoni i:nth-of-type(3){left:125px;bottom:75px}
 @keyframes boot-welcome{0%{background-position:0 0}12%{background-position:0 -128px}27%{background-position:-128px -128px}42%{background-position:-256px -128px}57%{background-position:-128px -128px}72%{background-position:-384px -128px}86%{background-position:-256px 0}100%{background-position:0 0}}
 @keyframes boot-pig-frames{0%,100%{background-position:0 0}25%{background-position:-104px 0}50%{background-position:-208px 0}75%{background-position:-312px 0}}

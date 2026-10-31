@@ -79,7 +79,7 @@ body[data-editing=true] .toasts{top:72px}
 body[data-editing=true] .toast{font-size:12px;padding:7px 10px}
 @media(max-width:899px){
  body[data-editing=true] #panel:has(.decor-screen[data-moving=true]){flex:0 0 auto;height:auto;max-height:62dvh}
- .decor-nudge{display:none}
+ .decor-nudge{display:grid}
  .decor-grid{display:flex;overflow-x:auto;padding-bottom:4px;scroll-snap-type:x proximity}
  .decor-grid .decor-card{flex:0 0 104px;scroll-snap-align:start}
  .decor-grid .decor-empty{flex:1}
@@ -96,6 +96,12 @@ body[data-editing=true] .toast{font-size:12px;padding:7px 10px}
  .decor-coach p{font-size:11px}
 }
 @media(max-width:360px){.decor-tools button{font-size:12px;padding:6px 2px}.decor-seg button,.decor-tabs button{font-size:12px}}
+@media(max-width:899px){
+ .decor-screen[data-moving=true]{overflow-y:auto;overscroll-behavior:contain}
+ .decor-screen[data-moving=true] .decor-selection{padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+ .decor-screen[data-moving=true] .decor-nudge{gap:4px}
+ .decor-screen[data-moving=true] .decor-nudge button{min-height:44px}
+}
 /* 낮은 화면에서 배치 중이면 안내 줄을 접어 [여기에 놓기]가 잘리지 않게 */
 @media(max-height:700px){.decor-screen[data-moving=true] .decor-coach{display:none}.decor-coach p{font-size:11px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.decor-coach{margin-top:6px}.decor-body>.decor-hint{display:none}.decor-head{padding-block:6px}}
 .decor-price-actions{display:flex;flex-direction:column;gap:4px;align-items:stretch}.decor-price-actions button{white-space:nowrap;min-height:44px}

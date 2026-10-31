@@ -46,7 +46,7 @@ import { recordWallClock } from '../game/offline.js';
 import { SAVE_KEYS, memoryStorage, browserStorage, saveGame, loadGame, hasSave, resetSave } from '../core/save.js';
 import { createFrameLoop } from '../core/frame-loop.js';
 import { createJoystick } from '../core/joystick.js';
-import { loadAssetImages, imageFor, ASSETS } from '../render/assets.js';
+import { loadAssetImages, imageFor, ASSETS, mobileAssetTier } from '../render/assets.js';
 import { huntAssets } from '../render/hunt-assets.js';
 import { talkingKey } from '../render/sprite-renderer.js';
 import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe, canvasDpr } from '../render/cafe-view.js';
@@ -115,7 +115,7 @@ function resize() {
   const r = el.stage.getBoundingClientRect();
   document.documentElement.style.setProperty('--cafe-stage-height', `${r.height}px`);
   cssW = Math.max(1, el.stage.clientWidth); cssH = Math.max(1, el.stage.clientHeight);
-  dpr = canvasDpr(cssW, cssH, window.devicePixelRatio); // 3배 화면 휴대폰에서도 캔버스가 늘어나 흐려지지 않게
+  dpr = canvasDpr(cssW, cssH, window.devicePixelRatio, mobileAssetTier(window));
   el.canvas.width = Math.round(cssW * dpr); el.canvas.height = Math.round(cssH * dpr);
   el.canvas.style.width = `${cssW}px`; el.canvas.style.height = `${cssH}px`;
   view = computeView(cssW, cssH,{...ui.camera,...stageBounds()});
@@ -564,7 +564,7 @@ for (const t of ['shift.start', 'settlement.close', 'pause', 'resume', 'fever.ac
   'hunt.retreat', 'hunt.finish', 'hunt.next', 'hunt.chest', 'expand.table', 'stage.perform', 'concert.hold']) ACTIONS[t] = () => run({ type: t });
 ACTIONS['shift.start']=()=>{if(!state.tutorials?.opening){ui.guideReturn={kind:null};ui.guideId='opening';ui.guideStep=0;ui.guideAction='shift.start';ui.sheet={kind:'tutorial'};return;}if(run({type:'shift.start'}).ok){ui.cafeDrawer=null;ui.tablePop=null;ui.sheet=null;}};
 // 카페 꾸미기 진입점은 하나다. 월드맵(sheet.open town)을 거치지 않는다.
-ACTIONS['decor.open']=(d={})=>{const was=!!state?.interior.draft;if(!run({type:'interior.begin'}).ok)return;if(!was){history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.editTab='all';ui.editCategory='all';ui.editSearch='';ui.groundItem=null;ui.groundExpand=false;ui.decorArea=null;ui.decorSpace='indoor';ui.decorTab='owned';}ui.sheet=null;ui.screen=null;ui.cafeDrawer=null;ui.tablePop=null;if(d.tab)ui.decorTab=d.tab;if(d.space==='outdoor')ACTIONS['decor.space']({id:'outdoor'});};
+ACTIONS['decor.open']=(d={})=>{const was=!!state?.interior.draft;if(!run({type:'interior.begin'}).ok)return;if(!was){history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.editTab=!state.tutorials?.decorate&&state.interior.draft.furniture.some(f=>f.x==null)?'stored':'all';ui.editCategory='all';ui.editSearch='';ui.groundItem=null;ui.groundExpand=false;ui.decorArea=null;ui.decorSpace='indoor';ui.decorTab='owned';}ui.sheet=null;ui.screen=null;ui.cafeDrawer=null;ui.tablePop=null;if(d.tab)ui.decorTab=d.tab;if(d.space==='outdoor')ACTIONS['decor.space']({id:'outdoor'});};
 ACTIONS['interior.begin']=()=>ACTIONS['decor.open']();
 ACTIONS['interior.checkoutPreview']=()=>{const was=!!state?.interior.draft;if(run({type:'interior.checkoutPreview'}).ok){if(!was)history.pushState({yeoniScreen:null,yeoniEditor:true},'',location.pathname+location.search);ui.sheet=null;ui.screen=null;ui.cafeDrawer=null;ui.editTab='all';ui.editCategory='all';ui.editSearch='';}};
 ACTIONS['hunt.pick'] = d => run({ type: 'hunt.pick', index: n(d.index) });
@@ -849,7 +849,7 @@ function draw(t) {
   const draft = state.interior.draft;
   let problemUids;
   if (draft) problemUids = new Set(interiorPreview(state).problems.map(p => p.uid).filter(Boolean));
-  drawCafe(ctx, state, view, { selectedUid: draft?.selected ?? null, problemUids, focusArea: draft ? ui.decorArea : null, t, reducedMotion:motionPreference.matches, tagAvoid: ui.tagAvoid });
+  drawCafe(ctx, state, view, { selectedUid: draft?.selected ?? null, problemUids, focusArea: draft ? ui.decorArea : null, showAreas: draft && ui.decorTab==='expand', t, reducedMotion:motionPreference.matches, tagAvoid: ui.tagAvoid });
   for (const tb of state.tables) tablePx[tb.no] = cellToPx(view, tb.table.x + 0.5, tb.table.y);
 }
 

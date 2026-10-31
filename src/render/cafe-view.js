@@ -39,7 +39,7 @@ export function computeView(w,h,camera={}){
  return {tile,ox:baseX+clamp(focusX+(camera.x||0),-extraX/2,extraX/2),oy:baseY+clamp(focusY+(camera.y||0),-extraY/2,extraY/2),w,h,cols,rows};
 }
 // 캔버스 화면 배율: 2배까지는 그대로, 3배 화면은 캔버스 픽셀이 약 400만을 넘지 않는 만큼만 더 쓴다(저사양 휴대폰 채우기 비용)
-export const canvasDpr=(w,h,device)=>Math.min(device||1,Math.max(2,Math.min(3,Math.sqrt(4e6/Math.max(1,w*h)))));
+export const canvasDpr=(w,h,device,mobile=false)=>Math.min(device||1,mobile?2:Math.max(2,Math.min(3,Math.sqrt(4e6/Math.max(1,w*h)))));
 export const cellToPx = (v, x, y) => ({ x: v.ox + x * v.tile, y: v.oy + y * v.tile });
 export const pxToCell = (v, px, py) => ({ x: Math.floor((px - v.ox) / v.tile), y: Math.floor((py - v.oy) / v.tile) });
 
@@ -110,7 +110,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   }
   // 증축 경계와 안내판은 가구 편집 중에만 표시한다.
   const open = state.interior.areas || [];
-  for (const a of (state.interior.draft ? AREAS : [])) {
+  for (const a of (state.interior.draft && opts.showAreas ? AREAS : [])) {
     if (open.includes(a.id) || a.rect[0]>=v.cols || a.rect[1]>=v.rows) continue;
     const [x0,y0,x1,y1]=a.rect, p=P(x0,y0), aw=(x1-x0+1)*T, ah=(y1-y0+1)*T, focus=opts.focusArea===a.id;
     // 꾸미기 '공간 확장'에서 고른 구역은 장미빛으로 넓어질 면적을 보여 준다.
@@ -215,7 +215,7 @@ export function drawCafe(ctx, state, v, opts = {}) {
   if(state.mode==='shift')drawStations(ctx,state,v);
   // 피할 자리: 화면이 실제 말풍선·확대 버튼 크기를 넘겨 주면(opts.tagAvoid) 그것을, 없으면 tableBadgesHtml 기준점과 최소 폭 44px로 어림한다
   const badges = opts.tagAvoid || (state.mode === 'shift' ? state.tables.filter(t => t.customerId || t.state === 'dirty' || t.state === 'cleaning').map(t => { const b = P(t.table.x + .5, t.table.y + .15); return { x: b.x, y: b.y - 44 - T * .35, w: 44, h: 46 }; }) : []);
-  drawNameTags(ctx, tags, T * 1.8, badges);
+  if (!editing) drawNameTags(ctx, tags, T * 1.8, badges);
 
   // 편집 표시: 선택 가구와 문제 가구
   if (editing) {
@@ -227,7 +227,6 @@ export function drawCafe(ctx, state, v, opts = {}) {
       ctx.strokeStyle = bad ? '#b13f39' : '#4b704b';
       ctx.setLineDash(bad && !sel ? [5, 4] : []);
       for (const c of furnitureCells(f)) { const p = P(c.x, c.y);ctx.fillStyle=bad?'rgba(177,63,57,.28)':'rgba(75,112,75,.22)';ctx.fillRect(p.x,p.y,T,T); ctx.strokeRect(p.x + 2, p.y + 2, T - 4, T - 4); }
-      if(sel&&state.interior.draft.itemBefore){const b=cellsBox(furnitureCells(f).map(c=>[c.x,c.y])),p=P(b.x+b.w/2,b.y);label(ctx,bad?'여기는 놓을 수 없어요':'미리보기 · 여기에 놓기',p.x,p.y-8,Math.max(12,T*.32),bad?'#a32f2f':'#315734');}
       ctx.setLineDash([]);
     }
   }

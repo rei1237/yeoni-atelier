@@ -30,7 +30,7 @@ test('특별 메뉴는 레벨·직접 완성을 모두 충족한 뒤 등록, 저
  assert.ok(run(game,'serve',{itemId:item.id,tableNo:g.tableNo}).ok);tick(game,15000);assert.ok(game.reputation>=pop+MENUS[id].reputationBonus);const after=game.reputation;assert.equal(run(game,'serve',{itemId:item.id,tableNo:g.tableNo}).ok,false);assert.equal(game.reputation,after);
 });
 test('첫날 안내는 실제 행동력과 완성 상태를 따라가며 안내 읽기만으로 소모하지 않는다',()=>{
- let s=createGame();assert.equal(firstDayStep(s).id,'cook');const before=s.ap.left;run(s,'tutorial.seen',{id:'personal'});assert.equal(s.ap.left,before);
+ let s=createGame();assert.equal(firstDayStep(s).id,'decorate');const before=s.ap.left;run(s,'tutorial.seen',{id:'decorate'});assert.equal(firstDayStep(s).id,'cook');run(s,'tutorial.seen',{id:'personal'});assert.equal(s.ap.left,before);
  run(s,'gift.cook',{menuId:'americano',requestId:'day1'});assert.equal(firstDayStep(s).id,'cooking');tick(s,10000);assert.equal(firstDayStep(s).id,'talk');
  s=deserialize(serialize(s)).state;assert.equal(firstDayStep(s).id,'talk');s.ap.talked.luna=true;s.ap.left=1;assert.equal(firstDayStep(s).id,'cook');s.ap.left=0;assert.equal(firstDayStep(s).id,'open');s.day=2;assert.equal(firstDayStep(s),null);
  for(const id of Object.values(FEATURE_GUIDES))assert.ok(GUIDES[id]?.steps.length>=2);

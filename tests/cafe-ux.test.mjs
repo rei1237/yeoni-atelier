@@ -103,4 +103,5 @@ test('캔버스 배율은 3배 화면 휴대폰에서 3, 큰 화면에서는 예
  assert.equal(canvasDpr(390,844,3),3);assert.equal(canvasDpr(360,640,2),2);assert.equal(canvasDpr(1920,1080,1),1);
  assert.equal(canvasDpr(1920,1080,2),2);assert.equal(canvasDpr(1440,900,3),2);assert.equal(canvasDpr(390,844,undefined),1);
  const d=canvasDpr(800,900,3);assert.ok(d>2&&d<3&&800*900*d*d<=4e6+1);assert.equal(canvasDpr(1000,1300,3),2);
+ assert.equal(canvasDpr(390,844,3,true),2);assert.equal(canvasDpr(390,844,1,true),1);
 });
