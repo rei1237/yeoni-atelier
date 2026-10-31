@@ -167,7 +167,12 @@ export function imageFor(id){
 }
 // 10-29 큰 화면 전용 2배 시트(manifest.hd 에 적힌 경로의 _hd.webp). 실제로 크게 그릴 때만 받고, 받기 전·실패 시에는 기본 시트를 쓴다
 const hdLoaded = new Map(), hdRequested = new Set();
+// 터치 기반 작은 화면은 기본 시트를 사용한다. 화면 회전 후에도 같은 등급을 유지한다.
+export function mobileAssetTier(host=globalThis){
+ return !!host.matchMedia?.('(pointer: coarse)').matches && Math.min(host.screen?.width||Infinity,host.screen?.height||Infinity)<=600;
+}
 export function hdImageFor(id, scale=1){
+ if(mobileAssetTier())return null;
  const key=definitions.has(id)?id:definitions.has(`actors/${id}`)?`actors/${id}`:`enemies/${id}`,d=definitions.get(key),src=d&&(d.image||d.path);
  if(!src||!hdPaths.has(src))return null;
  const request=path=>{if(!hdRequested.has(path)&&typeof Image!=='undefined'){hdRequested.add(path);const img=new Image();img.onload=()=>hdLoaded.set(path,img);img.src=path;}};

@@ -13,8 +13,9 @@ test('타이밍은 프레임 수에 독립적이고 두 주문과 접근성 도�
 test('조리 장면은 해당 작업 ID의 진행률과 픽업 상태만 표시한다',()=>{
  const s=createGame(),c={menuId:'fortune_latte',jobId:'job-1'};s.stations.drink.parallel={id:'job-1',durationMs:10000,progressMs:3000};assert.equal(craftProduction(s,c).remaining,7);s.stations.drink.parallel.progressMs=9000;assert.equal(craftProduction(s,c).label,'접시에 담아요');s.stations.drink.parallel=null;s.tray[0]={jobId:'job-1',menuId:c.menuId};assert.equal(craftProduction(s,c).status,'ready');
 });
-test('요리 장면 인물은 화면 크기와 관계없이 2배 시트를 쓰고 루나 언니도 포함한다',async()=>{
+test('요리 장면은 큰 화면에서 2배 시트를 쓰고 루나 언니도 포함한다',async()=>{
  const {readFileSync,existsSync}=await import('node:fs');const css=readFileSync(new URL('../cooking-stage.css',import.meta.url),'utf8'),base=css.slice(0,css.indexOf('@media(max-width:380px)'));
  for(const [cls,file] of [['hd-drink','yeoni_cook_drink_hd'],['hd-bake','yeoni_cook_bake_hd'],['hd-luna-sis','luna_sis_cook_hd']]){assert.ok(base.includes(`.cook-chef.${cls}{background-image:url('assets/illustrated/actors/${file}.webp')`),cls);assert.ok(existsSync(new URL(`../assets/illustrated/actors/${file}.webp`,import.meta.url)));}
  assert.match(readFileSync(new URL('../src/ui/crafting.js',import.meta.url),'utf8'),/!personal\?' hd-luna-sis'/);
+ assert.match(base,/@media \(pointer:fine\), \(min-width:601px\) and \(min-height:601px\)/);
 });
