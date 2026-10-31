@@ -523,10 +523,12 @@
   },
   {
     "id": "actors/yeoni_pig",
-    "source": "exec-944ccaee-0633-4f8a-bd59-07401ae1661e.png",
-    "prompt": "Production game walking sprite sheet using the supplied canonical reference. Yeoni flower-pig form, adorable pale pink round pig, dark warm brown eyes, large pink lotus flower on head, lavender purple scarf tied at neck, curly pink tail, little hooves. Fine light-novel chibi illustration, crisp smooth edges, transparent background. EXACTLY 4 columns x 4 rows =16 full-body figures in uniform square cells. Row1 front/down facing, row2 facingLEFT, row3 facingRIGHT, row4 back/up facing. Four successive walking poses per row, alternate feet and small arm swings. Every figure same size and feet baseline, each fits entirely inside its cell with 15% transparent margin, no cropped ears/feet/tails. No labels, no borders, no extra rows, no shadows, no particles, no text. Square canvas. These sixteen cells must be precisely sliceable.",
-    "processing": "2026-10-26: whole-source alpha connected-component separation (no equal-grid crop), antialias fringe only, uniform sheet scale, fixed transparent cells; source bounds in sprite-crops.json",
-    "generationLog": "art-generation-log.json"
+    "source": "D:/Development/Assets/yeoni-farm-pig-20261031/flower-pig-walk-original.png",
+    "prompt": "분홍 연꽃과 보라색 목 리본을 유지한 아기 꽃돼지. 머리 65%의 둥근 얼굴, 짧고 통통한 팔다리, 작은 갈색 발굽, 부드러운 분홍 볼, 작은 코와 미소. 부드러운 코지 게임 일러스트. 실제 투명 배경의 4열×4행 전신 동작 시트, 동일 비율·카메라·발 기준, 글자·테두리·배경 없음. 앞·왼쪽·오른쪽·뒤의 네 방향별 서로 다른 걷기 4프레임.",
+    "processing": "2026-10-31: alpha silhouette extraction, common scale, foot anchor 64/122, base/HD/ultra WebP export.",
+    "generationLog": "art-generation-log.json",
+    "normalization": "image_gen 내장 도구 원화의 실제 알파 실루엣 16개를 분리. 두 시트에 공통 배율·발64,122 적용. 기본128/HD256/ultra512 셀별 재배치, WebP 출력. 원본 PNG 보존.",
+    "tool": "imagegen (built-in)"
   },
   {
     "id": "actors/luna",
@@ -2621,10 +2623,12 @@
   },
   {
     "id": "actors/yeoni_farm",
-    "tool": "imagegen",
-    "sourceFile": "exec-dc6cd89a-566f-4302-9825-a1dc5b4857c4.png",
-    "prompt": "Use reference as strict character identity: YEONI the small smooth pink flower PIG, floppy rounded pig ears, pink snout, brown eyes, pink lotus on head, purple neck scarf, short round limbs, NOT a furry fox or cat. Create a production transparent sprite sheet exactly 4 columns by 4 rows, 16 separate equally sized whole body poses with generous transparent gaps, no scene or ground. Facing 3/4 right in every frame, feet aligned to same baseline, stable body size. FOUR-FRAME sequential action per ROW. Row1 planting: holding seed pouch, crouching, scattering seeds with hoof, gently patting ground. Row2 watering: holds small gold watering can, lifts, tilts pouring tiny water arc, lowers. Row3 tending: little garden trowel lowered, gentle dig, brush dirt, relaxed finish. Row4 harvest: bends, lifts a small plain wicker basket, holds basket happily, returns upright. Keep any particles/tool connected within each figure bounds. Do not draw a particular crop in basket: actual crop icon added by game. Premium soft 2.5D chibi game art, expressive but anatomically consistent, actual transparent alpha, no labels/no borders/no text.",
-    "processing": "Fixed transparent cell with isolated source silhouette; WebP export."
+    "tool": "imagegen (built-in)",
+    "sourceFile": "flower-pig-farm-original.png",
+    "prompt": "분홍 연꽃과 보라색 목 리본을 유지한 아기 꽃돼지. 머리 65%의 둥근 얼굴, 짧고 통통한 팔다리, 작은 갈색 발굽, 부드러운 분홍 볼, 작은 코와 미소. 부드러운 코지 게임 일러스트. 실제 투명 배경의 4열×4행 전신 동작 시트, 동일 비율·카메라·발 기준, 글자·테두리·배경 없음. 씨앗 심기·물주기·돌보기·수확을 각 4단계 동작으로 표현. 작은 소품은 손에 연결하고 발 아래로 떨어뜨리지 않는다. 모든 수확 바구니는 비워 두고 실제 작물은 기존 게임 렌더러가 합성한다.",
+    "processing": "2026-10-31: alpha silhouette extraction, common scale, foot anchor 64/122, base/HD/ultra WebP export.",
+    "source": "D:/Development/Assets/yeoni-farm-pig-20261031/flower-pig-farm-original.png",
+    "normalization": "image_gen 내장 도구 원화의 실제 알파 실루엣 16개를 분리. 두 시트에 공통 배율·발64,122 적용. 기본128/HD256/ultra512 셀별 재배치, WebP 출력. 원본 PNG 보존."
   },
   {
     "id": "talking/yeoni",
