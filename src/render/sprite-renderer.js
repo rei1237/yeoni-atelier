@@ -3,7 +3,7 @@ import {cookingSockets,yeoniCookSheet} from './cooking-pose.js';
 // 캐릭터 그리기: 스프라이트 시트가 있으면 프레임을, 없으면 도형 대체를 그린다.
 // 같은 입력(상태·방향·시간)을 받으므로 시트를 넣어도 호출하는 쪽은 바뀌지 않는다.
 
-import { ASSETS, imageFor, hdImageFor, resolveState, actorDef } from './assets.js';
+import { ASSETS, imageFor, hdImageFor, fullImageFor, mobileAssetTier, resolveState, actorDef } from './assets.js';
 import { actorSocket } from '../data/actor-sockets.js';
 
 // 카페의 대기 동작. 발 기준점은 이동하지 않고 호흡·작은 몸 기울임만 표현한다.
@@ -41,7 +41,9 @@ export function drawActor(ctx, key, o) {
   // 화면 픽셀로 128px 셀보다 크게 그려지면 2배 시트로 바꾼다(고밀도 휴대폰·데스크톱 큰 화면·확대)
   const scale = base ? (o.size / def.frame.h) * Math.abs(ctx.getTransform?.().a || 1) : 0;
   const hd = base && scale > 1 ? hdImageFor(key,scale) : null;
-  const img = customerTint(hd || base, def), k = hd ? hd.width / base.width : 1;
+  const full = base && base.width < def.dimensions[0] && scale > .9 && mobileAssetTier() ? fullImageFor(key) : null;
+  const source = hd || full || base;
+  const img = customerTint(source, def), k = source ? source.width / def.dimensions[0] : 1;
   o={...o,actorKey:key};
   const pose=cafeIdlePose(key,o);
   if (pose) {
@@ -395,7 +397,7 @@ export function drawPortrait(ctx, key, expr, w, h, { frame = 0, talkingSheet = f
   if(talkingSheet){
     const talkKey=talkingKey(key);
     const sheet=imageFor(`talking/${talkKey}`), d=ASSETS.talking?.[talkKey];
-    if(sheet&&d){const fw=d.frame.w,fh=d.frame.h,k=Math.min(w/fw,h/fh);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(sheet,talkingFrame(key,frame)*fw,0,fw,fh,(w-fw*k)/2,h-fh*k,fw*k,fh*k);return;}
+    if(sheet&&d){const ratio=sheet.width/d.dimensions[0],fw=d.frame.w*ratio,fh=d.frame.h*ratio,k=Math.min(w/fw,h/fh);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(sheet,talkingFrame(key,frame)*fw,0,fw,fh,(w-fw*k)/2,h-fh*k,fw*k,fh*k);return;}
   }
   const actualKey = imageFor(`portraits/${key}`) ? key : key.split('@')[0];
   const def = ASSETS.portraits[actualKey];

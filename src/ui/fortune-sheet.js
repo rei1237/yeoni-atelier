@@ -2,6 +2,7 @@
 import {btn,esc} from './dom.js';
 import {TAROT_NOTES,FORTUNE_GUIDES,RELATION_NOTES} from '../data/fortune-guide.js';
 import {readFortune,parseDate} from '../game/fortune.js';
+import {responsiveAssetPath} from '../render/assets.js';
 
 export const FORTUNE_SITE='https://code-destiny.com/';
 export const FORTUNE_BIRTH_KEY='yeoni.fortune.birth';
@@ -23,7 +24,7 @@ export function fortuneSheet(ui,now=new Date()){
   ${row('서양 별자리',b.sign.name,b.sign.trait,b.sign.edge?'경계일 근처라 태어난 해·시각에 따라 옆 별자리일 수 있어.':'태양이 지나는 황도 12궁 날짜 기준이야.')}
  </section>`:`<p class="fortune-hint">생년월일을 넣으면 사주 일간·띠·별자리 풀이가 더해져요.</p>`;
  return `<h2>달빛 운세 수첩${btn({action:'sheet.close',cls:'close ghost',label:'✕',title:'닫기'})}</h2>
- <img class="fortune-cover" src="assets/illustrated/guides/fortune-yeoni-v2.webp" alt="연이와 함께 펼치는 달빛 운세 수첩" width="1000" height="563">
+ <img class="fortune-cover" src="${responsiveAssetPath('assets/illustrated/guides/fortune-yeoni-v2.webp')}" alt="연이와 함께 펼치는 달빛 운세 수첩" width="1000" height="563">
  <p class="fortune-date">${esc(f.dateKey)} · 오늘 일진 ${esc(f.day.hanja)}(${esc(f.day.hangul)})일 · ${esc(f.day.elementName)} 기운 · 오행의 상징색 ${esc(f.day.color)}</p>
  <section class="fortune-section fortune-tarot fortune-step"><h3>오늘의 타로 한 장</h3>${card}<p class="fortune-basis">네오: 같은 날, 같은 생일이면 몇 번을 열어도 같은 카드야. 다시 뽑기는 없어.</p></section>
  <section class="fortune-section fortune-step"><h3>나의 생일</h3><label class="fortune-birth">생년월일(양력, 선택)<input type="date" id="fortune-birth" min="1900-01-01" max="${todayKey}" aria-describedby="fortune-birth-help" aria-invalid="${invalid}" value="${esc(parsed?ui.fortuneBirth:'')}"></label>

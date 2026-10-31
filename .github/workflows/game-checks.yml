@@ -21,3 +21,4 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install Pillow==12.3.0 numpy==2.3.5
       - run: python tools/check-sprites.py
+      - run: python tools/check-mobile-assets.py

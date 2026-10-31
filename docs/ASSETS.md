@@ -801,3 +801,10 @@ KFP player 원본은128px격자로 자르지 않는다. check-sprites.py가 실�
 | guides/tutorial_outfits | assets/illustrated/guides/tutorial-outfits.webp | 480×310 | 완료 |
 | guides/tutorial_bonds | assets/illustrated/guides/tutorial-bonds.webp | 480×310 | 완료 |
 | guides/tutorial_fortune | assets/illustrated/guides/tutorial-fortune.webp | 480×310 | 완료 |
+# 모바일 이미지 경량본
+
+작은 터치 화면은 `assets/mobile-manifest.json`에 등록된 경량본을 사용하고, 데스크톱은 기존 원본과 HD 시트를 사용한다. 등록되지 않은 그림은 기존 파일을 공유한다. 원본과 PNG 보존본은 변경하지 않는다.
+
+`tools/generate-mobile-assets.py`는 추적 중인 기본 WebP를 검사해 전송량이 15% 이상 줄고 알파와 화질 기준을 통과한 후보만 등록한다. 캐릭터·대화·의상 시트는 프레임을 개별 축소하고 렌더러가 실제 시트 크기로 좌표를 보정한다. 모바일에서 캐릭터를 크게 확대하면 원본을 추가로 불러온다. 경량본 로딩이 실패하면 원본을 사용한다.
+
+검증은 `python tools/check-mobile-assets.py`를 사용한다. 작은 이미지나 기준을 통과하지 못한 이미지를 무리하게 재인코딩하지 않으며, 외부 음악 표지 등 이 저장소 밖의 이미지는 변환 대상이 아니다.

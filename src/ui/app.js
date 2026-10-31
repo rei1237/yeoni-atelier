@@ -47,6 +47,8 @@ import { SAVE_KEYS, memoryStorage, browserStorage, saveGame, loadGame, hasSave, 
 import { createFrameLoop } from '../core/frame-loop.js';
 import { createJoystick } from '../core/joystick.js';
 import { loadAssetImages, imageFor, ASSETS, mobileAssetTier } from '../render/assets.js';
+// HTML 이미지 경량본을 받지 못하면 한 번만 원본을 다시 요청한다.
+document.addEventListener('error',e=>{const img=e.target;if(img instanceof HTMLImageElement){const src=img.getAttribute('src');if(src?.startsWith('assets/mobile/'))img.src=src.replace('assets/mobile/','assets/');}},true);
 import { huntAssets } from '../render/hunt-assets.js';
 import { talkingKey } from '../render/sprite-renderer.js';
 import { cafeBounds, computeView, cellToPx, pxToCell, drawCafe, canvasDpr } from '../render/cafe-view.js';
@@ -443,6 +445,7 @@ const ACTIONS = {
   'dev.skip': () => { if (DEV && state) { handleEvents(tick(state, 60000, { input: { x: 0, y: 0 } })); save(); } },
 
   // 테이블·트레이
+  'table.inspect': d => {ui.cafeDrawer=null;ui.tablePop={no:n(d.no)};ui.sheet=null;},
   'table.tap': d => {
     const no = n(d.no);
     const it = ui.selectedSlot != null ? state.tray[ui.selectedSlot] : null;
@@ -614,9 +617,8 @@ ACTIONS['gift.cancelConfirm']=d=>{ui.confirm={title:'선물 조리를 취소할�
 ACTIONS['bond.gift'] = d => {const b=BONDS[d.id],g=d.gift===b?.gift.id?b.gift:d.gift===COMMON_GIFT.id?COMMON_GIFT:null;if(!g)return;ui.confirm={title:b.name+'에게 선물할까요?',text:g.name+' · '+g.cost+'G · 이번 순 선물 1회 사용',yesLabel:'구매해서 선물',onYes:()=>run({type:'bond.gift',id:d.id,giftId:d.gift})};};
 
 document.addEventListener('click', e => {
-  const cam=e.target.closest('[data-action^="camera."]');
-  if(cam){if(cam.dataset.action==='camera.fit')ui.camera={zoom:1,x:0,y:0,overview:true};else {ui.camera.overview=false;ui.camera.zoom=Math.max(1,Math.min(2.4,ui.camera.zoom+Number(cam.dataset.step)));}resize();render(true);return;}
-
+  const tools=document.querySelector('.cafe-compact-tools[open]');
+  if(tools&&(!tools.contains(e.target)||e.target.closest('button')))tools.open=false;
   if(ui.tablePop&&!e.target.closest('.table-pop,.table-badge,.hit')){ui.tablePop=null;render(true);}
   const b = e.target.closest('[data-action]');
   if (!b) return;
@@ -807,7 +809,6 @@ function render(force = false) {
   morph(el.panel, panelHtml(state, ui));
   morph(el.bubbles, state?.mode === 'shift' || state?.mode === 'hunt' ? bubblesHtml(ui) : '');
   morph(el.hits, hitsHtml(state, view, ui)+tableBadgesHtml(state,view)+tablePopHtml(state,view,ui));
-  document.getElementById('camera-controls').hidden=!state||state.mode==='hunt'||!!state.interior.draft&&ui.decorSpace==='outdoor';
   ui.tagAvoid=state&&state.mode!=='hunt'?domTagAvoid():null;
   const hunting=state?.mode==='hunt', h=state?.hunt;
   // 보스곡은 서한비(검은 호랑이) 전용. 일반 단계 보스는 깊이별 사냥곡
@@ -897,7 +898,7 @@ document.addEventListener('change',e=>{if(e.target.id==='hunt-stage'){ui.huntSta
 
 // 브라우저 확대에서도 논리 화면 좌표를 한 곳에서 계산한다.
 // 이름표가 피할 DOM 사각형(테이블 말풍선·확대 버튼)을 실제로 놓인 크기 그대로 캔버스 좌표로 바꾼다(x는 가운데)
-function domTagAvoid(){const cr=el.canvas.getBoundingClientRect();if(!cr.width||!cr.height)return null;const k=cssW/cr.width,q=cssH/cr.height,box=r=>({x:(r.left-cr.left+r.width/2)*k,y:(r.top-cr.top)*q,w:r.width*k,h:r.height*q});const out=[...el.hits.querySelectorAll('.table-badge')].map(b=>box(b.getBoundingClientRect()));const cam=document.getElementById('camera-controls');if(!cam.hidden&&cam.offsetParent)out.push(box(cam.getBoundingClientRect()));return out;}
+function domTagAvoid(){const cr=el.canvas.getBoundingClientRect();if(!cr.width||!cr.height)return null;const k=cssW/cr.width,q=cssH/cr.height,box=r=>({x:(r.left-cr.left+r.width/2)*k,y:(r.top-cr.top)*q,w:r.width*k,h:r.height*q});return [...el.hits.querySelectorAll('.table-badge')].map(b=>box(b.getBoundingClientRect()));}
 function canvasPoint(e){const r=el.canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*cssW/r.width,y:(e.clientY-r.top)*cssH/r.height};}
 let cameraDrag=null;
 el.stage.addEventListener('pointerdown',e=>{if(state?.mode==='hunt'||e.target.closest('button,.decor-grounds')||(ui.camera.zoom<=1&&view.tile*view.cols<=cssW&&view.tile*view.rows<=cssH))return;const p=canvasPoint(e);cameraDrag={x:p.x,y:p.y,px:ui.camera.x,py:ui.camera.y};el.stage.setPointerCapture(e.pointerId);});
